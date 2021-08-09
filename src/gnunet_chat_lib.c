@@ -923,7 +923,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
     file_bind_downlaod(file, callback, cls);
 
     GNUNET_FS_download_resume(file->download);
-    return GNUNET_NO;
+    return GNUNET_OK;
   }
 
   const uint64_t size = GNUNET_FS_uri_chk_get_file_size(file->uri);
@@ -942,7 +942,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
     if (callback)
       callback(cls, file, size, size);
 
-    return GNUNET_YES;
+    return GNUNET_OK;
   }
 
   file_bind_downlaod(file, callback, cls);
@@ -964,7 +964,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
   );
 
   GNUNET_free(filename);
-  return GNUNET_YES;
+  return GNUNET_OK;
 }
 
 

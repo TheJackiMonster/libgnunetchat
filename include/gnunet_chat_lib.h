@@ -35,166 +35,169 @@
 #include <gnunet/gnunet_util_lib.h>
 
 /**
- * TODO
+ * Enum for the different kinds of messages.
  */
 enum GNUNET_CHAT_MessageKind
 {
   /**
-   * TODO
+   * The kind to inform that a contact has joined a chat.
    */
   GNUNET_CHAT_KIND_JOIN = 1,       /**< GNUNET_CHAT_KIND_JOIN */
 
   /**
-   * TODO
+   * The kind to inform that a contact has left a chat.
    */
   GNUNET_CHAT_KIND_LEAVE = 2,      /**< GNUNET_CHAT_KIND_LEAVE */
 
   /**
-   * TODO
+   * The kind to inform that a contact has changed.
    */
   GNUNET_CHAT_KIND_CONTACT = 3,    /**< GNUNET_CHAT_KIND_CONTACT */
 
   /**
-   * TODO
+   * The kind to describe an invitation to a different chat.
    */
   GNUNET_CHAT_KIND_INVITATION = 4, /**< GNUNET_CHAT_KIND_INVITATION */
 
   /**
-   * TODO
+   * The kind to describe a text message.
    */
   GNUNET_CHAT_KIND_TEXT = 5,       /**< GNUNET_CHAT_KIND_TEXT */
 
   /**
-   * TODO
+   * The kind to describe a shared file.
    */
   GNUNET_CHAT_KIND_FILE = 6,       /**< GNUNET_CHAT_KIND_FILE */
 
   /**
-   * TODO
+   * The kind to inform about a deletion of a previous message.
    */
   GNUNET_CHAT_KIND_DELETION = 7,   /**< GNUNET_CHAT_KIND_DELETION */
 
   /**
-   * TODO
+   * An unknown kind of message.
    */
   GNUNET_CHAT_KIND_UNKNOWN = 0     /**< GNUNET_CHAT_KIND_UNKNOWN */
 };
 
 /**
- * TODO
+ * Struct of a chat handle.
  */
 struct GNUNET_CHAT_Handle;
 
 /**
- * TODO
+ * Struct of a chat contact.
  */
 struct GNUNET_CHAT_Contact;
 
 /**
- * TODO
+ * Struct of a chat group.
  */
 struct GNUNET_CHAT_Group;
 
 /**
- * TODO
+ * Struct of a chat context.
  */
 struct GNUNET_CHAT_Context;
 
 /**
- * TODO
+ * Struct of a chat message.
  */
 struct GNUNET_CHAT_Message;
 
 /**
- * TODO
+ * Struct of a chat file.
  */
 struct GNUNET_CHAT_File;
 
 /**
- * TODO
+ * Struct of a chat invitation.
  */
 struct GNUNET_CHAT_Invitation;
 
 /**
- * TODO
+ * Method called whenever an issue occurs regarding a certain chat context
+ * of a specific chat handle.
  *
- * @param cls
- * @param handle
- * @param context
- * @param reason
+ * @param[in/out] cls Closure from #GNUNET_CHAT_start
+ * @param[in/out] handle Chat handle
+ * @param[in/out] context Chat context
+ * @param[in] reason Reason indicating the issue
  */
 typedef void
 (*GNUNET_CHAT_WarningCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_CHAT_Context *context, int reason);
 
 /**
- * TODO
+ * Iterator over chat contacts of a specific chat handle.
  *
- * @param cls
- * @param handle
- * @param contact
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_iterate_contacts
+ * @param[in/out] handle Chat handle
+ * @param[in/out] contact Chat contact
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_ContactCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Iterator over chat groups of a specific chat handle.
  *
- * @param cls
- * @param handle
- * @param group
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_iterate_groups
+ * @param[in/out] handle Chat handle
+ * @param[in/out] group Chat group
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_GroupCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Group *group);
 
 /**
- * TODO
+ * Iterator over chat contacts in a specific chat group.
  *
- * @param cls
- * @param group
- * @param contact
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_group_iterate_contacts
+ * @param[in/out] group Chat group
+ * @param[in/out] contact Chat contact
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_GroupContactCallback) (void *cls, struct GNUNET_CHAT_Group *group,
                                     struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Iterator over chat messages in a specific chat context.
  *
- * @param cls
- * @param context
- * @param message
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_context_iterate_messages
+ * @param[in/out] context Chat context
+ * @param[in] message Chat message
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_ContextMessageCallback) (void *cls, struct GNUNET_CHAT_Context *context,
 				       const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Iterator over chat files in a specific chat context.
  *
- * @param cls
- * @param context
- * @param file
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_context_iterate_files
+ * @param[in/out] context Chat context
+ * @param[in/out] file Chat file
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_ContextFileCallback) (void *cls, struct GNUNET_CHAT_Context *context,
 				    struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Iterator over chat contacts in a chat to check whether they received a
+ * specific message or not.
  *
- * @param cls
- * @param message
- * @param contact
- * @param read_receipt
- * @return
+ * @param[in/out] cls Closure from #GNUNET_CHAT_message_get_read_receipt
+ * @param[in] message Chat message
+ * @param[in] contact Chat contact
+ * @param[in] read_receipt #GNUNET_YES if the message was received by the contact,
+ * 			   #GNUNET_NO otherwise
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls, const struct GNUNET_CHAT_Message *message,
@@ -202,50 +205,57 @@ typedef int
 					   int read_receipt);
 
 /**
- * TODO
+ * Method called during an upload of a specific file in a chat to share it.
  *
- * @param cls
- * @param file
- * @param completed
- * @param size
+ * @param[in/out] cls Closure from #GNUNET_CHAT_context_send_file
+ * @param[in] file Chat file
+ * @param[in] completed Amount of the file being uploaded (in bytes)
+ * @param[in] size Full size of the uploading file (in bytes)
  */
 typedef void
 (*GNUNET_CHAT_FileUploadCallback) (void *cls, const struct GNUNET_CHAT_File *file,
 				   uint64_t completed, uint64_t size);
 
 /**
- * TODO
+ * Method called during a download of a specific file in a chat which was shared.
  *
- * @param cls
- * @param file
- * @param completed
- * @param size
+ * @param[in/out] cls Closure from #GNUNET_CHAT_file_start_download
+ * @param[in] file Chat file
+ * @param[in] completed Amount of the file being downloaded (in bytes)
+ * @param[in] size Full size of the downloading file (in bytes)
  */
 typedef void
 (*GNUNET_CHAT_FileDownloadCallback) (void *cls, const struct GNUNET_CHAT_File *file,
 				     uint64_t completed, uint64_t size);
 
 /**
- * TODO
+ * Method called during an unindexing of a specific file in a chat which was
+ * uploaded before.
  *
- * @param cls
- * @param file
- * @param completed
- * @param size
+ * @param[in/out] cls Closure from #GNUNET_CHAT_file_unindex
+ * @param[in/out] file Chat file
+ * @param[in] completed Amount of the file being unindexed (in bytes)
+ * @param[in] size Full size of the unindexing file (in bytes)
  */
 typedef void
 (*GNUNET_CHAT_FileUnindexCallback) (void *cls, struct GNUNET_CHAT_File *file,
 				    uint64_t completed, uint64_t size);
 
 /**
- * TODO
+ * Start a chat handle with a certain configuration, an application <i>directory</i>
+ * and a selected user <i>name</i>.
  *
- * @param cfg
- * @param directory
- * @param name
- * @param warn_cb
- * @param warn_cls
- * @return
+ * A custom callback for warnings and message events can be provided optionally
+ * together with their respective closures.
+ *
+ * @param[in] cfg Configuration
+ * @param[in] directory Application directory path (optional)
+ * @param[in] name User name (optional)
+ * @param[in] warn_cb Callback for warnings (optional)
+ * @param[in/out] warn_cls Closure for warnings (optional)
+ * @param[in] msg_cb Callback for message events (optional)
+ * @param[in/out] msg_cls Closure for message events (optional)
+ * @return Chat handle
  */
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
@@ -255,58 +265,65 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls);
 
 /**
- * TODO
+ * Stops a chat handle closing all its remaining resources and frees the
+ * regarding memory.
  *
- * @param handle
+ * @param[in/out] handle Chat handle
  */
 void
 GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
 
 /**
- * TODO
+ * Updates a chat handle to renew the used ego to sign sent messages in active
+ * chats.
  *
- * @param handle
- * @return
+ * Updating the chat handle should only be used if necessary because the usage
+ * can require renewed exchanging of GNS entries.
+ *
+ * @param[in/out] handle Chat handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle);
 
 /**
- * TODO
+ * Updates the name of a chat handle for related communication.
  *
- * @param handle
- * @param name
- * @return
+ * @param[in/out] handle Chat handle
+ * @param[in] name New name or NULL
+ * @return #GNUNET_YES on success, #GNUNET_NO on failure and #GNUNET_SYSERR if <i>handle</i> is NULL
  */
 int
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
 		      const char *name);
 
 /**
- * TODO
+ * Returns the name of a chat handle for related communication or NULL if no
+ * name is set.
  *
- * @param handle
- * @return
+ * @param[in] handle Chat handle
+ * @return Name used by the handle or NULL
  */
 const char*
 GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle);
 
 /**
- * TODO
+ * Returns the public key of the used ego to verify signatures of sent messages.
  *
- * @param handle
- * @return
+ * @param[in] handle Chat handle
+ * @return Public key of the handles ego or NULL
  */
 const struct GNUNET_IDENTITY_PublicKey*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**
- * TODO
+ * Iterates through the contacts of a given chat <i>handle</i> with a selected
+ * callback and custom closure.
  *
- * @param handle
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] handle Chat handle
+ * @param[in] callback Callback for contact iteration (optional)
+ * @param[in/out] cls Closure for contact iteration (optional)
+ * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
@@ -314,22 +331,29 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 			      void *cls);
 
 /**
- * TODO
+ * Creates a new group chat to use with a given chat <i>handle</i> with an
+ * optional public <i>topic</i>.
  *
- * @param handle
- * @return
+ * If a specific <i>topic</i> is used, the created group will be publically
+ * available to join for others searching for the used topic. Otherwise the
+ * group will be private using a randomly generated key and others can only
+ * join the chat via a private invitation.
+ *
+ * @param[in/out] handle Chat handle
+ * @return New group chat
  */
 struct GNUNET_CHAT_Group *
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 			  const char* topic);
 
 /**
- * TODO
+ * Iterates through the groups of a given chat <i>handle</i> with a selected
+ * callback and custom closure.
  *
- * @param handle
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] handle Chat handle
+ * @param[in] callback Callback for group iteration (optional)
+ * @param[in/out] cls Closure for group iteration (optional)
+ * @return Amount of groups iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
@@ -337,134 +361,146 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 			    void *cls);
 
 /**
- * TODO
+ * Leaves the private chat with a specific <i>contact</i> and frees the
+ * regarding memory of the contact if there remains no common chat with it.
  *
- * @param contact
- * @return
+ * @param[in/out] contact Cntact
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Overrides the name of a given <i>contact</i> with a custom nick <i>name</i>
+ * which will be only used locally.
  *
- * @param contact Contact
- * @param name Custom nick name
+ * @param[in/out] contact Contact
+ * @param[in] name Custom nick name
  */
 void
 GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
 			      const char *name);
 
 /**
- * TODO
+ * Returns the provided name of a given <i>contact</i> or its custom nick name
+ * if it was overriden.
  *
- * @param contact Contact
+ * @param[in] contact Contact
  * @return Name or custom nick name
  */
 const char*
 GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Returns the public key of the used ego by a specific <i>contact</i> to
+ * verify signatures of sent messages.
  *
- * @param contact
- * @return
+ * @param[in] contact Contact
+ * @return Public key of the contacts ego or NULL
  */
 const struct GNUNET_IDENTITY_PublicKey*
 GNUNET_CHAT_contact_get_key (const struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Returns the chat context for a private chat with a given <i>contact</i>.
  *
- * @param contact Contact
+ * @param[in/out] contact Contact
  * @return Chat context
  */
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Sets a custom <i>user pointer</i> to a given <i>contact</i> so it can be
+ * accessed in contact related callbacks.
  *
- * @param contact
- * @param user_pointer
- * @return
+ * @param[in/out] contact Contact
+ * @param[in] user_pointer Custom user pointer
  */
 void
 GNUNET_CHAT_contact_set_user_pointer (struct GNUNET_CHAT_Contact *contact,
 				      void *user_pointer);
 
 /**
- * TODO
+ * Returns the custom user pointer of a given <i>contact</i> or NULL if it was
+ * not set any.
  *
- * @param contact
- * @return
+ * @param[in] contact Contact
+ * @return Custom user pointer or NULL
  */
 void*
 GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Leaves a specific <i>group</i> chat and frees its memory if it is not shared
+ * with other groups or contacts.
  *
- * @param group
- * @return
+ * @param[in/out] group Group
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group);
 
 /**
- * TODO
+ * Sets the name of a given <i>group</i> to a custom nick <i>name</i>
+ * which will be only used locally.
  *
- * @param group
- * @param name
+ * @param[in/out] group Group
+ * @param[in] name Custom nick name
  */
 void
 GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
 			    const char *name);
 
 /**
- * TODO
+ * Returns the custom nick name of a given <i>group</i> if it was overriden.
  *
- * @param group
- * @return
+ * @param[in] group Group
+ * @return Custom nick name or NULL
  */
 const char*
 GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group);
 
 /**
- * TODO
+ * Sets a custom <i>user pointer</i> to a given <i>group</i> so it can be
+ * accessed in group related callbacks.
  *
- * @param group
- * @param user_pointer
+ * @param[in/out] group Group
+ * @param[in] user_pointer Custom user pointer
  */
 void
 GNUNET_CHAT_group_set_user_pointer (struct GNUNET_CHAT_Group *group,
 				    void *user_pointer);
 
 /**
- * TODO
+ * Returns the custom user pointer of a given <i>group</i> or NULL if it was
+ * not set any.
  *
- * @param group
+ * @param[in] group Group
+ * @return Custom user pointer or NULL
  */
 void*
 GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group);
 
 /**
- * TODO
+ * Invites a specific <i>contact</i> to a given <i>group</i> via a privately
+ * sent invitation.
  *
- * @param group
- * @param contact
+ * @param[in/out] group Group
+ * @param[in/out] contact Contact
  */
 void
 GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
 				  struct GNUNET_CHAT_Contact *contact);
 
 /**
- * TODO
+ * Iterates through the contacts of a given <i>group</i> with a selected
+ * callback and custom closure.
  *
- * @param group
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] group Group
+ * @param[in] callback Callback for contact iteration (optional)
+ * @param[in/out] cls Closure for contact iteration (optional)
+ * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
@@ -472,49 +508,56 @@ GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
 				    void *cls);
 
 /**
- * TODO
+ * Returns the chat context for a chat with a given <i>group</i>.
  *
- * @param group
- * @return
+ * @param[in/out] group Group
+ * @return Chat context
  */
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group);
 
 /**
- * TODO
+ * Sets a custom <i>user pointer</i> to a given chat <i>context</i> so it can
+ * be accessed in chat context related callbacks.
  *
- * @param context
- * @param user_pointer
+ * @param[in/out] context Chat context
+ * @param[in] user_pointer Custom user pointer
  */
 void
 GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
 				      void *user_pointer);
 
 /**
- * TODO
+ * Returns the custom user pointer of a given chat <i>context</i> or NULL if it
+ * was not set any.
  *
- * @param context
+ * @param[in] context Chat context
+ * @return Custom user pointer or NULL
  */
 void*
 GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context);
 
 /**
- * TODO
+ * Sends a selected <i>text</i> into a given chat <i>context</i>.
  *
- * @param context
- * @param text
- * @return
+ * @param[in/out] context Chat context
+ * @param[in] text Text
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 			       const char *text);
 
 /**
- * TODO
+ * Uploads a local file specified via its <i>path</i> using symmetric encryption
+ * and shares the regarding information to download and decrypt it in a given
+ * chat <i>context</i>.
  *
- * @param context
- * @param path
- * @return
+ * @param[in/out] context Chat context
+ * @param[in] path Local file path
+ * @param[in] callback Callback for file uploading (optional)
+ * @param[in/out] cls Closure for file uploading (optional)
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
@@ -523,23 +566,25 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       void *cls);
 
 /**
- * TODO
+ * Shares the information to download and decrypt a specific <i>file</i> from
+ * another chat in a given chat <i>context</i>.
  *
- * @param context
- * @param file
- * @return
+ * @param[in/out] context Chat context
+ * @param[in] file File handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Iterates through the contacts of a given chat <i>context</i> with a selected
+ * callback and custom closure.
  *
- * @param context
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] context Chat context
+ * @param[in] callback Callback for contact iteration (optional)
+ * @param[in/out] cls Closure for contact iteration (optional)
+ * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
@@ -547,12 +592,13 @@ GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
 				      void *cls);
 
 /**
- * TODO
+ * Iterates through the files of a given chat <i>context</i> with a selected
+ * callback and custom closure.
  *
- * @param context
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] context Chat context
+ * @param[in] callback Callback for file iteration (optional)
+ * @param[in/out] cls Closure for file iteration (optional)
+ * @return Amount of files iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
@@ -560,57 +606,62 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
 				   void *cls);
 
 /**
- * TODO
+ * Returns the kind of a given <i>message</i> to determine its content and
+ * related usage.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return The kind of message
  */
 enum GNUNET_CHAT_MessageKind
 GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Returns the timestamp of a given <i>message</i> in absolute measure.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return The timestamp of message
  */
 struct GNUNET_TIME_Absolute
 GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Returns the contact of the sender from a given <i>message</i>.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return Contact of the messages sender
  */
 const struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Returns #GNUNET_YES if the message was sent by the related chat handle,
+ * otherwise it returns #GNUNET_NO.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return #GNUNET_YES if the message was sent, otherwise #GNUNET_NO
  */
 int
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Returns #GNUNET_YES if the message was received privately encrypted by the
+ * related chat handle, otherwise it returns #GNUNET_NO.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return #GNUNET_YES if the message was privately received,
+ * 	   otherwise #GNUNET_NO
  */
 int
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Iterates through the contacts of the context related to a given chat
+ * <i>message</i> to check whether it was received by each of the contacts.
  *
- * @param message
- * @param callback
- * @param cls
- * @return
+ * @param[in] message Message
+ * @param[in] callback Callback for contact iteration (optional)
+ * @param[in/out] cls Closure for contact iteration (optional)
+ * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
@@ -618,95 +669,104 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 				      void *cls);
 
 /**
- * TODO
+ * Returns the text of a given <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_TEXT, otherwise it returns NULL.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return The text of message or NULL
  */
 const char*
 GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message);
 
 
 /**
- * TODO
+ * Returns the file handle of a given <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_FILE, otherwise it returns NULL.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return The file handle of message or NULL
  */
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Returns the invitation of a given <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_INVITATION, otherwise it returns NULL.
  *
- * @param message
- * @return
+ * @param[in] message Message
+ * @return The invitation of message or NULL
  */
 struct GNUNET_CHAT_Invitation*
 GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message);
 
 /**
- * TODO
+ * Deletes a given <i>message</i> with a specific relative <i>delay</i>.
  *
- * @param message
- * @param delay
- * @return
+ * @param[in] message Message
+ * @param[in] delay Relative delay
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay);
 
 /**
- * TODO
+ * Returns the hash of a given <i>file</i> handle.
  *
- * @param file
- * @return
+ * @param[in] file File handle
+ * @return The hash of file
  */
 const struct GNUNET_HashCode*
 GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Returns the file size of a given <i>file</i> handle.
  *
- * @param file
- * @return
+ * @param[in] file File handle
+ * @return The file size of file
  */
 uint64_t
 GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Checks whether a file locally exists of a given <i>file</i> handle and
+ * returns #GNUNET_YES in that case, otherwise #GNUNET_NO.
  *
- * @param file
- * @return
+ * @param[in] file File handle
+ * @return #GNUNET_YES if the file exists locally, otherwise #GNUNET_NO
  */
 int
 GNUNET_CHAT_file_is_local (const struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Sets a custom <i>user pointer</i> to a given <i>file</i> handle so it can
+ * be accessed in file related callbacks.
  *
- * @param file
- * @param user_pointer
+ * @param[in/out] file File handle
+ * @param[in] user_pointer Custom user pointer
  */
 void
 GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
 				   void *user_pointer);
 
 /**
- * TODO
+ * Returns the custom user pointer of a given <i>file</i> handle or NULL if it
+ * was not set any.
  *
- * @param file
- * @return
+ * @param[in] file File handle
+ * @return Custom user pointer
  */
 void*
 GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Starts downloading a file from a given <i>file</i> handle and sets up a
+ * selected callback and custom closure for its progress.
  *
- * @param file
- * @return
+ * @param[in/out] file File handle
+ * @param[in] callback Callback for file downloading (optional)
+ * @param[in/out] cls Closure for file downloading (optional)
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
@@ -714,39 +774,40 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 				 void *cls);
 
 /**
- * TODO
+ * Pause downloading a file from a given <i>file</i> handle.
  *
- * @param file
- * @return
+ * @param[in/out] file File handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Resume downloading a file from a given <i>file</i> handle.
  *
- * @param file
- * @return
+ * @param[in/out] file File handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Stops downloading a file from a given <i>file</i> handle.
  *
- * @param file
- * @return
+ * @param[in/out] file File handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file);
 
 /**
- * TODO
+ * Unindexes an uploaded file from a given <i>file</i> handle with a selected
+ * callback and a custom closure.
  *
- * @param file
- * @param callback
- * @param cls
- * @return
+ * @param[in/out] file File handle
+ * @param[in] callback Callback for file unindexing (optional)
+ * @param[in/out] cls Closure for file unindexing (optional)
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 int
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
@@ -754,9 +815,9 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 			  void *cls);
 
 /**
- * TODO
+ * Accepts a given chat <i>invitation</i> to enter another chat.
  *
- * @param invitation
+ * @param[in/out] invitation Chat invitation
  */
 void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation);
