@@ -29,6 +29,11 @@
 #ifndef GNUNET_CHAT_LIB_H_
 #define GNUNET_CHAT_LIB_H_
 
+/**
+ * @defgroup gnunet_chat GNUnet Chat library
+ */
+/**@{*/
+
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_time_lib.h>
@@ -821,5 +826,7 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
  */
 void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation);
+
+/**@}*/
 
 #endif /* GNUNET_CHAT_LIB_H_ */
