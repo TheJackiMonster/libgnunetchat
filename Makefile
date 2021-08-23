@@ -1,7 +1,7 @@
 
 SOURCE_DIR  = src/
 INCLUDE_DIR = include/
-INSTALL_DIR = /usr/local/
+INSTALL_DIR ?= /usr/local/
 
 LIBRARY = libgnunetchat.so
 SOURCES = gnunet_chat_lib.c\
@@ -22,12 +22,12 @@ LIBRARIES = gnunetarm\
             gnunetregex\
             gnunetutil
 
-CC = gcc
-LD = gcc
-RM = rm
+CC ?= gcc
+LD ?= gcc
+RM ?= rm
 
-CFLAGS  = -fPIC -pedantic -Wall -Wextra -march=native -ggdb3
-LDFLAGS = -shared
+CFLAGS  += -fPIC -pedantic -Wall -Wextra -march=native -ggdb3
+LDFLAGS += -shared
 
 DEBUGFLAGS   = -O0 -D _DEBUG
 RELEASEFLAGS = -O2 -D NDEBUG
