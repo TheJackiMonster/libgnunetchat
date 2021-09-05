@@ -383,12 +383,12 @@ on_handle_message (void *cls,
 {
   struct GNUNET_CHAT_Handle *handle = cls;
 
-  struct GNUNET_CHAT_Context *context = request_handle_context_by_room(
-      handle, room
-  );
-
-  if (!context)
+  if (GNUNET_OK != request_handle_context_by_room(handle, room))
     return;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+      handle->contexts, GNUNET_MESSENGER_room_get_key(room)
+  );
 
   const struct GNUNET_TIME_Absolute timestamp = GNUNET_TIME_absolute_ntoh(
       msg->header.timestamp
