@@ -6,3 +6,6 @@
 # Binary files:
 *.o
 *.so
+
+# Test files:
+tests/*.test

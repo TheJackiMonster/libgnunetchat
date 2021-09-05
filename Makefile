@@ -1,9 +1,11 @@
 
+TARGET_NAME = gnunetchat
 SOURCE_DIR  = src/
 INCLUDE_DIR = include/
+TESTS_DIR   = tests/
 INSTALL_DIR ?= /usr/local/
 
-LIBRARY = libgnunetchat.so
+LIBRARY = lib$(TARGET_NAME).so
 SOURCES = gnunet_chat_lib.c\
   		  gnunet_chat_contact.c\
 		  gnunet_chat_context.c\
@@ -15,6 +17,8 @@ SOURCES = gnunet_chat_lib.c\
 		  gnunet_chat_util.c
 		  
 HEADERS = gnunet_chat_lib.h
+
+TESTS   = test_gnunet_chat_handle.c
 
 LIBRARIES = gnunetarm\
             gnunetfs\
@@ -35,7 +39,10 @@ RELEASEFLAGS = -O2 -D NDEBUG
 SOURCE_FILES  = $(addprefix $(SOURCE_DIR), $(SOURCES))
 OBJECT_FILES  = $(SOURCE_FILES:%.c=%.o)
 HEADER_FILES  = $(addprefix $(INCLUDE_DIR), $(HEADERS))
+TEST_FILES    = $(addprefix $(TESTS_DIR), $(TESTS))
+TEST_CASES    = $(TEST_FILES:%.c=%.test)
 LIBRARY_FLAGS = $(addprefix -l, $(LIBRARIES))
+TEST_FLAGS    = $(LIBRARY_FLAGS) -lcheck -l$(TARGET_NAME)
 
 all: $(LIBRARY)
 
@@ -51,10 +58,17 @@ release: $(LIBRARY)
 $(LIBRARY): $(OBJECT_FILES)
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
 
+check: $(TEST_CASES)
+	./$(TEST_CASES)
+
+%.test: %.c
+	$(CC) $(CFLAGS) $< -o $@ -I $(INCLUDE_DIR) $(TEST_FLAGS)
+
 .PHONY: install
 
 install:
 	install -m 755 $(LIBRARY) $(addprefix $(INSTALL_DIR), lib/)
+	mkdir -p $(addprefix $(INSTALL_DIR), include/gnunet/)
 	install -m 644 $(HEADER_FILES) $(addprefix $(INSTALL_DIR), include/gnunet/)
 
 .PHONY: uninstall
