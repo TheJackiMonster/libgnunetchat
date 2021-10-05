@@ -82,3 +82,4 @@ uninstall:
 clean:
 	$(RM) -f $(LIBRARY)
 	$(RM) -f $(OBJECT_FILES)
+	$(RM) -f $(TEST_CASES)

@@ -22,47 +22,23 @@
  * @file test_gnunet_chat_handle.c
  */
 
-#include <check.h>
-#include <gnunet/gnunet_chat_lib.h>
+#include "test_gnunet_chat.h"
 
-START_TEST(test_gnunet_chat_handle)
+void
+call_gnunet_chat_handle(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   struct GNUNET_CHAT_Handle *handle;
 
-  handle = GNUNET_CHAT_start(NULL, "", "Test", NULL, NULL, NULL, NULL);
-  ck_assert_ptr_eq(handle, NULL);
+  handle = GNUNET_CHAT_start(cfg, "", "Test", NULL, NULL, NULL, NULL);
+  ck_assert_ptr_ne(handle, NULL);
 
   GNUNET_CHAT_stop(handle);
 }
-END_TEST
 
-Suite* handle_suite(void)
-{
-  Suite *suite;
-  TCase *test_case;
+CREATE_GNUNET_TEST(test_gnunet_chat_handle, call_gnunet_chat_handle)
 
-  suite = suite_create("Handle");
+START_SUITE(handle_suite, "Handle")
+ADD_TEST_TO_SUITE(test_gnunet_chat_handle, "Start/Stop")
+END_SUITE
 
-  test_case = tcase_create("Start/Stop");
-  tcase_add_test(test_case, test_gnunet_chat_handle);
-  suite_add_tcase(suite, test_case);
-
-  return suite;
-}
-
-int main(void)
-{
-  int tests_failed;
-
-  Suite *suite;
-  SRunner *suite_runner;
-
-  suite = handle_suite();
-  suite_runner = srunner_create(suite);
-
-  srunner_run_all(suite_runner, CK_NORMAL);
-  tests_failed = srunner_ntests_failed(suite_runner);
-  srunner_free(suite_runner);
-
-  return (tests_failed == 0? EXIT_SUCCESS : EXIT_FAILURE);
-}
+MAIN_SUITE(handle_suite, CK_NORMAL)
