@@ -45,9 +45,6 @@ struct GNUNET_CHAT_Handle
   GNUNET_CHAT_ContextMessageCallback msg_cb;
   void *msg_cls;
 
-  GNUNET_CHAT_WarningCallback warn_cb;
-  void *warn_cls;
-
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_CONTAINER_MultiShortmap *contacts;
@@ -65,9 +62,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   const char *directory,
 			   const char *name,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
-			   void *msg_cls,
-			   GNUNET_CHAT_WarningCallback warn_cb,
-			   void *warn_cls);
+			   void *msg_cls);
 
 void
 handle_destroy (struct GNUNET_CHAT_Handle* handle);

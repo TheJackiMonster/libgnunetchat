@@ -41,7 +41,6 @@ struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
 		   const char *name,
-		   GNUNET_CHAT_WarningCallback warn_cb, void *warn_cls,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
 {
   if (!cfg)
@@ -49,8 +48,7 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 
   return handle_create_from_config(
       cfg, directory, name,
-      msg_cb, msg_cls,
-      warn_cb, warn_cls
+      msg_cb, msg_cls
   );
 }
 
@@ -670,6 +668,16 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
   if ((!message) || (!(message->msg)))
     return GNUNET_CHAT_KIND_UNKNOWN;
 
+  switch (message->flag)
+  {
+    case GNUNET_CHAT_FLAG_WARNING:
+      return GNUNET_CHAT_KIND_WARNING;
+    case GNUNET_CHAT_FLAG_LOGIN:
+      return GNUNET_CHAT_KIND_LOGIN;
+    default:
+      break;
+  }
+
   switch (message->msg->header.kind)
   {
     case GNUNET_MESSENGER_KIND_JOIN:
@@ -782,6 +790,8 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
   if ((!message) || (!(message->msg)))
     return NULL;
 
+  if (GNUNET_CHAT_FLAG_WARNING == message->flag)
+    return message->warning;
   if (GNUNET_MESSENGER_KIND_TEXT != message->msg->header.kind)
     return NULL;
 

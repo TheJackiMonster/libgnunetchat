@@ -31,9 +31,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   const char *directory,
 			   const char *name,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
-			   void *msg_cls,
-			   GNUNET_CHAT_WarningCallback warn_cb,
-			   void *warn_cls)
+			   void *msg_cls)
 {
   struct GNUNET_CHAT_Handle* handle = GNUNET_new(struct GNUNET_CHAT_Handle);
 
@@ -47,9 +45,6 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->msg_cb = msg_cb;
   handle->msg_cls = msg_cls;
-
-  handle->warn_cb = warn_cb;
-  handle->warn_cls = warn_cls;
 
   handle->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
   handle->contexts = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);

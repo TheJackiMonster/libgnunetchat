@@ -41,14 +41,25 @@ struct GNUNET_CHAT_MessageList
   struct GNUNET_CHAT_MessageList *next;
 };
 
+enum GNUNET_CHAT_MessageFlag
+{
+  GNUNET_CHAT_FLAG_NONE = 0,
+  GNUNET_CHAT_FLAG_WARNING = 1,
+  GNUNET_CHAT_FLAG_LOGIN = 2
+};
+
 struct GNUNET_CHAT_Message
 {
   struct GNUNET_CHAT_Context *context;
 
+  union {
+    const struct GNUNET_MESSENGER_Message *msg;
+    const char *warning;
+  };
+
   struct GNUNET_HashCode hash;
   enum GNUNET_MESSENGER_MessageFlags flags;
-
-  const struct GNUNET_MESSENGER_Message *msg;
+  enum GNUNET_CHAT_MessageFlag flag;
 };
 
 struct GNUNET_CHAT_Message*
@@ -56,6 +67,11 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
 			 const struct GNUNET_HashCode *hash,
 			 enum GNUNET_MESSENGER_MessageFlags flags,
 			 const struct GNUNET_MESSENGER_Message *msg);
+
+struct GNUNET_CHAT_Message*
+message_create_internally (struct GNUNET_CHAT_Context *context,
+			   enum GNUNET_CHAT_MessageFlag flag,
+			   const char *warning);
 
 void
 message_destroy (struct GNUNET_CHAT_Message* message);

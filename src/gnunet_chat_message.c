@@ -36,8 +36,27 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
 
   GNUNET_memcpy(&(message->hash), hash, sizeof(message->hash));
   message->flags = flags;
+  message->flag = GNUNET_CHAT_FLAG_NONE;
 
   message->msg = msg;
+
+  return message;
+}
+
+struct GNUNET_CHAT_Message*
+message_create_internally (struct GNUNET_CHAT_Context *context,
+			   enum GNUNET_CHAT_MessageFlag flag,
+			   const char *warning)
+{
+  struct GNUNET_CHAT_Message *message = GNUNET_new(struct GNUNET_CHAT_Message);
+
+  message->context = context;
+
+  memset(&(message->hash), 0, sizeof(message->hash));
+  message->flags = GNUNET_MESSENGER_FLAG_PRIVATE;
+  message->flag = flag;
+
+  message->warning = warning;
 
   return message;
 }

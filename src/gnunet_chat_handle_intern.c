@@ -364,6 +364,17 @@ on_handle_identity(void *cls,
       (0 < GNUNET_CONTAINER_multishortmap_size(handle->contacts)))
     return;
 
+  if (!handle->msg_cb)
+    goto skip_login;
+
+  struct GNUNET_CHAT_Message *msg = message_create_internally(
+      NULL, GNUNET_CHAT_FLAG_LOGIN, NULL
+  );
+
+  handle->msg_cb(handle->msg_cls, NULL, msg);
+  message_destroy(msg);
+
+skip_login:
   GNUNET_MESSENGER_find_rooms(
       handle->messenger, NULL, find_handle_rooms, handle
   );

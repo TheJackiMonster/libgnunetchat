@@ -45,39 +45,49 @@
 enum GNUNET_CHAT_MessageKind
 {
   /**
+   * The kind to inform that something went wrong.
+   */
+  GNUNET_CHAT_KIND_WARNING = 1,    /**< GNUNET_CHAT_KIND_WARNING */
+
+  /**
+   * The kind to inform that the application can be used.
+   */
+  GNUNET_CHAT_KIND_LOGIN = 2,      /**< GNUNET_CHAT_KIND_LOGIN */
+
+  /**
    * The kind to inform that a contact has joined a chat.
    */
-  GNUNET_CHAT_KIND_JOIN = 1,       /**< GNUNET_CHAT_KIND_JOIN */
+  GNUNET_CHAT_KIND_JOIN = 3,       /**< GNUNET_CHAT_KIND_JOIN */
 
   /**
    * The kind to inform that a contact has left a chat.
    */
-  GNUNET_CHAT_KIND_LEAVE = 2,      /**< GNUNET_CHAT_KIND_LEAVE */
+  GNUNET_CHAT_KIND_LEAVE = 4,      /**< GNUNET_CHAT_KIND_LEAVE */
 
   /**
    * The kind to inform that a contact has changed.
    */
-  GNUNET_CHAT_KIND_CONTACT = 3,    /**< GNUNET_CHAT_KIND_CONTACT */
+  GNUNET_CHAT_KIND_CONTACT = 5,    /**< GNUNET_CHAT_KIND_CONTACT */
 
   /**
    * The kind to describe an invitation to a different chat.
    */
-  GNUNET_CHAT_KIND_INVITATION = 4, /**< GNUNET_CHAT_KIND_INVITATION */
+  GNUNET_CHAT_KIND_INVITATION = 6, /**< GNUNET_CHAT_KIND_INVITATION */
 
   /**
    * The kind to describe a text message.
    */
-  GNUNET_CHAT_KIND_TEXT = 5,       /**< GNUNET_CHAT_KIND_TEXT */
+  GNUNET_CHAT_KIND_TEXT = 7,       /**< GNUNET_CHAT_KIND_TEXT */
 
   /**
    * The kind to describe a shared file.
    */
-  GNUNET_CHAT_KIND_FILE = 6,       /**< GNUNET_CHAT_KIND_FILE */
+  GNUNET_CHAT_KIND_FILE = 8,       /**< GNUNET_CHAT_KIND_FILE */
 
   /**
    * The kind to inform about a deletion of a previous message.
    */
-  GNUNET_CHAT_KIND_DELETION = 7,   /**< GNUNET_CHAT_KIND_DELETION */
+  GNUNET_CHAT_KIND_DELETION = 9,   /**< GNUNET_CHAT_KIND_DELETION */
 
   /**
    * An unknown kind of message.
@@ -121,19 +131,6 @@ struct GNUNET_CHAT_File;
 struct GNUNET_CHAT_Invitation;
 
 /**
- * Method called whenever an issue occurs regarding a certain chat context
- * of a specific chat handle.
- *
- * @param[in,out] cls Closure from #GNUNET_CHAT_start
- * @param[in,out] handle Chat handle
- * @param[in,out] context Chat context
- * @param[in] reason Reason indicating the issue
- */
-typedef void
-(*GNUNET_CHAT_WarningCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
-				struct GNUNET_CHAT_Context *context, int reason);
-
-/**
  * Iterator over chat contacts of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_contacts
@@ -173,7 +170,7 @@ typedef int
  * Iterator over chat messages in a specific chat context.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_context_iterate_messages
- * @param[in,out] context Chat context
+ * @param[in,out] context Chat context or NULL
  * @param[in] message Chat message
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
@@ -256,8 +253,6 @@ typedef void
  * @param[in] cfg Configuration
  * @param[in] directory Application directory path (optional)
  * @param[in] name User name (optional)
- * @param[in] warn_cb Callback for warnings (optional)
- * @param[in,out] warn_cls Closure for warnings (optional)
  * @param[in] msg_cb Callback for message events (optional)
  * @param[in,out] msg_cls Closure for message events (optional)
  * @return Chat handle
@@ -266,7 +261,6 @@ struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
 		   const char *name,
-		   GNUNET_CHAT_WarningCallback warn_cb, void *warn_cls,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls);
 
 /**
@@ -675,7 +669,8 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 
 /**
  * Returns the text of a given <i>message</i> if its kind is
- * #GNUNET_CHAT_KIND_TEXT, otherwise it returns NULL.
+ * #GNUNET_CHAT_KIND_TEXT or #GNUNET_CHAT_KIND_WARNING,
+ * otherwise it returns NULL.
  *
  * @param[in] message Message
  * @return The text of message or NULL
