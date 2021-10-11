@@ -665,7 +665,7 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
 enum GNUNET_CHAT_MessageKind
 GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
 {
-  if ((!message) || (!(message->msg)))
+  if (!message)
     return GNUNET_CHAT_KIND_UNKNOWN;
 
   switch (message->flag)
@@ -677,6 +677,9 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
     default:
       break;
   }
+
+  if (!(message->msg))
+    return GNUNET_CHAT_KIND_UNKNOWN;
 
   switch (message->msg->header.kind)
   {

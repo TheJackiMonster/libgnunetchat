@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <check.h>
 
+#define CK_DEFAULT_TIMEOUT 5
+
 #include <gnunet/gnunet_chat_lib.h>
 
 #define CREATE_GNUNET_TEST(test_name, test_call)                 \
