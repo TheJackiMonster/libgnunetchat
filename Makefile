@@ -26,9 +26,9 @@ LIBRARIES = gnunetarm\
             gnunetregex\
             gnunetutil
 
-CC ?= gcc
-LD ?= gcc
-RM ?= rm
+GNU_CC ?= gcc
+GNU_LD ?= gcc
+GNU_RM ?= rm
 
 CFLAGS  += -fPIC -pedantic -Wall -Wextra -march=native -ggdb3
 LDFLAGS += -shared
@@ -53,16 +53,16 @@ release: CFLAGS += $(RELEASEFLAGS)
 release: $(LIBRARY)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIR) $(LIBRARY_FLAGS)
+	$(GNU_CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIR) $(LIBRARY_FLAGS)
 
 $(LIBRARY): $(OBJECT_FILES)
-	$(LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
+	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
 
 check: $(TEST_CASES)
 	./$(TEST_CASES)
 
 %.test: %.c
-	$(CC) $(CFLAGS) $< -o $@ -I $(INCLUDE_DIR) $(TEST_FLAGS)
+	$(GNU_CC) $(CFLAGS) $< -o $@ -I $(INCLUDE_DIR) $(TEST_FLAGS)
 
 .PHONY: install
 
@@ -74,12 +74,12 @@ install:
 .PHONY: uninstall
 
 uninstall:
-	$(RM) -f $(addsuffix $(HEADERS), $(addprefix $(INSTALL_DIR), include/gnunet/))
-	$(RM) -f $(addsuffix $(LIBRARY), $(addprefix $(INSTALL_DIR), lib/))
+	$(GNU_RM) -f $(addsuffix $(HEADERS), $(addprefix $(INSTALL_DIR), include/gnunet/))
+	$(GNU_RM) -f $(addsuffix $(LIBRARY), $(addprefix $(INSTALL_DIR), lib/))
 
 .PHONY: clean
 
 clean:
-	$(RM) -f $(LIBRARY)
-	$(RM) -f $(OBJECT_FILES)
-	$(RM) -f $(TEST_CASES)
+	$(GNU_RM) -f $(LIBRARY)
+	$(GNU_RM) -f $(OBJECT_FILES)
+	$(GNU_RM) -f $(TEST_CASES)
