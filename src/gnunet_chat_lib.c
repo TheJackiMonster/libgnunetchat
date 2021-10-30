@@ -718,7 +718,7 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 const struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
-  if (!message)
+  if ((!message) || (!(message->context)))
     return NULL;
 
   const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(
@@ -768,12 +768,7 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 				      GNUNET_CHAT_MessageReadReceiptCallback callback,
 				      void *cls)
 {
-  if ((!message) || (!(message->msg)))
-    return GNUNET_SYSERR;
-
-  struct GNUNET_CHAT_Context *context = message->context;
-
-  if (!context)
+  if ((!message) || (!(message->msg)) || (!(message->context)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_MessageIterateReadReceipts it;
@@ -782,7 +777,7 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
   it.cls = cls;
 
   return GNUNET_MESSENGER_iterate_members(
-      context->room, it_message_iterate_read_receipts, &it
+      message->context->room, it_message_iterate_read_receipts, &it
   );
 }
 
@@ -805,7 +800,7 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 {
-  if ((!message) || (!(message->msg)))
+  if ((!message) || (!(message->msg)) || (!(message->context)))
     return NULL;
 
   if (GNUNET_MESSENGER_KIND_FILE != message->msg->header.kind)
@@ -821,7 +816,7 @@ GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_Invitation*
 GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 {
-  if ((!message) || (!(message->msg)))
+  if ((!message) || (!(message->msg)) || (!(message->context)))
     return NULL;
 
   if (GNUNET_MESSENGER_KIND_INVITE != message->msg->header.kind)
@@ -838,7 +833,7 @@ int
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay)
 {
-  if ((!message) || (!(message->msg)))
+  if ((!message) || (!(message->msg)) || (!(message->context)))
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
