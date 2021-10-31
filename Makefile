@@ -26,9 +26,10 @@ LIBRARIES = gnunetarm\
             gnunetregex\
             gnunetutil
 
-GNU_CC ?= gcc
-GNU_LD ?= gcc
-GNU_RM ?= rm
+GNU_CC	?= gcc
+GNU_LD	?= gcc
+GNU_RM	?= rm
+DOXYGEN	?= doxygen
 
 CFLAGS  += -fPIC -pedantic -Wall -Wextra -march=native -ggdb3
 LDFLAGS += -shared
@@ -76,6 +77,11 @@ install:
 uninstall:
 	$(GNU_RM) -f $(addsuffix $(HEADERS), $(addprefix $(INSTALL_DIR), include/gnunet/))
 	$(GNU_RM) -f $(addsuffix $(LIBRARY), $(addprefix $(INSTALL_DIR), lib/))
+
+.PHONY: docs
+
+docs:
+	$(DOXYGEN)
 
 .PHONY: clean
 
