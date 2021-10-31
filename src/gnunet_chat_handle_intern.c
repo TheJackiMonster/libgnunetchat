@@ -38,6 +38,8 @@ on_handle_arm_connection(void *cls, int connected)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
+  GNUNET_assert((chat) && (chat->arm));
+
   if (GNUNET_YES == connected) {
     GNUNET_ARM_request_service_start(
 	chat->arm, "messenger",
@@ -63,6 +65,8 @@ void*
 notify_handle_fs_progress(void* cls, const struct GNUNET_FS_ProgressInfo* info)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
+
+  GNUNET_assert(info);
 
   if (!chat)
     return NULL;
@@ -194,6 +198,8 @@ check_handle_room_members (void* cls,
 {
   struct GNUNET_CHAT_CheckHandleRoomMembers *check = cls;
 
+  GNUNET_assert((check) && (member));
+
   const struct GNUNET_IDENTITY_PublicKey *member_key = (
       GNUNET_MESSENGER_contact_get_key(member)
   );
@@ -215,6 +221,10 @@ int
 request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_MESSENGER_Room *room)
 {
+  GNUNET_assert((handle) &&
+		(handle->contexts) &&
+		(room));
+
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
@@ -296,10 +306,13 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
 }
 
 int
-find_handle_rooms (void *cls, struct GNUNET_MESSENGER_Room *room,
+find_handle_rooms (void *cls,
+		   struct GNUNET_MESSENGER_Room *room,
 		   GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
+
+  GNUNET_assert((handle) && (room));
 
   if (GNUNET_OK != request_handle_context_by_room(handle, room))
     return GNUNET_NO;
@@ -313,6 +326,10 @@ scan_handle_room_members (void* cls,
                           const struct GNUNET_MESSENGER_Contact *member)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
+
+  GNUNET_assert((handle) &&
+		(handle->contacts) &&
+		(member));
 
   struct GNUNET_ShortHashCode shorthash;
   util_shorthash_from_member(member, &shorthash);
@@ -335,10 +352,15 @@ scan_handle_room_members (void* cls,
 }
 
 int
-scan_handle_rooms (void *cls, struct GNUNET_MESSENGER_Room *room,
+scan_handle_rooms (void *cls,
+		   struct GNUNET_MESSENGER_Room *room,
 		   GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
+
+  GNUNET_assert((handle) &&
+		(handle->groups) &&
+		(room));
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
 
@@ -359,10 +381,17 @@ on_handle_identity(void *cls,
 {
   struct GNUNET_CHAT_Handle *handle = cls;
 
+  GNUNET_assert((handle) &&
+		(handle->contexts) &&
+		(handle->groups) &&
+		(handle->contacts));
+
   if ((0 < GNUNET_CONTAINER_multihashmap_size(handle->contexts)) ||
       (0 < GNUNET_CONTAINER_multihashmap_size(handle->groups)) ||
       (0 < GNUNET_CONTAINER_multishortmap_size(handle->contacts)))
     return;
+
+  GNUNET_assert(handle->messenger);
 
   GNUNET_MESSENGER_find_rooms(
       handle->messenger, NULL, find_handle_rooms, handle
@@ -392,6 +421,11 @@ on_handle_message (void *cls,
 		   enum GNUNET_MESSENGER_MessageFlags flags)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
+
+  GNUNET_assert((handle) &&
+		(room) &&
+		(msg) &&
+		(hash));
 
   if (GNUNET_OK != request_handle_context_by_room(handle, room))
     return;
@@ -502,6 +536,8 @@ it_destroy_handle_groups (GNUNET_UNUSED void *cls,
 			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			  void *value)
 {
+  GNUNET_assert(value);
+
   struct GNUNET_CHAT_Group *group = value;
   group_save_config(group);
   group_destroy(group);
@@ -513,6 +549,8 @@ it_destroy_handle_contacts (GNUNET_UNUSED void *cls,
 			    GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
 			    void *value)
 {
+  GNUNET_assert(value);
+
   struct GNUNET_CHAT_Contact *contact = value;
   contact_destroy(contact);
   return GNUNET_YES;
@@ -523,6 +561,8 @@ it_destroy_handle_contexts (GNUNET_UNUSED void *cls,
 			    GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			    void *value)
 {
+  GNUNET_assert(value);
+
   struct GNUNET_CHAT_Context *context = value;
   context_save_config(context);
   context_destroy(context);
@@ -534,6 +574,8 @@ it_destroy_handle_files (GNUNET_UNUSED void *cls,
 			 GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			 void *value)
 {
+  GNUNET_assert(value);
+
   struct GNUNET_CHAT_File *file = value;
   file_destroy(file);
   return GNUNET_YES;

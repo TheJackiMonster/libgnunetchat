@@ -28,6 +28,8 @@ struct GNUNET_CHAT_Invitation*
 invitation_create_from_message (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_MESSENGER_MessageInvite *message)
 {
+  GNUNET_assert((context) && (message));
+
   struct GNUNET_CHAT_Invitation *invitation = GNUNET_new(struct GNUNET_CHAT_Invitation);
 
   invitation->context = context;
@@ -41,6 +43,8 @@ invitation_create_from_message (struct GNUNET_CHAT_Context *context,
 void
 invitation_destroy (struct GNUNET_CHAT_Invitation *invitation)
 {
+  GNUNET_assert(invitation);
+
   GNUNET_PEER_decrement_rcs(&(invitation->door), 1);
 
   GNUNET_free(invitation);

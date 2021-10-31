@@ -28,6 +28,8 @@ void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash)
 {
+  GNUNET_assert((member) && (shorthash));
+
   memset(shorthash, 0, sizeof(*shorthash));
   GNUNET_memcpy(shorthash, &member, sizeof(member));
 }
@@ -35,6 +37,8 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 void
 util_set_name_field (const char *name, char **field)
 {
+  GNUNET_assert(field);
+
   if (*field)
     GNUNET_free(*field);
 
@@ -47,6 +51,8 @@ util_set_name_field (const char *name, char **field)
 int
 util_hash_file (const char *filename, struct GNUNET_HashCode *hash)
 {
+  GNUNET_assert((filename) && (hash));
+
   uint64_t size;
 
   if (GNUNET_OK != GNUNET_DISK_file_size(filename, &size, GNUNET_NO, GNUNET_YES))
@@ -82,6 +88,8 @@ int
 util_encrypt_file (const char *filename,
 		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
+  GNUNET_assert((filename) && (key));
+
   uint64_t size;
 
   if (GNUNET_OK != GNUNET_DISK_file_size(filename, &size, GNUNET_NO, GNUNET_YES))
@@ -130,6 +138,8 @@ int
 util_decrypt_file (const char *filename,
 		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
+  GNUNET_assert((filename) && (key));
+
   uint64_t size;
 
   if (GNUNET_OK != GNUNET_DISK_file_size(filename, &size, GNUNET_NO, GNUNET_YES))
@@ -175,10 +185,16 @@ util_decrypt_file (const char *filename,
 }
 
 int
-util_get_filename (const char *directory, const char *subdir,
+util_get_filename (const char *directory,
+		   const char *subdir,
 		   const struct GNUNET_HashCode *hash,
 		   char **filename)
 {
+  GNUNET_assert((filename) &&
+		(directory) &&
+		(subdir) &&
+		(hash));
+
   return GNUNET_asprintf (
       filename,
       "%s%s%c%s",

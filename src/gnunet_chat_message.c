@@ -30,6 +30,10 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
 			 enum GNUNET_MESSENGER_MessageFlags flags,
 			 const struct GNUNET_MESSENGER_Message *msg)
 {
+  GNUNET_assert((context) &&
+		(hash) &&
+		(msg));
+
   struct GNUNET_CHAT_Message *message = GNUNET_new(struct GNUNET_CHAT_Message);
 
   message->context = context;
@@ -64,5 +68,7 @@ message_create_internally (struct GNUNET_CHAT_Context *context,
 void
 message_destroy (struct GNUNET_CHAT_Message* message)
 {
+  GNUNET_assert(message);
+
   GNUNET_free(message);
 }

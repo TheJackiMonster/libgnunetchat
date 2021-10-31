@@ -36,6 +36,8 @@ it_handle_iterate_contacts (void *cls,
 			    GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
 			    void *value)
 {
+  GNUNET_assert((cls) && (value));
+
   struct GNUNET_CHAT_HandleIterateContacts *it = cls;
 
   if (!(it->cb))
@@ -58,6 +60,8 @@ it_handle_iterate_groups (void *cls,
 			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			  void *value)
 {
+  GNUNET_assert((cls) && (value));
+
   struct GNUNET_CHAT_HandleIterateGroups *it = cls;
 
   if (!(it->cb))
@@ -74,9 +78,12 @@ struct GNUNET_CHAT_ContactFindRoom
 };
 
 int
-it_contact_find_room (void *cls, struct GNUNET_MESSENGER_Room *room,
+it_contact_find_room (void *cls,
+		      struct GNUNET_MESSENGER_Room *room,
 		      GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
 {
+  GNUNET_assert((cls) && (room));
+
   struct GNUNET_CHAT_ContactFindRoom *find = cls;
   find->room = room;
   return GNUNET_NO;
@@ -94,6 +101,8 @@ it_group_iterate_contacts (void* cls,
 			   GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                            const struct GNUNET_MESSENGER_Contact *member)
 {
+  GNUNET_assert((cls) && (member));
+
   struct GNUNET_CHAT_GroupIterateContacts *it = cls;
 
   if (!(it->cb))
@@ -121,6 +130,8 @@ it_context_iterate_messages (void *cls,
 			     GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			     void *value)
 {
+  GNUNET_assert((cls) && (value));
+
   struct GNUNET_CHAT_ContextIterateMessages *it = cls;
 
   if (!(it->cb))
@@ -143,6 +154,8 @@ it_context_iterate_files (void *cls,
 			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
 			  void *value)
 {
+  GNUNET_assert((cls) && (value));
+
   struct GNUNET_CHAT_ContextIterateFiles *it = cls;
 
   if (!(it->cb))
@@ -165,6 +178,8 @@ it_message_iterate_read_receipts (void *cls,
 				  GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
 				  const struct GNUNET_MESSENGER_Contact *member)
 {
+  GNUNET_assert((cls) && (member));
+
   struct GNUNET_CHAT_MessageIterateReadReceipts *it = cls;
   struct GNUNET_CHAT_Handle *handle = it->message->context->handle;
 

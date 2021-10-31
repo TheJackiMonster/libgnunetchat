@@ -33,6 +33,8 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
 			   void *msg_cls)
 {
+  GNUNET_assert(cfg);
+
   struct GNUNET_CHAT_Handle* handle = GNUNET_new(struct GNUNET_CHAT_Handle);
 
   handle->cfg = cfg;
@@ -90,6 +92,12 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 void
 handle_destroy (struct GNUNET_CHAT_Handle* handle)
 {
+  GNUNET_assert((handle) &&
+		(handle->groups) &&
+		(handle->contacts) &&
+		(handle->contexts) &&
+		(handle->files));
+
   if (handle->messenger)
     GNUNET_MESSENGER_disconnect(handle->messenger);
 

@@ -31,6 +31,8 @@ struct GNUNET_CHAT_Group*
 group_create_from_context (struct GNUNET_CHAT_Handle *handle,
 			   struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_assert((handle) && (context));
+
   struct GNUNET_CHAT_Group* group = GNUNET_new(struct GNUNET_CHAT_Group);
 
   group->handle = handle;
@@ -49,6 +51,8 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
 void
 group_destroy (struct GNUNET_CHAT_Group* group)
 {
+  GNUNET_assert(group);
+
   if (group->search)
     GNUNET_REGEX_search_cancel(group->search);
 
@@ -64,6 +68,11 @@ group_destroy (struct GNUNET_CHAT_Group* group)
 void
 group_publish (struct GNUNET_CHAT_Group* group)
 {
+  GNUNET_assert((group) &&
+		(group->topic) &&
+		(group->handle) &&
+		(group->handle->cfg));
+
   char* topic = NULL;
   GNUNET_asprintf (
       &topic,
@@ -88,6 +97,8 @@ group_publish (struct GNUNET_CHAT_Group* group)
 void
 group_load_config (struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_assert((group) && (group->handle));
+
   const char *directory = group->handle->directory;
 
   if ((!directory) || (!(group->context)))
@@ -127,6 +138,8 @@ free_filename:
 void
 group_save_config (const struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_assert((group) && (group->handle));
+
   const char *directory = group->handle->directory;
 
   if ((!directory) || (!(group->context)))

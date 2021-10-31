@@ -37,6 +37,13 @@ search_group_by_topic(void *cls,
 {
   struct GNUNET_CHAT_Group *group = cls;
 
+  GNUNET_assert((group) &&
+		(group->handle) &&
+		(group->handle->cfg) &&
+		(group->handle->messenger) &&
+		(group->context) &&
+		(group->context->room));
+
   struct GNUNET_PeerIdentity peer;
   GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &peer);
 

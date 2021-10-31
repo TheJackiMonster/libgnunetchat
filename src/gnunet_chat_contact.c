@@ -28,6 +28,8 @@ struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 			    const struct GNUNET_MESSENGER_Contact *member)
 {
+  GNUNET_assert((handle) && (member));
+
   struct GNUNET_CHAT_Contact* contact = GNUNET_new(struct GNUNET_CHAT_Contact);
 
   contact->handle = handle;
@@ -43,5 +45,7 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact)
 {
+  GNUNET_assert(contact);
+
   GNUNET_free(contact);
 }

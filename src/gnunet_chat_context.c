@@ -32,6 +32,8 @@ struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			  struct GNUNET_MESSENGER_Room *room)
 {
+  GNUNET_assert((handle) && (room));
+
   struct GNUNET_CHAT_Context* context = GNUNET_new(struct GNUNET_CHAT_Context);
 
   context->handle = handle;
@@ -54,6 +56,12 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 void
 context_destroy (struct GNUNET_CHAT_Context* context)
 {
+  GNUNET_assert((context) &&
+		(context->timestamps) &&
+		(context->messages) &&
+		(context->invites) &&
+		(context->files));
+
   GNUNET_CONTAINER_multishortmap_iterate(
       context->timestamps, it_destroy_context_timestamps, NULL
   );
@@ -80,6 +88,10 @@ context_destroy (struct GNUNET_CHAT_Context* context)
 void
 context_load_config (struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_assert((context) &&
+		(context->handle) &&
+		(context->room));
+
   const char *directory = context->handle->directory;
 
   if (!directory)
@@ -119,6 +131,10 @@ free_filename:
 void
 context_save_config (const struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_assert((context) &&
+  		(context->handle) &&
+  		(context->room));
+
   const char *directory = context->handle->directory;
 
   if (!directory)

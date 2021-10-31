@@ -30,6 +30,10 @@ struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 			  const struct GNUNET_MESSENGER_MessageFile* message)
 {
+  GNUNET_assert((handle) &&
+		(message) &&
+		(message->name));
+
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   file->handle = handle;
@@ -65,6 +69,11 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 		       const char *name, const struct GNUNET_HashCode *hash,
 		       const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
+  GNUNET_assert((handle) &&
+		(name) &&
+		(hash) &&
+		(key));
+
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   file->handle = handle;
@@ -98,6 +107,8 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 void
 file_destroy (struct GNUNET_CHAT_File* file)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileUpload *upload;
   while (file->upload_head)
   {
@@ -156,6 +167,8 @@ void
 file_bind_upload (struct GNUNET_CHAT_File* file,
 		  GNUNET_CHAT_FileUploadCallback cb, void *cls)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileUpload *upload = GNUNET_new(
       struct GNUNET_CHAT_FileUpload
   );
@@ -174,6 +187,8 @@ void
 file_bind_downlaod (struct GNUNET_CHAT_File* file,
 		    GNUNET_CHAT_FileDownloadCallback cb, void *cls)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileDownload *download = GNUNET_new(
       struct GNUNET_CHAT_FileDownload
   );
@@ -192,6 +207,8 @@ void
 file_bind_unindex (struct GNUNET_CHAT_File* file,
 		   GNUNET_CHAT_FileUnindexCallback cb, void *cls)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileUnindex *unindex = GNUNET_new(
       struct GNUNET_CHAT_FileUnindex
   );
@@ -210,6 +227,8 @@ void
 file_update_upload (struct GNUNET_CHAT_File* file, uint64_t completed,
 		    uint64_t size)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileUpload *upload = file->upload_head;
 
   while (upload)
@@ -241,6 +260,8 @@ void
 file_update_download (struct GNUNET_CHAT_File* file, uint64_t completed,
 		      uint64_t size)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileDownload *download = file->download_head;
 
   while (download)
@@ -272,6 +293,8 @@ void
 file_update_unindex (struct GNUNET_CHAT_File* file, uint64_t completed,
 		     uint64_t size)
 {
+  GNUNET_assert(file);
+
   struct GNUNET_CHAT_FileUnindex *unindex = file->unindex_head;
 
   while (unindex)
