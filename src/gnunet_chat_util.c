@@ -28,7 +28,7 @@ void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash)
 {
-  GNUNET_assert((member) && (shorthash));
+  GNUNET_assert(shorthash);
 
   memset(shorthash, 0, sizeof(*shorthash));
   GNUNET_memcpy(shorthash, &member, sizeof(member));

@@ -415,7 +415,7 @@ on_handle_identity(void *cls,
 void
 on_handle_message (void *cls,
 		   struct GNUNET_MESSENGER_Room *room,
-		   GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *sender,
+		   const struct GNUNET_MESSENGER_Contact *sender,
 		   const struct GNUNET_MESSENGER_Message *msg,
 		   const struct GNUNET_HashCode *hash,
 		   enum GNUNET_MESSENGER_MessageFlags flags)
@@ -445,7 +445,7 @@ on_handle_message (void *cls,
       context->timestamps, &shorthash
   );
 
-  if (time)
+  if (!time)
   {
     time = GNUNET_new(struct GNUNET_TIME_Absolute);
     *time = timestamp;
