@@ -486,6 +486,61 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 }
 
 
+const struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
+{
+  if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_CONTACT != context->type))
+    return NULL;
+
+  struct GNUNET_MESSENGER_Room *room = context->room;
+  struct GNUNET_CHAT_RoomFindContact find;
+
+  find.contact = NULL;
+
+  GNUNET_MESSENGER_iterate_members(
+      room,
+      it_room_find_contact,
+      &find
+  );
+
+  if (!find.contact)
+    return NULL;
+
+  struct GNUNET_ShortHashCode shorthash;
+  util_shorthash_from_member(find.contact, &shorthash);
+
+  const struct GNUNET_CHAT_Contact *contact;
+  contact = GNUNET_CONTAINER_multishortmap_get(
+      context->handle->contacts, &shorthash
+  );
+
+  GNUNET_assert((contact == NULL) || (contact->context == context));
+  return contact;
+}
+
+
+const struct GNUNET_CHAT_Group*
+GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context)
+{
+  if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
+    return NULL;
+
+  const struct GNUNET_MESSENGER_Room *room = context->room;
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
+
+  if (!key)
+    return NULL;
+
+  const struct GNUNET_CHAT_Group *group;
+  group = GNUNET_CONTAINER_multihashmap_get(
+      context->handle->groups, key
+  );
+
+  GNUNET_assert((group == NULL) || (group->context == context));
+  return group;
+}
+
+
 void
 GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
 				      void *user_pointer)

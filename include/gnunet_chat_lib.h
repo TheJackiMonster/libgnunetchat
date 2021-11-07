@@ -139,7 +139,8 @@ struct GNUNET_CHAT_Invitation;
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_ContactCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
+(*GNUNET_CHAT_ContactCallback) (void *cls,
+                                struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -151,7 +152,8 @@ typedef int
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_GroupCallback) (void *cls, struct GNUNET_CHAT_Handle *handle,
+(*GNUNET_CHAT_GroupCallback) (void *cls,
+                              struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Group *group);
 
 /**
@@ -163,8 +165,9 @@ typedef int
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_GroupContactCallback) (void *cls, struct GNUNET_CHAT_Group *group,
-                                    struct GNUNET_CHAT_Contact *contact);
+(*GNUNET_CHAT_GroupContactCallback) (void *cls,
+                                     struct GNUNET_CHAT_Group *group,
+                                     struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Iterator over chat messages in a specific chat context.
@@ -175,7 +178,8 @@ typedef int
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_ContextMessageCallback) (void *cls, struct GNUNET_CHAT_Context *context,
+(*GNUNET_CHAT_ContextMessageCallback) (void *cls,
+                                       struct GNUNET_CHAT_Context *context,
 				       const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -187,7 +191,8 @@ typedef int
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_ContextFileCallback) (void *cls, struct GNUNET_CHAT_Context *context,
+(*GNUNET_CHAT_ContextFileCallback) (void *cls,
+                                    struct GNUNET_CHAT_Context *context,
 				    struct GNUNET_CHAT_File *file);
 
 /**
@@ -202,7 +207,8 @@ typedef int
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
-(*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls, const struct GNUNET_CHAT_Message *message,
+(*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls,
+                                           const struct GNUNET_CHAT_Message *message,
 					   const struct GNUNET_CHAT_Contact *contact,
 					   int read_receipt);
 
@@ -215,8 +221,10 @@ typedef int
  * @param[in] size Full size of the uploading file (in bytes)
  */
 typedef void
-(*GNUNET_CHAT_FileUploadCallback) (void *cls, const struct GNUNET_CHAT_File *file,
-				   uint64_t completed, uint64_t size);
+(*GNUNET_CHAT_FileUploadCallback) (void *cls,
+                                   const struct GNUNET_CHAT_File *file,
+				   uint64_t completed,
+				   uint64_t size);
 
 /**
  * Method called during a download of a specific file in a chat which was shared.
@@ -227,8 +235,10 @@ typedef void
  * @param[in] size Full size of the downloading file (in bytes)
  */
 typedef void
-(*GNUNET_CHAT_FileDownloadCallback) (void *cls, const struct GNUNET_CHAT_File *file,
-				     uint64_t completed, uint64_t size);
+(*GNUNET_CHAT_FileDownloadCallback) (void *cls,
+                                     const struct GNUNET_CHAT_File *file,
+				     uint64_t completed,
+				     uint64_t size);
 
 /**
  * Method called during an unindexing of a specific file in a chat which was
@@ -240,8 +250,10 @@ typedef void
  * @param[in] size Full size of the unindexing file (in bytes)
  */
 typedef void
-(*GNUNET_CHAT_FileUnindexCallback) (void *cls, struct GNUNET_CHAT_File *file,
-				    uint64_t completed, uint64_t size);
+(*GNUNET_CHAT_FileUnindexCallback) (void *cls,
+                                    struct GNUNET_CHAT_File *file,
+				    uint64_t completed,
+				    uint64_t size);
 
 /**
  * Start a chat handle with a certain configuration, an application <i>directory</i>
@@ -514,6 +526,24 @@ GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
  */
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group);
+
+/**
+ * Returns the chat contact which uses a given <i>context</i>.
+ *
+ * @param[in] context Context
+ * @return Chat contact
+ */
+const struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context);
+
+/**
+ * Returns the chat group which uses a given <i>context</i>.
+ *
+ * @param[in] context Context
+ * @return Chat group
+ */
+const struct GNUNET_CHAT_Group*
+GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>context</i> so it can

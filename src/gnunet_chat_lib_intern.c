@@ -89,6 +89,23 @@ it_contact_find_room (void *cls,
   return GNUNET_NO;
 }
 
+struct GNUNET_CHAT_RoomFindContact
+{
+  const struct GNUNET_MESSENGER_Contact *contact;
+};
+
+int
+it_room_find_contact (void *cls,
+		      GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+		      const struct GNUNET_MESSENGER_Contact *member)
+{
+  GNUNET_assert((cls) && (member));
+
+  struct GNUNET_CHAT_RoomFindContact *find = cls;
+  find->contact = member;
+  return GNUNET_NO;
+}
+
 struct GNUNET_CHAT_GroupIterateContacts
 {
   struct GNUNET_CHAT_Group *group;
