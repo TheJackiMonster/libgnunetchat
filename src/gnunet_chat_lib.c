@@ -172,6 +172,8 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
   if (!room)
     return NULL;
 
+  intern_room_send_name(handle->messenger, room);
+
   struct GNUNET_CHAT_Context *context = context_create_from_room(handle, room);
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
@@ -446,7 +448,9 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
       group->context->room
   );
 
-  GNUNET_MESSENGER_open_room(group->handle->messenger, key);
+  intern_room_send_name(group->handle->messenger, GNUNET_MESSENGER_open_room(
+      group->handle->messenger, key
+  ));
 
   struct GNUNET_MESSENGER_Message msg;
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
