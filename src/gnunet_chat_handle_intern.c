@@ -185,6 +185,47 @@ notify_handle_fs_progress(void* cls, const struct GNUNET_FS_ProgressInfo* info)
   return NULL;
 }
 
+int
+intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
+				  const struct GNUNET_MESSENGER_Contact *member,
+				  struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert((handle) && (handle->contacts));
+
+  if (!member)
+    return GNUNET_OK;
+
+  struct GNUNET_ShortHashCode shorthash;
+  util_shorthash_from_member(member, &shorthash);
+
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
+      handle->contacts, &shorthash
+  );
+
+  if (contact)
+  {
+    if ((context) && (NULL == contact->context))
+      contact->context = context;
+
+    return GNUNET_OK;
+  }
+
+  contact = contact_create_from_member(
+    handle, member
+  );
+
+  if (context)
+    contact->context = context;
+
+  if (GNUNET_OK == GNUNET_CONTAINER_multishortmap_put(
+      handle->contacts, &shorthash, contact,
+    GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    return GNUNET_OK;
+
+  contact_destroy(contact);
+  return GNUNET_SYSERR;
+}
+
 struct GNUNET_CHAT_CheckHandleRoomMembers
 {
   const struct GNUNET_IDENTITY_PublicKey *ignore_key;
@@ -257,21 +298,9 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
   {
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
 
-    struct GNUNET_CHAT_Contact *contact = contact_create_from_member(
-      handle, check.contact
-    );
-
-    contact->context = context;
-
-    struct GNUNET_ShortHashCode shorthash;
-    util_shorthash_from_member(check.contact, &shorthash);
-
-    if (GNUNET_OK == GNUNET_CONTAINER_multishortmap_put(
-      handle->contacts, &shorthash, contact,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    if (GNUNET_OK == intern_provide_contact_for_member(
+	handle, check.contact, context))
       return GNUNET_OK;
-
-    contact_destroy(contact);
   }
   else if (checks >= 2)
   {
@@ -327,28 +356,10 @@ scan_handle_room_members (void* cls,
 {
   struct GNUNET_CHAT_Handle *handle = cls;
 
-  GNUNET_assert((handle) &&
-		(handle->contacts) &&
-		(member));
-
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(member, &shorthash);
-
-  if (GNUNET_YES == GNUNET_CONTAINER_multishortmap_contains(
-      handle->contacts, &shorthash))
+  if (GNUNET_OK == intern_provide_contact_for_member(handle, member, NULL))
     return GNUNET_YES;
-
-  struct GNUNET_CHAT_Contact *contact = contact_create_from_member(
-      handle, member
-  );
-
-  if (GNUNET_OK == GNUNET_CONTAINER_multishortmap_put(
-      handle->contacts, &shorthash, contact,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-    return GNUNET_YES;
-
-  contact_destroy(contact);
-  return GNUNET_NO;
+  else
+    return GNUNET_NO;
 }
 
 int
@@ -427,7 +438,8 @@ on_handle_message (void *cls,
 		(msg) &&
 		(hash));
 
-  if (GNUNET_OK != request_handle_context_by_room(handle, room))
+  if ((GNUNET_OK != request_handle_context_by_room(handle, room)) ||
+      (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
     return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(

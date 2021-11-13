@@ -257,7 +257,7 @@ void
 GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
 			      const char *name)
 {
-  if (!contact)
+  if ((!contact) || (!(contact->context)))
     return;
 
   util_set_name_field(name, &(contact->context->nick));
@@ -270,7 +270,7 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return NULL;
 
-  if (contact->context->nick)
+  if ((contact->context) && (contact->context->nick))
     return contact->context->nick;
 
   return GNUNET_MESSENGER_contact_get_name(contact->member);
