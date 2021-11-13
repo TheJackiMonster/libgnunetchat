@@ -54,5 +54,12 @@ search_group_by_topic(void *cls,
       group->context->room
   );
 
+  if ((GNUNET_YES == GNUNET_CONTAINER_multipeermap_contains(
+      group->registry, door)) ||
+      (GNUNET_OK != GNUNET_CONTAINER_multipeermap_put(
+      group->registry, door, NULL,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST)))
+    return;
+
   GNUNET_MESSENGER_enter_room(group->handle->messenger, door, key);
 }

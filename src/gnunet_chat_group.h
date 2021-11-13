@@ -27,6 +27,7 @@
 
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_container_lib.h>
 #include <gnunet/gnunet_regex_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -42,6 +43,8 @@ struct GNUNET_CHAT_Group
 
   struct GNUNET_REGEX_Announcement *announcement;
   struct GNUNET_REGEX_Search *search;
+
+  struct GNUNET_CONTAINER_MultiPeerMap *registry;
 
   void *user_pointer;
 };

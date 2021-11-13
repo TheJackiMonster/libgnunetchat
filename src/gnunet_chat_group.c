@@ -43,6 +43,8 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
   group->announcement = NULL;
   group->search = NULL;
 
+  group->registry = GNUNET_CONTAINER_multipeermap_create(8, GNUNET_NO);
+
   group->user_pointer = NULL;
 
   return group;
@@ -52,6 +54,9 @@ void
 group_destroy (struct GNUNET_CHAT_Group* group)
 {
   GNUNET_assert(group);
+
+  if (group->registry)
+    GNUNET_CONTAINER_multipeermap_destroy(group->registry);
 
   if (group->search)
     GNUNET_REGEX_search_cancel(group->search);
