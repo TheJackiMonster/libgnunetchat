@@ -54,6 +54,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_FS_Handle *fs;
   struct GNUNET_MESSENGER_Handle *messenger;
 
+  char *public_key;
   void *user_pointer;
 };
 
@@ -63,6 +64,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   const char *name,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
 			   void *msg_cls);
+
+void
+handle_update_key (struct GNUNET_CHAT_Handle *handle);
 
 void
 handle_destroy (struct GNUNET_CHAT_Handle* handle);

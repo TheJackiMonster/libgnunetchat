@@ -97,13 +97,13 @@ GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle)
 }
 
 
-const struct GNUNET_IDENTITY_PublicKey*
+const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 {
   if (!handle)
     return NULL;
 
-  return GNUNET_MESSENGER_get_key(handle->messenger);
+  return handle->public_key;
 }
 
 
@@ -277,13 +277,13 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
 }
 
 
-const struct GNUNET_IDENTITY_PublicKey*
+const char*
 GNUNET_CHAT_contact_get_key (const struct GNUNET_CHAT_Contact *contact)
 {
   if (!contact)
     return NULL;
 
-  return GNUNET_MESSENGER_contact_get_key(contact->member);
+  return contact->public_key;
 }
 
 

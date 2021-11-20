@@ -324,7 +324,7 @@ GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle);
  * @param[in] handle Chat handle
  * @return Public key of the handles ego or NULL
  */
-const struct GNUNET_IDENTITY_PublicKey*
+const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**
@@ -409,7 +409,7 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact);
  * @param[in] contact Contact
  * @return Public key of the contacts ego or NULL
  */
-const struct GNUNET_IDENTITY_PublicKey*
+const char*
 GNUNET_CHAT_contact_get_key (const struct GNUNET_CHAT_Contact *contact);
 
 /**

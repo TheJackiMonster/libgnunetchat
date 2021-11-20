@@ -40,12 +40,16 @@ struct GNUNET_CHAT_Contact
 
   const struct GNUNET_MESSENGER_Contact *member;
 
+  char *public_key;
   void *user_pointer;
 };
 
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 			    const struct GNUNET_MESSENGER_Contact *member);
+
+void
+contact_update_key (struct GNUNET_CHAT_Contact *contact);
 
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact);

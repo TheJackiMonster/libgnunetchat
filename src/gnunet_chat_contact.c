@@ -37,15 +37,40 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 
   contact->member = member;
 
+  contact->public_key = NULL;
   contact->user_pointer = NULL;
 
+  contact_update_key (contact);
   return contact;
+}
+
+void
+contact_update_key (struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_assert(contact);
+
+  if (contact->public_key)
+    GNUNET_free(contact->public_key);
+
+  contact->public_key = NULL;
+
+  if (!contact->member)
+    return;
+
+  const struct GNUNET_IDENTITY_PublicKey *pubkey;
+  pubkey = GNUNET_MESSENGER_contact_get_key(contact->member);
+
+  if (pubkey)
+    contact->public_key = GNUNET_IDENTITY_public_key_to_string(pubkey);
 }
 
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact)
 {
   GNUNET_assert(contact);
+
+  if (contact->public_key)
+    GNUNET_free(contact->public_key);
 
   GNUNET_free(contact);
 }

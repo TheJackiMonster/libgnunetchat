@@ -84,9 +84,31 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
       on_handle_message, handle
   );
 
+  handle->public_key = NULL;
   handle->user_pointer = NULL;
 
+  handle_update_key(handle);
   return handle;
+}
+
+void
+handle_update_key (struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert(handle);
+
+  if (handle->public_key)
+    GNUNET_free(handle->public_key);
+
+  handle->public_key = NULL;
+
+  if (!handle->messenger)
+    return;
+
+  const struct GNUNET_IDENTITY_PublicKey *pubkey;
+  pubkey = GNUNET_MESSENGER_get_key(handle->messenger);
+
+  if (pubkey)
+    handle->public_key = GNUNET_IDENTITY_public_key_to_string(pubkey);
 }
 
 void
@@ -97,6 +119,9 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
 		(handle->contacts) &&
 		(handle->contexts) &&
 		(handle->files));
+
+  if (handle->public_key)
+    GNUNET_free(handle->public_key);
 
   if (handle->messenger)
     GNUNET_MESSENGER_disconnect(handle->messenger);

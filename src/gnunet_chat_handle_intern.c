@@ -397,6 +397,8 @@ on_handle_identity(void *cls,
 		(handle->groups) &&
 		(handle->contacts));
 
+  handle_update_key(handle);
+
   if ((0 < GNUNET_CONTAINER_multihashmap_size(handle->contexts)) ||
       (0 < GNUNET_CONTAINER_multihashmap_size(handle->groups)) ||
       (0 < GNUNET_CONTAINER_multishortmap_size(handle->contacts)))
@@ -488,6 +490,15 @@ on_handle_message (void *cls,
 
   switch (msg->header.kind)
   {
+    case GNUNET_MESSENGER_KIND_KEY:
+    {
+      struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
+	  handle->contacts, &shorthash
+      );
+
+      contact_update_key(contact);
+      break;
+    }
     case GNUNET_MESSENGER_KIND_INVITE:
     {
       struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
