@@ -22,6 +22,7 @@ TESTS   = test_gnunet_chat_handle.c
 
 LIBRARIES = gnunetarm\
             gnunetfs\
+			gnunetidentity\
             gnunetmessenger\
             gnunetregex\
             gnunetutil
@@ -31,7 +32,7 @@ GNU_LD	?= gcc
 GNU_RM	?= rm
 DOXYGEN	?= doxygen
 
-CFLAGS  += -fPIC -pedantic -Wall -Wextra -march=native -ggdb3
+CFLAGS  += -fPIC -pedantic -Wall -Wextra -ggdb3
 LDFLAGS += -shared
 
 DEBUGFLAGS   = -O0 -D _DEBUG
