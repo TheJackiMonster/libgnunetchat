@@ -38,6 +38,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   struct GNUNET_CHAT_Handle* handle = GNUNET_new(struct GNUNET_CHAT_Handle);
 
   handle->cfg = cfg;
+  handle->shutdown_hook = GNUNET_SCHEDULER_add_shutdown(
+      on_handle_shutdown, handle
+  );
 
   if ((directory) &&
       (GNUNET_YES == GNUNET_DISK_directory_test(directory, GNUNET_YES)))
@@ -119,6 +122,9 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
 		(handle->contacts) &&
 		(handle->contexts) &&
 		(handle->files));
+
+  if (handle->shutdown_hook)
+    GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
 
   if (handle->public_key)
     GNUNET_free(handle->public_key);

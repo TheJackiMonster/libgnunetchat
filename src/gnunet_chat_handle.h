@@ -32,6 +32,7 @@
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"
@@ -39,6 +40,7 @@
 struct GNUNET_CHAT_Handle
 {
   const struct GNUNET_CONFIGURATION_Handle* cfg;
+  struct GNUNET_SCHEDULER_Task *shutdown_hook;
 
   char *directory;
 

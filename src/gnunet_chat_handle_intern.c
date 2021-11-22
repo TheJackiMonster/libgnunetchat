@@ -34,7 +34,19 @@
 #define GNUNET_UNUSED __attribute__ ((unused))
 
 void
-on_handle_arm_connection(void *cls, int connected)
+on_handle_shutdown(void *cls)
+{
+  struct GNUNET_CHAT_Handle *chat = cls;
+
+  GNUNET_assert((chat) && (chat->shutdown_hook));
+  chat->shutdown_hook = NULL;
+
+  handle_destroy(chat);
+}
+
+void
+on_handle_arm_connection(void *cls,
+			 int connected)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
