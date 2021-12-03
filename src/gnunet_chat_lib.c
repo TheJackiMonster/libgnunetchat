@@ -293,58 +293,7 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return NULL;
 
-  if (contact->context)
-    return contact->context;
-
-  struct GNUNET_CHAT_ContactFindRoom find;
-  find.room = NULL;
-  GNUNET_MESSENGER_find_rooms(
-      contact->handle->messenger,
-      contact->member,
-      it_contact_find_room,
-      &find
-  );
-
-  // TODO: Check if the found room is a group or not
-
-  if (!(find.room))
-    return NULL;
-
-  struct GNUNET_HashCode key;
-  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
-
-  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
-      contact->handle->contexts, &key))
-    return NULL;
-
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      contact->handle->messenger, &key
-  );
-
-  if (!room)
-    return NULL;
-
-  struct GNUNET_CHAT_Context *context = context_create_from_room(
-      contact->handle, room
-  );
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      contact->handle->contexts, &key, context,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-  {
-    context_destroy(context);
-    return NULL;
-  }
-
-  struct GNUNET_MESSENGER_Message msg;
-  msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
-  GNUNET_CRYPTO_get_peer_identity(contact->handle->cfg, &(msg.body.invite.door));
-  GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
-
-  GNUNET_MESSENGER_send_message(find.room, &msg, contact->member);
-
-  contact->context = context;
-  return contact->context;
+  return contact_find_context(contact);
 }
 
 
@@ -444,6 +393,11 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
   if ((!group) || (!contact))
     return;
 
+  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
+
+  if (!context)
+    return;
+
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
       group->context->room
   );
@@ -457,7 +411,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
   GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &(msg.body.invite.door));
   GNUNET_memcpy(&(msg.body.invite.key), key, sizeof(msg.body.invite.key));
 
-  GNUNET_MESSENGER_send_message(contact->context->room, &msg, contact->member);
+  GNUNET_MESSENGER_send_message(context->room, &msg, contact->member);
 }
 
 

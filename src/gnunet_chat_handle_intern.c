@@ -306,13 +306,13 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
       room, check_handle_room_members, &check
   );
 
-  if (check.contact)
+  if ((check.contact) &&
+      (GNUNET_OK == intern_provide_contact_for_member(handle,
+						      check.contact,
+						      context)))
   {
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-
-    if (GNUNET_OK == intern_provide_contact_for_member(
-	handle, check.contact, context))
-      return GNUNET_OK;
+    return GNUNET_OK;
   }
   else if (checks >= 2)
   {

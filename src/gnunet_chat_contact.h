@@ -51,6 +51,9 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 void
 contact_update_key (struct GNUNET_CHAT_Contact *contact);
 
+struct GNUNET_CHAT_Context*
+contact_find_context (struct GNUNET_CHAT_Contact *contact);
+
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact);
 
