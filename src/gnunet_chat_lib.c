@@ -463,10 +463,10 @@ GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
   if ((!context) || (!(context->room)))
     return GNUNET_SYSERR;
 
-  if (1 <= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL))
+  if (1 >= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL))
     return GNUNET_NO;
 
-  return GNUNET_YES;
+  return GNUNET_OK;
 }
 
 
