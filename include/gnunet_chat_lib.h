@@ -528,6 +528,28 @@ struct GNUNET_CHAT_Context*
 GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group);
 
 /**
+ * Returns the current status of a given <i>context</i> whether it is usable
+ * or not to communicate with other contacts.
+ *
+ * @param[in] context Context
+ * @return #GNUNET_OK if usable, #GNUNET_NO if the context has been requested,
+ *         #GNUNET_SYSERR otherwise.
+ */
+int
+GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context);
+
+/**
+ * Requests a <i>context</i> to get established between all required contacts.
+ * The current status of this request can be tracked via
+ * #GNUNET_CHAT_context_get_status() and will only change through the
+ * receivement of new messages.
+ *
+ * @param[in,out] context Context
+ */
+void
+GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context);
+
+/**
  * Returns the chat contact which uses a given <i>context</i>.
  *
  * @param[in] context Context

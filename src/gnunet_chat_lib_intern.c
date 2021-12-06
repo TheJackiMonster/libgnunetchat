@@ -95,6 +95,7 @@ it_handle_iterate_groups (void *cls,
 
 struct GNUNET_CHAT_RoomFindContact
 {
+  const struct GNUNET_IDENTITY_PublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
@@ -105,7 +106,16 @@ it_room_find_contact (void *cls,
 {
   GNUNET_assert((cls) && (member));
 
+  const struct GNUNET_IDENTITY_PublicKey *key = GNUNET_MESSENGER_contact_get_key(
+      member
+  );
+
   struct GNUNET_CHAT_RoomFindContact *find = cls;
+
+  if ((find->ignore_key) && (key) &&
+      (0 == GNUNET_memcmp(find->ignore_key, key)))
+    return GNUNET_YES;
+
   find->contact = member;
   return GNUNET_NO;
 }
@@ -129,14 +139,9 @@ it_group_iterate_contacts (void* cls,
   if (!(it->cb))
     return GNUNET_YES;
 
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(member, &shorthash);
-
-  struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
-      it->group->handle->contacts, &shorthash
-  );
-
-  return it->cb(it->cls, it->group, contact);
+  return it->cb(it->cls, it->group, handle_get_contact_from_messenger(
+      it->group->handle, member
+  ));
 }
 
 struct GNUNET_CHAT_ContextIterateMessages

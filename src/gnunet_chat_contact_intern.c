@@ -26,6 +26,7 @@
 
 struct GNUNET_CHAT_ContactFindRoom
 {
+  int member_count;
   struct GNUNET_MESSENGER_Room *room;
 };
 
@@ -36,7 +37,16 @@ it_contact_find_room (void *cls,
 {
   GNUNET_assert((cls) && (room));
 
+  const int member_count = GNUNET_MESSENGER_iterate_members(room, NULL, NULL);
+
   struct GNUNET_CHAT_ContactFindRoom *find = cls;
-  find->room = room;
-  return GNUNET_NO;
+
+  if ((find->member_count <= 0) ||
+      ((member_count >= 1) && (member_count < find->member_count)))
+  {
+    find->member_count = member_count;
+    find->room = room;
+  }
+
+  return GNUNET_YES;
 }

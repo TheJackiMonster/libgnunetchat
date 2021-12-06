@@ -47,6 +47,33 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
 
   context->room = room;
+  context->contact = NULL;
+
+  context->user_pointer = NULL;
+
+  return context;
+}
+
+struct GNUNET_CHAT_Context*
+context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
+			     const struct GNUNET_MESSENGER_Contact *contact)
+{
+  GNUNET_assert((handle) && (contact));
+
+  struct GNUNET_CHAT_Context* context = GNUNET_new(struct GNUNET_CHAT_Context);
+
+  context->handle = handle;
+
+  context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+  context->nick = NULL;
+
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(4, GNUNET_NO);
+  context->messages = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
+  context->invites = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
+  context->files = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
+
+  context->room = NULL;
+  context->contact = contact;
 
   context->user_pointer = NULL;
 

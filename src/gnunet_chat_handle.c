@@ -164,3 +164,17 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
 
   GNUNET_free(handle);
 }
+
+struct GNUNET_CHAT_Contact*
+handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
+				   const struct GNUNET_MESSENGER_Contact *contact)
+{
+  GNUNET_assert((handle) && (handle->contacts) && (contact));
+
+  struct GNUNET_ShortHashCode shorthash;
+  util_shorthash_from_member(contact, &shorthash);
+
+  return GNUNET_CONTAINER_multishortmap_get(
+      handle->contacts, &shorthash
+  );
+}

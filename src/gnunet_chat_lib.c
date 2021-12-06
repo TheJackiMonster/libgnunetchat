@@ -293,7 +293,20 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return NULL;
 
-  return contact_find_context(contact);
+  if (contact->context)
+    return contact->context;
+
+  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
+
+  if ((context) && (GNUNET_CHAT_CONTEXT_TYPE_CONTACT == context->type))
+    return context;
+
+  context = context_create_from_contact(contact->handle, contact->member);
+
+  if (context)
+    contact->context = context;
+
+  return context;
 }
 
 
@@ -444,15 +457,79 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 }
 
 
+int
+GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
+{
+  if ((!context) || (!(context->room)))
+    return GNUNET_SYSERR;
+
+  if (1 <= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL))
+    return GNUNET_NO;
+
+  return GNUNET_YES;
+}
+
+
+void
+GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
+{
+  if ((!context) || (context->room))
+    return;
+
+  struct GNUNET_CHAT_Handle *handle = context->handle;
+
+  if ((!handle) || (!(context->contact)))
+    return;
+
+  struct GNUNET_CHAT_Contact *contact = contact_create_from_member(
+      handle, context->contact
+  );
+
+  if (!contact)
+    return;
+
+  struct GNUNET_CHAT_Context *other = contact_find_context(contact);
+
+  if ((!other) || (!(other->room)))
+    return;
+
+  struct GNUNET_HashCode key;
+  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
+
+  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
+      handle->contexts, &key))
+    return;
+
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
+      handle->messenger, &key
+  );
+
+  if (!room)
+    return;
+
+  struct GNUNET_MESSENGER_Message msg;
+  msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
+  GNUNET_CRYPTO_get_peer_identity(handle->cfg, &(msg.body.invite.door));
+  GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
+
+  GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);
+  context->room = room;
+}
+
+
 const struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
 {
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_CONTACT != context->type))
     return NULL;
 
+  if (context->contact)
+    return handle_get_contact_from_messenger(context->handle, context->contact);
+
   struct GNUNET_MESSENGER_Room *room = context->room;
   struct GNUNET_CHAT_RoomFindContact find;
 
+  find.ignore_key = GNUNET_MESSENGER_get_key(context->handle->messenger);
   find.contact = NULL;
 
   GNUNET_MESSENGER_iterate_members(
@@ -464,16 +541,7 @@ GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
   if (!find.contact)
     return NULL;
 
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(find.contact, &shorthash);
-
-  const struct GNUNET_CHAT_Contact *contact;
-  contact = GNUNET_CONTAINER_multishortmap_get(
-      context->handle->contacts, &shorthash
-  );
-
-  GNUNET_assert((contact == NULL) || (contact->context == context));
-  return contact;
+  return handle_get_contact_from_messenger(context->handle, find.contact);
 }
 
 
@@ -524,7 +592,7 @@ int
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 			       const char *text)
 {
-  if ((!context) || (!text))
+  if ((!context) || (!text) || (!(context->room)))
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
@@ -544,7 +612,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       GNUNET_CHAT_FileUploadCallback callback,
 			       void *cls)
 {
-  if ((!context) || (!path))
+  if ((!context) || (!path) || (!(context->room)))
     return GNUNET_SYSERR;
 
   if (!(context->handle->directory))
@@ -620,7 +688,8 @@ int
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_CHAT_File *file)
 {
-  if ((!context) || (!file) || (strlen(file->name) > NAME_MAX))
+  if ((!context) || (!file) || (strlen(file->name) > NAME_MAX) ||
+      (!(context->room)))
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
@@ -741,12 +810,7 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
   if (!sender)
     return NULL;
 
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(sender, &shorthash);
-
-  return GNUNET_CONTAINER_multishortmap_get(
-      message->context->handle->contacts, &shorthash
-  );
+  return handle_get_contact_from_messenger(message->context->handle, sender);
 }
 
 

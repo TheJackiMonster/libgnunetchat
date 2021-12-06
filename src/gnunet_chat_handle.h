@@ -73,4 +73,8 @@ handle_update_key (struct GNUNET_CHAT_Handle *handle);
 void
 handle_destroy (struct GNUNET_CHAT_Handle* handle);
 
+struct GNUNET_CHAT_Contact*
+handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
+				   const struct GNUNET_MESSENGER_Contact *contact);
+
 #endif /* GNUNET_CHAT_HANDLE_H_ */

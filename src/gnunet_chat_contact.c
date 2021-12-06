@@ -77,7 +77,9 @@ contact_find_context (struct GNUNET_CHAT_Contact *contact)
     return contact->context;
 
   struct GNUNET_CHAT_ContactFindRoom find;
+  find.member_count = 0;
   find.room = NULL;
+
   GNUNET_MESSENGER_find_rooms(
       contact->handle->messenger,
       contact->member,
@@ -85,46 +87,13 @@ contact_find_context (struct GNUNET_CHAT_Contact *contact)
       &find
   );
 
-  // TODO: Check if the found room is a group or not
-
   if (!(find.room))
     return NULL;
 
-  struct GNUNET_HashCode key;
-  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
-
-  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
-      contact->handle->contexts, &key))
-    return NULL;
-
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      contact->handle->messenger, &key
+  return GNUNET_CONTAINER_multihashmap_get(
+      contact->handle->contexts,
+      GNUNET_MESSENGER_room_get_key(find.room)
   );
-
-  if (!room)
-    return NULL;
-
-  struct GNUNET_CHAT_Context *context = context_create_from_room(
-      contact->handle, room
-  );
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      contact->handle->contexts, &key, context,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-  {
-    context_destroy(context);
-    return NULL;
-  }
-
-  struct GNUNET_MESSENGER_Message msg;
-  msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
-  GNUNET_CRYPTO_get_peer_identity(contact->handle->cfg, &(msg.body.invite.door));
-  GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
-
-  GNUNET_MESSENGER_send_message(find.room, &msg, contact->member);
-
-  contact->context = context;
-  return contact->context;
 }
 
 void

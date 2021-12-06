@@ -54,6 +54,7 @@ struct GNUNET_CHAT_Context
   struct GNUNET_CONTAINER_MultiHashMap *files;
 
   struct GNUNET_MESSENGER_Room *room;
+  const struct GNUNET_MESSENGER_Contact *contact;
 
   void *user_pointer;
 };
@@ -61,6 +62,10 @@ struct GNUNET_CHAT_Context
 struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			  struct GNUNET_MESSENGER_Room *room);
+
+struct GNUNET_CHAT_Context*
+context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
+			     const struct GNUNET_MESSENGER_Contact *contact);
 
 void
 context_destroy (struct GNUNET_CHAT_Context* context);
