@@ -429,7 +429,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
 
 
 int
-GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
 				    GNUNET_CHAT_GroupContactCallback callback,
 				    void *cls)
 {

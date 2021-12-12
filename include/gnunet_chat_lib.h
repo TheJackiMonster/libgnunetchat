@@ -166,7 +166,7 @@ typedef int
  */
 typedef int
 (*GNUNET_CHAT_GroupContactCallback) (void *cls,
-                                     struct GNUNET_CHAT_Group *group,
+                                     const struct GNUNET_CHAT_Group *group,
                                      struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -514,7 +514,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
  * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
 				    GNUNET_CHAT_GroupContactCallback callback,
 				    void *cls);
 

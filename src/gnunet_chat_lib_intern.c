@@ -122,7 +122,7 @@ it_room_find_contact (void *cls,
 
 struct GNUNET_CHAT_GroupIterateContacts
 {
-  struct GNUNET_CHAT_Group *group;
+  const struct GNUNET_CHAT_Group *group;
   GNUNET_CHAT_GroupContactCallback cb;
   void *cls;
 };
