@@ -488,6 +488,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (!contact)
     return;
 
+  context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+
   struct GNUNET_CHAT_Context *other = contact_find_context(contact);
 
   if ((!other) || (!(other->room)))
@@ -506,6 +508,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
 
   if (!room)
     return;
+
+  intern_room_send_name(handle->messenger, room);
 
   struct GNUNET_MESSENGER_Message msg;
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
@@ -797,7 +801,7 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 }
 
 
-const struct GNUNET_CHAT_Contact*
+struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
   if ((!message) || (!(message->context)))

@@ -284,7 +284,11 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
       handle->contexts, key
   );
 
-  if (context)
+  struct GNUNET_CHAT_CheckHandleRoomMembers check;
+
+  if ((context) && (GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN == context->type))
+    goto check_context_type;
+  else if (context)
     return GNUNET_OK;
 
   context = context_create_from_room(handle, room);
@@ -298,7 +302,7 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_SYSERR;
   }
 
-  struct GNUNET_CHAT_CheckHandleRoomMembers check;
+check_context_type:
   check.ignore_key = GNUNET_MESSENGER_get_key(handle->messenger);
   check.contact = NULL;
 
@@ -310,10 +314,7 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
       (GNUNET_OK == intern_provide_contact_for_member(handle,
 						      check.contact,
 						      context)))
-  {
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-    return GNUNET_OK;
-  }
   else if (checks >= 2)
   {
     context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
@@ -333,17 +334,13 @@ request_handle_context_by_room (struct GNUNET_CHAT_Handle *handle,
       return GNUNET_OK;
 
     group_destroy(group);
-  }
-  else
-  {
-    context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
 
-    // TODO: handle chats which only contain yourself currently!
+    GNUNET_CONTAINER_multihashmap_remove(handle->contexts, key, context);
+    context_destroy(context);
+    return GNUNET_SYSERR;
   }
 
-  GNUNET_CONTAINER_multihashmap_remove(handle->contexts, key, context);
-  context_destroy(context);
-  return GNUNET_SYSERR;
+  return GNUNET_OK;
 }
 
 int

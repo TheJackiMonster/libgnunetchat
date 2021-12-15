@@ -681,7 +681,7 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @return Contact of the messages sender
  */
-const struct GNUNET_CHAT_Contact*
+struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message);
 
 /**
