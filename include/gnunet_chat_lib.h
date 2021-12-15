@@ -443,6 +443,17 @@ void*
 GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact);
 
 /**
+ * Returns if a given <i>contact</i> is owned as account and whether it has
+ * sent messages with.
+ *
+ * @param[in] contact Contact
+ * @return GNUNET_YES if the contact is owned, otherwise GNUNET_NO
+ *         and GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact);
+
+/**
  * Leaves a specific <i>group</i> chat and frees its memory if it is not shared
  * with other groups or contacts.
  *

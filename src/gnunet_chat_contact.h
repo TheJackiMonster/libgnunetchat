@@ -42,6 +42,8 @@ struct GNUNET_CHAT_Contact
 
   char *public_key;
   void *user_pointer;
+
+  int is_owned;
 };
 
 struct GNUNET_CHAT_Contact*

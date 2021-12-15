@@ -464,6 +464,13 @@ on_handle_message (void *cls,
   struct GNUNET_ShortHashCode shorthash;
   util_shorthash_from_member(sender, &shorthash);
 
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
+      handle->contacts, &shorthash
+  );
+
+  if (flags & GNUNET_MESSENGER_FLAG_SENT)
+    contact->is_owned = GNUNET_YES;
+
   struct GNUNET_TIME_Absolute *time = GNUNET_CONTAINER_multishortmap_get(
       context->timestamps, &shorthash
   );
@@ -501,10 +508,6 @@ on_handle_message (void *cls,
   {
     case GNUNET_MESSENGER_KIND_KEY:
     {
-      struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
-	  handle->contacts, &shorthash
-      );
-
       contact_update_key(contact);
       break;
     }

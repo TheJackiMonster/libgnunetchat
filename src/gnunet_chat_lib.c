@@ -332,6 +332,16 @@ GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact)
 
 
 int
+GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact)
+{
+  if (!contact)
+    return GNUNET_SYSERR;
+
+  return contact->is_owned;
+}
+
+
+int
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 {
   if (!group)

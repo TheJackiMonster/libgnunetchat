@@ -22,6 +22,8 @@
  * @file gnunet_chat_contact_intern.c
  */
 
+#include <stdlib.h>
+
 #define GNUNET_UNUSED __attribute__ ((unused))
 
 struct GNUNET_CHAT_ContactFindRoom

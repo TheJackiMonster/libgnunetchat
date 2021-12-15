@@ -44,6 +44,8 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
   contact->public_key = NULL;
   contact->user_pointer = NULL;
 
+  contact->is_owned = GNUNET_NO;
+
   contact_update_key (contact);
   return contact;
 }
