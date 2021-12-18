@@ -197,8 +197,9 @@ util_get_filename (const char *directory,
 
   return GNUNET_asprintf (
       filename,
-      "%s%s%c%s",
+      "%s%c%s%c%s",
       directory,
+      DIR_SEPARATOR,
       subdir,
       DIR_SEPARATOR,
       GNUNET_h2s_full(hash)
