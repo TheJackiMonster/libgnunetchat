@@ -126,18 +126,6 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
   if (handle->shutdown_hook)
     GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
 
-  if (handle->public_key)
-    GNUNET_free(handle->public_key);
-
-  if (handle->messenger)
-    GNUNET_MESSENGER_disconnect(handle->messenger);
-
-  if (handle->files)
-    GNUNET_FS_stop(handle->fs);
-
-  if (handle->arm)
-    GNUNET_ARM_disconnect(handle->arm);
-
   GNUNET_CONTAINER_multihashmap_iterate(
       handle->groups, it_destroy_handle_groups, NULL
   );
@@ -149,6 +137,18 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
   GNUNET_CONTAINER_multihashmap_iterate(
       handle->contexts, it_destroy_handle_contexts, NULL
   );
+
+  if (handle->public_key)
+    GNUNET_free(handle->public_key);
+
+  if (handle->messenger)
+    GNUNET_MESSENGER_disconnect(handle->messenger);
+
+  if (handle->files)
+    GNUNET_FS_stop(handle->fs);
+
+  if (handle->arm)
+    GNUNET_ARM_disconnect(handle->arm);
 
   GNUNET_CONTAINER_multihashmap_iterate(
       handle->files, it_destroy_handle_files, NULL
@@ -163,6 +163,101 @@ handle_destroy (struct GNUNET_CHAT_Handle* handle)
     GNUNET_free(handle->directory);
 
   GNUNET_free(handle);
+}
+
+int
+handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
+				struct GNUNET_MESSENGER_Room *room)
+{
+  GNUNET_assert((handle) &&
+		(handle->contexts) &&
+		(room));
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+      handle->contexts, key
+  );
+
+  struct GNUNET_CHAT_CheckHandleRoomMembers check;
+
+  if ((context) && (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
+    goto check_context_type;
+  else if (context)
+    return GNUNET_OK;
+
+  context = context_create_from_room(handle, room);
+  context_load_config(context);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->contexts, key, context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_destroy(context);
+    return GNUNET_SYSERR;
+  }
+
+check_context_type:
+  check.ignore_key = GNUNET_MESSENGER_get_key(handle->messenger);
+  check.contact = NULL;
+
+  const int checks = GNUNET_MESSENGER_iterate_members(
+      room, check_handle_room_members, &check
+  );
+
+  if (GNUNET_SYSERR == checks)
+  {
+    GNUNET_CONTAINER_multihashmap_remove(handle->contexts, key, context);
+    context_destroy(context);
+    return GNUNET_SYSERR;
+  }
+
+  if ((check.contact) &&
+      (GNUNET_OK == intern_provide_contact_for_member(handle,
+						      check.contact,
+						      context)))
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+  else if (checks >= 2)
+  {
+    if ((context->contact) &&
+	(context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT))
+    {
+      struct GNUNET_CHAT_Contact *contact = handle_get_contact_from_messenger(
+	  handle, check.contact
+      );
+
+      if ((contact) && (contact->context == context))
+	contact->context = NULL;
+
+      context->contact = NULL;
+    }
+
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+
+    GNUNET_MESSENGER_iterate_members(room, scan_handle_room_members, handle);
+
+    struct GNUNET_CHAT_Group *group = group_create_from_context(
+      handle, context
+    );
+
+    group_load_config(group);
+
+    if (group->topic)
+      group_publish(group);
+
+    if (GNUNET_OK == GNUNET_CONTAINER_multihashmap_put(
+      handle->groups, key, group,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+      return GNUNET_OK;
+
+    group_destroy(group);
+
+    GNUNET_CONTAINER_multihashmap_remove(handle->contexts, key, context);
+    context_destroy(context);
+    return GNUNET_SYSERR;
+  }
+
+  return GNUNET_OK;
 }
 
 struct GNUNET_CHAT_Contact*

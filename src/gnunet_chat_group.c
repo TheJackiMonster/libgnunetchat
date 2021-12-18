@@ -109,19 +109,19 @@ group_load_config (struct GNUNET_CHAT_Group *group)
   if ((!directory) || (!(group->context)))
     return;
 
-  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
       group->context->room
   );
 
   char* filename;
-  util_get_filename(directory, "groups", hash, &filename);
+  util_get_filename(directory, "groups", key, &filename);
 
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
     goto free_filename;
 
   struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
 
-  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, directory))
+  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
     goto destroy_config;
 
   char* name = NULL;
@@ -150,7 +150,7 @@ group_save_config (const struct GNUNET_CHAT_Group *group)
   if ((!directory) || (!(group->context)))
     return;
 
-  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
       group->context->room
   );
 
@@ -161,14 +161,14 @@ group_save_config (const struct GNUNET_CHAT_Group *group)
     struct GNUNET_HashCode topic_hash;
     GNUNET_CRYPTO_hash(group->topic, strlen(group->topic), &topic_hash);
 
-    if (0 == GNUNET_memcmp(hash, &topic_hash))
+    if (0 == GNUNET_memcmp(key, &topic_hash))
       GNUNET_CONFIGURATION_set_value_string(
 	config, "group", "topic", group->topic
       );
   }
 
   char* filename;
-  util_get_filename(directory, "groups", hash, &filename);
+  util_get_filename(directory, "groups", key, &filename);
 
   if (GNUNET_OK == GNUNET_DISK_directory_create_for_file(filename))
     GNUNET_CONFIGURATION_write(config, filename);

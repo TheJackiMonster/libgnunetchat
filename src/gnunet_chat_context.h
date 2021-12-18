@@ -76,4 +76,7 @@ context_load_config (struct GNUNET_CHAT_Context *context);
 void
 context_save_config (const struct GNUNET_CHAT_Context *context);
 
+void
+context_scan_configs (struct GNUNET_CHAT_Handle *handle);
+
 #endif /* GNUNET_CHAT_CONTEXT_H_ */

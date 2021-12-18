@@ -136,7 +136,7 @@ context_load_config (struct GNUNET_CHAT_Context *context)
 
   struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
 
-  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, directory))
+  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
     goto destroy_config;
 
   char* name = NULL;
@@ -167,11 +167,16 @@ context_save_config (const struct GNUNET_CHAT_Context *context)
   if (!directory)
     return;
 
-  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
       context->room
   );
 
   struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
+
+  if (context->room)
+    GNUNET_CONFIGURATION_set_value_string(
+	config, "chat", "key", GNUNET_h2s_full(key)
+    );
 
   if (context->nick)
     GNUNET_CONFIGURATION_set_value_string(
@@ -179,7 +184,7 @@ context_save_config (const struct GNUNET_CHAT_Context *context)
     );
 
   char* filename;
-  util_get_filename(directory, "chats", hash, &filename);
+  util_get_filename(directory, "chats", key, &filename);
 
   if (GNUNET_OK == GNUNET_DISK_directory_create_for_file(filename))
     GNUNET_CONFIGURATION_write(config, filename);
@@ -187,4 +192,67 @@ context_save_config (const struct GNUNET_CHAT_Context *context)
   GNUNET_CONFIGURATION_destroy(config);
 
   GNUNET_free(filename);
+}
+
+enum GNUNET_GenericReturnValue
+callback_scan_for_configs (void *cls,
+			   const char *filename)
+{
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+  struct GNUNET_PeerIdentity door;
+  struct GNUNET_HashCode key;
+
+  memset(&door, 0, sizeof(door));
+  memset(&key, 0, sizeof(key));
+
+  if ((!filename) ||
+      (GNUNET_OK != GNUNET_CRYPTO_get_peer_identity(handle->cfg, &door)))
+    return GNUNET_YES;
+
+  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
+
+  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
+    goto destroy_config;
+
+  char* key_value = NULL;
+
+  if ((GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
+      config, "chat", "key", &key_value)) &&
+      (GNUNET_OK == GNUNET_CRYPTO_hash_from_string(key_value, &key)))
+    GNUNET_MESSENGER_enter_room(
+	handle->messenger, &door, &key
+    );
+
+  if (key_value)
+    GNUNET_free(key_value);
+
+destroy_config:
+  GNUNET_CONFIGURATION_destroy(config);
+  return GNUNET_YES;
+}
+
+void
+context_scan_configs (struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert((handle) && (handle->messenger));
+
+  const char *directory = handle->directory;
+
+  if (!directory)
+    return;
+
+  char* dirname;
+  util_get_dirname(handle->directory, "chats", &dirname);
+
+  if (GNUNET_YES != GNUNET_DISK_directory_test(dirname, GNUNET_YES))
+    goto free_dirname;
+
+  GNUNET_DISK_directory_scan(
+      dirname,
+      callback_scan_for_configs,
+      handle
+  );
+
+free_dirname:
+  GNUNET_free(dirname);
 }

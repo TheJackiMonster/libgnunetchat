@@ -185,6 +185,24 @@ util_decrypt_file (const char *filename,
 }
 
 int
+util_get_dirname (const char *directory,
+		  const char *subdir,
+		  char **filename)
+{
+  GNUNET_assert((filename) &&
+  		(directory) &&
+  		(subdir));
+
+  return GNUNET_asprintf (
+      filename,
+      "%s%c%s",
+      directory,
+      DIR_SEPARATOR,
+      subdir
+  );
+}
+
+int
 util_get_filename (const char *directory,
 		   const char *subdir,
 		   const struct GNUNET_HashCode *hash,
