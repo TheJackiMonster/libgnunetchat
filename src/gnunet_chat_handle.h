@@ -36,6 +36,7 @@
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"
+#include "gnunet_chat_message.h"
 
 struct GNUNET_CHAT_Handle
 {
@@ -71,7 +72,17 @@ void
 handle_update_key (struct GNUNET_CHAT_Handle *handle);
 
 void
-handle_destroy (struct GNUNET_CHAT_Handle* handle);
+handle_destroy (struct GNUNET_CHAT_Handle *handle);
+
+void
+handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
+			      struct GNUNET_CHAT_Context *context,
+			      enum GNUNET_CHAT_MessageFlag flag,
+			      const char *warning);
+
+void
+handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
+		       struct GNUNET_MESSENGER_Room *room);
 
 int
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
@@ -80,5 +91,9 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 struct GNUNET_CHAT_Contact*
 handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
 				   const struct GNUNET_MESSENGER_Contact *contact);
+
+struct GNUNET_CHAT_Group*
+handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
+				 const struct GNUNET_MESSENGER_Room *room);
 
 #endif /* GNUNET_CHAT_HANDLE_H_ */

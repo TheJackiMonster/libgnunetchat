@@ -213,13 +213,17 @@ util_get_filename (const char *directory,
 		(subdir) &&
 		(hash));
 
-  return GNUNET_asprintf (
+  char* dirname;
+  util_get_dirname(directory, subdir, &dirname);
+
+  int result = GNUNET_asprintf (
       filename,
-      "%s%c%s%c%s",
-      directory,
-      DIR_SEPARATOR,
-      subdir,
+      "%s%c%s",
+      dirname,
       DIR_SEPARATOR,
       GNUNET_h2s_full(hash)
   );
+
+  GNUNET_free(dirname);
+  return result;
 }

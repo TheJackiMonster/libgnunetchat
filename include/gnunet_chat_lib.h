@@ -55,39 +55,44 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_LOGIN = 2,      /**< GNUNET_CHAT_KIND_LOGIN */
 
   /**
+   * The kind to inform that a context was updated.
+   */
+  GNUNET_CHAT_KIND_UPDATE = 3,      /**< GNUNET_CHAT_KIND_UPDATE */
+
+  /**
    * The kind to inform that a contact has joined a chat.
    */
-  GNUNET_CHAT_KIND_JOIN = 3,       /**< GNUNET_CHAT_KIND_JOIN */
+  GNUNET_CHAT_KIND_JOIN = 4,       /**< GNUNET_CHAT_KIND_JOIN */
 
   /**
    * The kind to inform that a contact has left a chat.
    */
-  GNUNET_CHAT_KIND_LEAVE = 4,      /**< GNUNET_CHAT_KIND_LEAVE */
+  GNUNET_CHAT_KIND_LEAVE = 5,      /**< GNUNET_CHAT_KIND_LEAVE */
 
   /**
    * The kind to inform that a contact has changed.
    */
-  GNUNET_CHAT_KIND_CONTACT = 5,    /**< GNUNET_CHAT_KIND_CONTACT */
+  GNUNET_CHAT_KIND_CONTACT = 6,    /**< GNUNET_CHAT_KIND_CONTACT */
 
   /**
    * The kind to describe an invitation to a different chat.
    */
-  GNUNET_CHAT_KIND_INVITATION = 6, /**< GNUNET_CHAT_KIND_INVITATION */
+  GNUNET_CHAT_KIND_INVITATION = 7, /**< GNUNET_CHAT_KIND_INVITATION */
 
   /**
    * The kind to describe a text message.
    */
-  GNUNET_CHAT_KIND_TEXT = 7,       /**< GNUNET_CHAT_KIND_TEXT */
+  GNUNET_CHAT_KIND_TEXT = 8,       /**< GNUNET_CHAT_KIND_TEXT */
 
   /**
    * The kind to describe a shared file.
    */
-  GNUNET_CHAT_KIND_FILE = 8,       /**< GNUNET_CHAT_KIND_FILE */
+  GNUNET_CHAT_KIND_FILE = 9,       /**< GNUNET_CHAT_KIND_FILE */
 
   /**
    * The kind to inform about a deletion of a previous message.
    */
-  GNUNET_CHAT_KIND_DELETION = 9,   /**< GNUNET_CHAT_KIND_DELETION */
+  GNUNET_CHAT_KIND_DELETION = 10,  /**< GNUNET_CHAT_KIND_DELETION */
 
   /**
    * An unknown kind of message.

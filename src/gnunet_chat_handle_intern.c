@@ -266,7 +266,8 @@ check_handle_room_members (void* cls,
       GNUNET_MESSENGER_contact_get_key(member)
   );
 
-  if ((member_key) && (0 == GNUNET_memcmp(member_key, check->ignore_key)))
+  if ((member_key) && (check->ignore_key) &&
+      (0 == GNUNET_memcmp(member_key, check->ignore_key)))
     return GNUNET_YES;
 
   if (check->contact)
@@ -313,15 +314,12 @@ on_handle_identity(void *cls,
   GNUNET_assert(handle->messenger);
   context_scan_configs(handle);
 
-  if (!handle->msg_cb)
-    return;
-
-  struct GNUNET_CHAT_Message *msg = message_create_internally(
-      NULL, GNUNET_CHAT_FLAG_LOGIN, NULL
+  handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_FLAG_LOGIN,
+      NULL
   );
-
-  handle->msg_cb(handle->msg_cls, NULL, msg);
-  message_destroy(msg);
 }
 
 void

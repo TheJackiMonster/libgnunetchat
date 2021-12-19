@@ -81,7 +81,7 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
 }
 
 void
-context_destroy (struct GNUNET_CHAT_Context* context)
+context_destroy (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((context) &&
 		(context->timestamps) &&
@@ -110,6 +110,56 @@ context_destroy (struct GNUNET_CHAT_Context* context)
     GNUNET_free(context->nick);
 
   GNUNET_free(context);
+}
+
+void
+context_update_room (struct GNUNET_CHAT_Context *context,
+		     struct GNUNET_MESSENGER_Room *room)
+{
+  GNUNET_assert(context);
+
+  if (room == context->room)
+    return;
+
+  GNUNET_CONTAINER_multishortmap_iterate(
+      context->timestamps, it_destroy_context_timestamps, NULL
+  );
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+      context->messages, it_destroy_context_messages, NULL
+  );
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+      context->invites, it_destroy_context_invites, NULL
+  );
+
+  GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
+
+  GNUNET_CONTAINER_multihashmap_clear(context->messages);
+  GNUNET_CONTAINER_multihashmap_clear(context->invites);
+  GNUNET_CONTAINER_multihashmap_clear(context->files);
+
+  context->room = room;
+}
+
+void
+context_update_nick (struct GNUNET_CHAT_Context *context,
+		     const char *nick)
+{
+  GNUNET_assert(context);
+
+  util_set_name_field(nick, &(context->nick));
+
+  if (!context->handle)
+    return;
+
+  handle_send_internal_message(
+      context->handle,
+      context,
+      GNUNET_CHAT_FLAG_UPDATE,
+      NULL
+  );
 }
 
 void
@@ -143,10 +193,26 @@ context_load_config (struct GNUNET_CHAT_Context *context)
 
   if (GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
       config, "chat", "name", &name))
-    util_set_name_field(name, &(context->nick));
+    context_update_nick(context, name);
 
   if (name)
     GNUNET_free(name);
+
+  unsigned long long type_number;
+
+  if (GNUNET_OK == GNUNET_CONFIGURATION_get_value_number(
+      config, "chat", "type", &type_number))
+    switch (type_number) {
+      case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
+	context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+	break;
+      case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
+      	context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+      	break;
+      default:
+	context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
+	break;
+    }
 
 destroy_config:
   GNUNET_CONFIGURATION_destroy(config);
@@ -181,6 +247,11 @@ context_save_config (const struct GNUNET_CHAT_Context *context)
   if (context->nick)
     GNUNET_CONFIGURATION_set_value_string(
 	config, "chat", "name", context->nick
+    );
+
+  if (GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN != context->type)
+    GNUNET_CONFIGURATION_set_value_number(
+	config, "chat", "type", context->type
     );
 
   char* filename;
@@ -219,9 +290,11 @@ callback_scan_for_configs (void *cls,
   if ((GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
       config, "chat", "key", &key_value)) &&
       (GNUNET_OK == GNUNET_CRYPTO_hash_from_string(key_value, &key)))
-    GNUNET_MESSENGER_enter_room(
-	handle->messenger, &door, &key
-    );
+  {
+    handle_send_room_name(handle, GNUNET_MESSENGER_enter_room(
+    	handle->messenger, &door, &key
+    ));
+  }
 
   if (key_value)
     GNUNET_free(key_value);

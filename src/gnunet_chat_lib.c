@@ -172,9 +172,9 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
   if (!room)
     return NULL;
 
-  intern_room_send_name(handle->messenger, room);
-
   struct GNUNET_CHAT_Context *context = context_create_from_room(handle, room);
+
+  handle_send_room_name(handle, room);
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
 
@@ -260,7 +260,7 @@ GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
   if ((!contact) || (!(contact->context)))
     return;
 
-  util_set_name_field(name, &(contact->context->nick));
+  context_update_nick(contact->context, name);
 }
 
 
@@ -425,7 +425,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
       group->context->room
   );
 
-  intern_room_send_name(group->handle->messenger, GNUNET_MESSENGER_open_room(
+  handle_send_room_name(group->handle, GNUNET_MESSENGER_open_room(
       group->handle->messenger, key
   ));
 
@@ -519,7 +519,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (!room)
     return;
 
-  intern_room_send_name(handle->messenger, room);
+  context_update_room(context, room);
+  handle_send_room_name(handle, room);
 
   struct GNUNET_MESSENGER_Message msg;
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
@@ -527,7 +528,6 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
   GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);
-  context->room = room;
 }
 
 
@@ -546,13 +546,13 @@ GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
   find.ignore_key = GNUNET_MESSENGER_get_key(context->handle->messenger);
   find.contact = NULL;
 
-  GNUNET_MESSENGER_iterate_members(
+  int member_count = GNUNET_MESSENGER_iterate_members(
       room,
       it_room_find_contact,
       &find
   );
 
-  if (!find.contact)
+  if ((!find.contact) || (member_count > 2))
     return NULL;
 
   return handle_get_contact_from_messenger(context->handle, find.contact);
@@ -565,19 +565,10 @@ GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context)
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
     return NULL;
 
-  const struct GNUNET_MESSENGER_Room *room = context->room;
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
-
-  if (!key)
+  if (!context->room)
     return NULL;
 
-  const struct GNUNET_CHAT_Group *group;
-  group = GNUNET_CONTAINER_multihashmap_get(
-      context->handle->groups, key
-  );
-
-  GNUNET_assert((group == NULL) || (group->context == context));
-  return group;
+  return handle_get_group_from_messenger(context->handle, context->room);
 }
 
 
@@ -770,6 +761,8 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
       return GNUNET_CHAT_KIND_WARNING;
     case GNUNET_CHAT_FLAG_LOGIN:
       return GNUNET_CHAT_KIND_LOGIN;
+    case GNUNET_CHAT_FLAG_UPDATE:
+      return GNUNET_CHAT_KIND_UPDATE;
     default:
       break;
   }
@@ -814,7 +807,8 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
-  if ((!message) || (!(message->context)))
+  if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
+      (!message->context) || (!message->context->room))
     return NULL;
 
   const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(

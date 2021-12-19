@@ -48,27 +48,6 @@ it_handle_iterate_contacts (void *cls,
   return it->cb(it->cls, it->handle, contact);
 }
 
-void
-intern_room_send_name (struct GNUNET_MESSENGER_Handle *handle,
-		       struct GNUNET_MESSENGER_Room *room)
-{
-  GNUNET_assert((handle) && (room));
-
-  const char *name = GNUNET_MESSENGER_get_name(handle);
-
-  if (!name)
-    return;
-
-  struct GNUNET_MESSENGER_Message msg;
-
-  msg.header.kind = GNUNET_MESSENGER_KIND_NAME;
-  msg.body.name.name = GNUNET_strdup(name);
-
-  GNUNET_MESSENGER_send_message(room, &msg, NULL);
-
-  GNUNET_free(msg.body.name.name);
-}
-
 struct GNUNET_CHAT_HandleIterateGroups
 {
   struct GNUNET_CHAT_Handle *handle;

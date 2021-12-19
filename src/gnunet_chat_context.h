@@ -71,6 +71,14 @@ void
 context_destroy (struct GNUNET_CHAT_Context* context);
 
 void
+context_update_room (struct GNUNET_CHAT_Context *context,
+		     struct GNUNET_MESSENGER_Room *room);
+
+void
+context_update_nick (struct GNUNET_CHAT_Context *context,
+		     const char *nick);
+
+void
 context_load_config (struct GNUNET_CHAT_Context *context);
 
 void
