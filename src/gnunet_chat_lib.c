@@ -410,7 +410,7 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group)
 
 
 void
-GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
 				  struct GNUNET_CHAT_Contact *contact)
 {
   if ((!group) || (!contact))

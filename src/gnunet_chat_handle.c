@@ -221,7 +221,9 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_CheckHandleRoomMembers check;
 
-  if (context)
+  if ((context) && (context->type == GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN))
+    goto check_type;
+  else if (context)
     return GNUNET_OK;
 
   context = context_create_from_room(handle, room);
@@ -238,6 +240,7 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
   if (GNUNET_CHAT_CONTEXT_TYPE_GROUP == context->type)
     goto setup_group;
 
+check_type:
   check.ignore_key = GNUNET_MESSENGER_get_key(handle->messenger);
   check.contact = NULL;
 
