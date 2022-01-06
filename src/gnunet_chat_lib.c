@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -611,32 +611,40 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 }
 
 
-int
+struct GNUNET_CHAT_File*
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       const char *path,
 			       GNUNET_CHAT_FileUploadCallback callback,
 			       void *cls)
 {
   if ((!context) || (!path) || (!(context->room)))
-    return GNUNET_SYSERR;
+    return NULL;
 
   if (!(context->handle->directory))
-    return GNUNET_SYSERR;
+    return NULL;
 
   struct GNUNET_HashCode hash;
   if (GNUNET_OK != util_hash_file(path, &hash))
-    return GNUNET_SYSERR;
+    return NULL;
+
+  struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+      context->handle->files,
+      &hash
+  );
 
   char *filename;
   util_get_filename (
       context->handle->directory, "files", &hash, &filename
   );
 
+  if (file)
+    goto file_upload;
+
   if ((GNUNET_OK != GNUNET_DISK_directory_create_for_file(filename)) ||
       (GNUNET_OK != GNUNET_DISK_file_copy(path, filename)))
   {
     GNUNET_free(filename);
-    return GNUNET_SYSERR;
+    return NULL;
   }
 
   struct GNUNET_CRYPTO_SymmetricSessionKey key;
@@ -645,17 +653,30 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   if (GNUNET_OK != util_encrypt_file(filename, &key))
   {
     GNUNET_free(filename);
-    return GNUNET_SYSERR;
+    return NULL;
   }
 
   char* p = GNUNET_strdup(path);
 
-  struct GNUNET_CHAT_File *file = file_create_from_disk(
-      context->handle, basename(p), &hash, &key
+  file = file_create_from_disk(
+      context->handle,
+      basename(p),
+      &hash,
+      &key
   );
 
   GNUNET_free(p);
 
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      context->handle->files, &hash, file,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    file_destroy(file);
+    GNUNET_free(filename);
+    return NULL;
+  }
+
+file_upload:
   file_bind_upload(file, callback, cls);
 
   struct GNUNET_FS_BlockOptions bo;
@@ -685,7 +706,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   );
 
   GNUNET_free(filename);
-  return GNUNET_OK;
+  return file;
 }
 
 

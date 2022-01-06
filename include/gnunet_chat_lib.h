@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -624,9 +624,9 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
  * @param[in] path Local file path
  * @param[in] callback Callback for file uploading (optional)
  * @param[in,out] cls Closure for file uploading (optional)
- * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ * @return The file handle on success, NULL on failure
  */
-int
+struct GNUNET_CHAT_File*
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       const char *path,
 			       GNUNET_CHAT_FileUploadCallback callback,

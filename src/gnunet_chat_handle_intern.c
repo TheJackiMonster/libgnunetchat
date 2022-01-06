@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -418,7 +418,14 @@ on_handle_message (void *cls,
 	    GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
       );
 
-      struct GNUNET_CHAT_File *file = file_create_from_message(
+      struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+	  context->handle->files, &(msg->body.file.hash)
+      );
+
+      if (file)
+	break;
+
+      file = file_create_from_message(
 	  context->handle, &(msg->body.file)
       );
 

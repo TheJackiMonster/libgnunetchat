@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -156,17 +156,29 @@ struct GNUNET_CHAT_ContextIterateFiles
 
 int
 it_context_iterate_files (void *cls,
-			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			  void *value)
+			  const struct GNUNET_HashCode *key,
+			  GNUNET_UNUSED void *value)
 {
-  GNUNET_assert((cls) && (value));
+  GNUNET_assert((cls) && (key));
 
   struct GNUNET_CHAT_ContextIterateFiles *it = cls;
 
   if (!(it->cb))
     return GNUNET_YES;
 
-  struct GNUNET_CHAT_File *file = value;
+  struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
+      it->context->messages, key
+  );
+
+  if (!message)
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+      it->context->handle->files, &(message->hash)
+  );
+
+  if (!file)
+    return GNUNET_YES;
 
   return it->cb(it->cls, it->context, file);
 }
