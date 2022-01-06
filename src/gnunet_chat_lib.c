@@ -640,7 +640,8 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   if (file)
     goto file_upload;
 
-  if ((GNUNET_OK != GNUNET_DISK_directory_create_for_file(filename)) ||
+  if ((GNUNET_YES == GNUNET_DISK_file_test(filename)) ||
+      (GNUNET_OK != GNUNET_DISK_directory_create_for_file(filename)) ||
       (GNUNET_OK != GNUNET_DISK_file_copy(path, filename)))
   {
     GNUNET_free(filename);
