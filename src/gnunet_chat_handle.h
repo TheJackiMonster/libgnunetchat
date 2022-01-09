@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -38,10 +38,20 @@
 #include "gnunet_chat_lib.h"
 #include "gnunet_chat_message.h"
 
+struct GNUNET_CHAT_InternalMessages
+{
+  struct GNUNET_CHAT_Message *msg;
+  struct GNUNET_CHAT_InternalMessages *next;
+  struct GNUNET_CHAT_InternalMessages *prev;
+};
+
 struct GNUNET_CHAT_Handle
 {
   const struct GNUNET_CONFIGURATION_Handle* cfg;
   struct GNUNET_SCHEDULER_Task *shutdown_hook;
+
+  struct GNUNET_CHAT_InternalMessages *internal_head;
+  struct GNUNET_CHAT_InternalMessages *internal_tail;
 
   char *directory;
 

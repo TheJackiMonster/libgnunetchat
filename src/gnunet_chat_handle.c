@@ -42,6 +42,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
       on_handle_shutdown, handle
   );
 
+  handle->internal_head = NULL;
+  handle->internal_tail = NULL;
+
   if ((directory) &&
       (GNUNET_YES == GNUNET_DISK_directory_test(directory, GNUNET_YES)))
     handle->directory = GNUNET_strdup(directory);
@@ -162,6 +165,23 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->directory)
     GNUNET_free(handle->directory);
 
+  struct GNUNET_CHAT_InternalMessages *internal;
+  while (handle->internal_head)
+  {
+    internal = handle->internal_head;
+
+    if (internal->msg)
+      message_destroy(internal->msg);
+
+    GNUNET_CONTAINER_DLL_remove(
+	handle->internal_head,
+	handle->internal_tail,
+	internal
+    );
+
+    GNUNET_free(internal);
+  }
+
   GNUNET_free(handle);
 }
 
@@ -176,12 +196,27 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
   if (!(handle->msg_cb))
     return;
 
-  struct GNUNET_CHAT_Message *msg = message_create_internally(
+  struct GNUNET_CHAT_InternalMessages *internal = GNUNET_new(
+      struct GNUNET_CHAT_InternalMessages
+  );
+
+  internal->msg = message_create_internally(
       context, flag, warning
   );
 
-  handle->msg_cb(handle->msg_cls, context, msg);
-  message_destroy(msg);
+  if (!(internal->msg))
+  {
+    GNUNET_free(internal);
+    return;
+  }
+
+  handle->msg_cb(handle->msg_cls, context, internal->msg);
+
+  GNUNET_CONTAINER_DLL_insert(
+      handle->internal_head,
+      handle->internal_tail,
+      internal
+  );
 }
 
 void
