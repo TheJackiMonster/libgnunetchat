@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -151,7 +151,7 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 
   util_set_name_field(nick, &(context->nick));
 
-  if (!context->handle)
+  if (!(context->handle))
     return;
 
   handle_send_internal_message(

@@ -565,7 +565,7 @@ GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context)
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
     return NULL;
 
-  if (!context->room)
+  if (!(context->room))
     return NULL;
 
   return handle_get_group_from_messenger(context->handle, context->room);
@@ -830,7 +830,7 @@ struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
   if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
-      (!message->context) || (!message->context->room))
+      (!(message->context)) || (!(message->context->room)))
     return NULL;
 
   const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -104,7 +104,7 @@ handle_update_key (struct GNUNET_CHAT_Handle *handle)
 
   handle->public_key = NULL;
 
-  if (!handle->messenger)
+  if (!(handle->messenger))
     return;
 
   const struct GNUNET_IDENTITY_PublicKey *pubkey;
@@ -173,7 +173,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (GNUNET_CHAT_FLAG_NONE != flag));
 
-  if (!handle->msg_cb)
+  if (!(handle->msg_cb))
     return;
 
   struct GNUNET_CHAT_Message *msg = message_create_internally(
