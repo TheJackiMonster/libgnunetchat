@@ -248,7 +248,7 @@ file_update_upload (struct GNUNET_CHAT_File *file,
     upload = upload->next;
   }
 
-  if (completed < size)
+  if (!(file->uri))
     return;
 
   struct GNUNET_MESSENGER_Message message;
