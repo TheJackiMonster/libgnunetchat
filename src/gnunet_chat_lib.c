@@ -678,7 +678,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   }
 
 file_upload:
-  file_bind_upload(file, callback, cls);
+  file_bind_upload(file, context, callback, cls);
 
   struct GNUNET_FS_BlockOptions bo;
 

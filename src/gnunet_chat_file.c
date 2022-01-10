@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,11 +24,13 @@
 
 #include "gnunet_chat_file.h"
 
+#include "gnunet_chat_context.h"
+
 #include <limits.h>
 
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
-			  const struct GNUNET_MESSENGER_MessageFile* message)
+			  const struct GNUNET_MESSENGER_MessageFile *message)
 {
   GNUNET_assert((handle) &&
 		(message) &&
@@ -66,7 +68,8 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
-		       const char *name, const struct GNUNET_HashCode *hash,
+		       const char *name,
+		       const struct GNUNET_HashCode *hash,
 		       const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
   GNUNET_assert((handle) &&
@@ -105,7 +108,7 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 }
 
 void
-file_destroy (struct GNUNET_CHAT_File* file)
+file_destroy (struct GNUNET_CHAT_File *file)
 {
   GNUNET_assert(file);
 
@@ -164,8 +167,10 @@ file_destroy (struct GNUNET_CHAT_File* file)
 }
 
 void
-file_bind_upload (struct GNUNET_CHAT_File* file,
-		  GNUNET_CHAT_FileUploadCallback cb, void *cls)
+file_bind_upload (struct GNUNET_CHAT_File *file,
+		  struct GNUNET_CHAT_Context *context,
+		  GNUNET_CHAT_FileUploadCallback cb,
+		  void *cls)
 {
   GNUNET_assert(file);
 
@@ -173,6 +178,7 @@ file_bind_upload (struct GNUNET_CHAT_File* file,
       struct GNUNET_CHAT_FileUpload
   );
 
+  upload->context = context;
   upload->callback = cb;
   upload->cls = cls;
 
@@ -184,8 +190,9 @@ file_bind_upload (struct GNUNET_CHAT_File* file,
 }
 
 void
-file_bind_downlaod (struct GNUNET_CHAT_File* file,
-		    GNUNET_CHAT_FileDownloadCallback cb, void *cls)
+file_bind_downlaod (struct GNUNET_CHAT_File *file,
+		    GNUNET_CHAT_FileDownloadCallback cb,
+		    void *cls)
 {
   GNUNET_assert(file);
 
@@ -204,8 +211,9 @@ file_bind_downlaod (struct GNUNET_CHAT_File* file,
 }
 
 void
-file_bind_unindex (struct GNUNET_CHAT_File* file,
-		   GNUNET_CHAT_FileUnindexCallback cb, void *cls)
+file_bind_unindex (struct GNUNET_CHAT_File *file,
+		   GNUNET_CHAT_FileUnindexCallback cb,
+		   void *cls)
 {
   GNUNET_assert(file);
 
@@ -224,7 +232,8 @@ file_bind_unindex (struct GNUNET_CHAT_File* file,
 }
 
 void
-file_update_upload (struct GNUNET_CHAT_File* file, uint64_t completed,
+file_update_upload (struct GNUNET_CHAT_File *file,
+		    uint64_t completed,
 		    uint64_t size)
 {
   GNUNET_assert(file);
@@ -242,9 +251,21 @@ file_update_upload (struct GNUNET_CHAT_File* file, uint64_t completed,
   if (completed < size)
     return;
 
+  struct GNUNET_MESSENGER_Message message;
+  message.header.kind = GNUNET_MESSENGER_KIND_FILE;
+
+  memcpy(&(message.body.file.key), &(file->key), sizeof(file->key));
+  memcpy(&(message.body.file.hash), &(file->hash), sizeof(file->hash));
+
+  strncpy(message.body.file.name, file->name, NAME_MAX);
+
+  message.body.file.uri = GNUNET_FS_uri_to_string(file->uri);
+
   while (file->upload_head)
   {
     upload = file->upload_head;
+
+    GNUNET_MESSENGER_send_message(upload->context->room, &message, NULL);
 
     GNUNET_CONTAINER_DLL_remove(
       file->upload_head,
@@ -254,10 +275,13 @@ file_update_upload (struct GNUNET_CHAT_File* file, uint64_t completed,
 
     GNUNET_free(upload);
   }
+
+  GNUNET_free(message.body.file.uri);
 }
 
 void
-file_update_download (struct GNUNET_CHAT_File* file, uint64_t completed,
+file_update_download (struct GNUNET_CHAT_File *file,
+		      uint64_t completed,
 		      uint64_t size)
 {
   GNUNET_assert(file);
@@ -290,7 +314,8 @@ file_update_download (struct GNUNET_CHAT_File* file, uint64_t completed,
 }
 
 void
-file_update_unindex (struct GNUNET_CHAT_File* file, uint64_t completed,
+file_update_unindex (struct GNUNET_CHAT_File *file,
+		     uint64_t completed,
 		     uint64_t size)
 {
   GNUNET_assert(file);
