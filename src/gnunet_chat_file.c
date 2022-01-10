@@ -61,6 +61,8 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   file->unindex_head = NULL;
   file->unindex_tail = NULL;
 
+  file->preview = NULL;
+
   file->user_pointer = NULL;
 
   return file;
@@ -101,6 +103,8 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 
   file->unindex_head = NULL;
   file->unindex_tail = NULL;
+
+  file->preview = NULL;
 
   file->user_pointer = NULL;
 
@@ -251,21 +255,18 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   if (!(file->uri))
     return;
 
-  struct GNUNET_MESSENGER_Message message;
-  message.header.kind = GNUNET_MESSENGER_KIND_FILE;
-
-  memcpy(&(message.body.file.key), &(file->key), sizeof(file->key));
-  memcpy(&(message.body.file.hash), &(file->hash), sizeof(file->hash));
-
-  strncpy(message.body.file.name, file->name, NAME_MAX);
-
-  message.body.file.uri = GNUNET_FS_uri_to_string(file->uri);
+  struct GNUNET_MESSENGER_Message msg;
+  msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
+  GNUNET_memcpy(&(msg.body.file.key), &(file->key), sizeof(file->key));
+  GNUNET_memcpy(&(msg.body.file.hash), &(file->hash), sizeof(file->hash));
+  GNUNET_strlcpy(msg.body.file.name, file->name, NAME_MAX);
+  msg.body.file.uri = GNUNET_FS_uri_to_string(file->uri);
 
   while (file->upload_head)
   {
     upload = file->upload_head;
 
-    GNUNET_MESSENGER_send_message(upload->context->room, &message, NULL);
+    GNUNET_MESSENGER_send_message(upload->context->room, &msg, NULL);
 
     GNUNET_CONTAINER_DLL_remove(
       file->upload_head,
@@ -276,7 +277,7 @@ file_update_upload (struct GNUNET_CHAT_File *file,
     GNUNET_free(upload);
   }
 
-  GNUNET_free(message.body.file.uri);
+  GNUNET_free(msg.body.file.uri);
 }
 
 void

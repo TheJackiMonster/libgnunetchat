@@ -92,6 +92,8 @@ struct GNUNET_CHAT_File
   struct GNUNET_CHAT_FileUnindex *unindex_head;
   struct GNUNET_CHAT_FileUnindex *unindex_tail;
 
+  char *preview;
+
   void *user_pointer;
 };
 

@@ -816,6 +816,25 @@ int
 GNUNET_CHAT_file_is_local (const struct GNUNET_CHAT_File *file);
 
 /**
+ * Returns the temporary file name of the decrypted file preview
+ * of a given <i>file</i> handle.
+ *
+ * @param[in,out] file File handle
+ * @return The temporary file name or NULL on error
+ */
+const char*
+GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file);
+
+/**
+ * Deletes the temporary decrypted file preview of a given <i>file</i>
+ * handle.
+ *
+ * @param[out] file File handle
+ */
+void
+GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file);
+
+/**
  * Sets a custom <i>user pointer</i> to a given <i>file</i> handle so it can
  * be accessed in file related callbacks.
  *

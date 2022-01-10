@@ -638,7 +638,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   );
 
   if (file)
-    goto file_upload;
+    goto file_binding;
 
   if ((GNUNET_YES == GNUNET_DISK_file_test(filename)) ||
       (GNUNET_OK != GNUNET_DISK_directory_create_for_file(filename)) ||
@@ -677,9 +677,6 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
     return NULL;
   }
 
-file_upload:
-  file_bind_upload(file, context, callback, cls);
-
   struct GNUNET_FS_BlockOptions bo;
 
   bo.anonymity_level = 1;
@@ -707,6 +704,9 @@ file_upload:
   );
 
   GNUNET_free(filename);
+
+file_binding:
+  file_bind_upload(file, context, callback, cls);
   return file;
 }
 
@@ -1013,6 +1013,56 @@ GNUNET_CHAT_file_is_local (const struct GNUNET_CHAT_File *file)
 
   GNUNET_free(filename);
   return result;
+}
+
+
+const char*
+GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
+{
+  if (!file)
+    return NULL;
+
+  if (file->preview)
+    return file->preview;
+
+  char *filename;
+  util_get_filename (
+      file->handle->directory, "files", &(file->hash), &filename
+  );
+
+  if (GNUNET_YES != GNUNET_DISK_file_test(filename))
+    goto free_filename;
+
+  file->preview = GNUNET_DISK_mktemp(file->name);
+
+  if (!(file->preview))
+    goto free_filename;
+
+  remove(file->preview);
+
+  if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
+      (GNUNET_OK != util_decrypt_file(file->preview, &(file->key))))
+  {
+    GNUNET_free(file->preview);
+    file->preview = NULL;
+  }
+
+free_filename:
+  GNUNET_free(filename);
+  return file->preview;
+}
+
+
+void
+GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file)
+{
+  if ((!file) || (!(file->preview)))
+    return;
+
+  remove(file->preview);
+
+  GNUNET_free(file->preview);
+  file->preview = NULL;
 }
 
 
