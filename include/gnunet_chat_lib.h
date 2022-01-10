@@ -779,6 +779,15 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay);
 
 /**
+ * Returns the name of a given <i>file</i> handle.
+ *
+ * @param[in] file File handle
+ * @return The file name of file
+ */
+const char*
+GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file);
+
+/**
  * Returns the hash of a given <i>file</i> handle.
  *
  * @param[in] file File handle

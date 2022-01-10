@@ -897,6 +897,8 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
     return message->warning;
+  if (GNUNET_MESSENGER_KIND_FILE == message->msg->header.kind)
+    return message->msg->body.file.name;
   if (GNUNET_MESSENGER_KIND_TEXT != message->msg->header.kind)
     return NULL;
 
@@ -950,6 +952,16 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 
   GNUNET_MESSENGER_send_message(message->context->room, &msg, NULL);
   return GNUNET_OK;
+}
+
+
+const char*
+GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file)
+{
+  if (!file)
+    return NULL;
+
+  return file->name;
 }
 
 
