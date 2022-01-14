@@ -703,6 +703,9 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
       GNUNET_FS_PUBLISH_OPTION_NONE
   );
 
+  if (file->publish)
+    file->status |= GNUNET_CHAT_FILE_STATUS_PUBLISH;
+
   GNUNET_free(filename);
 
 file_binding:
@@ -978,11 +981,18 @@ GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file)
 uint64_t
 GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file)
 {
-  if (!file)
+  if ((!file) || (!(file->uri)))
     return 0;
 
-  if (file->uri)
-    return GNUNET_FS_uri_chk_get_file_size(file->uri);
+  return GNUNET_FS_uri_chk_get_file_size(file->uri);
+}
+
+
+uint64_t
+GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
+{
+  if (!file)
+    return 0;
 
   char *filename;
   util_get_filename (
@@ -999,20 +1009,12 @@ GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file)
 
 
 int
-GNUNET_CHAT_file_is_local (const struct GNUNET_CHAT_File *file)
+GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
 {
-  if (!file)
-    return GNUNET_SYSERR;
-
-  char *filename;
-  util_get_filename (
-      file->handle->directory, "files", &(file->hash), &filename
-  );
-
-  int result = GNUNET_DISK_file_test(filename);
-
-  GNUNET_free(filename);
-  return result;
+  if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_PUBLISH)))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
 }
 
 
@@ -1088,6 +1090,16 @@ GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file)
 
 
 int
+GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file)
+{
+  if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_DOWNLOAD)))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
+}
+
+
+int
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 				 GNUNET_CHAT_FileDownloadCallback callback,
 				 void *cls)
@@ -1140,6 +1152,9 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
       NULL
   );
 
+  if (file->download)
+    file->status |= GNUNET_CHAT_FILE_STATUS_DOWNLOAD;
+
   GNUNET_free(filename);
   return GNUNET_OK;
 }
@@ -1180,6 +1195,18 @@ GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
 
 
 int
+GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
+{
+  if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_UNINDEX)))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
+}
+
+
+
+
+int
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 			  GNUNET_CHAT_FileUnindexCallback callback,
 			  void *cls)
@@ -1208,9 +1235,14 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
       file->handle->fs, filename, file
   );
 
+  if (file->unindex)
+    file->status |= GNUNET_CHAT_FILE_STATUS_UNINDEX;
+
   GNUNET_free(filename);
   return GNUNET_OK;
 }
+
+
 
 
 void

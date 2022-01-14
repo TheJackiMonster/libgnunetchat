@@ -797,7 +797,7 @@ const struct GNUNET_HashCode*
 GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file);
 
 /**
- * Returns the file size of a given <i>file</i> handle.
+ * Returns the actual file size of a given <i>file</i> handle.
  *
  * @param[in] file File handle
  * @return The file size of file
@@ -806,18 +806,32 @@ uint64_t
 GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file);
 
 /**
- * Checks whether a file locally exists of a given <i>file</i> handle and
- * returns #GNUNET_YES in that case, otherwise #GNUNET_NO.
+ * Returns the local file size of a given <i>file</i> handle.
+ *
+ * This can be less than the actual size of the file once its download
+ * has been completed!
  *
  * @param[in] file File handle
- * @return #GNUNET_YES if the file exists locally, otherwise #GNUNET_NO
+ * @return The local file size of file
+ */
+uint64_t
+GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns if a given <i>file</i> handle is currently uploading.
+ *
+ * @param[in] file File handle
+ * @return #GNUNET_YES during active upload, #GNUNET_NO otherwise
  */
 int
-GNUNET_CHAT_file_is_local (const struct GNUNET_CHAT_File *file);
+GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file);
 
 /**
  * Returns the temporary file name of the decrypted file preview
  * of a given <i>file</i> handle.
+ *
+ * This can only be used when the file handle is ready to preview!
+ * @see GNUNET_CHAT_file_is_ready()
  *
  * @param[in,out] file File handle
  * @return The temporary file name or NULL on error
@@ -828,6 +842,9 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file);
 /**
  * Deletes the temporary decrypted file preview of a given <i>file</i>
  * handle.
+ *
+ * This can only be used when the file handle is ready to preview!
+ * @see GNUNET_CHAT_file_is_ready()
  *
  * @param[out] file File handle
  */
@@ -854,6 +871,15 @@ GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
  */
 void*
 GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns if a given <i>file</i> handle is currently downloading.
+ *
+ * @param[in] file File handle
+ * @return #GNUNET_YES during active download, #GNUNET_NO otherwise
+ */
+int
+GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file);
 
 /**
  * Starts downloading a file from a given <i>file</i> handle and sets up a
@@ -895,6 +921,15 @@ GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file);
  */
 int
 GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns if a given <i>file</i> handle is currently unindexing.
+ *
+ * @param[in] file File handle
+ * @return #GNUNET_YES during active unindexing, #GNUNET_NO otherwise
+ */
+int
+GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file);
 
 /**
  * Unindexes an uploaded file from a given <i>file</i> handle with a selected

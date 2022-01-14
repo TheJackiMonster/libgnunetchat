@@ -61,6 +61,7 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   file->unindex_head = NULL;
   file->unindex_tail = NULL;
 
+  file->status = 0;
   file->preview = NULL;
 
   file->user_pointer = NULL;
@@ -104,6 +105,7 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
   file->unindex_head = NULL;
   file->unindex_tail = NULL;
 
+  file->status = 0;
   file->preview = NULL;
 
   file->user_pointer = NULL;
@@ -242,6 +244,8 @@ file_update_upload (struct GNUNET_CHAT_File *file,
 {
   GNUNET_assert(file);
 
+  file->status |= GNUNET_CHAT_FILE_STATUS_PUBLISH;
+
   struct GNUNET_CHAT_FileUpload *upload = file->upload_head;
 
   while (upload)
@@ -278,6 +282,10 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   }
 
   GNUNET_free(msg.body.file.uri);
+
+  file->status &= (
+      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_PUBLISH
+  );
 }
 
 void
@@ -286,6 +294,8 @@ file_update_download (struct GNUNET_CHAT_File *file,
 		      uint64_t size)
 {
   GNUNET_assert(file);
+
+  file->status |= GNUNET_CHAT_FILE_STATUS_DOWNLOAD;
 
   struct GNUNET_CHAT_FileDownload *download = file->download_head;
 
@@ -312,6 +322,10 @@ file_update_download (struct GNUNET_CHAT_File *file,
 
     GNUNET_free(download);
   }
+
+  file->status &= (
+      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_DOWNLOAD
+  );
 }
 
 void
@@ -320,6 +334,8 @@ file_update_unindex (struct GNUNET_CHAT_File *file,
 		     uint64_t size)
 {
   GNUNET_assert(file);
+
+  file->status |= GNUNET_CHAT_FILE_STATUS_UNINDEX;
 
   struct GNUNET_CHAT_FileUnindex *unindex = file->unindex_head;
 
@@ -346,4 +362,8 @@ file_update_unindex (struct GNUNET_CHAT_File *file,
 
     GNUNET_free(unindex);
   }
+
+  file->status &= (
+      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_UNINDEX
+  );
 }

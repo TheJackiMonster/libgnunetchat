@@ -67,6 +67,11 @@ struct GNUNET_CHAT_FileUnindex
 
 struct GNUNET_CHAT_Handle;
 
+#define GNUNET_CHAT_FILE_STATUS_DOWNLOAD 0x1
+#define GNUNET_CHAT_FILE_STATUS_PUBLISH  0x2
+#define GNUNET_CHAT_FILE_STATUS_UNINDEX  0x4
+#define GNUNET_CHAT_FILE_STATUS_MASK     0x7
+
 struct GNUNET_CHAT_File
 {
   struct GNUNET_CHAT_Handle *handle;
@@ -92,6 +97,7 @@ struct GNUNET_CHAT_File
   struct GNUNET_CHAT_FileUnindex *unindex_head;
   struct GNUNET_CHAT_FileUnindex *unindex_tail;
 
+  int status;
   char *preview;
 
   void *user_pointer;
