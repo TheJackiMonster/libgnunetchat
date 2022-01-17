@@ -651,7 +651,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   struct GNUNET_CRYPTO_SymmetricSessionKey key;
   GNUNET_CRYPTO_symmetric_create_session_key(&key);
 
-  if (GNUNET_OK != util_encrypt_file(filename, &key))
+  if (GNUNET_OK != util_encrypt_file(filename, &hash, &key))
   {
     GNUNET_free(filename);
     return NULL;
@@ -1043,7 +1043,9 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   remove(file->preview);
 
   if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
-      (GNUNET_OK != util_decrypt_file(file->preview, &(file->key))))
+      (GNUNET_OK != util_decrypt_file(file->preview,
+				      &(file->hash),
+				      &(file->key))))
   {
     GNUNET_free(file->preview);
     file->preview = NULL;
