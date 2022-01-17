@@ -103,21 +103,47 @@ util_encrypt_file (const char *filename,
   if (!file)
     return GNUNET_SYSERR;
 
-  struct GNUNET_DISK_MapHandle *mapping;
+  struct GNUNET_DISK_MapHandle *mapping = NULL;
   void* data = GNUNET_DISK_file_map(
       file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
   );
 
-  if (!data)
+  if ((!data) || (!mapping))
   {
     GNUNET_DISK_file_close(file);
     return GNUNET_SYSERR;
   }
 
   struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
-  memset(&iv, 0, sizeof(iv));
+  const uint64_t block_size = 1024*1024;
+  ssize_t result = -1;
 
-  ssize_t result = GNUNET_CRYPTO_symmetric_encrypt(data, size, key, &iv, data);
+  const uint64_t blocks = ((size + block_size - 1) / block_size);
+
+  for (uint64_t i = 0; i < blocks; i++)
+  {
+    const uint64_t index = (blocks - i - 1);
+    const uint64_t offset = block_size * index;
+
+    const uint64_t remaining = (size - offset);
+    void* location = ((uint8_t*) data) + offset;
+
+    if (index > 0)
+      memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
+    else
+      memset(&iv, 0, sizeof(iv));
+
+    result = GNUNET_CRYPTO_symmetric_encrypt(
+    	location,
+    	remaining >= block_size? block_size : remaining,
+    	key,
+    	&iv,
+    	location
+    );
+
+    if (result < 0)
+      break;
+  }
 
   if (GNUNET_OK != GNUNET_DISK_file_unmap(mapping))
     result = -1;
@@ -153,21 +179,46 @@ util_decrypt_file (const char *filename,
   if (!file)
     return GNUNET_SYSERR;
 
-  struct GNUNET_DISK_MapHandle *mapping;
+  struct GNUNET_DISK_MapHandle *mapping = NULL;
   void* data = GNUNET_DISK_file_map(
       file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
   );
 
-  if (!data)
+  if ((!data) || (!mapping))
   {
     GNUNET_DISK_file_close(file);
     return GNUNET_SYSERR;
   }
 
   struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
-  memset(&iv, 0, sizeof(iv));
+  const uint64_t block_size = 1024*1024;
+  ssize_t result = -1;
 
-  ssize_t result = GNUNET_CRYPTO_symmetric_decrypt(data, size, key, &iv, data);
+  const uint64_t blocks = ((size + block_size - 1) / block_size);
+
+  for (uint64_t index = 0; index < blocks; index++)
+  {
+    const uint64_t offset = block_size * index;
+
+    const uint64_t remaining = (size - offset);
+    void* location = ((uint8_t*) data) + offset;
+
+    if (index > 0)
+      memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
+    else
+      memset(&iv, 0, sizeof(iv));
+
+    result = GNUNET_CRYPTO_symmetric_decrypt(
+	location,
+	remaining >= block_size? block_size : remaining,
+	key,
+	&iv,
+	location
+    );
+
+    if (result < 0)
+      break;
+  }
 
   if (GNUNET_OK != GNUNET_DISK_file_unmap(mapping))
     result = -1;
