@@ -71,6 +71,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
   const struct GNUNET_CHAT_Account *current;
+  struct GNUNET_IDENTITY_Operation *creation_op;
 
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;

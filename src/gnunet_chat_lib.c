@@ -63,6 +63,43 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
 
 
 int
+GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
+			    const char* name)
+{
+  if ((!handle) || (!name))
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
+  {
+    if (!(accounts->account))
+      goto skip_account;
+
+    if ((accounts->account->name) &&
+	(0 == strcmp(accounts->account->name, name)))
+      return GNUNET_NO;
+
+skip_account:
+    accounts = accounts->next;
+  }
+
+  if (handle->creation_op)
+    GNUNET_IDENTITY_cancel(handle->creation_op);
+
+  handle->creation_op = GNUNET_IDENTITY_create(
+      handle->identity,
+      name,
+      NULL,
+      GNUNET_IDENTITY_TYPE_ECDSA,
+      cb_account_creation,
+      handle
+  );
+
+  return (handle->creation_op? GNUNET_OK : GNUNET_SYSERR);
+}
+
+
+int
 GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
 			      GNUNET_CHAT_AccountCallback callback,
 			      void *cls)

@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_account.h"
+#include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_Account*
 account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
@@ -33,7 +34,9 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
   struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
 
   account->ego = ego;
-  account->name = GNUNET_strdup(name);
+  account->name = NULL;
+
+  util_set_name_field(name, &(account->name));
 
   account->user_pointer = NULL;
 

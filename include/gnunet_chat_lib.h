@@ -311,6 +311,21 @@ void
 GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Creates a new chat account to use with a given chat <i>handle</i> under a
+ * unique <i>name</i>.
+ *
+ * If a specific name is already in use of another chat accounts, the function
+ * will fail and return #GNUNET_NO.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Account name
+ * @return #GNUNET_OK on success, #GNUNET_NO on failure and otherwise #GNUNET_SYSERR
+ */
+int
+GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
+			    const char* name);
+
+/**
  * Iterates through the accounts of a given chat <i>handle</i> with a selected
  * callback and custom closure.
  *
@@ -448,9 +463,10 @@ GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
  * join the chat via a private invitation.
  *
  * @param[in,out] handle Chat handle
+ * @param[in] topic Public topic (optional)
  * @return New group chat
  */
-struct GNUNET_CHAT_Group *
+struct GNUNET_CHAT_Group*
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 			  const char* topic);
 

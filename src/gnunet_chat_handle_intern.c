@@ -212,10 +212,31 @@ on_handle_gnunet_identity(void *cls,
     return;
   }
 
-  struct GNUNET_CHAT_InternalAccounts *accounts = GNUNET_new(
-      struct GNUNET_CHAT_InternalAccounts
-  );
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
 
+  while (accounts)
+  {
+    if (!(accounts->account))
+      goto skip_account;
+
+    if ((accounts->account->name) &&
+	(0 == strcmp(accounts->account->name, name)))
+    {
+      accounts->account->ego = ego;
+      return;
+    }
+
+    if (ego == accounts->account->ego)
+    {
+      util_set_name_field(name, &(accounts->account->name));
+      return;
+    }
+
+skip_account:
+    accounts = accounts->next;
+  }
+
+  accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
   accounts->account = account_create_from_ego(ego, name);
 
   GNUNET_CONTAINER_DLL_insert_tail(

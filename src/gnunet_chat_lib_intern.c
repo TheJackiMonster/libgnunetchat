@@ -24,6 +24,18 @@
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
+void
+cb_account_creation (void *cls,
+		     GNUNET_UNUSED const struct GNUNET_IDENTITY_PrivateKey *pk,
+		     GNUNET_UNUSED const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+
+  handle->creation_op = NULL;
+}
+
 struct GNUNET_CHAT_HandleIterateContacts
 {
   struct GNUNET_CHAT_Handle *handle;

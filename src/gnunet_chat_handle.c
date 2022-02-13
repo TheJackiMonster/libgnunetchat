@@ -57,6 +57,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->accounts_tail = NULL;
 
   handle->current = NULL;
+  handle->creation_op = NULL;
 
   handle->files = NULL;
   handle->contexts = NULL;
@@ -112,6 +113,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->shutdown_hook)
     GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
+
+  if (handle->creation_op)
+    GNUNET_IDENTITY_cancel(handle->creation_op);
 
   if (handle->current)
     handle_disconnect(handle);
