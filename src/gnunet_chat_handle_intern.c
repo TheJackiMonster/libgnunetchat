@@ -206,20 +206,22 @@ on_handle_gnunet_identity(void *cls,
 {
   struct GNUNET_CHAT_Handle* handle = cls;
 
-  if (!name)
+  if ((!name) || (!ego))
+  {
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
     return;
+  }
 
-  struct GNUNET_CHAT_InternalIdentities *identities = GNUNET_new(
-      struct GNUNET_CHAT_InternalIdentities
+  struct GNUNET_CHAT_InternalAccounts *accounts = GNUNET_new(
+      struct GNUNET_CHAT_InternalAccounts
   );
 
-  identities->name = GNUNET_strdup(name);
-  identities->ego = ego;
+  accounts->account = account_create_from_ego(ego, name);
 
   GNUNET_CONTAINER_DLL_insert_tail(
-      handle->identities_head,
-      handle->identities_tail,
-      identities
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
   );
 }
 

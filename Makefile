@@ -7,7 +7,8 @@ INSTALL_DIR ?= /usr/local/
 
 LIBRARY = lib$(TARGET_NAME).so
 SOURCES = gnunet_chat_lib.c\
-  		  gnunet_chat_contact.c\
+		  gnunet_chat_account.c\
+		  gnunet_chat_contact.c\
 		  gnunet_chat_context.c\
 		  gnunet_chat_file.c\
 		  gnunet_chat_group.c\

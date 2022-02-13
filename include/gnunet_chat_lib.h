@@ -50,49 +50,54 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_WARNING = 1,    /**< GNUNET_CHAT_KIND_WARNING */
 
   /**
+   * The kind to inform that the list of accounts was refreshed.
+   */
+  GNUNET_CHAT_KIND_REFRESH = 2,    /**< GNUNET_CHAT_KIND_REFRESH */
+
+  /**
    * The kind to inform that the application can be used.
    */
-  GNUNET_CHAT_KIND_LOGIN = 2,      /**< GNUNET_CHAT_KIND_LOGIN */
+  GNUNET_CHAT_KIND_LOGIN = 3,      /**< GNUNET_CHAT_KIND_LOGIN */
 
   /**
    * The kind to inform that a context was updated.
    */
-  GNUNET_CHAT_KIND_UPDATE = 3,      /**< GNUNET_CHAT_KIND_UPDATE */
+  GNUNET_CHAT_KIND_UPDATE = 4,      /**< GNUNET_CHAT_KIND_UPDATE */
 
   /**
    * The kind to inform that a contact has joined a chat.
    */
-  GNUNET_CHAT_KIND_JOIN = 4,       /**< GNUNET_CHAT_KIND_JOIN */
+  GNUNET_CHAT_KIND_JOIN = 5,       /**< GNUNET_CHAT_KIND_JOIN */
 
   /**
    * The kind to inform that a contact has left a chat.
    */
-  GNUNET_CHAT_KIND_LEAVE = 5,      /**< GNUNET_CHAT_KIND_LEAVE */
+  GNUNET_CHAT_KIND_LEAVE = 6,      /**< GNUNET_CHAT_KIND_LEAVE */
 
   /**
    * The kind to inform that a contact has changed.
    */
-  GNUNET_CHAT_KIND_CONTACT = 6,    /**< GNUNET_CHAT_KIND_CONTACT */
+  GNUNET_CHAT_KIND_CONTACT = 7,    /**< GNUNET_CHAT_KIND_CONTACT */
 
   /**
    * The kind to describe an invitation to a different chat.
    */
-  GNUNET_CHAT_KIND_INVITATION = 7, /**< GNUNET_CHAT_KIND_INVITATION */
+  GNUNET_CHAT_KIND_INVITATION = 8, /**< GNUNET_CHAT_KIND_INVITATION */
 
   /**
    * The kind to describe a text message.
    */
-  GNUNET_CHAT_KIND_TEXT = 8,       /**< GNUNET_CHAT_KIND_TEXT */
+  GNUNET_CHAT_KIND_TEXT = 9,       /**< GNUNET_CHAT_KIND_TEXT */
 
   /**
    * The kind to describe a shared file.
    */
-  GNUNET_CHAT_KIND_FILE = 9,       /**< GNUNET_CHAT_KIND_FILE */
+  GNUNET_CHAT_KIND_FILE = 10,      /**< GNUNET_CHAT_KIND_FILE */
 
   /**
    * The kind to inform about a deletion of a previous message.
    */
-  GNUNET_CHAT_KIND_DELETION = 10,  /**< GNUNET_CHAT_KIND_DELETION */
+  GNUNET_CHAT_KIND_DELETION = 11,  /**< GNUNET_CHAT_KIND_DELETION */
 
   /**
    * An unknown kind of message.
@@ -104,6 +109,11 @@ enum GNUNET_CHAT_MessageKind
  * Struct of a chat handle.
  */
 struct GNUNET_CHAT_Handle;
+
+/**
+ * Struct of a chat account.
+ */
+struct GNUNET_CHAT_Account;
 
 /**
  * Struct of a chat contact.
@@ -134,6 +144,19 @@ struct GNUNET_CHAT_File;
  * Struct of a chat invitation.
  */
 struct GNUNET_CHAT_Invitation;
+
+/**
+ * Iterator over chat accounts of a specific chat handle.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_accounts
+ * @param[in] handle Chat handle
+ * @param[in] account Chat account
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef int
+(*GNUNET_CHAT_AccountCallback) (void *cls,
+				const struct GNUNET_CHAT_Handle *handle,
+				const struct GNUNET_CHAT_Account *account);
 
 /**
  * Iterator over chat contacts of a specific chat handle.
@@ -261,15 +284,14 @@ typedef void
 				    uint64_t size);
 
 /**
- * Start a chat handle with a certain configuration, an application <i>directory</i>
- * and a selected user <i>name</i>.
+ * Start a chat handle with a certain configuration and a selected application
+ * <i>directory</i>.
  *
  * A custom callback for warnings and message events can be provided optionally
  * together with their respective closures.
  *
  * @param[in] cfg Configuration
  * @param[in] directory Application directory path (optional)
- * @param[in] name User name (optional)
  * @param[in] msg_cb Callback for message events (optional)
  * @param[in,out] msg_cls Closure for message events (optional)
  * @return Chat handle
@@ -277,7 +299,6 @@ typedef void
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
-		   const char *name,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls);
 
 /**
@@ -288,6 +309,47 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
  */
 void
 GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
+
+/**
+ * Iterates through the accounts of a given chat <i>handle</i> with a selected
+ * callback and custom closure.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] callback Callback for account iteration (optional)
+ * @param[in,out] cls Closure for account iteration (optional)
+ * @return Amount of accounts iterated or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_iterate_accounts(const struct GNUNET_CHAT_Handle *handle,
+			     GNUNET_CHAT_AccountCallback callback,
+			     void *cls);
+
+/**
+ * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
+ *
+ * @param[in] account Chat account
+ */
+void
+GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
+		     const struct GNUNET_CHAT_Account *account);
+
+/**
+ * Disconnects a chat <i>handle</i> from the current chat account.
+ *
+ * @param[in,out] handle Chat handle
+ */
+void
+GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle);
+
+/**
+ * Returns the connected account of a chat <i>handle</i> for related
+ * communication or NULL if no account is set yet.
+ *
+ * @param handle Chat handle
+ * @return Account used by the handle or NULL
+ */
+const struct GNUNET_CHAT_Account*
+GNUNET_CHAT_get_connected(const struct GNUNET_CHAT_Handle *handle);
 
 /**
  * Updates a chat handle to renew the used ego to sign sent messages in active

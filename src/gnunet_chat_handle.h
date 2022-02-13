@@ -37,6 +37,7 @@
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"
+#include "gnunet_chat_account.h"
 #include "gnunet_chat_message.h"
 
 struct GNUNET_CHAT_InternalMessages
@@ -46,12 +47,11 @@ struct GNUNET_CHAT_InternalMessages
   struct GNUNET_CHAT_InternalMessages *prev;
 };
 
-struct GNUNET_CHAT_InternalIdentities
+struct GNUNET_CHAT_InternalAccounts
 {
-  char *name;
-  struct GNUNET_IDENTITY_Ego *ego;
-  struct GNUNET_CHAT_InternalIdentities *next;
-  struct GNUNET_CHAT_InternalIdentities *prev;
+  struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_InternalAccounts *next;
+  struct GNUNET_CHAT_InternalAccounts *prev;
 };
 
 struct GNUNET_CHAT_Handle
@@ -67,8 +67,10 @@ struct GNUNET_CHAT_Handle
   GNUNET_CHAT_ContextMessageCallback msg_cb;
   void *msg_cls;
 
-  struct GNUNET_CHAT_InternalIdentities *identities_head;
-  struct GNUNET_CHAT_InternalIdentities *identities_tail;
+  struct GNUNET_CHAT_InternalAccounts *accounts_head;
+  struct GNUNET_CHAT_InternalAccounts *accounts_tail;
+
+  const struct GNUNET_CHAT_Account *current;
 
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
@@ -87,7 +89,6 @@ struct GNUNET_CHAT_Handle
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   const char *directory,
-			   const char *name,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
 			   void *msg_cls);
 
@@ -96,6 +97,13 @@ handle_update_key (struct GNUNET_CHAT_Handle *handle);
 
 void
 handle_destroy (struct GNUNET_CHAT_Handle *handle);
+
+void
+handle_connect (struct GNUNET_CHAT_Handle *handle,
+		const struct GNUNET_CHAT_Account *account);
+
+void
+handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,

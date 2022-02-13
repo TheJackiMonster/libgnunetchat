@@ -40,14 +40,13 @@
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
-		   const char *name,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
 {
   if (!cfg)
     return NULL;
 
   return handle_create_from_config(
-      cfg, directory, name,
+      cfg, directory,
       msg_cb, msg_cls
   );
 }
@@ -60,6 +59,71 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
     return;
 
   handle_destroy(handle);
+}
+
+
+int
+GNUNET_CHAT_iterate_accounts(const struct GNUNET_CHAT_Handle *handle,
+			     GNUNET_CHAT_AccountCallback callback,
+			     void *cls)
+{
+  if (!handle)
+    return GNUNET_SYSERR;
+
+  int result = 0;
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
+  {
+    if (!(accounts->account))
+      return GNUNET_SYSERR;
+
+    result++;
+
+    if ((!callback) && (GNUNET_YES != callback(cls, handle, accounts->account)))
+      break;
+
+    accounts = accounts->next;
+  }
+
+  return result;
+}
+
+
+void
+GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
+		     const struct GNUNET_CHAT_Account *account)
+{
+  if (!handle)
+    return;
+
+  if (handle->current)
+    handle_disconnect(handle);
+
+  if (!account)
+    return;
+
+  handle_connect(handle, account);
+}
+
+
+void
+GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
+{
+  if ((!handle) || (!(handle->current)))
+    return;
+
+  handle_disconnect(handle);
+}
+
+
+const struct GNUNET_CHAT_Account*
+GNUNET_CHAT_get_connected(const struct GNUNET_CHAT_Handle *handle)
+{
+  if (!handle)
+    return NULL;
+
+  return handle->current;
 }
 
 
@@ -133,7 +197,7 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 			      GNUNET_CHAT_ContactCallback callback,
 			      void *cls)
 {
-  if (!handle)
+  if ((!handle) || (!(handle->contacts)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_HandleIterateContacts it;
@@ -151,7 +215,7 @@ struct GNUNET_CHAT_Group *
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 			  const char* topic)
 {
-  if (!handle)
+  if ((!handle) || (!(handle->groups)) || (!(handle->contexts)))
     return NULL;
 
   struct GNUNET_HashCode key;
@@ -210,7 +274,7 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 			    GNUNET_CHAT_GroupCallback callback,
 			    void *cls)
 {
-  if (!handle)
+  if ((!handle) || (!(handle->groups)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_HandleIterateGroups it;
@@ -784,6 +848,8 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
   {
     case GNUNET_CHAT_FLAG_WARNING:
       return GNUNET_CHAT_KIND_WARNING;
+    case GNUNET_CHAT_FLAG_REFRESH:
+      return GNUNET_CHAT_KIND_REFRESH;
     case GNUNET_CHAT_FLAG_LOGIN:
       return GNUNET_CHAT_KIND_LOGIN;
     case GNUNET_CHAT_FLAG_UPDATE:
