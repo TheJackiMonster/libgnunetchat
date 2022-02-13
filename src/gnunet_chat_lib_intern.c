@@ -26,14 +26,19 @@
 
 void
 cb_account_creation (void *cls,
-		     GNUNET_UNUSED const struct GNUNET_IDENTITY_PrivateKey *pk,
-		     GNUNET_UNUSED const char *emsg)
+		     const struct GNUNET_IDENTITY_PrivateKey *key,
+		     const char *emsg)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
   handle->creation_op = NULL;
+
+  if (emsg)
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+  else if (key)
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
 struct GNUNET_CHAT_HandleIterateContacts
