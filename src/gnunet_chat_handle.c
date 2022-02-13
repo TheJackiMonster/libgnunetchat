@@ -247,6 +247,11 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   GNUNET_CONTAINER_multihashmap_destroy(handle->contexts);
   GNUNET_CONTAINER_multihashmap_destroy(handle->files);
 
+  handle->files = NULL;
+  handle->contexts = NULL;
+  handle->contacts = NULL;
+  handle->groups = NULL;
+
   handle->current = NULL;
   handle_update_key(handle);
 }
