@@ -33,6 +33,8 @@ struct GNUNET_CHAT_Account
 {
   struct GNUNET_IDENTITY_Ego *ego;
   char *name;
+
+  void *user_pointer;
 };
 
 struct GNUNET_CHAT_Account*

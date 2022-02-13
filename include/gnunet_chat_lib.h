@@ -150,13 +150,13 @@ struct GNUNET_CHAT_Invitation;
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_accounts
  * @param[in] handle Chat handle
- * @param[in] account Chat account
+ * @param[in,out] account Chat account
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef int
 (*GNUNET_CHAT_AccountCallback) (void *cls,
 				const struct GNUNET_CHAT_Handle *handle,
-				const struct GNUNET_CHAT_Account *account);
+				struct GNUNET_CHAT_Account *account);
 
 /**
  * Iterator over chat contacts of a specific chat handle.
@@ -320,9 +320,9 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
  * @return Amount of accounts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_iterate_accounts(const struct GNUNET_CHAT_Handle *handle,
-			     GNUNET_CHAT_AccountCallback callback,
-			     void *cls);
+GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
+			      GNUNET_CHAT_AccountCallback callback,
+			      void *cls);
 
 /**
  * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
@@ -349,7 +349,7 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle);
  * @return Account used by the handle or NULL
  */
 const struct GNUNET_CHAT_Account*
-GNUNET_CHAT_get_connected(const struct GNUNET_CHAT_Handle *handle);
+GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle);
 
 /**
  * Updates a chat handle to renew the used ego to sign sent messages in active
@@ -407,6 +407,36 @@ int
 GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 			      GNUNET_CHAT_ContactCallback callback,
 			      void *cls);
+
+/**
+ * Returns the provided name of a given <i>account</i> or NULL on failure.
+ *
+ * @param account Chat account
+ * @return Name or NULL
+ */
+const char*
+GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account);
+
+/**
+ * Sets a custom <i>user pointer</i> to a given chat <i>account</i> so it can
+ * be accessed in account related callbacks.
+ *
+ * @param[in,out] account Chat account
+ * @param[in] user_pointer Custom user pointer
+ */
+void
+GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
+				      void *user_pointer);
+
+/**
+ * Returns the custom user pointer of a given <i>contact</i> or NULL if it was
+ * not set any.
+ *
+ * @param[in] account Chat account
+ * @return Custom user pointer or NULL
+ */
+void*
+GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account);
 
 /**
  * Creates a new group chat to use with a given chat <i>handle</i> with an

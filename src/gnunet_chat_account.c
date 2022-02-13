@@ -35,6 +35,8 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
   account->ego = ego;
   account->name = GNUNET_strdup(name);
 
+  account->user_pointer = NULL;
+
   return account;
 }
 

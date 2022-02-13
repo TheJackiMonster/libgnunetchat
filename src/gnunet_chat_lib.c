@@ -63,9 +63,9 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
 
 
 int
-GNUNET_CHAT_iterate_accounts(const struct GNUNET_CHAT_Handle *handle,
-			     GNUNET_CHAT_AccountCallback callback,
-			     void *cls)
+GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
+			      GNUNET_CHAT_AccountCallback callback,
+			      void *cls)
 {
   if (!handle)
     return GNUNET_SYSERR;
@@ -80,7 +80,7 @@ GNUNET_CHAT_iterate_accounts(const struct GNUNET_CHAT_Handle *handle,
 
     result++;
 
-    if ((!callback) && (GNUNET_YES != callback(cls, handle, accounts->account)))
+    if ((callback) && (GNUNET_YES != callback(cls, handle, accounts->account)))
       break;
 
     accounts = accounts->next;
@@ -118,7 +118,7 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 
 
 const struct GNUNET_CHAT_Account*
-GNUNET_CHAT_get_connected(const struct GNUNET_CHAT_Handle *handle)
+GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 {
   if (!handle)
     return NULL;
@@ -208,6 +208,37 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
   return GNUNET_CONTAINER_multishortmap_iterate(
       handle->contacts, it_handle_iterate_contacts, &it
   );
+}
+
+
+const char*
+GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
+{
+  if (!account)
+    return NULL;
+
+  return account->name;
+}
+
+
+void
+GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
+				      void *user_pointer)
+{
+  if (!account)
+    return;
+
+  account->user_pointer = user_pointer;
+}
+
+
+void*
+GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
+{
+  if (!account)
+    return NULL;
+
+  return account->user_pointer;
 }
 
 
