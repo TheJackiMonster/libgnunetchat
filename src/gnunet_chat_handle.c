@@ -54,6 +54,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->msg_cb = msg_cb;
   handle->msg_cls = msg_cls;
 
+  handle->identities_head = NULL;
+  handle->identities_tail = NULL;
+
   handle->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
   handle->contexts = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
   handle->contacts = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
@@ -83,6 +86,12 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   );
 
   GNUNET_free(fs_client_name);
+
+  handle->identity = GNUNET_IDENTITY_connect(
+      handle->cfg,
+      on_handle_gnunet_identity,
+      handle
+  );
 
   handle->messenger = GNUNET_MESSENGER_connect(
       handle->cfg, name,
@@ -147,7 +156,10 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->messenger)
     GNUNET_MESSENGER_disconnect(handle->messenger);
 
-  if (handle->files)
+  if (handle->identity)
+    GNUNET_IDENTITY_disconnect(handle->identity);
+
+  if (handle->fs)
     GNUNET_FS_stop(handle->fs);
 
   if (handle->arm)
@@ -161,6 +173,23 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   GNUNET_CONTAINER_multishortmap_destroy(handle->contacts);
   GNUNET_CONTAINER_multihashmap_destroy(handle->contexts);
   GNUNET_CONTAINER_multihashmap_destroy(handle->files);
+
+  struct GNUNET_CHAT_InternalIdentities *identities;
+  while (handle->identities_head)
+  {
+    identities = handle->identities_head;
+
+    if (identities->name)
+      GNUNET_free(identities->name);
+
+    GNUNET_CONTAINER_DLL_remove(
+	handle->identities_head,
+	handle->identities_tail,
+	identities
+    );
+
+    GNUNET_free(identities);
+  }
 
   if (handle->directory)
     GNUNET_free(handle->directory);

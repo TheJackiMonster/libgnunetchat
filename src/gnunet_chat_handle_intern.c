@@ -74,7 +74,8 @@ on_handle_arm_connection(void *cls,
 }
 
 void*
-notify_handle_fs_progress(void* cls, const struct GNUNET_FS_ProgressInfo* info)
+notify_handle_fs_progress(void* cls,
+			  const struct GNUNET_FS_ProgressInfo* info)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
@@ -195,6 +196,31 @@ notify_handle_fs_progress(void* cls, const struct GNUNET_FS_ProgressInfo* info)
   }
 
   return NULL;
+}
+
+void
+on_handle_gnunet_identity(void *cls,
+			  struct GNUNET_IDENTITY_Ego *ego,
+			  GNUNET_UNUSED void **ctx,
+                          const char *name)
+{
+  struct GNUNET_CHAT_Handle* handle = cls;
+
+  if (!name)
+    return;
+
+  struct GNUNET_CHAT_InternalIdentities *identities = GNUNET_new(
+      struct GNUNET_CHAT_InternalIdentities
+  );
+
+  identities->name = GNUNET_strdup(name);
+  identities->ego = ego;
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+      handle->identities_head,
+      handle->identities_tail,
+      identities
+  );
 }
 
 int
@@ -340,6 +366,8 @@ on_handle_message (void *cls,
   if ((GNUNET_OK != handle_request_context_by_room(handle, room)) ||
       (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
     return;
+
+  GNUNET_MESSENGER_get_message(room, &(msg->header.previous));
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
       handle->contexts, GNUNET_MESSENGER_room_get_key(room)

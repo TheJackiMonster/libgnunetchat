@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_container_lib.h>
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
+#include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
@@ -43,6 +44,14 @@ struct GNUNET_CHAT_InternalMessages
   struct GNUNET_CHAT_Message *msg;
   struct GNUNET_CHAT_InternalMessages *next;
   struct GNUNET_CHAT_InternalMessages *prev;
+};
+
+struct GNUNET_CHAT_InternalIdentities
+{
+  char *name;
+  struct GNUNET_IDENTITY_Ego *ego;
+  struct GNUNET_CHAT_InternalIdentities *next;
+  struct GNUNET_CHAT_InternalIdentities *prev;
 };
 
 struct GNUNET_CHAT_Handle
@@ -58,6 +67,9 @@ struct GNUNET_CHAT_Handle
   GNUNET_CHAT_ContextMessageCallback msg_cb;
   void *msg_cls;
 
+  struct GNUNET_CHAT_InternalIdentities *identities_head;
+  struct GNUNET_CHAT_InternalIdentities *identities_tail;
+
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_CONTAINER_MultiShortmap *contacts;
@@ -65,6 +77,7 @@ struct GNUNET_CHAT_Handle
 
   struct GNUNET_ARM_Handle *arm;
   struct GNUNET_FS_Handle *fs;
+  struct GNUNET_IDENTITY_Handle *identity;
   struct GNUNET_MESSENGER_Handle *messenger;
 
   char *public_key;
