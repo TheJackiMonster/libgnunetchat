@@ -260,6 +260,20 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   handle_update_key(handle);
 }
 
+const char*
+handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert(handle);
+
+  if (!(handle->directory))
+    return NULL;
+
+  if (!(handle->current))
+    return handle->directory;
+  else
+    return handle->current->directory;
+}
+
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Context *context,

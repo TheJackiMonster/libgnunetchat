@@ -759,6 +759,11 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   if (GNUNET_OK != util_hash_file(path, &hash))
     return NULL;
 
+  const char *directory = handle_get_directory(context->handle);
+
+  if (!directory)
+    return NULL;
+
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
       context->handle->files,
       &hash
@@ -766,7 +771,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 
   char *filename;
   util_get_filename (
-      context->handle->directory, "files", &hash, &filename
+      directory, "files", &hash, &filename
   );
 
   if (file)
@@ -1128,9 +1133,14 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
   if (!file)
     return 0;
 
+  const char *directory = handle_get_directory(file->handle);
+
+  if (!directory)
+    return 0;
+
   char *filename;
   util_get_filename (
-      file->handle->directory, "files", &(file->hash), &filename
+      directory, "files", &(file->hash), &filename
   );
 
   uint64_t size;
@@ -1161,9 +1171,14 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   if (file->preview)
     return file->preview;
 
+  const char *directory = handle_get_directory(file->handle);
+
+  if (!directory)
+    return NULL;
+
   char *filename;
   util_get_filename (
-      file->handle->directory, "files", &(file->hash), &filename
+      directory, "files", &(file->hash), &filename
   );
 
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
@@ -1251,11 +1266,16 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
     return GNUNET_OK;
   }
 
+  const char *directory = handle_get_directory(file->handle);
+
+  if (!directory)
+    return GNUNET_SYSERR;
+
   const uint64_t size = GNUNET_FS_uri_chk_get_file_size(file->uri);
 
   char *filename;
   util_get_filename (
-      file->handle->directory, "files", &(file->hash), &filename
+      directory, "files", &(file->hash), &filename
   );
 
   uint64_t offset;
@@ -1362,9 +1382,14 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
   if (file->unindex)
     return GNUNET_OK;
 
+  const char *directory = handle_get_directory(file->handle);
+
+  if (!directory)
+    return GNUNET_SYSERR;
+
   char *filename;
   util_get_filename (
-      file->handle->directory, "files", &(file->hash), &filename
+      directory, "files", &(file->hash), &filename
   );
 
   file->unindex = GNUNET_FS_unindex_start(

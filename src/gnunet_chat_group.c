@@ -104,7 +104,7 @@ group_load_config (struct GNUNET_CHAT_Group *group)
 {
   GNUNET_assert((group) && (group->handle));
 
-  const char *directory = group->handle->directory;
+  const char *directory = handle_get_directory(group->handle);
 
   if ((!directory) || (!(group->context)))
     return;
@@ -145,7 +145,7 @@ group_save_config (const struct GNUNET_CHAT_Group *group)
 {
   GNUNET_assert((group) && (group->handle));
 
-  const char *directory = group->handle->directory;
+  const char *directory = handle_get_directory(group->handle);
 
   if ((!directory) || (!(group->context)))
     return;

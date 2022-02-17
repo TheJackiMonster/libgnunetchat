@@ -32,6 +32,7 @@
 struct GNUNET_CHAT_Account
 {
   struct GNUNET_IDENTITY_Ego *ego;
+  char *directory;
   char *name;
 
   void *user_pointer;
@@ -40,6 +41,10 @@ struct GNUNET_CHAT_Account
 struct GNUNET_CHAT_Account*
 account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
 			const char *name);
+
+void
+account_update_directory (struct GNUNET_CHAT_Account *account,
+			  const char *base_directory);
 
 void
 account_destroy(struct GNUNET_CHAT_Account *account);

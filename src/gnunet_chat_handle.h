@@ -106,6 +106,9 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 void
 handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
+const char*
+handle_get_directory (const struct GNUNET_CHAT_Handle *handle);
+
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Context *context,

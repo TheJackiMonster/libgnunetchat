@@ -34,6 +34,7 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
   struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
 
   account->ego = ego;
+  account->directory = NULL;
   account->name = NULL;
 
   util_set_name_field(name, &(account->name));
@@ -44,12 +45,39 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
 }
 
 void
+account_update_directory (struct GNUNET_CHAT_Account *account,
+			  const char *base_directory)
+{
+  GNUNET_assert((account) && (base_directory));
+
+  if (account->directory)
+    GNUNET_free(account->directory);
+
+  struct GNUNET_IDENTITY_PublicKey key;
+  GNUNET_IDENTITY_ego_get_public_key(account->ego, &key);
+
+  char *key_string = GNUNET_IDENTITY_public_key_to_string(&key);
+
+  if (!key_string)
+  {
+    account->directory = NULL;
+    return;
+  }
+
+  util_get_dirname(base_directory, key_string, &(account->directory));
+  GNUNET_free(key_string);
+}
+
+void
 account_destroy(struct GNUNET_CHAT_Account *account)
 {
   GNUNET_assert(account);
 
   if (account->name)
     GNUNET_free(account->name);
+
+  if (account->directory)
+    GNUNET_free(account->directory);
 
   GNUNET_free(account);
 }

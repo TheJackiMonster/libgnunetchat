@@ -207,10 +207,7 @@ on_handle_gnunet_identity(void *cls,
   struct GNUNET_CHAT_Handle* handle = cls;
 
   if ((!name) || (!ego))
-  {
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
-    return;
-  }
+    goto send_refresh;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
 
@@ -223,13 +220,13 @@ on_handle_gnunet_identity(void *cls,
 	(0 == strcmp(accounts->account->name, name)))
     {
       accounts->account->ego = ego;
-      return;
+      goto send_refresh;
     }
 
     if (ego == accounts->account->ego)
     {
       util_set_name_field(name, &(accounts->account->name));
-      return;
+      goto send_refresh;
     }
 
 skip_account:
@@ -239,11 +236,17 @@ skip_account:
   accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
   accounts->account = account_create_from_ego(ego, name);
 
+  if (handle->directory)
+    account_update_directory(accounts->account, handle->directory);
+
   GNUNET_CONTAINER_DLL_insert_tail(
       handle->accounts_head,
       handle->accounts_tail,
       accounts
   );
+
+send_refresh:
+  handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
 int

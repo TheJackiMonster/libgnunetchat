@@ -169,7 +169,7 @@ context_load_config (struct GNUNET_CHAT_Context *context)
 		(context->handle) &&
 		(context->room));
 
-  const char *directory = context->handle->directory;
+  const char *directory = handle_get_directory(context->handle);
 
   if (!directory)
     return;
@@ -228,7 +228,7 @@ context_save_config (const struct GNUNET_CHAT_Context *context)
   		(context->handle) &&
   		(context->room));
 
-  const char *directory = context->handle->directory;
+  const char *directory = handle_get_directory(context->handle);
 
   if (!directory)
     return;
@@ -309,13 +309,13 @@ context_scan_configs (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert((handle) && (handle->messenger));
 
-  const char *directory = handle->directory;
+  const char *directory = handle_get_directory(handle);
 
   if (!directory)
     return;
 
   char* dirname;
-  util_get_dirname(handle->directory, "chats", &dirname);
+  util_get_dirname(directory, "chats", &dirname);
 
   if (GNUNET_YES != GNUNET_DISK_directory_test(dirname, GNUNET_YES))
     goto free_dirname;
