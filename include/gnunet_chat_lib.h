@@ -876,6 +876,17 @@ struct GNUNET_CHAT_Invitation*
 GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message);
 
 /**
+ * Returns the target message of an operation represented by a given
+ * <i>message</i> if its kind is #GNUNET_CHAT_KIND_DELETION, otherwise it
+ * returns NULL.
+ *
+ * @param[in] message Message
+ * @return The target of message or NULL
+ */
+const struct GNUNET_CHAT_Message*
+GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
+
+/**
  * Deletes a given <i>message</i> with a specific relative <i>delay</i>.
  *
  * @param[in] message Message

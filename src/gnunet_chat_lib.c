@@ -1080,6 +1080,25 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 }
 
 
+const struct GNUNET_CHAT_Message*
+GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
+{
+  if ((!message) || (!(message->msg)) || (!(message->context)))
+    return NULL;
+
+  struct GNUNET_CHAT_Message *target;
+
+  if (GNUNET_MESSENGER_KIND_DELETE == message->msg->header.kind)
+    target = GNUNET_CONTAINER_multihashmap_get(
+	message->context->messages, &(message->msg->body.deletion.hash)
+    );
+  else
+    target = NULL;
+
+  return target;
+}
+
+
 int
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay)
@@ -1360,8 +1379,6 @@ GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
 }
 
 
-
-
 int
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 			  GNUNET_CHAT_FileUnindexCallback callback,
@@ -1404,8 +1421,6 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 }
 
 
-
-
 void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
 {
@@ -1420,4 +1435,3 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
       &door, &(invitation->key)
   );
 }
-
