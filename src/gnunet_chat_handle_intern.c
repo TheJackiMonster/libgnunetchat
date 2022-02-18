@@ -206,7 +206,7 @@ on_handle_gnunet_identity(void *cls,
 {
   struct GNUNET_CHAT_Handle* handle = cls;
 
-  if ((!name) || (!ego))
+  if (!ego)
     goto send_refresh;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
@@ -216,16 +216,29 @@ on_handle_gnunet_identity(void *cls,
     if (!(accounts->account))
       goto skip_account;
 
-    if ((accounts->account->name) &&
+    if (ego != accounts->account->ego)
+      goto check_matching_name;
+
+    if (name)
+      util_set_name_field(name, &(accounts->account->name));
+    else
+    {
+      account_destroy(accounts->account);
+
+      GNUNET_CONTAINER_DLL_remove(
+	  handle->accounts_head,
+	  handle->accounts_tail,
+	  accounts
+      );
+    }
+
+    goto send_refresh;
+
+check_matching_name:
+    if ((accounts->account->name) && (name) &&
 	(0 == strcmp(accounts->account->name, name)))
     {
       accounts->account->ego = ego;
-      goto send_refresh;
-    }
-
-    if (ego == accounts->account->ego)
-    {
-      util_set_name_field(name, &(accounts->account->name));
       goto send_refresh;
     }
 
@@ -379,13 +392,12 @@ on_handle_message_callback(void *cls)
 {
   struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) cls;
 
-  if ((!message) || (!(message->msg)))
-    return;
+  GNUNET_assert((message) &&
+		(message->msg) &&
+		(message->context) &&
+		(message->context->handle));
 
   struct GNUNET_CHAT_Context *context = message->context;
-
-  if (!context)
-    return;
 
   switch (message->msg->header.kind)
   {
@@ -405,7 +417,7 @@ on_handle_message_callback(void *cls)
 
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
-  if ((!handle) || (!(handle->msg_cb)))
+  if (!(handle->msg_cb))
     return;
 
   handle->msg_cb(handle->msg_cls, context, message);
@@ -535,7 +547,10 @@ on_handle_message (void *cls,
       );
 
       task = GNUNET_SCHEDULER_add_delayed(
-	  delay,
+	  GNUNET_TIME_absolute_get_difference(
+	      GNUNET_TIME_absolute_get(),
+	      GNUNET_TIME_absolute_add(timestamp, delay)
+	  ),
 	  on_handle_message_callback,
 	  message
       );
