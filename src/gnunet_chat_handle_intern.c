@@ -375,6 +375,43 @@ on_handle_identity(void *cls,
 }
 
 void
+on_handle_message_callback(void *cls)
+{
+  struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) cls;
+
+  if ((!message) || (!(message->msg)))
+    return;
+
+  struct GNUNET_CHAT_Context *context = message->context;
+
+  if (!context)
+    return;
+
+  switch (message->msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_DELETE:
+    {
+      struct GNUNET_CHAT_Message *target = GNUNET_CONTAINER_multihashmap_get(
+	  context->messages, &(message->msg->body.deletion.hash)
+      );
+
+      if (target)
+	target->msg = NULL;
+      break;
+    }
+    default:
+      break;
+  }
+
+  struct GNUNET_CHAT_Handle *handle = context->handle;
+
+  if ((!handle) || (!(handle->msg_cb)))
+    return;
+
+  handle->msg_cb(handle->msg_cls, context, message);
+}
+
+void
 on_handle_message (void *cls,
 		   struct GNUNET_MESSENGER_Room *room,
 		   const struct GNUNET_MESSENGER_Contact *sender,
@@ -444,6 +481,8 @@ on_handle_message (void *cls,
   if (message)
     return;
 
+  struct GNUNET_SCHEDULER_Task* task = NULL;
+
   message = message_create_from_msg(context, hash, flags, msg);
 
   switch (msg->header.kind)
@@ -491,12 +530,15 @@ on_handle_message (void *cls,
     }
     case GNUNET_MESSENGER_KIND_DELETE:
     {
-      struct GNUNET_CHAT_Message *target = GNUNET_CONTAINER_multihashmap_get(
-	  context->messages, &(msg->body.deletion.hash)
+      struct GNUNET_TIME_Relative delay = GNUNET_TIME_relative_ntoh(
+	  msg->body.deletion.delay
       );
 
-      if (target)
-	target->msg = NULL;
+      task = GNUNET_SCHEDULER_add_delayed(
+	  delay,
+	  on_handle_message_callback,
+	  message
+      );
       break;
     }
     default:
@@ -507,12 +549,15 @@ on_handle_message (void *cls,
       context->messages, hash, message,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
+    if (task)
+      GNUNET_SCHEDULER_cancel(task);
+
     message_destroy(message);
     return;
   }
 
-  if (handle->msg_cb)
-    handle->msg_cb(handle->msg_cls, context, message);
+  if (!task)
+    on_handle_message_callback(message);
 }
 
 int
