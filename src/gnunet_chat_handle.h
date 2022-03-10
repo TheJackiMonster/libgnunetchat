@@ -33,6 +33,7 @@
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_namestore_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -72,6 +73,7 @@ struct GNUNET_CHAT_Handle
 
   const struct GNUNET_CHAT_Account *current;
   struct GNUNET_IDENTITY_Operation *creation_op;
+  struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
@@ -82,6 +84,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_FS_Handle *fs;
   struct GNUNET_IDENTITY_Handle *identity;
   struct GNUNET_MESSENGER_Handle *messenger;
+  struct GNUNET_NAMESTORE_Handle *namestore;
 
   char *public_key;
   void *user_pointer;
@@ -108,6 +111,9 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
 const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle);
+
+const struct GNUNET_IDENTITY_PrivateKey*
+handle_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,

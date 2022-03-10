@@ -39,8 +39,6 @@ struct GNUNET_CHAT_Group
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_CHAT_Context *context;
 
-  char *topic;
-
   struct GNUNET_REGEX_Announcement *announcement;
   struct GNUNET_REGEX_Search *search;
 
@@ -58,11 +56,5 @@ group_destroy (struct GNUNET_CHAT_Group* group);
 
 void
 group_publish (struct GNUNET_CHAT_Group* group);
-
-void
-group_load_config (struct GNUNET_CHAT_Group *group);
-
-void
-group_save_config (const struct GNUNET_CHAT_Group *group);
 
 #endif /* GNUNET_CHAT_GROUP_H_ */

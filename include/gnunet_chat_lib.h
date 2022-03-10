@@ -781,6 +781,31 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
 				   void *cls);
 
 /**
+ * Sets a custom <i>user pointer</i> to a given <i>member</i> relative to a
+ * <i>context</i> so it can be accessed in member related callbacks.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] member Contact
+ * @param[in] user_pointer Custom user pointer
+ */
+void
+GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Context *context,
+				     const struct GNUNET_CHAT_Contact *member,
+				     void *user_pointer);
+
+/**
+ * Returns the custom user pointer of a given <i>contact</i> or NULL if it was
+ * not set any.
+ *
+ * @param[in] context Chat context
+ * @param[in] member Contact
+ * @return Custom user pointer or NULL
+ */
+void*
+GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Context *context,
+				     const struct GNUNET_CHAT_Contact *member);
+
+/**
  * Returns the kind of a given <i>message</i> to determine its content and
  * related usage.
  *

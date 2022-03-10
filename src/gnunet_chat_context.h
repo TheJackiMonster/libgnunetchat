@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,7 @@
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_configuration_lib.h>
 #include <gnunet/gnunet_container_lib.h>
+#include <gnunet/gnunet_gnsrecord_lib.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -47,6 +48,7 @@ struct GNUNET_CHAT_Context
 
   enum GNUNET_CHAT_ContextType type;
   char *nick;
+  char *topic;
 
   struct GNUNET_CONTAINER_MultiShortmap *timestamps;
   struct GNUNET_CONTAINER_MultiHashMap *messages;
@@ -57,6 +59,8 @@ struct GNUNET_CHAT_Context
   const struct GNUNET_MESSENGER_Contact *contact;
 
   void *user_pointer;
+
+  struct GNUNET_CONTAINER_MultiShortmap *member_pointers;
 };
 
 struct GNUNET_CHAT_Context*
@@ -79,12 +83,15 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 		     const char *nick);
 
 void
-context_load_config (struct GNUNET_CHAT_Context *context);
+context_read_records (struct GNUNET_CHAT_Context *context,
+		      const char *label,
+		      unsigned int count,
+		      const struct GNUNET_GNSRECORD_Data *data);
 
 void
-context_save_config (const struct GNUNET_CHAT_Context *context);
+context_write_records (struct GNUNET_CHAT_Context *context);
 
 void
-context_scan_configs (struct GNUNET_CHAT_Handle *handle);
+context_delete_records (struct GNUNET_CHAT_Context *context);
 
 #endif /* GNUNET_CHAT_CONTEXT_H_ */

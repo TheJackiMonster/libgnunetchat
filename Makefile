@@ -25,6 +25,7 @@ LIBRARIES = gnunetarm\
             gnunetfs\
 			gnunetidentity\
             gnunetmessenger\
+            gnunetnamestore\
             gnunetregex\
             gnunetutil
 

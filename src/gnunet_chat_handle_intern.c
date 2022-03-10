@@ -64,6 +64,12 @@ on_handle_arm_connection(void *cls,
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
     );
+
+    GNUNET_ARM_request_service_start(
+    	chat->arm, "namestore",
+    	GNUNET_OS_INHERIT_STD_NONE,
+    	NULL, NULL
+    );
   } else {
     GNUNET_ARM_request_service_start(
 	chat->arm, "arm",
@@ -359,6 +365,93 @@ scan_handle_room_members (void* cls,
 }
 
 void
+on_monitor_namestore_record(void *cls,
+			    GNUNET_UNUSED const
+			    struct GNUNET_IDENTITY_PrivateKey *zone,
+			    const char *label,
+			    unsigned int count,
+			    const struct GNUNET_GNSRECORD_Data *data)
+{
+  struct GNUNET_CHAT_Handle *chat = cls;
+
+  if (count <= 0)
+    goto skip_records;
+
+  const struct GNUNET_MESSENGER_RoomEntryRecord *record = NULL;
+
+  for (unsigned int i = 0; i < count; i++)
+  {
+    if (GNUNET_YES == GNUNET_GNSRECORD_is_expired(data + i))
+      continue;
+
+    if ((GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY == data[i].record_type) &&
+	(!(GNUNET_GNSRECORD_RF_SUPPLEMENTAL & data[i].flags)))
+    {
+      record = data[i].data;
+      break;
+    }
+  }
+
+  if (!record)
+    goto skip_records;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+      chat->contexts,
+      &(record->key)
+  );
+
+  if (context)
+  {
+    context_read_records(context, label, count, data);
+
+    printf("PATCH: %s %u %d %s\n", label, count, (int) context->type, context->topic);
+
+    goto skip_records;
+  }
+
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
+      chat->messenger,
+      &(record->door),
+      &(record->key)
+  );
+
+  if (!room)
+    goto skip_records;
+
+  context = context_create_from_room(chat, room);
+  context_read_records(context, label, count, data);
+
+  printf("READ: %s %u %d %s\n", label, count, (int) context->type, context->topic);
+
+  handle_send_room_name(chat, room);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      chat->contexts, &(record->key), context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_destroy(context);
+    goto skip_records;
+  }
+
+  if (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type)
+    goto skip_records;
+
+  struct GNUNET_CHAT_Group *group = group_create_from_context(chat, context);
+
+  if (context->topic)
+    group_publish(group);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      chat->groups, &(record->key), group,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    group_destroy(group);
+
+skip_records:
+  if (chat->monitor)
+    GNUNET_NAMESTORE_zone_monitor_next(chat->monitor, 1);
+}
+
+void
 on_handle_identity(void *cls,
 		   GNUNET_UNUSED struct GNUNET_MESSENGER_Handle *messenger)
 {
@@ -377,12 +470,30 @@ on_handle_identity(void *cls,
     return;
 
   GNUNET_assert(handle->messenger);
-  context_scan_configs(handle);
+
+  printf("HURRAY!\n");
 
   handle_send_internal_message(
       handle,
       NULL,
       GNUNET_CHAT_FLAG_LOGIN,
+      NULL
+  );
+
+  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(handle);
+
+  if ((!zone) || (handle->monitor))
+    return;
+
+  handle->monitor = GNUNET_NAMESTORE_zone_monitor_start(
+      handle->cfg,
+      zone,
+      GNUNET_YES,
+      NULL,
+      NULL,
+      on_monitor_namestore_record,
+      handle,
+      NULL,
       NULL
   );
 }
@@ -583,7 +694,6 @@ it_destroy_handle_groups (GNUNET_UNUSED void *cls,
   GNUNET_assert(value);
 
   struct GNUNET_CHAT_Group *group = value;
-  group_save_config(group);
   group_destroy(group);
   return GNUNET_YES;
 }
@@ -608,7 +718,6 @@ it_destroy_handle_contexts (GNUNET_UNUSED void *cls,
   GNUNET_assert(value);
 
   struct GNUNET_CHAT_Context *context = value;
-  context_save_config(context);
   context_destroy(context);
   return GNUNET_YES;
 }

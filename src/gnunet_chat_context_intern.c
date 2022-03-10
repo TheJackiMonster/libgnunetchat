@@ -62,3 +62,19 @@ it_destroy_context_invites (GNUNET_UNUSED void *cls,
   invitation_destroy(invitation);
   return GNUNET_YES;
 }
+
+void
+cont_context_write_records (void *cls,
+                            GNUNET_UNUSED int32_t success,
+                            const char *emsg)
+{
+  struct GNUNET_CHAT_Context *context = cls;
+
+  if (emsg)
+    handle_send_internal_message(
+	context->handle,
+	context,
+	GNUNET_CHAT_FLAG_WARNING,
+	emsg
+    );
+}

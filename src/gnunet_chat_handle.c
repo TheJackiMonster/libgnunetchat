@@ -58,6 +58,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->current = NULL;
   handle->creation_op = NULL;
+  handle->monitor = NULL;
 
   handle->files = NULL;
   handle->contexts = NULL;
@@ -76,6 +77,10 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
       handle->cfg,
       on_handle_gnunet_identity,
       handle
+  );
+
+  handle->namestore = GNUNET_NAMESTORE_connect(
+      handle->cfg
   );
 
   handle->fs = NULL;
@@ -114,11 +119,17 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->shutdown_hook)
     GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
 
+  if (handle->monitor)
+    GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
+
   if (handle->creation_op)
     GNUNET_IDENTITY_cancel(handle->creation_op);
 
   if (handle->current)
     handle_disconnect(handle);
+
+  if (handle->namestore)
+    GNUNET_NAMESTORE_disconnect(handle->namestore);
 
   if (handle->identity)
     GNUNET_IDENTITY_disconnect(handle->identity);
@@ -176,6 +187,12 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 		(!(handle->contacts)) &&
 		(!(handle->contexts)) &&
 		(!(handle->files)));
+
+  if (handle->monitor)
+  {
+    GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
+    handle->monitor = NULL;
+  }
 
   handle->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
   handle->contexts = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
@@ -274,6 +291,19 @@ handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
     return handle->current->directory;
 }
 
+const struct GNUNET_IDENTITY_PrivateKey*
+handle_get_key (const struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert(handle);
+
+  if ((!(handle->current)) || (!(handle->current->ego)))
+    return NULL;
+
+  return GNUNET_IDENTITY_ego_get_private_key(
+      handle->current->ego
+  );
+}
+
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Context *context,
@@ -351,7 +381,6 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_OK;
 
   context = context_create_from_room(handle, room);
-  context_load_config(context);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, key, context,
@@ -376,9 +405,14 @@ check_type:
       (GNUNET_OK == intern_provide_contact_for_member(handle,
 						      check.contact,
 						      context)))
+  {
+    context_delete_records(context);
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+    context_write_records(context);
+  }
   else if (checks >= 2)
   {
+    context_delete_records(context);
     context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
 
     if (context->contact)
@@ -405,9 +439,7 @@ setup_group:
     handle, context
   );
 
-  group_load_config(group);
-
-  if (group->topic)
+  if (context->topic)
     group_publish(group);
 
   if (GNUNET_OK == GNUNET_CONTAINER_multihashmap_put(
@@ -421,6 +453,7 @@ setup_group:
 	NULL
     );
 
+    context_write_records(context);
     return GNUNET_OK;
   }
 

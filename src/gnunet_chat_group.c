@@ -38,8 +38,6 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
   group->handle = handle;
   group->context = context;
 
-  group->topic = NULL;
-
   group->announcement = NULL;
   group->search = NULL;
 
@@ -64,9 +62,6 @@ group_destroy (struct GNUNET_CHAT_Group* group)
   if (group->announcement)
     GNUNET_REGEX_announce_cancel(group->announcement);
 
-  if (group->topic)
-    GNUNET_free(group->topic);
-
   GNUNET_free(group);
 }
 
@@ -74,7 +69,8 @@ void
 group_publish (struct GNUNET_CHAT_Group* group)
 {
   GNUNET_assert((group) &&
-		(group->topic) &&
+		(group->context) &&
+		(group->context->topic) &&
 		(group->handle) &&
 		(group->handle->cfg));
 
@@ -82,7 +78,7 @@ group_publish (struct GNUNET_CHAT_Group* group)
   GNUNET_asprintf (
       &topic,
       "GNUNET_CHAT_%s",
-      group->topic
+      group->context->topic
   );
 
   group->announcement = GNUNET_REGEX_announce(
@@ -97,83 +93,4 @@ group_publish (struct GNUNET_CHAT_Group* group)
   );
 
   GNUNET_free(topic);
-}
-
-void
-group_load_config (struct GNUNET_CHAT_Group *group)
-{
-  GNUNET_assert((group) && (group->handle));
-
-  const char *directory = handle_get_directory(group->handle);
-
-  if ((!directory) || (!(group->context)))
-    return;
-
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      group->context->room
-  );
-
-  char* filename;
-  util_get_filename(directory, "groups", key, &filename);
-
-  if (GNUNET_YES != GNUNET_DISK_file_test(filename))
-    goto free_filename;
-
-  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
-
-  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
-    goto destroy_config;
-
-  char* name = NULL;
-
-  if (GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
-      config, "group", "topic", &name))
-    util_set_name_field(name, &(group->topic));
-
-  if (name)
-    GNUNET_free(name);
-
-destroy_config:
-  GNUNET_CONFIGURATION_destroy(config);
-
-free_filename:
-  GNUNET_free(filename);
-}
-
-void
-group_save_config (const struct GNUNET_CHAT_Group *group)
-{
-  GNUNET_assert((group) && (group->handle));
-
-  const char *directory = handle_get_directory(group->handle);
-
-  if ((!directory) || (!(group->context)))
-    return;
-
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      group->context->room
-  );
-
-  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
-
-  if (group->topic)
-  {
-    struct GNUNET_HashCode topic_hash;
-    GNUNET_CRYPTO_hash(group->topic, strlen(group->topic), &topic_hash);
-
-    if (0 == GNUNET_memcmp(key, &topic_hash))
-      GNUNET_CONFIGURATION_set_value_string(
-	config, "group", "topic", group->topic
-      );
-  }
-
-  char* filename;
-  util_get_filename(directory, "groups", key, &filename);
-
-  if (GNUNET_OK == GNUNET_DISK_directory_create_for_file(filename))
-    GNUNET_CONFIGURATION_write(config, filename);
-
-  GNUNET_CONFIGURATION_destroy(config);
-
-  GNUNET_free(filename);
 }

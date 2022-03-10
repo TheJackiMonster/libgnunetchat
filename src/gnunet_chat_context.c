@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_util.h"
 
@@ -40,6 +41,7 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
   context->nick = NULL;
+  context->topic = NULL;
 
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
@@ -50,6 +52,10 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->contact = NULL;
 
   context->user_pointer = NULL;
+
+  context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
+      8, GNUNET_NO
+  );
 
   return context;
 }
@@ -66,6 +72,7 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
   context->nick = NULL;
+  context->topic = NULL;
 
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(4, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
@@ -76,6 +83,10 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   context->contact = contact;
 
   context->user_pointer = NULL;
+
+  context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
+      8, GNUNET_NO
+  );
 
   return context;
 }
@@ -101,10 +112,15 @@ context_destroy (struct GNUNET_CHAT_Context *context)
       context->invites, it_destroy_context_invites, NULL
   );
 
+  GNUNET_CONTAINER_multishortmap_destroy(context->member_pointers);
+
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
   GNUNET_CONTAINER_multihashmap_destroy(context->messages);
   GNUNET_CONTAINER_multihashmap_destroy(context->invites);
   GNUNET_CONTAINER_multihashmap_destroy(context->files);
+
+  if (context->topic)
+    GNUNET_free(context->topic);
 
   if (context->nick)
     GNUNET_free(context->nick);
@@ -141,6 +157,11 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   GNUNET_CONTAINER_multihashmap_clear(context->files);
 
   context->room = room;
+
+  if (!(context->room))
+    return;
+
+  context_write_records(context);
 }
 
 void
@@ -163,169 +184,235 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 }
 
 void
-context_load_config (struct GNUNET_CHAT_Context *context)
+context_read_records (struct GNUNET_CHAT_Context *context,
+		      const char *label,
+		      unsigned int count,
+		      const struct GNUNET_GNSRECORD_Data *data)
+{
+  GNUNET_assert((context) &&
+  		(context->room));
+
+  char *nick = NULL;
+  char *topic = NULL;
+
+  for (unsigned int i = 0; i < count; i++)
+  {
+    if (!(GNUNET_GNSRECORD_RF_SUPPLEMENTAL & data[i].flags))
+      continue;
+
+    if (GNUNET_GNSRECORD_TYPE_NICK == data[i].record_type)
+    {
+      if (nick)
+      continue;
+
+      nick = GNUNET_strndup(data[i].data, data[i].data_size);
+    }
+
+    if (GNUNET_DNSPARSER_TYPE_TXT == data[i].record_type)
+    {
+      if (topic)
+      continue;
+
+      topic = GNUNET_strndup(data[i].data, data[i].data_size);
+    }
+  }
+
+  context_update_nick(context, nick);
+
+  if (nick)
+    GNUNET_free(nick);
+
+  if (topic)
+  {
+    struct GNUNET_HashCode topic_hash;
+    GNUNET_CRYPTO_hash(topic, strlen(topic), &topic_hash);
+
+    const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
+	context->room
+    );
+
+    if (0 != GNUNET_CRYPTO_hash_cmp(&topic_hash, hash))
+    {
+      GNUNET_free(topic);
+      topic = NULL;
+    }
+  }
+
+  util_set_name_field(topic, &(context->topic));
+
+  if (topic)
+    GNUNET_free(topic);
+
+  if (0 == strncmp(label, "group_", 6))
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+  else if (0 == strncmp(label, "contact_", 8))
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+  else
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
+}
+
+void
+context_write_records (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((context) &&
 		(context->handle) &&
 		(context->room));
 
-  const char *directory = handle_get_directory(context->handle);
+  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(
+      context->handle
+  );
 
-  if (!directory)
+  if (!zone)
     return;
 
   const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
       context->room
   );
 
-  char* filename;
-  util_get_filename(directory, "chats", hash, &filename);
+  struct GNUNET_TIME_Absolute expiration = GNUNET_TIME_absolute_get_forever_();
 
-  if (GNUNET_YES != GNUNET_DISK_file_test(filename))
-    goto free_filename;
+  struct GNUNET_MESSENGER_RoomEntryRecord room;
+  GNUNET_CRYPTO_get_peer_identity(context->handle->cfg, &(room.door));
 
-  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
+  GNUNET_memcpy(
+      &(room.key),
+      hash,
+      sizeof(room.key)
+  );
 
-  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
-    goto destroy_config;
+  const char *nick = context->nick;
+  const char *topic = context->topic;
 
-  char* name = NULL;
+  if (topic)
+  {
+    struct GNUNET_HashCode topic_hash;
+    GNUNET_CRYPTO_hash(topic, strlen(topic), &topic_hash);
 
-  if (GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
-      config, "chat", "name", &name))
-    context_update_nick(context, name);
+    if (0 != GNUNET_CRYPTO_hash_cmp(&topic_hash, hash))
+      topic = NULL;
+  }
 
-  if (name)
-    GNUNET_free(name);
+  unsigned int count = 1;
 
-  unsigned long long type_number;
+  struct GNUNET_GNSRECORD_Data data [3];
+  data[0].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;
+  data[0].data = &room;
+  data[0].data_size = sizeof(room);
+  data[0].expiration_time = expiration.abs_value_us;
+  data[0].flags = GNUNET_GNSRECORD_RF_PRIVATE;
 
-  if (GNUNET_OK == GNUNET_CONFIGURATION_get_value_number(
-      config, "chat", "type", &type_number))
-    switch (type_number) {
-      case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
-	context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-	break;
-      case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
-      	context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
-      	break;
-      default:
-	context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
-	break;
-    }
+  if (nick)
+  {
+    data[count].record_type = GNUNET_GNSRECORD_TYPE_NICK;
+    data[count].data = nick;
+    data[count].data_size = strlen(nick);
+    data[count].expiration_time = expiration.abs_value_us;
+    data[count].flags = (
+	GNUNET_GNSRECORD_RF_PRIVATE |
+	GNUNET_GNSRECORD_RF_SUPPLEMENTAL
+    );
 
-destroy_config:
-  GNUNET_CONFIGURATION_destroy(config);
+    count++;
+  }
 
-free_filename:
-  GNUNET_free(filename);
+  if (topic)
+  {
+    data[count].record_type = GNUNET_DNSPARSER_TYPE_TXT;
+    data[count].data = topic;
+    data[count].data_size = strlen(topic);
+    data[count].expiration_time = expiration.abs_value_us;
+    data[count].flags = (
+	GNUNET_GNSRECORD_RF_PRIVATE |
+	GNUNET_GNSRECORD_RF_SUPPLEMENTAL
+    );
+
+    count++;
+  }
+
+  const char *type_string = "chat";
+
+  switch (context->type)
+  {
+    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
+      type_string = "contact";
+      break;
+    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
+      type_string = "group";
+      break;
+    default:
+      break;
+  }
+
+  char *label;
+  GNUNET_asprintf (
+      &label,
+      "%s_%s",
+      type_string,
+      GNUNET_h2s(hash)
+  );
+
+  GNUNET_NAMESTORE_records_store(
+      context->handle->namestore,
+      zone,
+      label,
+      count,
+      data,
+      cont_context_write_records,
+      context
+  );
+
+  GNUNET_free(label);
 }
 
 void
-context_save_config (const struct GNUNET_CHAT_Context *context)
+context_delete_records (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((context) &&
   		(context->handle) &&
   		(context->room));
 
-  const char *directory = handle_get_directory(context->handle);
+  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(
+      context->handle
+  );
 
-  if (!directory)
+  if (!zone)
     return;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
       context->room
   );
 
-  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
+  const char *type_string = "chat";
 
-  if (context->room)
-    GNUNET_CONFIGURATION_set_value_string(
-	config, "chat", "key", GNUNET_h2s_full(key)
-    );
-
-  if (context->nick)
-    GNUNET_CONFIGURATION_set_value_string(
-	config, "chat", "name", context->nick
-    );
-
-  if (GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN != context->type)
-    GNUNET_CONFIGURATION_set_value_number(
-	config, "chat", "type", context->type
-    );
-
-  char* filename;
-  util_get_filename(directory, "chats", key, &filename);
-
-  if (GNUNET_OK == GNUNET_DISK_directory_create_for_file(filename))
-    GNUNET_CONFIGURATION_write(config, filename);
-
-  GNUNET_CONFIGURATION_destroy(config);
-
-  GNUNET_free(filename);
-}
-
-enum GNUNET_GenericReturnValue
-callback_scan_for_configs (void *cls,
-			   const char *filename)
-{
-  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
-  struct GNUNET_PeerIdentity door;
-  struct GNUNET_HashCode key;
-
-  memset(&door, 0, sizeof(door));
-  memset(&key, 0, sizeof(key));
-
-  if ((!filename) ||
-      (GNUNET_OK != GNUNET_CRYPTO_get_peer_identity(handle->cfg, &door)))
-    return GNUNET_YES;
-
-  struct GNUNET_CONFIGURATION_Handle *config = GNUNET_CONFIGURATION_create();
-
-  if (GNUNET_OK != GNUNET_CONFIGURATION_load(config, filename))
-    goto destroy_config;
-
-  char* key_value = NULL;
-
-  if ((GNUNET_OK == GNUNET_CONFIGURATION_get_value_string(
-      config, "chat", "key", &key_value)) &&
-      (GNUNET_OK == GNUNET_CRYPTO_hash_from_string(key_value, &key)))
+  switch (context->type)
   {
-    handle_send_room_name(handle, GNUNET_MESSENGER_enter_room(
-    	handle->messenger, &door, &key
-    ));
+    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
+      type_string = "contact";
+      break;
+    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
+      type_string = "group";
+      break;
+    default:
+      break;
   }
 
-  if (key_value)
-    GNUNET_free(key_value);
-
-destroy_config:
-  GNUNET_CONFIGURATION_destroy(config);
-  return GNUNET_YES;
-}
-
-void
-context_scan_configs (struct GNUNET_CHAT_Handle *handle)
-{
-  GNUNET_assert((handle) && (handle->messenger));
-
-  const char *directory = handle_get_directory(handle);
-
-  if (!directory)
-    return;
-
-  char* dirname;
-  util_get_dirname(directory, "chats", &dirname);
-
-  if (GNUNET_YES != GNUNET_DISK_directory_test(dirname, GNUNET_YES))
-    goto free_dirname;
-
-  GNUNET_DISK_directory_scan(
-      dirname,
-      callback_scan_for_configs,
-      handle
+  char *label;
+  GNUNET_asprintf (
+      &label,
+      "%s_%s",
+      type_string,
+      GNUNET_h2s(hash)
   );
 
-free_dirname:
-  GNUNET_free(dirname);
+  GNUNET_NAMESTORE_records_store(
+      context->handle->namestore,
+      zone,
+      label,
+      0,
+      NULL,
+      cont_context_write_records,
+      context
+  );
+
+  GNUNET_free(label);
 }
