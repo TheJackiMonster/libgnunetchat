@@ -396,6 +396,7 @@ GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
     return;
 
   context_update_nick(contact->context, name);
+  context_write_records(contact->context);
 }
 
 
@@ -506,10 +507,11 @@ void
 GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
 			    const char *name)
 {
-  if (!group)
+  if ((!group) || (!(group->context)))
     return;
 
-  util_set_name_field(name, &(group->context->nick));
+  context_update_nick(group->context, name);
+  context_write_records(group->context);
 }
 
 
