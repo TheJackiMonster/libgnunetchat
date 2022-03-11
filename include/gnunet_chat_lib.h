@@ -116,6 +116,16 @@ struct GNUNET_CHAT_Handle;
 struct GNUNET_CHAT_Account;
 
 /**
+ * Struct of a chat URI.
+ */
+struct GNUNET_CHAT_Uri;
+
+/**
+ * Struct of a chat lobby.
+ */
+struct GNUNET_CHAT_Lobby;
+
+/**
  * Struct of a chat contact.
  */
 struct GNUNET_CHAT_Contact;
@@ -157,6 +167,16 @@ typedef int
 (*GNUNET_CHAT_AccountCallback) (void *cls,
 				const struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_CHAT_Account *account);
+
+/**
+ * Method called when a lobby is opened to share with others via a chat URI.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_lobby_open
+ * @param[in] uri Chat URI of the lobby
+ */
+typedef void
+(*GNUNET_CHAT_LobbyCallback) (void *cls,
+			      const struct GNUNET_CHAT_Uri *uri);
 
 /**
  * Iterator over chat contacts of a specific chat handle.
@@ -299,7 +319,8 @@ typedef void
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
-		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls);
+		   GNUNET_CHAT_ContextMessageCallback msg_cb,
+		   void *msg_cls);
 
 /**
  * Stops a chat handle closing all its remaining resources and frees the
@@ -410,6 +431,68 @@ const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Convert an UTF-8 String to a chat URI which will be newly allocated.
+ *
+ * @param[in] uri UTF-8 string to parse
+ * @param[out] emsg Where to store the parser error message (if any)
+ * @return NULL on error
+ */
+struct GNUNET_CHAT_Uri*
+GNUNET_CHAT_uri_parse (const char *uri,
+		       char **emsg);
+
+/**
+ * Convert a chat URI to a UTF-8 String.
+ *
+ * @param[in] uri Chat URI
+ * @return The UTF-8 string representing the URI
+ */
+char*
+GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri);
+
+/**
+ * Free an allocated chat URI.
+ *
+ * @param[in,out] uri Chat URI
+ */
+void
+GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri);
+
+/**
+ * Opens an empty chat lobby which will expire after a custom <i>delay</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] delay Expiration delay
+ * @param[in] callback Callback for the lobby opening
+ * @param[in,out] cls Closure for the lobby opening (optional)
+ * @return Chat lobby
+ */
+struct GNUNET_CHAT_Lobby*
+GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
+			struct GNUNET_TIME_Relative delay,
+			GNUNET_CHAT_LobbyCallback callback,
+			void *cls);
+
+/**
+ * Closes a chat <i>lobby</i> overriding the expiration to be now.
+ *
+ * @param[in,out] lobby Chat lobby
+ */
+void
+GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby);
+
+/**
+ * Joins an open lobby via URI with a given chat <i>handle</i> if it can still
+ * be resolved (depends on connection and expiration of the lobby).
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] uri Chat URI
+ */
+void
+GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
+			const struct GNUNET_CHAT_Uri *uri);
+
+/**
  * Iterates through the contacts of a given chat <i>handle</i> with a selected
  * callback and custom closure.
  *
@@ -426,7 +509,7 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 /**
  * Returns the provided name of a given <i>account</i> or NULL on failure.
  *
- * @param account Chat account
+ * @param[in] account Chat account
  * @return Name or NULL
  */
 const char*

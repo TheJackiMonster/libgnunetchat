@@ -208,6 +208,68 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 }
 
 
+struct GNUNET_CHAT_Uri*
+GNUNET_CHAT_uri_parse (const char *uri,
+		       char **emsg)
+{
+  if (!uri)
+    return NULL;
+
+  // TODO
+
+  return NULL;
+}
+
+
+char*
+GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
+{
+  if (!uri)
+    return NULL;
+
+  // TODO
+
+  return NULL;
+}
+
+
+void
+GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
+{
+  if (!uri)
+    return;
+
+  GNUNET_free(uri);
+}
+
+
+struct GNUNET_CHAT_Lobby*
+GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
+			struct GNUNET_TIME_Relative delay,
+			GNUNET_CHAT_LobbyCallback callback,
+			void *cls)
+{
+  // TODO
+
+  return NULL;
+}
+
+
+void
+GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
+{
+  // TODO
+}
+
+
+void
+GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
+			const struct GNUNET_CHAT_Uri *uri)
+{
+  // TODO
+}
+
+
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 			      void *user_pointer)
@@ -613,7 +675,8 @@ GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
   if ((!context) || (!(context->room)))
     return GNUNET_SYSERR;
 
-  if (1 >= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL))
+  if ((GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN == context->type) ||
+      (1 >= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL)))
     return GNUNET_NO;
 
   return GNUNET_OK;
