@@ -54,6 +54,12 @@ on_handle_arm_connection(void *cls,
 
   if (GNUNET_YES == connected) {
     GNUNET_ARM_request_service_start(
+    	chat->arm, "identity",
+    	GNUNET_OS_INHERIT_STD_NONE,
+    	NULL, NULL
+    );
+
+    GNUNET_ARM_request_service_start(
 	chat->arm, "messenger",
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
@@ -63,6 +69,12 @@ on_handle_arm_connection(void *cls,
 	chat->arm, "fs",
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
+    );
+
+    GNUNET_ARM_request_service_start(
+    	chat->arm, "gns",
+    	GNUNET_OS_INHERIT_STD_NONE,
+    	NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(

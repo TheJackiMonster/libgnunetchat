@@ -64,9 +64,6 @@ cb_lobby_lookup (void *cls,
     context_write_records(context);
 
 drop_lookup:
-  if (lookups->request)
-    GNUNET_GNS_lookup_cancel(lookups->request);
-
   if (lookups->uri)
     uri_destroy(lookups->uri);
 
