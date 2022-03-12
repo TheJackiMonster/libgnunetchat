@@ -598,9 +598,6 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   if (context)
   {
     context_read_records(context, label, count, data);
-
-    printf("PATCH: %s %u %d %s\n", label, count, (int) context->type, context->topic);
-
     return NULL;
   }
 
@@ -615,8 +612,6 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
 
   context = context_create_from_room(handle, room);
   context_read_records(context, label, count, data);
-
-  printf("READ: %s %u %d %s\n", label, count, (int) context->type, context->topic);
 
   handle_send_room_name(handle, room);
 

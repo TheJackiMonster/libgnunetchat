@@ -332,8 +332,6 @@ context_write_records (struct GNUNET_CHAT_Context *context)
   char *label;
   util_get_context_label(context->type, hash, &label);
 
-  printf("WRITE: %s -> %u (%s, %s)\n", label, count, nick, topic);
-
   GNUNET_NAMESTORE_records_store(
       context->handle->namestore,
       zone,

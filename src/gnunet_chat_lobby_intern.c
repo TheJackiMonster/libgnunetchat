@@ -75,13 +75,11 @@ cont_lobby_identity_create (void *cls,
 {
   struct GNUNET_CHAT_Lobby *lobby = cls;
 
-  char *name;
-
   if (emsg)
   {
     handle_send_internal_message(
 	lobby->handle,
-    	NULL,
+    	lobby->context,
     	GNUNET_CHAT_FLAG_WARNING,
     	emsg
     );
@@ -89,30 +87,15 @@ cont_lobby_identity_create (void *cls,
     return;
   }
 
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      lobby->handle->messenger,
-      NULL
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+      lobby->context->room
   );
 
-  if (!room)
-    goto destroy_identity;
+  struct GNUNET_MESSENGER_RoomEntryRecord room;
+  GNUNET_CRYPTO_get_peer_identity(lobby->handle->cfg, &(room.door));
+  GNUNET_memcpy(&(room.key), key, sizeof(room.key));
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
-
-  lobby->context = context_create_from_room(lobby->handle, room);
-
-  handle_send_room_name(lobby->handle, room);
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      lobby->handle->contexts, key, lobby->context,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-  {
-    context_destroy(lobby->context);
-    lobby->context = NULL;
-    goto destroy_identity;
-  }
-
-  struct GNUNET_GNSRECORD_Data data [3];
+  struct GNUNET_GNSRECORD_Data data [1];
   data[0].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;
   data[0].data = &room;
   data[0].data_size = sizeof(room);
@@ -143,7 +126,7 @@ cont_lobby_identity_create (void *cls,
 
   context_write_records(lobby->context);
 
-destroy_identity:
+  char *name;
   util_lobby_name(key, &name);
 
   lobby->op_delete = GNUNET_IDENTITY_delete(

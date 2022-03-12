@@ -62,9 +62,6 @@ lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
   if (lobby->uri)
     uri_destroy(lobby->uri);
 
-  if (lobby->context)
-    context_destroy(lobby->context);
-
   GNUNET_free(lobby);
 }
 
