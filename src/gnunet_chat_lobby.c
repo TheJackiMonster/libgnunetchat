@@ -1,0 +1,130 @@
+/*
+   This file is part of GNUnet.
+   Copyright (C) 2022 GNUnet e.V.
+
+   GNUnet is free software: you can redistribute it and/or modify it
+   under the terms of the GNU Affero General Public License as published
+   by the Free Software Foundation, either version 3 of the License,
+   or (at your option) any later version.
+
+   GNUnet is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   SPDX-License-Identifier: AGPL3.0-or-later
+ */
+/*
+ * @author Tobias Frisch
+ * @file gnunet_chat_lobby.c
+ */
+
+#include "gnunet_chat_lobby.h"
+
+#include "gnunet_chat_handle.h"
+#include "gnunet_chat_lobby_intern.c"
+
+struct GNUNET_CHAT_Lobby*
+lobby_create (struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert(handle);
+
+  struct GNUNET_CHAT_Lobby *lobby = GNUNET_new(struct GNUNET_CHAT_Lobby);
+
+  lobby->handle = handle;
+  lobby->context = NULL;
+  lobby->uri = NULL;
+
+  lobby->op_create = NULL;
+  lobby->op_delete = NULL;
+
+  lobby->expiration = GNUNET_TIME_absolute_get_forever_();
+  lobby->callback = NULL;
+  lobby->cls = NULL;
+
+  return lobby;
+}
+
+void
+lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
+{
+  GNUNET_assert(lobby);
+
+  if (lobby->op_create)
+    GNUNET_IDENTITY_cancel(lobby->op_create);
+
+  if (lobby->op_delete)
+    GNUNET_IDENTITY_cancel(lobby->op_delete);
+
+  if (lobby->uri)
+    uri_destroy(lobby->uri);
+
+  if (lobby->context)
+    context_destroy(lobby->context);
+
+  GNUNET_free(lobby);
+}
+
+void
+lobby_open (struct GNUNET_CHAT_Lobby *lobby,
+	    struct GNUNET_TIME_Relative delay,
+	    GNUNET_CHAT_LobbyCallback callback,
+	    void *cls)
+{
+  GNUNET_assert(lobby);
+
+  char *name;
+
+  lobby->expiration = GNUNET_TIME_relative_to_absolute(delay);
+  lobby->callback = callback;
+  lobby->cls = cls;
+
+  if (lobby->op_create)
+  {
+    GNUNET_IDENTITY_cancel(lobby->op_create);
+    goto open_zone;
+  }
+
+  struct GNUNET_HashCode key;
+  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
+
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
+      lobby->handle->messenger,
+      &key
+  );
+
+  if (!room)
+    return;
+
+  lobby->context = context_create_from_room(lobby->handle, room);
+
+  handle_send_room_name(lobby->handle, room);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      lobby->handle->contexts, &key, lobby->context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_destroy(lobby->context);
+    lobby->context = NULL;
+
+    GNUNET_MESSENGER_close_room(room);
+    return;
+  }
+
+open_zone:
+  util_lobby_name(&key, &name);
+
+  lobby->op_create = GNUNET_IDENTITY_create(
+      lobby->handle->identity,
+      name,
+      NULL,
+      GNUNET_IDENTITY_TYPE_EDDSA,
+      cont_lobby_identity_create,
+      lobby
+  );
+
+  GNUNET_free(name);
+}

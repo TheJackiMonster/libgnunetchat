@@ -286,3 +286,40 @@ util_get_filename (const char *directory,
   GNUNET_free(dirname);
   return result;
 }
+
+int
+util_get_context_label (enum GNUNET_CHAT_ContextType type,
+		        const struct GNUNET_HashCode *hash,
+		        char **label)
+{
+  const char *type_string = "chat";
+
+  switch (type)
+  {
+    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
+      type_string = "contact";
+      break;
+    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
+      type_string = "group";
+      break;
+    default:
+      break;
+  }
+
+  return GNUNET_asprintf (
+      label,
+      "%s_%s",
+      type_string,
+      GNUNET_h2s(hash)
+  );
+}
+
+int util_lobby_name (const struct GNUNET_HashCode *hash,
+		     char **name)
+{
+  return GNUNET_asprintf (
+      name,
+      "chat_lobby_%s",
+      GNUNET_h2s(hash)
+  );
+}

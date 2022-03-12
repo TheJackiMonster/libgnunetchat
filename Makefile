@@ -14,7 +14,9 @@ SOURCES = gnunet_chat_lib.c\
 		  gnunet_chat_group.c\
   		  gnunet_chat_handle.c\
   		  gnunet_chat_invitation.c\
+  		  gnunet_chat_lobby.c\
 		  gnunet_chat_message.c\
+		  gnunet_chat_uri.c\
 		  gnunet_chat_util.c
 		  
 HEADERS = gnunet_chat_lib.h
@@ -24,6 +26,7 @@ TESTS   = test_gnunet_chat_handle.c
 LIBRARIES = gnunetarm\
             gnunetfs\
 			gnunetidentity\
+			gnunetgns\
             gnunetmessenger\
             gnunetnamestore\
             gnunetregex\

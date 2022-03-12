@@ -33,12 +33,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
-enum GNUNET_CHAT_ContextType
-{
-  GNUNET_CHAT_CONTEXT_TYPE_CONTACT = 1,
-  GNUNET_CHAT_CONTEXT_TYPE_GROUP   = 2,
-  GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN = 0
-};
+#include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_Handle;
 

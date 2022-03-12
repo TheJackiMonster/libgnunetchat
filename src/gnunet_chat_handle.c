@@ -60,6 +60,12 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->creation_op = NULL;
   handle->monitor = NULL;
 
+  handle->lobbies_head = NULL;
+  handle->lobbies_tail = NULL;
+
+  handle->lobbies_head = NULL;
+  handle->lobbies_tail = NULL;
+
   handle->files = NULL;
   handle->contexts = NULL;
   handle->contacts = NULL;
@@ -84,6 +90,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   );
 
   handle->fs = NULL;
+  handle->gns = NULL;
   handle->messenger = NULL;
 
   handle->public_key = NULL;
@@ -218,6 +225,8 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   GNUNET_free(fs_client_name);
 
+  handle->gns = GNUNET_GNS_connect(handle->cfg);
+
   handle->messenger = GNUNET_MESSENGER_connect(
       handle->cfg, name,
       on_handle_identity, handle,
@@ -250,18 +259,76 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
       handle->contexts, it_destroy_handle_contexts, NULL
   );
 
+  struct GNUNET_CHAT_InternalMessages *internal;
+  while (handle->internal_head)
+  {
+    internal = handle->internal_head;
+
+    if ((internal->msg) && (internal->msg->context))
+      message_destroy(internal->msg);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->internal_head,
+      handle->internal_tail,
+      internal
+    );
+
+    GNUNET_free(internal);
+  }
+
   if (handle->messenger)
     GNUNET_MESSENGER_disconnect(handle->messenger);
 
+  if (handle->gns)
+    GNUNET_GNS_disconnect(handle->gns);
+
   if (handle->fs)
     GNUNET_FS_stop(handle->fs);
+
+  handle->fs = NULL;
+  handle->gns = NULL;
+  handle->messenger = NULL;
 
   GNUNET_CONTAINER_multihashmap_iterate(
       handle->files, it_destroy_handle_files, NULL
   );
 
-  handle->fs = NULL;
-  handle->messenger = NULL;
+  struct GNUNET_CHAT_InternalLobbies *lobbies;
+  while (handle->lobbies_head)
+  {
+    lobbies = handle->lobbies_head;
+
+    if (lobbies->lobby)
+      lobby_destroy(lobbies->lobby);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->lobbies_head,
+      handle->lobbies_tail,
+      lobbies
+    );
+
+    GNUNET_free(lobbies);
+  }
+
+  struct GNUNET_CHAT_UriLookups *lookups;
+  while (handle->lookups_head)
+  {
+    lookups = handle->lookups_head;
+
+    if (lookups->request)
+      GNUNET_GNS_lookup_cancel(lookups->request);
+
+    if (lookups->uri)
+      uri_destroy(lookups->uri);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->lookups_head,
+      handle->lookups_tail,
+      lookups
+    );
+
+    GNUNET_free(lookups);
+  }
 
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);
   GNUNET_CONTAINER_multishortmap_destroy(handle->contacts);
@@ -492,4 +559,88 @@ handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
   return GNUNET_CONTAINER_multihashmap_get(
       handle->groups, key
   );
+}
+
+struct GNUNET_CHAT_Context*
+handle_process_records (struct GNUNET_CHAT_Handle *handle,
+			const char *label,
+			unsigned int count,
+			const struct GNUNET_GNSRECORD_Data *data)
+{
+  GNUNET_assert((handle) && (data));
+
+  if (count <= 0)
+    return NULL;
+
+  const struct GNUNET_MESSENGER_RoomEntryRecord *record = NULL;
+
+  for (unsigned int i = 0; i < count; i++)
+  {
+    if (GNUNET_YES == GNUNET_GNSRECORD_is_expired(data + i))
+      continue;
+
+    if ((GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY == data[i].record_type) &&
+      (!(GNUNET_GNSRECORD_RF_SUPPLEMENTAL & data[i].flags)))
+    {
+      record = data[i].data;
+      break;
+    }
+  }
+
+  if (!record)
+    return NULL;
+
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+      handle->contexts,
+      &(record->key)
+  );
+
+  if (context)
+  {
+    context_read_records(context, label, count, data);
+
+    printf("PATCH: %s %u %d %s\n", label, count, (int) context->type, context->topic);
+
+    return NULL;
+  }
+
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
+      handle->messenger,
+      &(record->door),
+      &(record->key)
+  );
+
+  if (!room)
+    return NULL;
+
+  context = context_create_from_room(handle, room);
+  context_read_records(context, label, count, data);
+
+  printf("READ: %s %u %d %s\n", label, count, (int) context->type, context->topic);
+
+  handle_send_room_name(handle, room);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->contexts, &(record->key), context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_destroy(context);
+    GNUNET_MESSENGER_close_room(room);
+    return NULL;
+  }
+
+  if (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type)
+    return context;
+
+  struct GNUNET_CHAT_Group *group = group_create_from_context(handle, context);
+
+  if (context->topic)
+    group_publish(group);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->groups, &(record->key), group,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    group_destroy(group);
+
+  return context;
 }

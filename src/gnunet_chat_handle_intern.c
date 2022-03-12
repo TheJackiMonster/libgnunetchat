@@ -374,79 +374,8 @@ on_monitor_namestore_record(void *cls,
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
-  if (count <= 0)
-    goto skip_records;
+  handle_process_records(chat, label, count, data);
 
-  const struct GNUNET_MESSENGER_RoomEntryRecord *record = NULL;
-
-  for (unsigned int i = 0; i < count; i++)
-  {
-    if (GNUNET_YES == GNUNET_GNSRECORD_is_expired(data + i))
-      continue;
-
-    if ((GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY == data[i].record_type) &&
-	(!(GNUNET_GNSRECORD_RF_SUPPLEMENTAL & data[i].flags)))
-    {
-      record = data[i].data;
-      break;
-    }
-  }
-
-  if (!record)
-    goto skip_records;
-
-  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
-      chat->contexts,
-      &(record->key)
-  );
-
-  if (context)
-  {
-    context_read_records(context, label, count, data);
-
-    printf("PATCH: %s %u %d %s\n", label, count, (int) context->type, context->topic);
-
-    goto skip_records;
-  }
-
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
-      chat->messenger,
-      &(record->door),
-      &(record->key)
-  );
-
-  if (!room)
-    goto skip_records;
-
-  context = context_create_from_room(chat, room);
-  context_read_records(context, label, count, data);
-
-  printf("READ: %s %u %d %s\n", label, count, (int) context->type, context->topic);
-
-  handle_send_room_name(chat, room);
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      chat->contexts, &(record->key), context,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-  {
-    context_destroy(context);
-    goto skip_records;
-  }
-
-  if (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type)
-    goto skip_records;
-
-  struct GNUNET_CHAT_Group *group = group_create_from_context(chat, context);
-
-  if (context->topic)
-    group_publish(group);
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      chat->groups, &(record->key), group,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-    group_destroy(group);
-
-skip_records:
   if (chat->monitor)
     GNUNET_NAMESTORE_zone_monitor_next(chat->monitor, 1);
 }
@@ -470,8 +399,6 @@ on_handle_identity(void *cls,
     return;
 
   GNUNET_assert(handle->messenger);
-
-  printf("HURRAY!\n");
 
   handle_send_internal_message(
       handle,

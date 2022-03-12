@@ -39,6 +39,8 @@
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
+#define GNUNET_CHAT_URI_PREFIX "gnunet://chat/"
+
 /**
  * Enum for the different kinds of messages.
  */
@@ -172,7 +174,7 @@ typedef int
  * Method called when a lobby is opened to share with others via a chat URI.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_lobby_open
- * @param[in] uri Chat URI of the lobby
+ * @param[in] uri Chat URI of the lobby or NULL on error
  */
 typedef void
 (*GNUNET_CHAT_LobbyCallback) (void *cls,

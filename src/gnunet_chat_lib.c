@@ -32,7 +32,9 @@
 #include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_invitation.h"
+#include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
+
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_lib_intern.c"
@@ -215,9 +217,44 @@ GNUNET_CHAT_uri_parse (const char *uri,
   if (!uri)
     return NULL;
 
-  // TODO
+  const size_t prefix_len = strlen(GNUNET_CHAT_URI_PREFIX);
 
-  return NULL;
+  if (0 != strncmp(GNUNET_CHAT_URI_PREFIX, uri, prefix_len))
+  {
+    if (emsg)
+      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (invalid prefix)"));
+
+    return NULL;
+  }
+
+  struct GNUNET_IDENTITY_PublicKey zone;
+
+  const char *data = uri + prefix_len;
+  char *end = strchr(data, '.');
+
+  if (!end)
+  {
+    if (emsg)
+      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (zone key missing)"));
+
+    return NULL;
+  }
+
+  char *zone_data = GNUNET_strndup(data, (size_t) (end - data));
+
+  if (GNUNET_OK != GNUNET_IDENTITY_public_key_from_string(zone_data, &zone))
+  {
+    GNUNET_free(zone_data);
+
+    if (emsg)
+      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (zone key invalid)"));
+
+    return NULL;
+  }
+
+  GNUNET_free(zone_data);
+
+  return uri_create(&zone, end + 1);
 }
 
 
@@ -227,9 +264,18 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   if (!uri)
     return NULL;
 
-  // TODO
+  char *key_string = GNUNET_IDENTITY_public_key_to_string(&(uri->zone));
 
-  return NULL;
+  char *string;
+  GNUNET_asprintf(
+      &string,
+      "gnunet://chat/%s.%s",
+      key_string,
+      uri->label
+  );
+
+  GNUNET_free(key_string);
+  return string;
 }
 
 
@@ -239,7 +285,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
   if (!uri)
     return;
 
-  GNUNET_free(uri);
+  uri_destroy(uri);
 }
 
 
@@ -249,16 +295,53 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
 			GNUNET_CHAT_LobbyCallback callback,
 			void *cls)
 {
-  // TODO
+  if (!handle)
+    return NULL;
 
-  return NULL;
+  struct GNUNET_CHAT_InternalLobbies *lobbies = GNUNET_new(
+      struct GNUNET_CHAT_InternalLobbies
+  );
+
+  lobbies->lobby = lobby_create(handle);
+
+  GNUNET_CONTAINER_DLL_insert(
+      handle->lobbies_head,
+      handle->lobbies_tail,
+      lobbies
+  );
+
+  lobby_open(lobbies->lobby, delay, callback, cls);
+
+  return lobbies->lobby;
 }
 
 
 void
 GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
 {
-  // TODO
+  if (!lobby)
+    return;
+
+  struct GNUNET_CHAT_InternalLobbies *lobbies = lobby->handle->lobbies_head;
+
+  while (lobbies)
+  {
+    if (lobbies->lobby == lobby)
+    {
+      GNUNET_CONTAINER_DLL_remove(
+	  lobby->handle->lobbies_head,
+	  lobby->handle->lobbies_tail,
+	  lobbies
+      );
+
+      GNUNET_free(lobbies);
+      break;
+    }
+
+    lobbies = lobbies->next;
+  }
+
+  lobby_destroy(lobby);
 }
 
 
@@ -266,7 +349,31 @@ void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
 			const struct GNUNET_CHAT_Uri *uri)
 {
-  // TODO
+  if ((!handle) || (!uri) || (!(handle->gns)))
+    return;
+
+  struct GNUNET_CHAT_UriLookups *lookups = GNUNET_new(
+      struct GNUNET_CHAT_UriLookups
+  );
+
+  lookups->handle = handle;
+  lookups->uri = uri_create(&(uri->zone), uri->label);
+
+  lookups->request = GNUNET_GNS_lookup(
+      handle->gns,
+      lookups->uri->label,
+      &(uri->zone),
+      GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY,
+      GNUNET_GNS_LO_DEFAULT,
+      cb_lobby_lookup,
+      lookups
+  );
+
+  GNUNET_CONTAINER_DLL_insert(
+      handle->lookups_head,
+      handle->lookups_tail,
+      lookups
+  );
 }
 
 

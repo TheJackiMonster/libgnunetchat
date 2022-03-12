@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_container_lib.h>
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
+#include <gnunet/gnunet_gns_service.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
@@ -39,7 +40,11 @@
 
 #include "gnunet_chat_lib.h"
 #include "gnunet_chat_account.h"
+#include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
+#include "gnunet_chat_uri.h"
+
+struct GNUNET_CHAT_Handle;
 
 struct GNUNET_CHAT_InternalMessages
 {
@@ -53,6 +58,24 @@ struct GNUNET_CHAT_InternalAccounts
   struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_InternalAccounts *next;
   struct GNUNET_CHAT_InternalAccounts *prev;
+};
+
+struct GNUNET_CHAT_InternalLobbies
+{
+  struct GNUNET_CHAT_Lobby *lobby;
+  struct GNUNET_CHAT_InternalLobbies *next;
+  struct GNUNET_CHAT_InternalLobbies *prev;
+};
+
+struct GNUNET_CHAT_UriLookups
+{
+  struct GNUNET_CHAT_Handle *handle;
+
+  struct GNUNET_GNS_LookupRequest *request;
+  struct GNUNET_CHAT_Uri *uri;
+
+  struct GNUNET_CHAT_UriLookups *next;
+  struct GNUNET_CHAT_UriLookups *prev;
 };
 
 struct GNUNET_CHAT_Handle
@@ -75,6 +98,12 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_IDENTITY_Operation *creation_op;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 
+  struct GNUNET_CHAT_InternalLobbies *lobbies_head;
+  struct GNUNET_CHAT_InternalLobbies *lobbies_tail;
+
+  struct GNUNET_CHAT_UriLookups *lookups_head;
+  struct GNUNET_CHAT_UriLookups *lookups_tail;
+
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_CONTAINER_MultiShortmap *contacts;
@@ -82,6 +111,7 @@ struct GNUNET_CHAT_Handle
 
   struct GNUNET_ARM_Handle *arm;
   struct GNUNET_FS_Handle *fs;
+  struct GNUNET_GNS_Handle *gns;
   struct GNUNET_IDENTITY_Handle *identity;
   struct GNUNET_MESSENGER_Handle *messenger;
   struct GNUNET_NAMESTORE_Handle *namestore;
@@ -136,5 +166,11 @@ handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
 struct GNUNET_CHAT_Group*
 handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
 				 const struct GNUNET_MESSENGER_Room *room);
+
+struct GNUNET_CHAT_Context*
+handle_process_records (struct GNUNET_CHAT_Handle *handle,
+			const char *label,
+			unsigned int count,
+			const struct GNUNET_GNSRECORD_Data *data);
 
 #endif /* GNUNET_CHAT_HANDLE_H_ */

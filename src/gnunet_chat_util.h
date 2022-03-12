@@ -32,6 +32,13 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
+enum GNUNET_CHAT_ContextType
+{
+  GNUNET_CHAT_CONTEXT_TYPE_CONTACT = 1,
+  GNUNET_CHAT_CONTEXT_TYPE_GROUP   = 2,
+  GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN = 0
+};
+
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash);
@@ -62,5 +69,13 @@ util_get_filename (const char *directory,
 		   const char *subdir,
 		   const struct GNUNET_HashCode *hash,
 		   char **filename);
+
+int
+util_get_context_label (enum GNUNET_CHAT_ContextType type,
+		        const struct GNUNET_HashCode *hash,
+		        char **label);
+
+int util_lobby_name (const struct GNUNET_HashCode *hash,
+		     char **name);
 
 #endif /* GNUNET_CHAT_UTIL_H_ */

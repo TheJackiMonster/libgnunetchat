@@ -41,6 +41,45 @@ cb_account_creation (void *cls,
     handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
+void
+cb_lobby_lookup (void *cls,
+		 uint32_t count,
+		 const struct GNUNET_GNSRECORD_Data *data)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_UriLookups *lookups = (struct GNUNET_CHAT_UriLookups*) cls;
+
+  if ((!(lookups->handle)) || (!(lookups->uri)))
+    goto drop_lookup;
+
+  struct GNUNET_CHAT_Context *context = handle_process_records(
+      lookups->handle,
+      lookups->uri->label,
+      count,
+      data
+  );
+
+  if (context)
+    context_write_records(context);
+
+drop_lookup:
+  if (lookups->request)
+    GNUNET_GNS_lookup_cancel(lookups->request);
+
+  if (lookups->uri)
+    uri_destroy(lookups->uri);
+
+  if (lookups->handle)
+    GNUNET_CONTAINER_DLL_remove(
+      lookups->handle->lookups_head,
+      lookups->handle->lookups_tail,
+      lookups
+    );
+
+  GNUNET_free(lookups);
+}
+
 struct GNUNET_CHAT_HandleIterateContacts
 {
   struct GNUNET_CHAT_Handle *handle;

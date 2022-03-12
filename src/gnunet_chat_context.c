@@ -329,27 +329,8 @@ context_write_records (struct GNUNET_CHAT_Context *context)
     count++;
   }
 
-  const char *type_string = "chat";
-
-  switch (context->type)
-  {
-    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
-      type_string = "contact";
-      break;
-    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
-      type_string = "group";
-      break;
-    default:
-      break;
-  }
-
   char *label;
-  GNUNET_asprintf (
-      &label,
-      "%s_%s",
-      type_string,
-      GNUNET_h2s(hash)
-  );
+  util_get_context_label(context->type, hash, &label);
 
   printf("WRITE: %s -> %u (%s, %s)\n", label, count, nick, topic);
 
