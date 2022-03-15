@@ -764,8 +764,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context);
  * @param[in] context Context
  * @return Chat contact
  */
-const struct GNUNET_CHAT_Contact*
-GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context);
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context);
 
 /**
  * Returns the chat group which uses a given <i>context</i>.
@@ -773,8 +773,8 @@ GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context);
  * @param[in] context Context
  * @return Chat group
  */
-const struct GNUNET_CHAT_Group*
-GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context);
+struct GNUNET_CHAT_Group*
+GNUNET_CHAT_context_get_group (struct GNUNET_CHAT_Context *context);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>context</i> so it can

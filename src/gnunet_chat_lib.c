@@ -841,8 +841,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
 }
 
 
-const struct GNUNET_CHAT_Contact*
-GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
 {
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_CONTACT != context->type))
     return NULL;
@@ -869,8 +869,8 @@ GNUNET_CHAT_context_get_contact (const struct GNUNET_CHAT_Context *context)
 }
 
 
-const struct GNUNET_CHAT_Group*
-GNUNET_CHAT_context_get_group (const struct GNUNET_CHAT_Context *context)
+struct GNUNET_CHAT_Group*
+GNUNET_CHAT_context_get_group (struct GNUNET_CHAT_Context *context)
 {
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
     return NULL;
