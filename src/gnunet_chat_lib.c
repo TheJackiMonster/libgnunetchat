@@ -550,6 +550,7 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
   );
 
   GNUNET_MESSENGER_close_room(contact->context->room);
+  context_delete_records(contact->context);
 
   context_destroy(contact->context);
   contact_destroy(contact);
@@ -665,6 +666,7 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
   );
 
   GNUNET_MESSENGER_close_room(group->context->room);
+  context_delete_records(group->context);
 
   context_destroy(group->context);
   group_destroy(group);
