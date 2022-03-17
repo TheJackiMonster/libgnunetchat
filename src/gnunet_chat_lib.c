@@ -566,7 +566,9 @@ GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
     return;
 
   context_update_nick(contact->context, name);
-  context_write_records(contact->context);
+
+  if (contact->context->room)
+    context_write_records(contact->context);
 }
 
 
