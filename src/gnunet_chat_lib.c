@@ -1169,6 +1169,8 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
       return GNUNET_CHAT_KIND_TEXT;
     case GNUNET_MESSENGER_KIND_FILE:
       return GNUNET_CHAT_KIND_FILE;
+    case GNUNET_MESSENGER_KIND_PRIVATE:
+      return GNUNET_CHAT_KIND_WHISPER;
     case GNUNET_MESSENGER_KIND_DELETE:
       return GNUNET_CHAT_KIND_DELETION;
     default:
