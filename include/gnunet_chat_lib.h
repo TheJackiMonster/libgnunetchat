@@ -814,6 +814,18 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 			       const char *text);
 
 /**
+ * Sends a read receipt depending on a selected <i>message</i> into a given
+ * chat <i>context</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] message Message (optional)
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
+				       const struct GNUNET_CHAT_Message *message);
+
+/**
  * Uploads a local file specified via its <i>path</i> using symmetric encryption
  * and shares the regarding information to download and decrypt it in a given
  * chat <i>context</i>.

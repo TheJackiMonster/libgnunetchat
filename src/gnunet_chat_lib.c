@@ -925,6 +925,51 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 }
 
 
+int
+GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
+				       const struct GNUNET_CHAT_Message *message)
+{
+  if ((!context) || (!(context->room)))
+    return GNUNET_SYSERR;
+
+  char zero = '\0';
+  struct GNUNET_MESSENGER_Message msg;
+  msg.header.kind = GNUNET_MESSENGER_KIND_TEXT;
+  msg.body.text.text = &zero;
+
+  const struct GNUNET_MESSENGER_Contact *receiver = NULL;
+
+  if (!message)
+    goto skip_filter;
+
+  if (GNUNET_CHAT_FLAG_NONE != message->flag)
+    return GNUNET_SYSERR;
+
+  if (message->flags & GNUNET_MESSENGER_FLAG_SENT)
+    return GNUNET_OK;
+
+  if (message->flags & GNUNET_MESSENGER_FLAG_PRIVATE)
+  {
+    receiver = GNUNET_MESSENGER_get_sender(context->room, &(message->hash));
+
+    if (!receiver)
+      return GNUNET_SYSERR;
+  }
+
+  if ((!(message->msg)) ||
+      (GNUNET_MESSENGER_KIND_TEXT != message->msg->header.kind))
+    goto skip_filter;
+
+  if ((!(message->msg->body.text.text)) ||
+      (!(message->msg->body.text.text[0])))
+    return GNUNET_SYSERR;
+
+skip_filter:
+  GNUNET_MESSENGER_send_message(context->room, &msg, receiver);
+  return GNUNET_OK;
+}
+
+
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       const char *path,
