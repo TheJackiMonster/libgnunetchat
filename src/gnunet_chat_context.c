@@ -40,7 +40,7 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->handle = handle;
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
-  context->nick = NULL;
+  context->nick[0] = '\0';
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
@@ -74,7 +74,7 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   context->handle = handle;
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-  context->nick = NULL;
+  context->nick[0] = '\0';
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
@@ -131,9 +131,6 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   if (context->topic)
     GNUNET_free(context->topic);
 
-  if (context->nick)
-    GNUNET_free(context->nick);
-
   GNUNET_free(context);
 }
 
@@ -179,7 +176,12 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 {
   GNUNET_assert(context);
 
-  util_set_name_field(nick, &(context->nick));
+  size_t len = nick? strlen(nick) : 0;
+  if (len >= sizeof(context->nick))
+    len = sizeof(context->nick) - 1;
+
+  GNUNET_memcpy(context->nick, nick, len);
+  context->nick[len] = '\0';
 
   if (!(context->handle))
     return;
@@ -203,24 +205,28 @@ context_read_records (struct GNUNET_CHAT_Context *context,
 
   char *nick = NULL;
   char *topic = NULL;
+  uint32_t flags = 0;
 
   for (unsigned int i = 0; i < count; i++)
   {
     if (!(GNUNET_GNSRECORD_RF_SUPPLEMENTAL & data[i].flags))
       continue;
 
-    if (GNUNET_GNSRECORD_TYPE_NICK == data[i].record_type)
+    if (GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_DETAILS == data[i].record_type)
     {
       if (nick)
-      continue;
+	continue;
 
-      nick = GNUNET_strndup(data[i].data, data[i].data_size);
+      const struct GNUNET_MESSENGER_RoomDetailsRecord *record = data[i].data;
+
+      nick = GNUNET_strndup(record->name, sizeof(record->name));
+      flags = record->flags;
     }
 
     if (GNUNET_DNSPARSER_TYPE_TXT == data[i].record_type)
     {
       if (topic)
-      continue;
+	continue;
 
       topic = GNUNET_strndup(data[i].data, data[i].data_size);
     }
@@ -280,16 +286,16 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 
   struct GNUNET_TIME_Absolute expiration = GNUNET_TIME_absolute_get_forever_();
 
-  struct GNUNET_MESSENGER_RoomEntryRecord room;
-  GNUNET_CRYPTO_get_peer_identity(context->handle->cfg, &(room.door));
+  struct GNUNET_MESSENGER_RoomEntryRecord room_entry;
+  GNUNET_CRYPTO_get_peer_identity(context->handle->cfg, &(room_entry.door));
 
   GNUNET_memcpy(
-      &(room.key),
+      &(room_entry.key),
       hash,
-      sizeof(room.key)
+      sizeof(room_entry.key)
   );
 
-  const char *nick = context->nick;
+  struct GNUNET_MESSENGER_RoomDetailsRecord room_details;
   const char *topic = context->topic;
 
   if (topic)
@@ -310,18 +316,21 @@ context_write_records (struct GNUNET_CHAT_Context *context)
   if (GNUNET_YES == context->deleted)
     goto skip_record_data;
 
-  data[0].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;
-  data[0].data = &room;
-  data[0].data_size = sizeof(room);
-  data[0].expiration_time = expiration.abs_value_us;
-  data[0].flags = GNUNET_GNSRECORD_RF_PRIVATE;
+  data[count].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;
+  data[count].data = &room_entry;
+  data[count].data_size = sizeof(room_entry);
+  data[count].expiration_time = expiration.abs_value_us;
+  data[count].flags = GNUNET_GNSRECORD_RF_PRIVATE;
   count++;
 
-  if (nick)
+  if (context->nick)
   {
-    data[count].record_type = GNUNET_GNSRECORD_TYPE_NICK;
-    data[count].data = nick;
-    data[count].data_size = strlen(nick);
+    GNUNET_memcpy(room_details.name, context->nick, sizeof(room_details.name));
+    room_details.flags = 0;
+
+    data[count].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_DETAILS;
+    data[count].data = &room_details;
+    data[count].data_size = sizeof(room_details);
     data[count].expiration_time = expiration.abs_value_us;
     data[count].flags = (
 	GNUNET_GNSRECORD_RF_PRIVATE |
@@ -346,7 +355,10 @@ context_write_records (struct GNUNET_CHAT_Context *context)
   }
 
 skip_record_data:
-  GNUNET_NAMESTORE_records_store(
+  if (context->query)
+    GNUNET_NAMESTORE_cancel(context->query);
+
+  context->query = GNUNET_NAMESTORE_records_store(
       context->handle->namestore,
       zone,
       label,
@@ -357,13 +369,4 @@ skip_record_data:
   );
 
   GNUNET_free(label);
-}
-
-void
-context_delete_records (struct GNUNET_CHAT_Context *context)
-{
-  GNUNET_assert(context);
-
-  context->deleted = GNUNET_YES;
-  context_write_records(context);
 }

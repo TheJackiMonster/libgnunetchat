@@ -42,7 +42,7 @@ struct GNUNET_CHAT_Context
   struct GNUNET_CHAT_Handle *handle;
 
   enum GNUNET_CHAT_ContextType type;
-  char *nick;
+  char nick [256 + 1];
   char *topic;
   int deleted;
 
@@ -88,8 +88,5 @@ context_read_records (struct GNUNET_CHAT_Context *context,
 
 void
 context_write_records (struct GNUNET_CHAT_Context *context);
-
-void
-context_delete_records (struct GNUNET_CHAT_Context *context);
 
 #endif /* GNUNET_CHAT_CONTEXT_H_ */

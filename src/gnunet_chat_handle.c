@@ -473,14 +473,21 @@ check_type:
 						      check.contact,
 						      context)))
   {
-    context_delete_records(context);
+    context->deleted = GNUNET_YES;
+    context_write_records(context);
+
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+    context->deleted = GNUNET_NO;
+
     context_write_records(context);
   }
   else if (checks >= 2)
   {
-    context_delete_records(context);
+    context->deleted = GNUNET_YES;
+    context_write_records(context);
+
     context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+    context->deleted = GNUNET_NO;
 
     if (context->contact)
     {

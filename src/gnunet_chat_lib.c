@@ -553,7 +553,9 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
   );
 
   GNUNET_MESSENGER_close_room(contact->context->room);
-  context_delete_records(contact->context);
+
+  contact->context->deleted = GNUNET_YES;
+  context_write_records(contact->context);
 
   context_destroy(contact->context);
   contact_destroy(contact);
@@ -581,7 +583,7 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return NULL;
 
-  if ((contact->context) && (contact->context->nick))
+  if ((contact->context) && (contact->context->nick[0]))
     return contact->context->nick;
 
   return GNUNET_MESSENGER_contact_get_name(contact->member);
@@ -671,7 +673,9 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
   );
 
   GNUNET_MESSENGER_close_room(group->context->room);
-  context_delete_records(group->context);
+
+  group->context->deleted = GNUNET_YES;
+  context_write_records(group->context);
 
   context_destroy(group->context);
   group_destroy(group);
@@ -687,7 +691,9 @@ GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
     return;
 
   context_update_nick(group->context, name);
-  context_write_records(group->context);
+
+  if (group->context->room)
+    context_write_records(group->context);
 }
 
 
@@ -697,7 +703,7 @@ GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group)
   if ((!group) || (!(group->context)))
     return NULL;
 
-  if (group->context->nick)
+  if (group->context->nick[0])
     return group->context->nick;
 
   return group->context->topic;
