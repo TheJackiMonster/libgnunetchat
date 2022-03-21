@@ -42,6 +42,7 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
   context->nick = NULL;
   context->topic = NULL;
+  context->deleted = GNUNET_NO;
 
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
@@ -56,6 +57,8 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
       8, GNUNET_NO
   );
+
+  context->query = NULL;
 
   return context;
 }
@@ -73,6 +76,7 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
   context->nick = NULL;
   context->topic = NULL;
+  context->deleted = GNUNET_NO;
 
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(4, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
@@ -88,6 +92,8 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
       8, GNUNET_NO
   );
 
+  context->query = NULL;
+
   return context;
 }
 
@@ -99,6 +105,9 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 		(context->messages) &&
 		(context->invites) &&
 		(context->files));
+
+  if (context->query)
+    GNUNET_NAMESTORE_cancel(context->query);
 
   GNUNET_CONTAINER_multishortmap_iterate(
       context->timestamps, it_destroy_context_timestamps, NULL
@@ -292,14 +301,21 @@ context_write_records (struct GNUNET_CHAT_Context *context)
       topic = NULL;
   }
 
-  unsigned int count = 1;
+  char *label;
+  util_get_context_label(context->type, hash, &label);
 
+  unsigned int count = 0;
   struct GNUNET_GNSRECORD_Data data [3];
+
+  if (GNUNET_YES == context->deleted)
+    goto skip_record_data;
+
   data[0].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;
   data[0].data = &room;
   data[0].data_size = sizeof(room);
   data[0].expiration_time = expiration.abs_value_us;
   data[0].flags = GNUNET_GNSRECORD_RF_PRIVATE;
+  count++;
 
   if (nick)
   {
@@ -329,9 +345,7 @@ context_write_records (struct GNUNET_CHAT_Context *context)
     count++;
   }
 
-  char *label;
-  util_get_context_label(context->type, hash, &label);
-
+skip_record_data:
   GNUNET_NAMESTORE_records_store(
       context->handle->namestore,
       zone,
@@ -348,52 +362,8 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 void
 context_delete_records (struct GNUNET_CHAT_Context *context)
 {
-  GNUNET_assert((context) &&
-  		(context->handle) &&
-  		(context->room));
+  GNUNET_assert(context);
 
-  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(
-      context->handle
-  );
-
-  if (!zone)
-    return;
-
-  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
-      context->room
-  );
-
-  const char *type_string = "chat";
-
-  switch (context->type)
-  {
-    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
-      type_string = "contact";
-      break;
-    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
-      type_string = "group";
-      break;
-    default:
-      break;
-  }
-
-  char *label;
-  GNUNET_asprintf (
-      &label,
-      "%s_%s",
-      type_string,
-      GNUNET_h2s(hash)
-  );
-
-  GNUNET_NAMESTORE_records_store(
-      context->handle->namestore,
-      zone,
-      label,
-      0,
-      NULL,
-      cont_context_write_records,
-      context
-  );
-
-  GNUNET_free(label);
+  context->deleted = GNUNET_YES;
+  context_write_records(context);
 }

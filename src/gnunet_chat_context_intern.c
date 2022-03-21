@@ -70,6 +70,10 @@ cont_context_write_records (void *cls,
 {
   struct GNUNET_CHAT_Context *context = cls;
 
+  GNUNET_assert(context);
+
+  context->query = NULL;
+
   if (emsg)
     handle_send_internal_message(
 	context->handle,

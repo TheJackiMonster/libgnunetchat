@@ -41,6 +41,8 @@ lobby_create (struct GNUNET_CHAT_Handle *handle)
   lobby->op_create = NULL;
   lobby->op_delete = NULL;
 
+  lobby->query = NULL;
+
   lobby->expiration = GNUNET_TIME_absolute_get_forever_();
   lobby->callback = NULL;
   lobby->cls = NULL;
@@ -58,6 +60,9 @@ lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
 
   if (lobby->op_delete)
     GNUNET_IDENTITY_cancel(lobby->op_delete);
+
+  if (lobby->query)
+    GNUNET_NAMESTORE_cancel(lobby->query);
 
   if (lobby->uri)
     uri_destroy(lobby->uri);

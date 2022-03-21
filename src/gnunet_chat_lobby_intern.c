@@ -25,14 +25,58 @@
 #include "gnunet_chat_context.h"
 
 void
+cont_lobby_identity_delete (void *cls,
+                            const char *emsg)
+{
+  struct GNUNET_CHAT_Lobby *lobby = cls;
+
+  GNUNET_assert(lobby);
+
+  lobby->op_delete = NULL;
+
+  if (!emsg)
+    return;
+
+  handle_send_internal_message(
+      lobby->handle,
+      lobby->context,
+      GNUNET_CHAT_FLAG_WARNING,
+      emsg
+  );
+}
+
+void
 cont_lobby_write_records (void *cls,
 			  GNUNET_UNUSED int32_t success,
                           const char *emsg)
 {
   struct GNUNET_CHAT_Lobby *lobby = cls;
 
+  GNUNET_assert(lobby);
+
+  lobby->query = NULL;
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+      lobby->context->room
+  );
+
+  char *name;
+  util_lobby_name(key, &name);
+
+  lobby->op_delete = GNUNET_IDENTITY_delete(
+      lobby->handle->identity,
+      name,
+      cont_lobby_identity_delete,
+      lobby
+  );
+
+  GNUNET_free(name);
+
   if (!emsg)
+  {
+    context_write_records(lobby->context);
     goto call_cb;
+  }
 
   handle_send_internal_message(
       lobby->handle,
@@ -52,28 +96,15 @@ call_cb:
 }
 
 void
-cont_lobby_identity_delete (void *cls,
-                            const char *emsg)
-{
-  struct GNUNET_CHAT_Lobby *lobby = cls;
-
-  if (!emsg)
-    return;
-
-  handle_send_internal_message(
-      lobby->handle,
-      lobby->context,
-      GNUNET_CHAT_FLAG_WARNING,
-      emsg
-  );
-}
-
-void
 cont_lobby_identity_create (void *cls,
 			    const struct GNUNET_IDENTITY_PrivateKey *zone,
 			    const char *emsg)
 {
   struct GNUNET_CHAT_Lobby *lobby = cls;
+
+  GNUNET_assert(lobby);
+
+  lobby->op_create = NULL;
 
   if (emsg)
   {
@@ -114,7 +145,7 @@ cont_lobby_identity_create (void *cls,
   lobby->uri = uri_create(&public_zone, label);
   GNUNET_free(label);
 
-  GNUNET_NAMESTORE_records_store(
+  lobby->query = GNUNET_NAMESTORE_records_store(
       lobby->handle->namestore,
       zone,
       lobby->uri->label,
@@ -123,18 +154,4 @@ cont_lobby_identity_create (void *cls,
       cont_lobby_write_records,
       lobby
   );
-
-  context_write_records(lobby->context);
-
-  char *name;
-  util_lobby_name(key, &name);
-
-  lobby->op_delete = GNUNET_IDENTITY_delete(
-      lobby->handle->identity,
-      name,
-      cont_lobby_identity_delete,
-      lobby
-  );
-
-  GNUNET_free(name);
 }

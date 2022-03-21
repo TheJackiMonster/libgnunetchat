@@ -44,6 +44,7 @@ struct GNUNET_CHAT_Context
   enum GNUNET_CHAT_ContextType type;
   char *nick;
   char *topic;
+  int deleted;
 
   struct GNUNET_CONTAINER_MultiShortmap *timestamps;
   struct GNUNET_CONTAINER_MultiHashMap *messages;
@@ -56,6 +57,8 @@ struct GNUNET_CHAT_Context
   void *user_pointer;
 
   struct GNUNET_CONTAINER_MultiShortmap *member_pointers;
+
+  struct GNUNET_NAMESTORE_QueueEntry *query;
 };
 
 struct GNUNET_CHAT_Context*
