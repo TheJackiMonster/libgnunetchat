@@ -136,6 +136,9 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
   if (!handle)
     return;
 
+  if (handle->current == account)
+    return;
+
   if (handle->current)
     handle_disconnect(handle);
 
