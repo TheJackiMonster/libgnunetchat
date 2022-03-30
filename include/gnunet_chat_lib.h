@@ -39,6 +39,17 @@
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
+/**
+ * @def GNUNET_CHAT_VERSION The major and minor version should be identical to
+ *                          the #GNUNET_MESSENGER_VERSION of the GNUnet Messenger
+ *                          service while the patch version is independent.
+ */
+#define GNUNET_CHAT_VERSION 0x000000010000L
+
+#define GNUNET_CHAT_VERSION_MAJOR ((GNUNET_CHAT_VERSION >> 32L) & 0xFFFFL)
+#define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)
+#define GNUNET_CHAT_VERSION_PATCH ((GNUNET_CHAT_VERSION >>  0L) & 0xFFFFL)
+
 #define GNUNET_CHAT_URI_PREFIX "gnunet://chat/"
 
 /**

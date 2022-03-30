@@ -39,11 +39,19 @@
 
 #include "gnunet_chat_lib_intern.c"
 
+#define GNUNET_CHAT_VERSION_ASSERT() {\
+  GNUNET_assert(\
+      (GNUNET_MESSENGER_VERSION == ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFFFFFL))\
+  );\
+}
+
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   const char *directory,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!cfg)
     return NULL;
 
@@ -57,6 +65,8 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 void
 GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return;
 
@@ -68,6 +78,8 @@ int
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 			    const char* name)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!name))
     return GNUNET_SYSERR;
 
@@ -106,6 +118,8 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
 			      GNUNET_CHAT_AccountCallback callback,
 			      void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return GNUNET_SYSERR;
 
@@ -133,6 +147,8 @@ void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
 		     const struct GNUNET_CHAT_Account *account)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return;
 
@@ -152,6 +168,8 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
 void
 GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!(handle->current)))
     return;
 
@@ -162,6 +180,8 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 const struct GNUNET_CHAT_Account*
 GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return NULL;
 
@@ -172,6 +192,8 @@ GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 int
 GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return GNUNET_SYSERR;
 
@@ -183,6 +205,8 @@ int
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
 		      const char *name)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return GNUNET_SYSERR;
 
@@ -196,6 +220,8 @@ GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
 const char*
 GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return NULL;
 
@@ -206,6 +232,8 @@ GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle)
 const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return NULL;
 
@@ -217,6 +245,8 @@ struct GNUNET_CHAT_Uri*
 GNUNET_CHAT_uri_parse (const char *uri,
 		       char **emsg)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!uri)
     return NULL;
 
@@ -264,6 +294,8 @@ GNUNET_CHAT_uri_parse (const char *uri,
 char*
 GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!uri)
     return NULL;
 
@@ -285,6 +317,8 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
 void
 GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!uri)
     return;
 
@@ -298,6 +332,8 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
 			GNUNET_CHAT_LobbyCallback callback,
 			void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return NULL;
 
@@ -322,6 +358,8 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
 void
 GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!lobby)
     return;
 
@@ -352,6 +390,8 @@ void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
 			const struct GNUNET_CHAT_Uri *uri)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!uri) || (!(handle->gns)))
     return;
 
@@ -384,6 +424,8 @@ void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 			      void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return;
 
@@ -394,6 +436,8 @@ GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 void*
 GNUNET_CHAT_get_user_pointer (const struct GNUNET_CHAT_Handle *handle)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!handle)
     return NULL;
 
@@ -406,6 +450,8 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 			      GNUNET_CHAT_ContactCallback callback,
 			      void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!(handle->contacts)))
     return GNUNET_SYSERR;
 
@@ -423,6 +469,8 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 const char*
 GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!account)
     return NULL;
 
@@ -434,6 +482,8 @@ void
 GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
 				      void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!account)
     return;
 
@@ -444,6 +494,8 @@ GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
 void*
 GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!account)
     return NULL;
 
@@ -455,6 +507,8 @@ struct GNUNET_CHAT_Group *
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 			  const char* topic)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!(handle->groups)) || (!(handle->contexts)))
     return NULL;
 
@@ -517,6 +571,8 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 			    GNUNET_CHAT_GroupCallback callback,
 			    void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!handle) || (!(handle->groups)))
     return GNUNET_SYSERR;
 
@@ -534,6 +590,8 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 int
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return GNUNET_SYSERR;
 
@@ -567,6 +625,8 @@ void
 GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
 			      const char *name)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!contact) || (!(contact->context)))
     return;
 
@@ -580,6 +640,8 @@ GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
 const char*
 GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return NULL;
 
@@ -593,6 +655,8 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
 const char*
 GNUNET_CHAT_contact_get_key (const struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return NULL;
 
@@ -603,6 +667,8 @@ GNUNET_CHAT_contact_get_key (const struct GNUNET_CHAT_Contact *contact)
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return NULL;
 
@@ -627,6 +693,8 @@ void
 GNUNET_CHAT_contact_set_user_pointer (struct GNUNET_CHAT_Contact *contact,
 				      void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return;
 
@@ -637,6 +705,8 @@ GNUNET_CHAT_contact_set_user_pointer (struct GNUNET_CHAT_Contact *contact,
 void*
 GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return NULL;
 
@@ -647,6 +717,8 @@ GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact)
 int
 GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!contact)
     return GNUNET_SYSERR;
 
@@ -657,6 +729,8 @@ GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact)
 int
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!group)
     return GNUNET_SYSERR;
 
@@ -687,6 +761,8 @@ void
 GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
 			    const char *name)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!group) || (!(group->context)))
     return;
 
@@ -700,6 +776,8 @@ GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
 const char*
 GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!group) || (!(group->context)))
     return NULL;
 
@@ -714,6 +792,8 @@ void
 GNUNET_CHAT_group_set_user_pointer (struct GNUNET_CHAT_Group *group,
 				    void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!group)
     return;
 
@@ -724,6 +804,8 @@ GNUNET_CHAT_group_set_user_pointer (struct GNUNET_CHAT_Group *group,
 void*
 GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!group)
     return NULL;
 
@@ -735,6 +817,8 @@ void
 GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
 				  struct GNUNET_CHAT_Contact *contact)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!group) || (!contact))
     return;
 
@@ -765,6 +849,8 @@ GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
 				    GNUNET_CHAT_GroupContactCallback callback,
 				    void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!group)
     return GNUNET_SYSERR;
 
@@ -782,6 +868,8 @@ GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!group)
     return NULL;
 
@@ -792,6 +880,8 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 int
 GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!(context->room)))
     return GNUNET_SYSERR;
 
@@ -806,6 +896,8 @@ GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
 void
 GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (context->room))
     return;
 
@@ -857,6 +949,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
 struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_CONTACT != context->type))
     return NULL;
 
@@ -885,6 +979,8 @@ GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
 struct GNUNET_CHAT_Group*
 GNUNET_CHAT_context_get_group (struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
     return NULL;
 
@@ -899,6 +995,8 @@ void
 GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
 				      void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!context)
     return;
 
@@ -909,6 +1007,8 @@ GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
 void*
 GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!context)
     return NULL;
 
@@ -920,6 +1020,8 @@ int
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 			       const char *text)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!text) || (!(context->room)))
     return GNUNET_SYSERR;
 
@@ -938,6 +1040,8 @@ int
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
 				       const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!(context->room)))
     return GNUNET_SYSERR;
 
@@ -985,6 +1089,8 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 			       GNUNET_CHAT_FileUploadCallback callback,
 			       void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!path) || (!(context->room)))
     return NULL;
 
@@ -1091,6 +1197,8 @@ int
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!file) || (strlen(file->name) > NAME_MAX) ||
       (!(context->room)))
     return GNUNET_SYSERR;
@@ -1114,6 +1222,8 @@ GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
 				      GNUNET_CHAT_ContextMessageCallback callback,
 				      void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!context)
     return GNUNET_SYSERR;
 
@@ -1133,6 +1243,8 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
 				   GNUNET_CHAT_ContextFileCallback callback,
 				   void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!context)
     return GNUNET_SYSERR;
 
@@ -1152,6 +1264,8 @@ GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Context *context,
 				     const struct GNUNET_CHAT_Contact *member,
 				     void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!member))
     return;
 
@@ -1171,6 +1285,8 @@ void*
 GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Context *context,
 				     const struct GNUNET_CHAT_Contact *member)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!context) || (!member))
     return NULL;
 
@@ -1187,6 +1303,8 @@ GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Context *context,
 enum GNUNET_CHAT_MessageKind
 GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!message)
     return GNUNET_CHAT_KIND_UNKNOWN;
 
@@ -1236,6 +1354,8 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_TIME_Absolute
 GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)))
     return GNUNET_TIME_absolute_get_zero_();
 
@@ -1246,6 +1366,8 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
       (!(message->context)) || (!(message->context->room)))
     return NULL;
@@ -1264,6 +1386,8 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 int
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!message)
     return GNUNET_SYSERR;
 
@@ -1277,6 +1401,8 @@ GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message)
 int
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!message)
     return GNUNET_SYSERR;
 
@@ -1292,6 +1418,8 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 				      GNUNET_CHAT_MessageReadReceiptCallback callback,
 				      void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return GNUNET_SYSERR;
 
@@ -1309,6 +1437,8 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 const char*
 GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)))
     return NULL;
 
@@ -1326,6 +1456,8 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return NULL;
 
@@ -1342,6 +1474,8 @@ GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 struct GNUNET_CHAT_Invitation*
 GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return NULL;
 
@@ -1358,6 +1492,8 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 const struct GNUNET_CHAT_Message*
 GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return NULL;
 
@@ -1378,6 +1514,8 @@ int
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return GNUNET_SYSERR;
 
@@ -1394,6 +1532,8 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 const char*
 GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return NULL;
 
@@ -1404,6 +1544,8 @@ GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file)
 const struct GNUNET_HashCode*
 GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return NULL;
 
@@ -1414,6 +1556,8 @@ GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file)
 uint64_t
 GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (!(file->uri)))
     return 0;
 
@@ -1424,6 +1568,8 @@ GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file)
 uint64_t
 GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return 0;
 
@@ -1449,6 +1595,8 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
 int
 GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_PUBLISH)))
     return GNUNET_NO;
   else
@@ -1459,6 +1607,8 @@ GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
 const char*
 GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return NULL;
 
@@ -1503,6 +1653,8 @@ free_filename:
 void
 GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (!(file->preview)))
     return;
 
@@ -1517,6 +1669,8 @@ void
 GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
 				   void *user_pointer)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return;
 
@@ -1527,6 +1681,8 @@ GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
 void*
 GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return NULL;
 
@@ -1537,6 +1693,8 @@ GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file)
 int
 GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_DOWNLOAD)))
     return GNUNET_NO;
   else
@@ -1549,6 +1707,8 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 				 GNUNET_CHAT_FileDownloadCallback callback,
 				 void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (!(file->uri)))
     return GNUNET_SYSERR;
 
@@ -1613,6 +1773,8 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 int
 GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return GNUNET_SYSERR;
 
@@ -1624,6 +1786,8 @@ GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file)
 int
 GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return GNUNET_SYSERR;
 
@@ -1635,6 +1799,8 @@ GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file)
 int
 GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return GNUNET_SYSERR;
 
@@ -1647,6 +1813,8 @@ GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
 int
 GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_UNINDEX)))
     return GNUNET_NO;
   else
@@ -1659,6 +1827,8 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 			  GNUNET_CHAT_FileUnindexCallback callback,
 			  void *cls)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!file)
     return GNUNET_SYSERR;
 
@@ -1699,6 +1869,8 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
 {
+  GNUNET_CHAT_VERSION_ASSERT();
+
   if (!invitation)
     return;
 
