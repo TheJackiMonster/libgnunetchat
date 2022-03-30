@@ -322,21 +322,18 @@ typedef void
 				    uint64_t size);
 
 /**
- * Start a chat handle with a certain configuration and a selected application
- * <i>directory</i>.
+ * Start a chat handle with a certain configuration.
  *
  * A custom callback for warnings and message events can be provided optionally
  * together with their respective closures.
  *
  * @param[in] cfg Configuration
- * @param[in] directory Application directory path (optional)
  * @param[in] msg_cb Callback for message events (optional)
  * @param[in,out] msg_cls Closure for message events (optional)
  * @return Chat handle
  */
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
-		   const char *directory,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb,
 		   void *msg_cls);
 

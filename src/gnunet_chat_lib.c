@@ -47,7 +47,6 @@
 
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
-		   const char *directory,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -56,8 +55,9 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
     return NULL;
 
   return handle_create_from_config(
-      cfg, directory,
-      msg_cb, msg_cls
+      cfg,
+      msg_cb,
+      msg_cls
   );
 }
 
@@ -1092,9 +1092,6 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!context) || (!path) || (!(context->room)))
-    return NULL;
-
-  if (!(context->handle->directory))
     return NULL;
 
   struct GNUNET_HashCode hash;

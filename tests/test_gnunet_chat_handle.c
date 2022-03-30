@@ -29,7 +29,7 @@ call_gnunet_chat_handle_init(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   struct GNUNET_CHAT_Handle *handle;
 
-  handle = GNUNET_CHAT_start(cfg, "", "Init", NULL, NULL);
+  handle = GNUNET_CHAT_start(cfg, NULL, NULL);
   ck_assert_ptr_ne(handle, NULL);
 
   GNUNET_CHAT_stop(handle);
@@ -57,7 +57,7 @@ on_gnunet_chat_handle_login_msg(void *cls,
 void
 call_gnunet_chat_handle_login(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
-  login_handle = GNUNET_CHAT_start(cfg, "", "Login", on_gnunet_chat_handle_login_msg, NULL);
+  login_handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_login_msg, NULL);
   ck_assert_ptr_ne(login_handle, NULL);
 }
 
@@ -76,7 +76,7 @@ on_gnunet_chat_handle_access_msg(void *cls,
   ck_assert_ptr_eq(cls, NULL);
   ck_assert_ptr_eq(context, NULL);
 
-  const struct GNUNET_IDENTITY_PublicKey *key;
+  const char *key;
   const char *name;
   int result;
 
@@ -124,7 +124,7 @@ call_gnunet_chat_handle_access(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   access_logins = 0;
 
-  access_handle = GNUNET_CHAT_start(cfg, "", "Access", on_gnunet_chat_handle_access_msg, NULL);
+  access_handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_access_msg, NULL);
   ck_assert_ptr_ne(access_handle, NULL);
 }
 

@@ -122,7 +122,6 @@ struct GNUNET_CHAT_Handle
 
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
-			   const char *directory,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
 			   void *msg_cls);
 
