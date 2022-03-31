@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -31,6 +31,8 @@
 #define CK_DEFAULT_TIMEOUT 5
 
 #include <gnunet/gnunet_chat_lib.h>
+
+#define GNUNET_CHAT_TEST_ACCOUNT "check"
 
 #define CREATE_GNUNET_TEST(test_name, test_call)                 \
 void                                                             \

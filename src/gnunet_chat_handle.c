@@ -40,6 +40,8 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
       on_handle_shutdown, handle
   );
 
+  handle->destruction = NULL;
+
   handle->internal_head = NULL;
   handle->internal_tail = NULL;
 
@@ -85,7 +87,6 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->accounts_tail = NULL;
 
   handle->current = NULL;
-  handle->creation_op = NULL;
   handle->monitor = NULL;
 
   handle->lobbies_head = NULL;
@@ -154,11 +155,11 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->shutdown_hook)
     GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
 
+  if (handle->destruction)
+    GNUNET_SCHEDULER_cancel(handle->destruction);
+
   if (handle->monitor)
     GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
-
-  if (handle->creation_op)
-    GNUNET_IDENTITY_cancel(handle->creation_op);
 
   if (handle->current)
     handle_disconnect(handle);
@@ -166,13 +167,24 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->namestore)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
 
+  struct GNUNET_CHAT_InternalAccounts *accounts;
+  accounts = handle->accounts_head;
+
+  while (accounts)
+  {
+    if (accounts->op)
+      GNUNET_IDENTITY_cancel(accounts->op);
+
+    accounts->op = NULL;
+    accounts = accounts->next;
+  }
+
   if (handle->identity)
     GNUNET_IDENTITY_disconnect(handle->identity);
 
   if (handle->arm)
     GNUNET_ARM_disconnect(handle->arm);
 
-  struct GNUNET_CHAT_InternalAccounts *accounts;
   while (handle->accounts_head)
   {
     accounts = handle->accounts_head;

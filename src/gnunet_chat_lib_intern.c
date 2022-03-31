@@ -25,20 +25,70 @@
 #define GNUNET_UNUSED __attribute__ ((unused))
 
 void
+task_handle_destruction (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+
+  handle->destruction = NULL;
+  handle_destroy(handle);
+}
+
+void
 cb_account_creation (void *cls,
 		     const struct GNUNET_IDENTITY_PrivateKey *key,
 		     const char *emsg)
 {
   GNUNET_assert(cls);
 
-  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+  struct GNUNET_CHAT_InternalAccounts *accounts = (
+      (struct GNUNET_CHAT_InternalAccounts*) cls
+  );
 
-  handle->creation_op = NULL;
+  struct GNUNET_CHAT_Handle *handle = accounts->handle;
+
+  GNUNET_CONTAINER_DLL_remove(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+  );
+
+  GNUNET_free(accounts);
 
   if (emsg)
     handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
   else if (key)
     handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
+}
+
+void
+cb_account_deletion (void *cls,
+                     const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = (
+      (struct GNUNET_CHAT_InternalAccounts*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = accounts->handle;
+
+  if (emsg)
+  {
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+    return;
+  }
+
+  GNUNET_CONTAINER_DLL_remove(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+  );
+
+  GNUNET_free(accounts);
+
+  handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
 void

@@ -362,6 +362,21 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 			    const char* name);
 
 /**
+ * Deletes an existing chat account of a given chat <i>handle</i> under a
+ * unique <i>name</i>.
+ *
+ * If there is no account known to this chat handle under the provided name, the
+ * function will fail and return #GNUNET_NO.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Account name
+ * @return #GNUNET_OK on success, #GNUNET_NO on failure and otherwise #GNUNET_SYSERR
+ */
+int
+GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
+			   const char* name);
+
+/**
  * Iterates through the accounts of a given chat <i>handle</i> with a selected
  * callback and custom closure.
  *

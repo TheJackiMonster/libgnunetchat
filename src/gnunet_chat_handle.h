@@ -56,6 +56,10 @@ struct GNUNET_CHAT_InternalMessages
 struct GNUNET_CHAT_InternalAccounts
 {
   struct GNUNET_CHAT_Account *account;
+
+  struct GNUNET_CHAT_Handle *handle;
+  struct GNUNET_IDENTITY_Operation *op;
+
   struct GNUNET_CHAT_InternalAccounts *next;
   struct GNUNET_CHAT_InternalAccounts *prev;
 };
@@ -82,6 +86,7 @@ struct GNUNET_CHAT_Handle
 {
   const struct GNUNET_CONFIGURATION_Handle* cfg;
   struct GNUNET_SCHEDULER_Task *shutdown_hook;
+  struct GNUNET_SCHEDULER_Task *destruction;
 
   struct GNUNET_CHAT_InternalMessages *internal_head;
   struct GNUNET_CHAT_InternalMessages *internal_tail;
@@ -95,7 +100,6 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
   const struct GNUNET_CHAT_Account *current;
-  struct GNUNET_IDENTITY_Operation *creation_op;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 
   struct GNUNET_CHAT_InternalLobbies *lobbies_head;

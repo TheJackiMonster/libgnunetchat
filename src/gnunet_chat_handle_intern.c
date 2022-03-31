@@ -224,6 +224,9 @@ on_handle_gnunet_identity(void *cls,
 {
   struct GNUNET_CHAT_Handle* handle = cls;
 
+  if (!name)
+    return;
+
   if (!ego)
     goto send_refresh;
 
@@ -248,6 +251,8 @@ on_handle_gnunet_identity(void *cls,
 	  handle->accounts_tail,
 	  accounts
       );
+
+      GNUNET_free(accounts);
     }
 
     goto send_refresh;
@@ -266,6 +271,9 @@ skip_account:
 
   accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
   accounts->account = account_create_from_ego(ego, name);
+
+  accounts->handle = handle;
+  accounts->op = NULL;
 
   if (handle->directory)
     account_update_directory(accounts->account, handle->directory);
