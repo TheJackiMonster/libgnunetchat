@@ -522,6 +522,28 @@ void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
 			const struct GNUNET_CHAT_Uri *uri);
 
+
+/**
+ * Sets a custom <i>user pointer</i> to a given chat <i>handle</i> so it can
+ * be accessed in all handle related callbacks.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] user_pointer Custom user pointer
+ */
+void
+GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
+			      void *user_pointer);
+
+/**
+ * Returns the custom user pointer of a given chat <i>handle</i> or NULL if it
+ * was not set any.
+ *
+ * @param[in] handle Chat handle
+ * @return Custom user pointer or NULL
+ */
+void*
+GNUNET_CHAT_get_user_pointer (const struct GNUNET_CHAT_Handle *handle);
+
 /**
  * Iterates through the contacts of a given chat <i>handle</i> with a selected
  * callback and custom closure.

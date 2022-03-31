@@ -32,8 +32,6 @@
 
 #include <gnunet/gnunet_chat_lib.h>
 
-#define GNUNET_CHAT_TEST_ACCOUNT "check"
-
 #define CREATE_GNUNET_TEST(test_name, test_call)                 \
 void                                                             \
 task_##test_call (__attribute__ ((unused)) void *cls,            \

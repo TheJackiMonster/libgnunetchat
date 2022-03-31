@@ -49,7 +49,7 @@ on_gnunet_chat_handle_accounts_it(__attribute__ ((unused)) void *cls,
 
   ck_assert_ptr_ne(name, NULL);
 
-  if (0 == strcmp(name, GNUNET_CHAT_TEST_ACCOUNT))
+  if (0 == strcmp(name, "gnunet_chat_handle_accounts"))
     accounts_stage |= 2;
 
   return GNUNET_YES;
@@ -77,7 +77,7 @@ on_gnunet_chat_handle_accounts_msg(void *cls,
     if (3 == accounts_stage)
       ck_assert_int_eq(GNUNET_CHAT_account_delete(
 	  accounts_handle,
-	  GNUNET_CHAT_TEST_ACCOUNT
+	  "gnunet_chat_handle_accounts"
       ), GNUNET_OK);
 
     accounts_stage = 4;
@@ -88,7 +88,7 @@ on_gnunet_chat_handle_accounts_msg(void *cls,
   {
     ck_assert_int_eq(GNUNET_CHAT_account_create(
 	accounts_handle,
-	GNUNET_CHAT_TEST_ACCOUNT
+	"gnunet_chat_handle_accounts"
     ), GNUNET_OK);
 
     accounts_stage = 1;
@@ -108,53 +108,181 @@ call_gnunet_chat_handle_accounts(const struct GNUNET_CONFIGURATION_Handle *cfg)
 
 CREATE_GNUNET_TEST(test_gnunet_chat_handle_accounts, call_gnunet_chat_handle_accounts)
 
-struct GNUNET_CHAT_Handle *connection_handle;
+int
+on_gnunet_chat_handle_connection_it(void *cls,
+				    const struct GNUNET_CHAT_Handle *handle,
+				    struct GNUNET_CHAT_Account *account)
+{
+  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
+
+  ck_assert_ptr_ne(chat, NULL);
+  ck_assert_ptr_eq(handle, chat);
+  ck_assert_ptr_ne(account, NULL);
+
+  const char *name = GNUNET_CHAT_account_get_name(account);
+
+  ck_assert_ptr_ne(name, NULL);
+  ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
+
+  if (0 == strcmp(name, "gnunet_chat_handle_connection"))
+  {
+    GNUNET_CHAT_connect(chat, account);
+    return GNUNET_NO;
+  }
+
+  return GNUNET_YES;
+}
 
 int
 on_gnunet_chat_handle_connection_msg(void *cls,
 				     struct GNUNET_CHAT_Context *context,
 				     const struct GNUNET_CHAT_Message *message)
 {
-  enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
+  struct GNUNET_CHAT_Handle *handle = *(
+      (struct GNUNET_CHAT_Handle**) cls
+  );
 
-  ck_assert(kind == GNUNET_CHAT_KIND_LOGIN);
-  ck_assert_ptr_eq(cls, NULL);
+  ck_assert_ptr_ne(handle, NULL);
   ck_assert_ptr_eq(context, NULL);
+  ck_assert_ptr_ne(message, NULL);
 
-  GNUNET_CHAT_stop(connection_handle);
+  GNUNET_CHAT_iterate_accounts(
+      handle,
+      on_gnunet_chat_handle_connection_it,
+      handle
+  );
+
+  if (!GNUNET_CHAT_get_connected(handle))
+    return GNUNET_YES;
+
+  GNUNET_CHAT_disconnect(handle);
+
+  ck_assert_int_eq(GNUNET_CHAT_account_delete(
+      handle,
+      "gnunet_chat_handle_connection"
+  ), GNUNET_OK);
+
+  GNUNET_CHAT_stop(handle);
   return GNUNET_YES;
 }
 
 void
 call_gnunet_chat_handle_connection(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
-  connection_handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_connection_msg, NULL);
-  ck_assert_ptr_ne(connection_handle, NULL);
+  static struct GNUNET_CHAT_Handle *handle = NULL;
+  handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_connection_msg, &handle);
+
+  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_int_eq(GNUNET_CHAT_account_create(
+      handle,
+      "gnunet_chat_handle_connection"
+  ), GNUNET_OK);
 }
 
 CREATE_GNUNET_TEST(test_gnunet_chat_handle_connection, call_gnunet_chat_handle_connection)
 
-struct GNUNET_CHAT_Handle *update_handle;
+int
+on_gnunet_chat_handle_update_it(void *cls,
+				const struct GNUNET_CHAT_Handle *handle,
+				struct GNUNET_CHAT_Account *account)
+{
+  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
+
+  ck_assert_ptr_ne(chat, NULL);
+  ck_assert_ptr_eq(handle, chat);
+  ck_assert_ptr_ne(account, NULL);
+
+  const char *name = GNUNET_CHAT_account_get_name(account);
+
+  ck_assert_ptr_ne(name, NULL);
+  ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
+
+  if (0 == strcmp(name, "gnunet_chat_handle_update"))
+  {
+    GNUNET_CHAT_connect(chat, account);
+    return GNUNET_NO;
+  }
+
+  return GNUNET_YES;
+}
 
 int
 on_gnunet_chat_handle_update_msg(void *cls,
 				 struct GNUNET_CHAT_Context *context,
 				 const struct GNUNET_CHAT_Message *message)
 {
+  struct GNUNET_CHAT_Handle *handle = *(
+      (struct GNUNET_CHAT_Handle**) cls
+  );
+
+  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_ptr_eq(context, NULL);
+  ck_assert_ptr_ne(message, NULL);
+
   enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
 
-  ck_assert_ptr_eq(cls, NULL);
-  ck_assert_ptr_eq(context, NULL);
+  if (GNUNET_CHAT_get_connected(handle))
+    goto skip_search_account;
 
-  GNUNET_CHAT_stop(update_handle);
+  GNUNET_CHAT_iterate_accounts(
+      handle,
+      on_gnunet_chat_handle_update_it,
+      handle
+  );
+
+  if (!GNUNET_CHAT_get_connected(handle))
+    return GNUNET_YES;
+
+skip_search_account:
+  if (GNUNET_CHAT_KIND_LOGIN != kind)
+    return GNUNET_YES;
+
+  const char *key = GNUNET_CHAT_get_key(handle);
+  ck_assert_ptr_ne(key, NULL);
+
+  char *dup = (char*) GNUNET_CHAT_get_user_pointer(handle);
+
+  if (!dup)
+  {
+    dup = GNUNET_strdup(key);
+
+    ck_assert_ptr_ne(dup, NULL);
+    ck_assert_str_eq(key, dup);
+
+    GNUNET_CHAT_set_user_pointer(handle, (void*) dup);
+    GNUNET_CHAT_update(handle);
+  }
+  else
+  {
+    ck_assert_ptr_ne(dup, NULL);
+    // ck_assert_str_ne(key, dup); // TODO: needs to be implemented in service!
+
+    GNUNET_free(dup);
+
+    GNUNET_CHAT_disconnect(handle);
+
+    ck_assert_int_eq(GNUNET_CHAT_account_delete(
+	handle,
+	"gnunet_chat_handle_update"
+    ), GNUNET_OK);
+
+    GNUNET_CHAT_stop(handle);
+  }
+
   return GNUNET_YES;
 }
 
 void
 call_gnunet_chat_handle_update(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
-  update_handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_update_msg, NULL);
-  ck_assert_ptr_ne(update_handle, NULL);
+  static struct GNUNET_CHAT_Handle *handle = NULL;
+  handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_update_msg, &handle);
+
+  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_int_eq(GNUNET_CHAT_account_create(
+      handle,
+      "gnunet_chat_handle_update"
+  ), GNUNET_OK);
 }
 
 CREATE_GNUNET_TEST(test_gnunet_chat_handle_update, call_gnunet_chat_handle_update)
