@@ -38,14 +38,34 @@ struct GNUNET_CHAT_Account
   void *user_pointer;
 };
 
+/**
+ * Creates a chat account using a given <i>ego</i> and
+ * a matching <i>name</i>.
+ *
+ * @param[in] ego EGO
+ * @param[in] name Name
+ * @return New chat account
+ */
 struct GNUNET_CHAT_Account*
 account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
 			const char *name);
 
+/**
+ * Updates the stored directory path by a chat <i>account</i>
+ * using its current ego and key information.
+ *
+ * @param[in,out] account Chat account
+ * @param[in] base_directory The base directory for the accounts
+ */
 void
 account_update_directory (struct GNUNET_CHAT_Account *account,
 			  const char *base_directory);
 
+/**
+ * Destroys a chat <i>account</i> and frees its memory.
+ *
+ * @param[in,out] account Chat account
+ */
 void
 account_destroy(struct GNUNET_CHAT_Account *account);
 

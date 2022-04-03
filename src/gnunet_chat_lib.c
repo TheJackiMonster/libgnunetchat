@@ -70,8 +70,11 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
   if ((!handle) || (handle->destruction))
     return;
 
-  handle->destruction = GNUNET_SCHEDULER_add_now(
-      task_handle_destruction, handle
+  handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
+      GNUNET_TIME_absolute_get(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      task_handle_destruction,
+      handle
   );
 }
 
@@ -82,7 +85,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!name))
+  if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
@@ -134,7 +137,7 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!name))
+  if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
@@ -161,7 +164,7 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
       handle->identity,
       name,
       cb_account_deletion,
-      accounts
+      handle
   );
 
   return (accounts->op? GNUNET_OK : GNUNET_SYSERR);
@@ -175,7 +178,7 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return GNUNET_SYSERR;
 
   int result = 0;
@@ -205,7 +208,7 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return;
 
   if (handle->current == account)
@@ -226,7 +229,7 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!(handle->current)))
+  if ((!handle) || (handle->destruction) || (!(handle->current)))
     return;
 
   handle_disconnect(handle);
@@ -238,7 +241,7 @@ GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return NULL;
 
   return handle->current;
@@ -250,7 +253,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return GNUNET_SYSERR;
 
   return GNUNET_MESSENGER_update(handle->messenger);
@@ -263,7 +266,7 @@ GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return GNUNET_SYSERR;
 
   if (!name)
@@ -278,7 +281,7 @@ GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return NULL;
 
   return GNUNET_MESSENGER_get_name(handle->messenger);
@@ -290,7 +293,7 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return NULL;
 
   return handle->public_key;
@@ -390,7 +393,7 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return NULL;
 
   struct GNUNET_CHAT_InternalLobbies *lobbies = GNUNET_new(
@@ -448,7 +451,7 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!uri) || (!(handle->gns)))
+  if ((!handle) || (handle->destruction) || (!uri) || (!(handle->gns)))
     return;
 
   struct GNUNET_CHAT_UriLookups *lookups = GNUNET_new(
@@ -482,7 +485,7 @@ GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return;
 
   handle->user_pointer = user_pointer;
@@ -494,7 +497,7 @@ GNUNET_CHAT_get_user_pointer (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!handle)
+  if ((!handle) || (handle->destruction))
     return NULL;
 
   return handle->user_pointer;
@@ -508,7 +511,7 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!(handle->contacts)))
+  if ((!handle) || (handle->destruction) || (!(handle->contacts)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_HandleIterateContacts it;
@@ -565,7 +568,8 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!(handle->groups)) || (!(handle->contexts)))
+  if ((!handle) || (handle->destruction) ||
+      (!(handle->groups)) || (!(handle->contexts)))
     return NULL;
 
   struct GNUNET_HashCode key;
@@ -629,7 +633,7 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (!(handle->groups)))
+  if ((!handle) || (handle->destruction) || (!(handle->groups)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_HandleIterateGroups it;

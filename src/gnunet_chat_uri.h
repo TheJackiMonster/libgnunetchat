@@ -38,10 +38,23 @@ struct GNUNET_CHAT_Uri
   char *label;
 };
 
+/**
+ * Creates a chat uri with a selected key as <i>zone</i>
+ * and a <i>label</i>.
+ *
+ * @param[in] zone URI zone
+ * @param[in] label URI label
+ * @return New chat uri
+ */
 struct GNUNET_CHAT_Uri*
 uri_create (const struct GNUNET_IDENTITY_PublicKey *zone,
 	    const char *label);
 
+/**
+ * Destroys a chat <i>uri</i> and frees its memory.
+ *
+ * @param[in,out] uri Chat uri
+ */
 void
 uri_destroy (struct GNUNET_CHAT_Uri *uri);
 

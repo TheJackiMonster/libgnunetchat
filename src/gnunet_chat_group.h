@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -47,13 +47,32 @@ struct GNUNET_CHAT_Group
   void *user_pointer;
 };
 
+/**
+ * Creates a chat group from a chat <i>context</i>
+ * with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] context Chat context
+ * @return New chat group
+ */
 struct GNUNET_CHAT_Group*
 group_create_from_context (struct GNUNET_CHAT_Handle *handle,
 			   struct GNUNET_CHAT_Context *context);
 
+/**
+ * Destroys a chat <i>group</i> and frees its memory.
+ *
+ * @param[in,out] group Chat group
+ */
 void
 group_destroy (struct GNUNET_CHAT_Group* group);
 
+/**
+ * Publishes a selected chat <i>group</i> under the
+ * topic of its context.
+ *
+ * @param[in,out] group Chat group
+ */
 void
 group_publish (struct GNUNET_CHAT_Group* group);
 

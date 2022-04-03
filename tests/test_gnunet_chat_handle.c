@@ -255,7 +255,7 @@ skip_search_account:
   else
   {
     ck_assert_ptr_ne(dup, NULL);
-    // ck_assert_str_ne(key, dup); // TODO: needs to be implemented in service!
+    ck_assert_str_ne(key, dup);
 
     GNUNET_free(dup);
 
@@ -303,7 +303,7 @@ on_gnunet_chat_handle_rename_it(void *cls,
   ck_assert_ptr_ne(name, NULL);
   ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
 
-  if (0 == strcmp(name, "gnunet_chat_handle_rename_A"))
+  if (0 == strcmp(name, "gnunet_chat_handle_rename_a"))
   {
     GNUNET_CHAT_connect(chat, account);
     return GNUNET_NO;
@@ -346,6 +346,8 @@ skip_search_account:
   const char *name = GNUNET_CHAT_get_name(handle);
   ck_assert_ptr_ne(name, NULL);
 
+  printf("login: %s\n", name);
+
   char *dup = (char*) GNUNET_CHAT_get_user_pointer(handle);
 
   if (!dup)
@@ -359,10 +361,10 @@ skip_search_account:
 
     ck_assert_int_eq(GNUNET_CHAT_set_name(
 	handle,
-	"gnunet_chat_handle_rename_B"
+	"gnunet_chat_handle_rename_b"
     ), GNUNET_YES);
   }
-  else
+  else if (0 != strcmp(name, dup))
   {
     ck_assert_ptr_ne(dup, NULL);
     ck_assert_str_ne(name, dup);
@@ -373,7 +375,7 @@ skip_search_account:
 
     ck_assert_int_eq(GNUNET_CHAT_account_delete(
 	handle,
-	"gnunet_chat_handle_rename_B"
+	"gnunet_chat_handle_rename_b"
     ), GNUNET_OK);
 
     GNUNET_CHAT_stop(handle);
@@ -391,7 +393,7 @@ call_gnunet_chat_handle_rename(const struct GNUNET_CONFIGURATION_Handle *cfg)
   ck_assert_ptr_ne(handle, NULL);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
       handle,
-      "gnunet_chat_handle_rename_A"
+      "gnunet_chat_handle_rename_a"
   ), GNUNET_OK);
 }
 

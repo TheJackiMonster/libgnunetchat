@@ -53,12 +53,34 @@ struct GNUNET_CHAT_Lobby
   void *cls;
 };
 
+/**
+ * Creates a new chat lobby using a given chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @return New chat lobby
+ */
 struct GNUNET_CHAT_Lobby*
 lobby_create (struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Destroys a chat <i>lobby</i> and frees its memory.
+ *
+ * @param[in,out] lobby Chat lobby
+ */
 void
 lobby_destroy (struct GNUNET_CHAT_Lobby *lobby);
 
+/**
+ * Opens a chat <i>lobby</i> and closes it automatically
+ * after a selected <i>delay</i>. Once the lobby is open
+ * a given <i>callback</i> will be called with a custom
+ * closure.
+ *
+ * @param[in,out] lobby Chat lobby
+ * @param[in] delay Delay to close down the lobby again
+ * @param[in] callback Lobby opening callback
+ * @param[in,out] cls Closure
+ */
 void
 lobby_open (struct GNUNET_CHAT_Lobby *lobby,
 	    struct GNUNET_TIME_Relative delay,

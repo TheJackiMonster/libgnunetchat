@@ -124,52 +124,154 @@ struct GNUNET_CHAT_Handle
   void *user_pointer;
 };
 
+/**
+ * Creates a chat handle with a selected configuration,
+ * a custom message callback and a custom closure for
+ * the callback.
+ *
+ * @param[in] cfg Configuration
+ * @param[in] msg_cb Message callback
+ * @param[in,out] msg_cls Closure
+ * @return New chat handle
+ */
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
 			   void *msg_cls);
 
+/**
+ * Updates the string representation of the public key from
+ * a given chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ */
 void
 handle_update_key (struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Destroys a chat <i>handle</i> and frees its memory.
+ *
+ * @param[in,out] handle Chat handle
+ */
 void
 handle_destroy (struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Connects a given chat <i>handle</i> to a selected
+ * chat <i>account</i> using it for further operations.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] account Chat account
+ */
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
 		const struct GNUNET_CHAT_Account *account);
 
+/**
+ * Disconnects a given chat <i>handle</i> from its current
+ * connected chat account.
+ *
+ * @param[in,out] handle Chat handle
+ */
 void
 handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Returns the main directory path to store information
+ * of a given chat <i>handle</i>.
+ *
+ * @param[in] handle Chat handle
+ * @return Directory path
+ */
 const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Returns the private key from the current connected chat
+ * account of a given chat <i>handle</i>.
+ *
+ * @param[in] handle Chat handle
+ * @return EGOs private key or NULL
+ */
 const struct GNUNET_IDENTITY_PrivateKey*
 handle_get_key (const struct GNUNET_CHAT_Handle *handle);
 
+/**
+ * Sends an internal chat message from a given chat
+ * <i>handle</i> with an optional chat <i>context</i>,
+ * a custom <i>flag</i> and an optional <i>warning</i> text.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] context Chat context or NULL
+ * @param[in] flag Chat message flag
+ * @param[in] warning Warning text
+ */
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 			      struct GNUNET_CHAT_Context *context,
 			      enum GNUNET_CHAT_MessageFlag flag,
 			      const char *warning);
 
+/**
+ * Sends a name message to a messenger <i>room</i> with
+ * a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] room Messenger room
+ */
 void
 handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
 		       struct GNUNET_MESSENGER_Room *room);
 
+/**
+ * Checks a given chat <i>handle</i> for any chat context
+ * connected with a messenger <i>room</i>, creates it if
+ * necessary and manages its context type.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] room Messenger room
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
 int
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 				struct GNUNET_MESSENGER_Room *room);
 
+/**
+ * Returns the chat contact registered for a given messenger
+ * <i>contact</i> by a selected chat <i>handle</i>.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] contact Messenger contact
+ * @return Chat contact or NULL
+ */
 struct GNUNET_CHAT_Contact*
 handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
 				   const struct GNUNET_MESSENGER_Contact *contact);
 
+/**
+ * Returns the chat group registered for a given messenger
+ * <i>room</i> by a selected chat <i>handle</i>.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] room Messenger room
+ * @return Chat group or NULL
+ */
 struct GNUNET_CHAT_Group*
 handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
 				 const struct GNUNET_MESSENGER_Room *room);
 
+/**
+ * Processes the <i>data</i> of records under a given
+ * <i>label</i> and creates a matching chat <i>context</i>
+ * with it if it does not exist already, registered by a chat
+ * <i>handle</i>, to be updated.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] label Namestore label
+ * @param[in] count Count of data
+ * @param[in] data Records data
+ * @return Chat context or NULL
+ */
 struct GNUNET_CHAT_Context*
 handle_process_records (struct GNUNET_CHAT_Handle *handle,
 			const char *label,

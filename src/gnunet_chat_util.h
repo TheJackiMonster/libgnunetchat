@@ -32,50 +32,146 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
+/**
+ * Enum for the types of chat contexts.
+ */
 enum GNUNET_CHAT_ContextType
 {
-  GNUNET_CHAT_CONTEXT_TYPE_CONTACT = 1,
-  GNUNET_CHAT_CONTEXT_TYPE_GROUP   = 2,
-  GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN = 0
+  /**
+   * Contact context type
+   */
+  GNUNET_CHAT_CONTEXT_TYPE_CONTACT = 1,/**< GNUNET_CHAT_CONTEXT_TYPE_CONTACT */
+
+  /**
+   * Group context type
+   */
+  GNUNET_CHAT_CONTEXT_TYPE_GROUP   = 2,/**< GNUNET_CHAT_CONTEXT_TYPE_GROUP */
+
+  /**
+   * Unknown context type
+   */
+  GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN = 0 /**< GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN */
 };
 
+/**
+ * Converts a unique messenger contact, being consistent <i>member</i>
+ * of multiple messenger rooms via memory consistency, into a short
+ * hash variant for map access as key.
+ *
+ * @param[in] member Messenger contact
+ * @param[out] shorthash Short hash
+ */
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash);
 
+/**
+ * Updates the stored content of a <i>field</i> with
+ * a given <i>name</i>.
+ *
+ * @param[in] name Name
+ * @param[out] field String field
+ */
 void
 util_set_name_field (const char *name, char **field);
 
+/**
+ * Generates the <i>hash</i> of a file under a given
+ * <i>filename</i>.
+ *
+ * @param[in] filename File name
+ * @param[out] hash Hash of file
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
 int
 util_hash_file (const char *filename, struct GNUNET_HashCode *hash);
 
+/**
+ * Encrypts a file inplace under a given <i>filename</i>
+ * with a selected symmetric <i>key</i> and its <i>hash</i>
+ * as initialization vector.
+ *
+ * @param[in] filename File name
+ * @param[in] hash Hash of file
+ * @param[in] key Symmetric key
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
 int
 util_encrypt_file (const char *filename,
 		   const struct GNUNET_HashCode *hash,
 		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
+/**
+ * Decrypts a file inplace under a given <i>filename</i>
+ * with a selected symmetric <i>key</i> and its <i>hash</i>
+ * as parameter for the initialization vector and comparison
+ * to verify success.
+ *
+ * @param[in] filename File name
+ * @param[in] hash Hash of file
+ * @param[in] key Symmetric key
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
 int
 util_decrypt_file (const char *filename,
 		   const struct GNUNET_HashCode *hash,
 		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
+/**
+ * Append the path of a <i>directory</i> and a custom
+ * subdirectory name to a composed <i>filename</i>.
+ *
+ * @param[in] directory Directory path
+ * @param[in] subdir Subdirectory name
+ * @param[out] filename Filename
+ * @return Number of bytes in filename excluding 0-termination
+ */
 int
 util_get_dirname (const char *directory,
 		  const char *subdir,
 		  char **filename);
 
+/**
+ * Append the path of a <i>directory</i>, a custom
+ * subdirectory name and a <i>hash</i> to a composed
+ * <i>filename</i>.
+ *
+ * @param[in] directory Directory path
+ * @param[in] subdir Subdirectory name
+ * @param[in] hash Hash
+ * @param[out] filename Filename
+ * @return Number of bytes in filename excluding 0-termination
+ */
 int
 util_get_filename (const char *directory,
 		   const char *subdir,
 		   const struct GNUNET_HashCode *hash,
 		   char **filename);
 
+/**
+ * Construct a composed <i>label</i> from a given context
+ * <i>type</i> and the <i>hash</i> of the contexts room.
+ *
+ * @param[in] type Chat context type
+ * @param[in] hash Hash of room
+ * @param[out] label Namestore label
+ * @return Number of bytes in label excluding 0-termination
+ */
 int
 util_get_context_label (enum GNUNET_CHAT_ContextType type,
 		        const struct GNUNET_HashCode *hash,
 		        char **label);
 
-int util_lobby_name (const struct GNUNET_HashCode *hash,
-		     char **name);
+/**
+ * Provide a standardized <i>name</i> for a lobby using
+ * a given <i>hash</i> of its internal room.
+ *
+ * @param[in] hash Hash of room
+ * @param[out] name Name of lobby
+ * @return Number of bytes in name excluding 0-termination
+ */
+int
+util_lobby_name (const struct GNUNET_HashCode *hash,
+		 char **name);
 
 #endif /* GNUNET_CHAT_UTIL_H_ */

@@ -68,27 +68,13 @@ cb_account_deletion (void *cls,
 {
   GNUNET_assert(cls);
 
-  struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
-  );
-
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
   if (emsg)
   {
     handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
     return;
   }
-
-  GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
-  );
-
-  GNUNET_free(accounts);
-
-  handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
 void

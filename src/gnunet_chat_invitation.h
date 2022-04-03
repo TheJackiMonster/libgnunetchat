@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -42,10 +42,23 @@ struct GNUNET_CHAT_Invitation
   GNUNET_PEER_Id door;
 };
 
+/**
+ * Creates a chat invitation from a invite body in a
+ * <i>message</i> with a selected chat <i>context</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] message Invite message body
+ * @return New chat invitation
+ */
 struct GNUNET_CHAT_Invitation*
 invitation_create_from_message (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_MESSENGER_MessageInvite *message);
 
+/**
+ * Destroys a chat <i>invitation</i> and frees its memory.
+ *
+ * @param[in,out] invitation Chat invitation
+ */
 void
 invitation_destroy (struct GNUNET_CHAT_Invitation *invitation);
 

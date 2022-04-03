@@ -103,45 +103,128 @@ struct GNUNET_CHAT_File
   void *user_pointer;
 };
 
+/**
+ * Creates a chat file handle from a file body in a
+ * <i>message</i> with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] message File message body
+ * @return New chat file handle
+ */
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 			  const struct GNUNET_MESSENGER_MessageFile *message);
 
+/**
+ * Creates a chat file handle from a local file on disk
+ * under a given <i>name</i> using a <i>hash</i> and a
+ * selected symmetric <i>key</i> with a selected chat
+ * <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name File name
+ * @param[in] hash File hash
+ * @param[in] key Symmetric key
+ * @return New chat file handle
+ */
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 		       const char *name,
 		       const struct GNUNET_HashCode *hash,
 		       const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
+/**
+ * Destroys a chat <i>file</i> handle and frees its memory.
+ *
+ * @param[in,out] file Chat file handle
+ */
 void
 file_destroy (struct GNUNET_CHAT_File *file);
 
+/**
+ * Binds a chat <i>context</i>, a callback and a closure
+ * to a given chat <i>file</i> handle to be called on any
+ * progress uploading the regarding file.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in,out] context Chat context
+ * @param[in] cb Callback for upload progress
+ * @param[in,out] cls Closure
+ */
 void
 file_bind_upload (struct GNUNET_CHAT_File *file,
 		  struct GNUNET_CHAT_Context *context,
 		  GNUNET_CHAT_FileUploadCallback cb,
 		  void *cls);
 
+/**
+ * Binds a callback and a closure to a given chat <i>file</i>
+ * handle to be called on any progress downloading the
+ * regarding file.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in] cb Callback for download progress
+ * @param[in,out] cls Closure
+ */
 void
 file_bind_downlaod (struct GNUNET_CHAT_File *file,
 		    GNUNET_CHAT_FileDownloadCallback cb,
 		    void *cls);
 
+/**
+ * Binds a callback and a closure to a given chat <i>file</i>
+ * handle to be called on any progress unindexing the
+ * regarding file.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in] cb Callback for unindex progress
+ * @param[in,out] cls Closure
+ */
 void
 file_bind_unindex (struct GNUNET_CHAT_File *file,
 		   GNUNET_CHAT_FileUnindexCallback cb,
 		   void *cls);
 
+/**
+ * Calls the regarding events and bound callback of a given
+ * chat <i>file</i> handle to a file upload progress using
+ * the provided state of <i>completed</i> bytes and its file
+ * <i>size</i>.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in] completed Amount of uploaded bytes
+ * @param[in] size Full file size
+ */
 void
 file_update_upload (struct GNUNET_CHAT_File *file,
 		    uint64_t completed,
 		    uint64_t size);
 
+/**
+ * Calls the regarding events and bound callback of a given
+ * chat <i>file</i> handle to a file download progress using
+ * the provided state of <i>completed</i> bytes and its file
+ * <i>size</i>.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in] completed Amount of downloaded bytes
+ * @param[in] size Full file size
+ */
 void
 file_update_download (struct GNUNET_CHAT_File *file,
 		      uint64_t completed,
 		      uint64_t size);
 
+/**
+ * Calls the regarding events and bound callback of a given
+ * chat <i>file</i> handle to a file unindex progress using
+ * the provided state of <i>completed</i> bytes and its file
+ * <i>size</i>.
+ *
+ * @param[in,out] file Chat file handle
+ * @param[in] completed Amount of unindexed bytes
+ * @param[in] size Full file size
+ */
 void
 file_update_unindex (struct GNUNET_CHAT_File *file,
 		     uint64_t completed,

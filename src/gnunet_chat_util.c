@@ -314,8 +314,9 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
   );
 }
 
-int util_lobby_name (const struct GNUNET_HashCode *hash,
-		     char **name)
+int
+util_lobby_name (const struct GNUNET_HashCode *hash,
+		 char **name)
 {
   return GNUNET_asprintf (
       name,

@@ -168,15 +168,24 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
-  accounts = handle->accounts_head;
 
-  while (accounts)
+  while (handle->accounts_head)
   {
+    accounts = handle->accounts_head;
+
     if (accounts->op)
       GNUNET_IDENTITY_cancel(accounts->op);
 
-    accounts->op = NULL;
-    accounts = accounts->next;
+    if (accounts->account)
+      account_destroy(accounts->account);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+    );
+
+    GNUNET_free(accounts);
   }
 
   if (handle->identity)
@@ -184,22 +193,6 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->arm)
     GNUNET_ARM_disconnect(handle->arm);
-
-  while (handle->accounts_head)
-  {
-    accounts = handle->accounts_head;
-
-    if (accounts->account)
-      account_destroy(accounts->account);
-
-    GNUNET_CONTAINER_DLL_remove(
-	handle->accounts_head,
-	handle->accounts_tail,
-	accounts
-    );
-
-    GNUNET_free(accounts);
-  }
 
   if (handle->directory)
     GNUNET_free(handle->directory);

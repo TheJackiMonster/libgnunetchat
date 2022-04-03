@@ -71,7 +71,7 @@ contact_update_key (struct GNUNET_CHAT_Contact *contact)
 }
 
 struct GNUNET_CHAT_Context*
-contact_find_context (struct GNUNET_CHAT_Contact *contact)
+contact_find_context (const struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_assert(contact);
 

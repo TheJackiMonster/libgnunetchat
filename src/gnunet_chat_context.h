@@ -61,31 +61,80 @@ struct GNUNET_CHAT_Context
   struct GNUNET_NAMESTORE_QueueEntry *query;
 };
 
+/**
+ * Creates a chat context from a messenger <i>room</i>
+ * with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] room Messenger room
+ * @return New chat context
+ */
 struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			  struct GNUNET_MESSENGER_Room *room);
 
+/**
+ * Creates a chat context from a messenger <i>contact</i>
+ * with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] contact Messenger contact
+ * @return New chat context
+ */
 struct GNUNET_CHAT_Context*
 context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
 			     const struct GNUNET_MESSENGER_Contact *contact);
 
+/**
+ * Destroys a chat <i>context</i> and frees its memory.
+ *
+ * @param[in,out] context Chat context
+ */
 void
 context_destroy (struct GNUNET_CHAT_Context* context);
 
+/**
+ * Updates the connected messenger <i>room</i> of a
+ * selected chat <i>context</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in,out] room Messenger room
+ */
 void
 context_update_room (struct GNUNET_CHAT_Context *context,
 		     struct GNUNET_MESSENGER_Room *room);
 
+/**
+ * Updates the <i>nick</i> of a selected chat <i>context</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] nick Nick name
+ */
 void
 context_update_nick (struct GNUNET_CHAT_Context *context,
 		     const char *nick);
 
+/**
+ * Reads the <i>data</i> of records under a given <i>label</i>
+ * and updates the chat <i>context</i> with it.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] label Label
+ * @param[in] count Count of data
+ * @param[in] data Records data
+ */
 void
 context_read_records (struct GNUNET_CHAT_Context *context,
 		      const char *label,
 		      unsigned int count,
 		      const struct GNUNET_GNSRECORD_Data *data);
 
+/**
+ * Writes the data from a selected chat <i>context</i> into
+ * the namestore as private records.
+ *
+ * @param[in,out] context Chat context
+ */
 void
 context_write_records (struct GNUNET_CHAT_Context *context);
 

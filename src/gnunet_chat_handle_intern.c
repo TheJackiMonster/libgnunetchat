@@ -219,12 +219,12 @@ notify_handle_fs_progress(void* cls,
 void
 on_handle_gnunet_identity(void *cls,
 			  struct GNUNET_IDENTITY_Ego *ego,
-			  GNUNET_UNUSED void **ctx,
+			  void **ctx,
                           const char *name)
 {
   struct GNUNET_CHAT_Handle* handle = cls;
 
-  if (!name)
+  if (!ctx)
     return;
 
   if (!ego)
@@ -241,9 +241,22 @@ on_handle_gnunet_identity(void *cls,
       goto check_matching_name;
 
     if (name)
+    {
       util_set_name_field(name, &(accounts->account->name));
+
+      if (handle->current == accounts->account)
+	handle_send_internal_message(
+	    handle,
+	    NULL,
+	    GNUNET_CHAT_FLAG_LOGIN,
+	    NULL
+	);
+    }
     else
     {
+      if (handle->current == accounts->account)
+	handle_disconnect(handle);
+
       account_destroy(accounts->account);
 
       GNUNET_CONTAINER_DLL_remove(
@@ -268,6 +281,9 @@ check_matching_name:
 skip_account:
     accounts = accounts->next;
   }
+
+  if (!name)
+    return;
 
   accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
   accounts->account = account_create_from_ego(ego, name);

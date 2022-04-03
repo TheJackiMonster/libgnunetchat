@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -64,17 +64,43 @@ struct GNUNET_CHAT_Message
   enum GNUNET_CHAT_MessageFlag flag;
 };
 
+/**
+ * Creates a chat message representing an actual message
+ * from the messenger service in a given chat <i>context</i>
+ * with a valid <i>hash</i> and message <i>flags</i>
+ *
+ * @param[in,out] context Chat context
+ * @param[in] hash Message hash
+ * @param[in] flags Message flags
+ * @param[in] msg Messenger message
+ * @return New chat message
+ */
 struct GNUNET_CHAT_Message*
 message_create_from_msg (struct GNUNET_CHAT_Context *context,
 			 const struct GNUNET_HashCode *hash,
 			 enum GNUNET_MESSENGER_MessageFlags flags,
 			 const struct GNUNET_MESSENGER_Message *msg);
 
+/**
+ * Creates an internal chat message with an optional chat
+ * <i>context</i>, a custom <i>flag</i> and an optional
+ * <i>warning</i> text.
+ *
+ * @param[in,out] context Chat context or NULL
+ * @param[in] flag Chat message flag
+ * @param[in] warning Warning text
+ * @return New internal chat message
+ */
 struct GNUNET_CHAT_Message*
 message_create_internally (struct GNUNET_CHAT_Context *context,
 			   enum GNUNET_CHAT_MessageFlag flag,
 			   const char *warning);
 
+/**
+ * Destroys a chat <i>message</i> and frees its memory.
+ *
+ * @param[in,out] message Chat message
+ */
 void
 message_destroy (struct GNUNET_CHAT_Message* message);
 

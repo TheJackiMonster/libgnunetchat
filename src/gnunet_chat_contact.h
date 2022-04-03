@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2022 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -46,16 +46,42 @@ struct GNUNET_CHAT_Contact
   int is_owned;
 };
 
+/**
+ * Creates a chat contact using a given messenger <i>contact</i>
+ * with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] member Messenger contact
+ * @return New chat contact
+ */
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 			    const struct GNUNET_MESSENGER_Contact *member);
 
+/**
+ * Updates the string representation of the public key from
+ * a given chat <i>contact</i>.
+ *
+ * @param[in,out] contact Chat contact
+ */
 void
 contact_update_key (struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Searches for a chat context containing a given chat
+ * <i>contact</i> and the least amount of other members.
+ *
+ * @param[in] contact Chat contact
+ * @return Chat context or NULL
+ */
 struct GNUNET_CHAT_Context*
-contact_find_context (struct GNUNET_CHAT_Contact *contact);
+contact_find_context (const struct GNUNET_CHAT_Contact *contact);
 
+/**
+ * Destroys a chat <i>contact</i> and frees its memory.
+ *
+ * @param[in,out] contact Chat contact
+ */
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact);
 
