@@ -346,8 +346,6 @@ skip_search_account:
   const char *name = GNUNET_CHAT_get_name(handle);
   ck_assert_ptr_ne(name, NULL);
 
-  printf("login: %s\n", name);
-
   char *dup = (char*) GNUNET_CHAT_get_user_pointer(handle);
 
   if (!dup)

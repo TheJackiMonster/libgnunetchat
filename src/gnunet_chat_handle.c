@@ -312,37 +312,6 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   if (handle->messenger)
     GNUNET_MESSENGER_disconnect(handle->messenger);
 
-  if (handle->gns)
-    GNUNET_GNS_disconnect(handle->gns);
-
-  if (handle->fs)
-    GNUNET_FS_stop(handle->fs);
-
-  handle->fs = NULL;
-  handle->gns = NULL;
-  handle->messenger = NULL;
-
-  GNUNET_CONTAINER_multihashmap_iterate(
-      handle->files, it_destroy_handle_files, NULL
-  );
-
-  struct GNUNET_CHAT_InternalLobbies *lobbies;
-  while (handle->lobbies_head)
-  {
-    lobbies = handle->lobbies_head;
-
-    if (lobbies->lobby)
-      lobby_destroy(lobbies->lobby);
-
-    GNUNET_CONTAINER_DLL_remove(
-      handle->lobbies_head,
-      handle->lobbies_tail,
-      lobbies
-    );
-
-    GNUNET_free(lobbies);
-  }
-
   struct GNUNET_CHAT_UriLookups *lookups;
   while (handle->lookups_head)
   {
@@ -361,6 +330,37 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     );
 
     GNUNET_free(lookups);
+  }
+
+  if (handle->gns)
+    GNUNET_GNS_disconnect(handle->gns);
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+      handle->files, it_destroy_handle_files, NULL
+  );
+
+  if (handle->fs)
+    GNUNET_FS_stop(handle->fs);
+
+  handle->fs = NULL;
+  handle->gns = NULL;
+  handle->messenger = NULL;
+
+  struct GNUNET_CHAT_InternalLobbies *lobbies;
+  while (handle->lobbies_head)
+  {
+    lobbies = handle->lobbies_head;
+
+    if (lobbies->lobby)
+      lobby_destroy(lobbies->lobby);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->lobbies_head,
+      handle->lobbies_tail,
+      lobbies
+    );
+
+    GNUNET_free(lobbies);
   }
 
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);

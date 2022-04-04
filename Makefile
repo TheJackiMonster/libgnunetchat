@@ -7,26 +7,27 @@ INSTALL_DIR ?= /usr/local/
 
 LIBRARY = lib$(TARGET_NAME).so
 SOURCES = gnunet_chat_lib.c\
-		  gnunet_chat_account.c\
-		  gnunet_chat_contact.c\
-		  gnunet_chat_context.c\
-		  gnunet_chat_file.c\
-		  gnunet_chat_group.c\
-  		  gnunet_chat_handle.c\
-  		  gnunet_chat_invitation.c\
-  		  gnunet_chat_lobby.c\
-		  gnunet_chat_message.c\
-		  gnunet_chat_uri.c\
-		  gnunet_chat_util.c
+          gnunet_chat_account.c\
+          gnunet_chat_contact.c\
+          gnunet_chat_context.c\
+          gnunet_chat_file.c\
+          gnunet_chat_group.c\
+          gnunet_chat_handle.c\
+          gnunet_chat_invitation.c\
+          gnunet_chat_lobby.c\
+          gnunet_chat_message.c\
+          gnunet_chat_uri.c\
+          gnunet_chat_util.c
 		  
 HEADERS = gnunet_chat_lib.h
 
-TESTS   = test_gnunet_chat_handle.c
+TESTS   = test_gnunet_chat_handle.c\
+		  test_gnunet_chat_lobby.c
 
 LIBRARIES = gnunetarm\
             gnunetfs\
-			gnunetidentity\
-			gnunetgns\
+            gnunetidentity\
+            gnunetgns\
             gnunetmessenger\
             gnunetnamestore\
             gnunetregex\
@@ -66,7 +67,7 @@ $(LIBRARY): $(OBJECT_FILES)
 	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
 
 check: $(TEST_CASES)
-	./$(TEST_CASES)
+	$(foreach TEST_CASE,$(TEST_CASES),./$(TEST_CASE);)
 
 %.test: %.c
 	$(GNU_CC) $(CFLAGS) $< -o $@ -I $(INCLUDE_DIR) $(TEST_FLAGS)
