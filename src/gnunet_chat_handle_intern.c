@@ -259,6 +259,12 @@ on_handle_gnunet_identity(void *cls,
 
       account_destroy(accounts->account);
 
+      if (accounts->op)
+      {
+	accounts->account = NULL;
+	goto send_refresh;
+      }
+
       GNUNET_CONTAINER_DLL_remove(
 	  handle->accounts_head,
 	  handle->accounts_tail,
@@ -271,7 +277,7 @@ on_handle_gnunet_identity(void *cls,
     goto send_refresh;
 
 check_matching_name:
-    if ((accounts->account->name) && (name) &&
+    if ((name) && (accounts->account->name) &&
 	(0 == strcmp(accounts->account->name, name)))
     {
       accounts->account->ego = ego;
@@ -302,6 +308,60 @@ skip_account:
 
 send_refresh:
   handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
+}
+
+void
+cb_account_creation (void *cls,
+		     const struct GNUNET_IDENTITY_PrivateKey *key,
+		     const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = (
+      (struct GNUNET_CHAT_InternalAccounts*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = accounts->handle;
+
+  GNUNET_CONTAINER_DLL_remove(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+  );
+
+  GNUNET_free(accounts);
+
+  if (emsg)
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+  else if (key)
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
+}
+
+void
+cb_account_deletion (void *cls,
+                     const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = (
+      (struct GNUNET_CHAT_InternalAccounts*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = accounts->handle;
+
+  GNUNET_CONTAINER_DLL_remove(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+  );
+
+  GNUNET_free(accounts);
+
+  if (emsg)
+  {
+    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+    return;
+  }
 }
 
 int
@@ -410,6 +470,13 @@ on_monitor_namestore_record(void *cls,
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
+  if (chat->destruction)
+  {
+    GNUNET_NAMESTORE_zone_monitor_stop(chat->monitor);
+    chat->monitor = NULL;
+    return;
+  }
+
   handle_process_records(chat, label, count, data);
 
   if (chat->monitor)
@@ -471,6 +538,8 @@ on_handle_message_callback(void *cls)
 		(message->context) &&
 		(message->context->handle));
 
+  message->task = NULL;
+
   struct GNUNET_CHAT_Context *context = message->context;
 
   switch (message->msg->header.kind)
@@ -512,7 +581,8 @@ on_handle_message (void *cls,
 		(msg) &&
 		(hash));
 
-  if ((GNUNET_OK != handle_request_context_by_room(handle, room)) ||
+  if ((handle->destruction) ||
+      (GNUNET_OK != handle_request_context_by_room(handle, room)) ||
       (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
     return;
 
@@ -647,6 +717,8 @@ on_handle_message (void *cls,
 
   if (!task)
     on_handle_message_callback(message);
+  else
+    message->task = task;
 }
 
 int

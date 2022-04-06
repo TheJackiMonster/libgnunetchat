@@ -37,6 +37,7 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
   struct GNUNET_CHAT_Message *message = GNUNET_new(struct GNUNET_CHAT_Message);
 
   message->context = context;
+  message->task = NULL;
 
   GNUNET_memcpy(&(message->hash), hash, sizeof(message->hash));
   message->flags = flags;
@@ -55,6 +56,7 @@ message_create_internally (struct GNUNET_CHAT_Context *context,
   struct GNUNET_CHAT_Message *message = GNUNET_new(struct GNUNET_CHAT_Message);
 
   message->context = context;
+  message->task = NULL;
 
   memset(&(message->hash), 0, sizeof(message->hash));
   message->flags = GNUNET_MESSENGER_FLAG_PRIVATE;
@@ -69,6 +71,9 @@ void
 message_destroy (struct GNUNET_CHAT_Message* message)
 {
   GNUNET_assert(message);
+
+  if (message->task)
+    GNUNET_SCHEDULER_cancel(message->task);
 
   GNUNET_free(message);
 }

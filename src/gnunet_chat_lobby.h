@@ -43,9 +43,7 @@ struct GNUNET_CHAT_Lobby
   struct GNUNET_CHAT_Context *context;
   struct GNUNET_CHAT_Uri *uri;
 
-  struct GNUNET_IDENTITY_Operation *op_create;
-  struct GNUNET_IDENTITY_Operation *op_delete;
-
+  struct GNUNET_IDENTITY_Operation *op;
   struct GNUNET_NAMESTORE_QueueEntry *query;
 
   struct GNUNET_TIME_Absolute expiration;

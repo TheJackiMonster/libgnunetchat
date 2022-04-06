@@ -25,27 +25,6 @@
 #include "gnunet_chat_context.h"
 
 void
-cont_lobby_identity_delete (void *cls,
-                            const char *emsg)
-{
-  struct GNUNET_CHAT_Lobby *lobby = cls;
-
-  GNUNET_assert(lobby);
-
-  lobby->op_delete = NULL;
-
-  if (!emsg)
-    return;
-
-  handle_send_internal_message(
-      lobby->handle,
-      lobby->context,
-      GNUNET_CHAT_FLAG_WARNING,
-      emsg
-  );
-}
-
-void
 cont_lobby_write_records (void *cls,
 			  GNUNET_UNUSED int32_t success,
                           const char *emsg)
@@ -63,12 +42,7 @@ cont_lobby_write_records (void *cls,
   char *name;
   util_lobby_name(key, &name);
 
-  lobby->op_delete = GNUNET_IDENTITY_delete(
-      lobby->handle->identity,
-      name,
-      cont_lobby_identity_delete,
-      lobby
-  );
+  handle_delete_account(lobby->handle, name);
 
   GNUNET_free(name);
 
@@ -104,7 +78,7 @@ cont_lobby_identity_create (void *cls,
 
   GNUNET_assert(lobby);
 
-  lobby->op_create = NULL;
+  lobby->op = NULL;
 
   if (emsg)
   {

@@ -377,6 +377,115 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   handle_update_key(handle);
 }
 
+int
+handle_create_account (struct GNUNET_CHAT_Handle *handle,
+		       const char *name)
+{
+  GNUNET_assert((handle) && (name));
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
+  {
+    if (!(accounts->account))
+      goto skip_account;
+
+    if ((accounts->account->name) &&
+      (0 == strcmp(accounts->account->name, name)))
+      return GNUNET_NO;
+
+  skip_account:
+    accounts = accounts->next;
+  }
+
+  accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
+  accounts->account = NULL;
+  accounts->handle = handle;
+
+  accounts->op = GNUNET_IDENTITY_create(
+      handle->identity,
+      name,
+      NULL,
+      GNUNET_IDENTITY_TYPE_ECDSA,
+      cb_account_creation,
+      accounts
+  );
+
+  if (!(accounts->op))
+  {
+    GNUNET_free(accounts);
+    return GNUNET_SYSERR;
+  }
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+      handle->accounts_head,
+      handle->accounts_tail,
+      accounts
+  );
+
+  return GNUNET_OK;
+}
+
+int
+handle_delete_account (struct GNUNET_CHAT_Handle *handle,
+		       const char *name)
+{
+  GNUNET_assert((handle) && (name));
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
+  {
+    if (!(accounts->account))
+      goto skip_account;
+
+    if ((accounts->account->name) &&
+      (0 == strcmp(accounts->account->name, name)))
+      break;
+
+  skip_account:
+    accounts = accounts->next;
+  }
+
+  if (!accounts)
+  {
+    accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
+    accounts->account = NULL;
+    accounts->handle = handle;
+
+    accounts->op = GNUNET_IDENTITY_delete(
+	handle->identity,
+	name,
+	cb_account_deletion,
+	accounts
+    );
+
+    if (!(accounts->op))
+    {
+      GNUNET_free(accounts);
+      return GNUNET_SYSERR;
+    }
+
+    GNUNET_CONTAINER_DLL_insert_tail(
+	handle->accounts_head,
+	handle->accounts_tail,
+	accounts
+    );
+
+    return GNUNET_OK;
+  }
+
+  if (accounts->op)
+    GNUNET_IDENTITY_cancel(accounts->op);
+
+  accounts->op = GNUNET_IDENTITY_delete(
+      handle->identity,
+      name,
+      cb_account_deletion,
+      accounts
+  );
+
+  return (accounts->op? GNUNET_OK : GNUNET_SYSERR);
+}
+
 const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
 {
@@ -412,7 +521,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (GNUNET_CHAT_FLAG_NONE != flag));
 
-  if (!(handle->msg_cb))
+  if ((handle->destruction) || (!(handle->msg_cb)))
     return;
 
   struct GNUNET_CHAT_InternalMessages *internal = GNUNET_new(
@@ -443,6 +552,9 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
 		       struct GNUNET_MESSENGER_Room *room)
 {
   GNUNET_assert((handle) && (handle->messenger) && (room));
+
+  if (handle->destruction)
+    return;
 
   const char *name = GNUNET_MESSENGER_get_name(handle->messenger);
 

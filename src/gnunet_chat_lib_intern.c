@@ -31,50 +31,32 @@ task_handle_destruction (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
-  handle->destruction = NULL;
-  handle_destroy(handle);
-}
-
-void
-cb_account_creation (void *cls,
-		     const struct GNUNET_IDENTITY_PrivateKey *key,
-		     const char *emsg)
-{
-  GNUNET_assert(cls);
-
-  struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
-  );
-
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-
-  GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
-  );
-
-  GNUNET_free(accounts);
-
-  if (emsg)
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
-  else if (key)
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
-}
-
-void
-cb_account_deletion (void *cls,
-                     const char *emsg)
-{
-  GNUNET_assert(cls);
-
-  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
-
-  if (emsg)
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
   {
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+    if ((accounts->op) && (accounts->account))
+      break;
+
+    accounts = accounts->next;
+  }
+
+  if (accounts)
+  {
+    handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
+	GNUNET_TIME_absolute_add(
+	    GNUNET_TIME_absolute_get(),
+	    GNUNET_TIME_relative_get_second_()
+	),
+	GNUNET_SCHEDULER_PRIORITY_IDLE,
+	task_handle_destruction,
+	handle
+    );
+
     return;
   }
+
+  handle->destruction = NULL;
+  handle_destroy(handle);
 }
 
 void

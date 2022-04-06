@@ -53,6 +53,7 @@ enum GNUNET_CHAT_MessageFlag
 struct GNUNET_CHAT_Message
 {
   struct GNUNET_CHAT_Context *context;
+  struct GNUNET_SCHEDULER_Task *task;
 
   union {
     const struct GNUNET_MESSENGER_Message *msg;

@@ -175,7 +175,9 @@ on_gnunet_chat_lobby_join_open(void *cls,
 
   GNUNET_CHAT_lobby_join(chat, uri);
 
-  GNUNET_SCHEDULER_add_now(
+  GNUNET_SCHEDULER_add_at_with_priority(
+      GNUNET_TIME_absolute_get(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
       on_gnunet_chat_lobby_join_task,
       chat
   );
@@ -244,9 +246,9 @@ call_gnunet_chat_lobby_join(const struct GNUNET_CONFIGURATION_Handle *cfg)
 
 CREATE_GNUNET_TEST(test_gnunet_chat_lobby_join, call_gnunet_chat_lobby_join)
 
-START_SUITE(handle_suite, "Lobby")
+START_SUITE(lobby_suite, "Lobby")
 ADD_TEST_TO_SUITE(test_gnunet_chat_lobby_base, "Open/Close")
 ADD_TEST_TO_SUITE(test_gnunet_chat_lobby_join, "Join")
 END_SUITE
 
-MAIN_SUITE(handle_suite, CK_NORMAL)
+MAIN_SUITE(lobby_suite, CK_NORMAL)

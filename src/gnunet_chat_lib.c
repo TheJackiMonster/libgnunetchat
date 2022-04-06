@@ -88,46 +88,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
-  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
-  while (accounts)
-  {
-    if (!(accounts->account))
-      goto skip_account;
-
-    if ((accounts->account->name) &&
-	(0 == strcmp(accounts->account->name, name)))
-      return GNUNET_NO;
-
-  skip_account:
-    accounts = accounts->next;
-  }
-
-  accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
-  accounts->account = NULL;
-  accounts->handle = handle;
-
-  accounts->op = GNUNET_IDENTITY_create(
-      handle->identity,
-      name,
-      NULL,
-      GNUNET_IDENTITY_TYPE_ECDSA,
-      cb_account_creation,
-      accounts
-  );
-
-  if (!(accounts->op))
-  {
-    GNUNET_free(accounts);
-    return GNUNET_SYSERR;
-  }
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
-  );
-
-  return GNUNET_OK;
+  return handle_create_account(handle, name);
 }
 
 
@@ -140,34 +101,7 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
-  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
-  while (accounts)
-  {
-    if (!(accounts->account))
-      goto skip_account;
-
-    if ((accounts->account->name) &&
-      (0 == strcmp(accounts->account->name, name)))
-      break;
-
-  skip_account:
-    accounts = accounts->next;
-  }
-
-  if (!accounts)
-    return GNUNET_NO;
-
-  if (accounts->op)
-    GNUNET_IDENTITY_cancel(accounts->op);
-
-  accounts->op = GNUNET_IDENTITY_delete(
-      handle->identity,
-      name,
-      cb_account_deletion,
-      handle
-  );
-
-  return (accounts->op? GNUNET_OK : GNUNET_SYSERR);
+  return handle_delete_account(handle, name);
 }
 
 
@@ -186,7 +120,7 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
   while (accounts)
   {
-    if (!(accounts->account))
+    if ((!(accounts->account)) || (accounts->op))
       goto skip_account;
 
     result++;
@@ -361,7 +295,7 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   char *key_string = GNUNET_IDENTITY_public_key_to_string(&(uri->zone));
 
   char *string;
-  GNUNET_asprintf(
+  GNUNET_asprintf (
       &string,
       "gnunet://chat/%s.%s",
       key_string,

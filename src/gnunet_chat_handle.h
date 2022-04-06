@@ -177,6 +177,30 @@ void
 handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Enqueues a creation for a chat account with a specific
+ * <i>name</i> as identifier for a given chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Chat account name
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
+int
+handle_create_account (struct GNUNET_CHAT_Handle *handle,
+		       const char *name);
+
+/**
+ * Enqueues a deletion for a chat account with a specific
+ * <i>name</i> as identifier for a given chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Chat account name
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
+int
+handle_delete_account (struct GNUNET_CHAT_Handle *handle,
+		       const char *name);
+
+/**
  * Returns the main directory path to store information
  * of a given chat <i>handle</i>.
  *
