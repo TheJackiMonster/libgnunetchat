@@ -60,6 +60,8 @@ struct GNUNET_CHAT_InternalAccounts
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_IDENTITY_Operation *op;
 
+  int wait_for_completion;
+
   struct GNUNET_CHAT_InternalAccounts *next;
   struct GNUNET_CHAT_InternalAccounts *prev;
 };

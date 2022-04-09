@@ -149,6 +149,17 @@ util_get_filename (const char *directory,
 		   char **filename);
 
 /**
+ * Allocates a new string representing the lower case versionn
+ * of a given <i>name</i> to work properly with the EGO naming
+ * scheme for example.
+ *
+ * @param[in] name Name
+ * @return Lower case name
+ */
+char*
+util_get_lower(const char *name);
+
+/**
  * Construct a composed <i>label</i> from a given context
  * <i>type</i> and the <i>hash</i> of the contexts room.
  *

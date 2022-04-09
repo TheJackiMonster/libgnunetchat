@@ -416,6 +416,8 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_SYSERR;
   }
 
+  accounts->wait_for_completion = GNUNET_NO;
+
   GNUNET_CONTAINER_DLL_insert_tail(
       handle->accounts_head,
       handle->accounts_tail,
@@ -464,6 +466,8 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
       return GNUNET_SYSERR;
     }
 
+    accounts->wait_for_completion = GNUNET_YES;
+
     GNUNET_CONTAINER_DLL_insert_tail(
 	handle->accounts_head,
 	handle->accounts_tail,
@@ -482,6 +486,8 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
       cb_account_deletion,
       accounts
   );
+
+  accounts->wait_for_completion = GNUNET_YES;
 
   return (accounts->op? GNUNET_OK : GNUNET_SYSERR);
 }

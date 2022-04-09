@@ -297,6 +297,8 @@ skip_account:
   accounts->handle = handle;
   accounts->op = NULL;
 
+  accounts->wait_for_completion = GNUNET_NO;
+
   if (handle->directory)
     account_update_directory(accounts->account, handle->directory);
 

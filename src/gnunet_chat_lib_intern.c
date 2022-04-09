@@ -34,7 +34,7 @@ task_handle_destruction (void *cls)
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
   while (accounts)
   {
-    if ((accounts->op) && (accounts->account))
+    if ((accounts->op) && (GNUNET_YES == accounts->wait_for_completion))
       break;
 
     accounts = accounts->next;
@@ -45,7 +45,7 @@ task_handle_destruction (void *cls)
     handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
 	GNUNET_TIME_absolute_add(
 	    GNUNET_TIME_absolute_get(),
-	    GNUNET_TIME_relative_get_second_()
+	    GNUNET_TIME_relative_get_millisecond_()
 	),
 	GNUNET_SCHEDULER_PRIORITY_IDLE,
 	task_handle_destruction,

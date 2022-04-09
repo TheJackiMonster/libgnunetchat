@@ -287,6 +287,19 @@ util_get_filename (const char *directory,
   return result;
 }
 
+char*
+util_get_lower(const char *name)
+{
+  GNUNET_assert(name);
+
+  char *lower = GNUNET_malloc(strlen(name));
+  if (GNUNET_OK == GNUNET_STRINGS_utf8_tolower(name, lower))
+    return lower;
+
+  GNUNET_free(lower);
+  return GNUNET_strdup(name);
+}
+
 int
 util_get_context_label (enum GNUNET_CHAT_ContextType type,
 		        const struct GNUNET_HashCode *hash,
@@ -306,21 +319,31 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
       break;
   }
 
-  return GNUNET_asprintf (
+  char *low = util_get_lower(GNUNET_h2s(hash));
+
+  int result = GNUNET_asprintf (
       label,
       "%s_%s",
       type_string,
-      GNUNET_h2s(hash)
+      low
   );
+
+  GNUNET_free(low);
+  return result;
 }
 
 int
 util_lobby_name (const struct GNUNET_HashCode *hash,
 		 char **name)
 {
-  return GNUNET_asprintf (
+  char *low = util_get_lower(GNUNET_h2s(hash));
+
+  int result = GNUNET_asprintf (
       name,
       "chat_lobby_%s",
-      GNUNET_h2s(hash)
+      low
   );
+
+  GNUNET_free(low);
+  return result;
 }

@@ -88,7 +88,12 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
-  return handle_create_account(handle, name);
+  char *low = util_get_lower(name);
+
+  int result = handle_create_account(handle, low);
+
+  GNUNET_free(low);
+  return result;
 }
 
 
@@ -206,7 +211,12 @@ GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
   if (!name)
     return GNUNET_NO;
 
-  return GNUNET_MESSENGER_set_name(handle->messenger, name);
+  char *low = util_get_lower(name);
+
+  int result = GNUNET_MESSENGER_set_name(handle->messenger, name);
+
+  GNUNET_free(low);
+  return result;
 }
 
 
