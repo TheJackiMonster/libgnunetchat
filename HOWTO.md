@@ -47,7 +47,7 @@ There are two functionalities which differentiate between direct chats and group
 
 Anyone in your contacts needs to share at least one chat with you. This can either be a group chat or a direct chat. All contacts can be listed via `GNUNET_CHAT_iterate_contacts()`. If you want to get rid of a specific contact you can call `GNUNET_CHAT_contact_delete()` which will at least close the direct chat with them. But you would need to drop all common group chats to remove them fully from your contacts list.
 
-Each contact will provide a context for a direct chat with them. But it's recommend to check its status first. If a contact is only part of your contacts list because of a common group, there is no direct chat established. That means you will first need to invite them to a direct chat. The function `GNUNET_CHAT_context_request()` will take care of that and change the contexts status after success and depending on the acceptance of your invitation. Keep in mind that all requests and invitations for chats with other people can be ignored by them. Any chat is designed opt-in. More information about that under [Invitations](#Invitations).
+Each contact will provide a context for a direct chat with them. But it's recommend to check its status first. If a contact is only part of your contacts list because of a common group, there is no direct chat established. That means you will first need to invite them to a direct chat. The function `GNUNET_CHAT_context_request()` will take care of that and change the contexts status after success and depending on the acceptance of your invitation. Keep in mind that all requests and invitations for chats with other people can be ignored by them. Any chat is designed opt-in.
 
 ## Contexts
 
