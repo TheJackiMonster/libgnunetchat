@@ -869,6 +869,47 @@ GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
 }
 
 
+void
+GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Group *group,
+				     const struct GNUNET_CHAT_Contact *member,
+				     void *user_pointer)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!group) || (!(group->context)) || (!member))
+    return;
+
+  struct GNUNET_ShortHashCode hash;
+  util_shorthash_from_member(member->member, &hash);
+
+  GNUNET_CONTAINER_multishortmap_put(
+      group->context->member_pointers,
+      &hash,
+      user_pointer,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE
+  );
+}
+
+
+void*
+GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Group *group,
+				     const struct GNUNET_CHAT_Contact *member)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!group) || (!(group->context)) || (!member))
+    return NULL;
+
+  struct GNUNET_ShortHashCode hash;
+  util_shorthash_from_member(member->member, &hash);
+
+  return GNUNET_CONTAINER_multishortmap_get(
+      group->context->member_pointers,
+      &hash
+  );
+}
+
+
 struct GNUNET_CHAT_Context*
 GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 {
@@ -1256,47 +1297,6 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
 
   return GNUNET_CONTAINER_multihashmap_iterate(
       context->files, it_context_iterate_files, &it
-  );
-}
-
-
-void
-GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Context *context,
-				     const struct GNUNET_CHAT_Contact *member,
-				     void *user_pointer)
-{
-  GNUNET_CHAT_VERSION_ASSERT();
-
-  if ((!context) || (!member))
-    return;
-
-  struct GNUNET_ShortHashCode hash;
-  util_shorthash_from_member(member->member, &hash);
-
-  GNUNET_CONTAINER_multishortmap_put(
-      context->member_pointers,
-      &hash,
-      user_pointer,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE
-  );
-}
-
-
-void*
-GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Context *context,
-				     const struct GNUNET_CHAT_Contact *member)
-{
-  GNUNET_CHAT_VERSION_ASSERT();
-
-  if ((!context) || (!member))
-    return NULL;
-
-  struct GNUNET_ShortHashCode hash;
-  util_shorthash_from_member(member->member, &hash);
-
-  return GNUNET_CONTAINER_multishortmap_get(
-      context->member_pointers,
-      &hash
   );
 }
 
