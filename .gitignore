@@ -9,3 +9,6 @@
 
 # Test files:
 tests/*.test
+
+# Tar files
+libgnunetchat-*.tar.gz
