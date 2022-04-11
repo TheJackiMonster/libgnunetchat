@@ -125,3 +125,4 @@ clean:
 	$(GNU_RM) -f $(LIBRARY)
 	$(GNU_RM) -f $(OBJECT_FILES)
 	$(GNU_RM) -f $(TEST_CASES)
+	$(GNU_RM) -f $(DIST_TAR)
