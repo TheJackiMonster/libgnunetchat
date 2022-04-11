@@ -29,6 +29,7 @@ Then you can simply use the provided Makefile as follows:
  - `make debug` to compile everything with debug parameters
  - `make release` to compile everything with build optimizations enabled
  - `make install` to install the compiled files (you might need sudo permissions to install)
+ - `make dist` to create a tar file for distribution
  - `make docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
  - `make check` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
 
