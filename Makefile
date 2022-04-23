@@ -38,7 +38,7 @@ LIBRARIES = gnunetarm\
 
 DIST_FILES = Makefile\
              AUTHORS\
-			 CHANGED.md\
+             CHANGES.md\
              COPYING\
              Doxyfile\
              HOWTO.md\
