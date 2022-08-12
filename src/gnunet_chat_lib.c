@@ -25,6 +25,7 @@
 #include "gnunet_chat_lib.h"
 
 #include <limits.h>
+#include <strings.h>
 
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
@@ -255,7 +256,7 @@ GNUNET_CHAT_uri_parse (const char *uri,
 
   const size_t prefix_len = strlen(GNUNET_CHAT_URI_PREFIX);
 
-  if (0 != strncmp(GNUNET_CHAT_URI_PREFIX, uri, prefix_len))
+  if (0 != strncasecmp(GNUNET_CHAT_URI_PREFIX, uri, prefix_len))
   {
     if (emsg)
       *emsg = GNUNET_strdup (_ ("CHAT URI malformed (invalid prefix)"));
