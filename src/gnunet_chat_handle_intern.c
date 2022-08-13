@@ -374,7 +374,7 @@ intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
   GNUNET_assert((handle) && (handle->contacts));
 
   if (!member)
-    return GNUNET_OK;
+    return GNUNET_SYSERR;
 
   struct GNUNET_ShortHashCode shorthash;
   util_shorthash_from_member(member, &shorthash);
@@ -584,11 +584,14 @@ on_handle_message (void *cls,
 		(hash));
 
   if ((handle->destruction) ||
-      (GNUNET_OK != handle_request_context_by_room(handle, room)) ||
-      (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
+      (GNUNET_OK != handle_request_context_by_room(handle, room)))
     return;
 
   GNUNET_MESSENGER_get_message(room, &(msg->header.previous));
+
+  if ((GNUNET_CHAT_KIND_UNKNOWN == util_message_kind_from_kind(msg->header.kind)) ||
+      (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
+    return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
       handle->contexts, GNUNET_MESSENGER_room_get_key(room)

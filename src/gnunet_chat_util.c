@@ -347,3 +347,31 @@ util_lobby_name (const struct GNUNET_HashCode *hash,
   GNUNET_free(low);
   return result;
 }
+
+enum GNUNET_CHAT_MessageKind
+util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind)
+{
+  switch (kind)
+  {
+    case GNUNET_MESSENGER_KIND_JOIN:
+      return GNUNET_CHAT_KIND_JOIN;
+    case GNUNET_MESSENGER_KIND_LEAVE:
+      return GNUNET_CHAT_KIND_LEAVE;
+    case GNUNET_MESSENGER_KIND_NAME:
+    case GNUNET_MESSENGER_KIND_KEY:
+    case GNUNET_MESSENGER_KIND_ID:
+      return GNUNET_CHAT_KIND_CONTACT;
+    case GNUNET_MESSENGER_KIND_INVITE:
+      return GNUNET_CHAT_KIND_INVITATION;
+    case GNUNET_MESSENGER_KIND_TEXT:
+      return GNUNET_CHAT_KIND_TEXT;
+    case GNUNET_MESSENGER_KIND_FILE:
+      return GNUNET_CHAT_KIND_FILE;
+    case GNUNET_MESSENGER_KIND_PRIVATE:
+      return GNUNET_CHAT_KIND_WHISPER;
+    case GNUNET_MESSENGER_KIND_DELETE:
+      return GNUNET_CHAT_KIND_DELETION;
+    default:
+      return GNUNET_CHAT_KIND_UNKNOWN;
+  }
+}

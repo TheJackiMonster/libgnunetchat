@@ -32,6 +32,8 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
+#include "gnunet_chat_lib.h"
+
 /**
  * Enum for the types of chat contexts.
  */
@@ -184,5 +186,16 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
 int
 util_lobby_name (const struct GNUNET_HashCode *hash,
 		 char **name);
+
+/**
+ * Return the chat related kind for a messages original kind
+ * from the service. It will return #GNUNET_CHAT_KIND_UNKNOWN
+ * in case the message kind is not supported.
+ *
+ * @param[in] kind Messenger service message kind
+ * @return Chat message kind or #GNUNET_CHAT_KIND_UNKNOWN_
+ */
+enum GNUNET_CHAT_MessageKind
+util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind);
 
 #endif /* GNUNET_CHAT_UTIL_H_ */
