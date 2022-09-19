@@ -66,21 +66,32 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash)
     return GNUNET_SYSERR;
 
   struct GNUNET_DISK_MapHandle *mapping;
-  const void* data = GNUNET_DISK_file_map(
-      file, &mapping, GNUNET_DISK_MAP_TYPE_READ, size
-  );
+  const void* data;
 
-  if (!data)
+  if (size > 0)
   {
-    GNUNET_DISK_file_close(file);
-    return GNUNET_SYSERR;
+    data = GNUNET_DISK_file_map(
+	file, &mapping, GNUNET_DISK_MAP_TYPE_READ, size
+    );
+
+    if ((!data) || (!mapping))
+    {
+      GNUNET_DISK_file_close(file);
+      return GNUNET_SYSERR;
+    }
+  }
+  else
+  {
+    mapping = NULL;
+    data = NULL;
   }
 
   GNUNET_CRYPTO_hash(data, size, hash);
 
-  GNUNET_DISK_file_unmap(mapping);
-  GNUNET_DISK_file_close(file);
+  if (mapping)
+    GNUNET_DISK_file_unmap(mapping);
 
+  GNUNET_DISK_file_close(file);
   return GNUNET_OK;
 }
 
@@ -104,8 +115,11 @@ util_encrypt_file (const char *filename,
   if (!file)
     return GNUNET_SYSERR;
 
-  struct GNUNET_DISK_MapHandle *mapping = NULL;
-  void* data = GNUNET_DISK_file_map(
+  if (size <= 0)
+    return GNUNET_DISK_file_close(file);
+
+  struct GNUNET_DISK_MapHandle *mapping;
+  const void* data = GNUNET_DISK_file_map(
       file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
   );
 
@@ -146,7 +160,7 @@ util_encrypt_file (const char *filename,
       break;
   }
 
-  if (GNUNET_OK != GNUNET_DISK_file_unmap(mapping))
+  if ((mapping) && (GNUNET_OK != GNUNET_DISK_file_unmap(mapping)))
     result = -1;
 
   if (GNUNET_OK != GNUNET_DISK_file_sync(file))

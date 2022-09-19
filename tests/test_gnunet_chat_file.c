@@ -101,7 +101,7 @@ on_gnunet_chat_file_send_msg(void *cls,
 skip_search_account:
   if ((GNUNET_CHAT_KIND_LOGIN != kind) ||
       (context))
-    goto skip_first_login;
+    goto skip_file_upload;
 
 
   ck_assert(kind == GNUNET_CHAT_KIND_LOGIN);
@@ -120,21 +120,20 @@ skip_search_account:
 
   ck_assert_ptr_ne(group_context, NULL);
 
-skip_first_login:
-  if (GNUNET_CHAT_KIND_JOIN != kind)
-    goto skip_file_upload;
+  char *filename = GNUNET_DISK_mktemp("gnunet_chat_file_send_name");
 
-  ck_assert(kind == GNUNET_CHAT_KIND_JOIN);
-  ck_assert_ptr_ne(context, NULL);
+  ck_assert_ptr_ne(filename, NULL);
 
   struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
-      context,
-      "Makefile",
+      group_context,
+      filename,
       on_gnunet_chat_file_send_upload,
       handle
   );
 
   ck_assert_ptr_ne(file, NULL);
+
+  GNUNET_free(filename);
 
 skip_file_upload:
   if (GNUNET_CHAT_KIND_FILE != kind)
