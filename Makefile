@@ -77,7 +77,7 @@ release: CFLAGS += $(RELEASEFLAGS)
 release: $(LIBRARY)
 
 %.o: %.c
-	$(GNU_CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIR) $(LIBRARY_FLAGS)
+	$(GNU_CC) $(CFLAGS) -c $< -o $@ -I $(INCLUDE_DIR)
 
 $(LIBRARY): $(OBJECT_FILES)
 	$(GNU_LD) $(LDFLAGS) $^ -o $@ $(LIBRARY_FLAGS)
