@@ -25,7 +25,8 @@ SOURCES = gnunet_chat_lib.c\
 HEADERS = gnunet_chat_lib.h
 
 TESTS   = test_gnunet_chat_handle.c\
-		  test_gnunet_chat_lobby.c
+		  test_gnunet_chat_lobby.c\
+		  test_gnunet_chat_file.c
 
 LIBRARIES = gnunetarm\
             gnunetfs\

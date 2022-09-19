@@ -297,7 +297,10 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   {
     internal = handle->internal_head;
 
-    if ((internal->msg) && (internal->msg->context))
+    if (!(internal->msg->context))
+      break;
+
+    if (internal->msg)
       message_destroy(internal->msg);
 
     GNUNET_CONTAINER_DLL_remove(
@@ -546,11 +549,18 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 
   handle->msg_cb(handle->msg_cls, context, internal->msg);
 
-  GNUNET_CONTAINER_DLL_insert(
-      handle->internal_head,
-      handle->internal_tail,
-      internal
-  );
+  if (context)
+    GNUNET_CONTAINER_DLL_insert(
+        handle->internal_head,
+        handle->internal_tail,
+        internal
+    );
+  else
+    GNUNET_CONTAINER_DLL_insert_tail(
+    	handle->internal_head,
+    	handle->internal_tail,
+    	internal
+    );
 }
 
 void

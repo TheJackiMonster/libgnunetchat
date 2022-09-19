@@ -292,7 +292,7 @@ util_get_lower(const char *name)
 {
   GNUNET_assert(name);
 
-  char *lower = GNUNET_malloc(strlen(name));
+  char *lower = GNUNET_malloc(strlen(name) + 1);
   if (GNUNET_OK == GNUNET_STRINGS_utf8_tolower(name, lower))
     return lower;
 

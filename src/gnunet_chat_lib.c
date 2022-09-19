@@ -73,7 +73,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
 
   handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
       GNUNET_TIME_absolute_get(),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      GNUNET_SCHEDULER_PRIORITY_URGENT,
       task_handle_destruction,
       handle
   );
