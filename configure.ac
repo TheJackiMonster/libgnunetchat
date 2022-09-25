@@ -51,6 +51,15 @@ LT_INIT([disable-static dlopen])
 AS_IF([test "x$enable_shared" = "xno"],
   [AC_MSG_ERROR([GNUnet works only with shared libraries, sorry])])
 
+AC_ARG_ENABLE([debug],
+[  --enable-debug          turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+
 AC_CONFIG_FILES([
   Makefile
   include/Makefile

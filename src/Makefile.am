@@ -27,3 +27,13 @@ libgnunetchat_la_LIBADD = \
   -lgnunetregex \
   -lgnunetutil
 
+libgnunetchat_la_CFLAGS = \
+  -fPIC -pedantic -Wall -Wextra
+
+if DEBUG
+libgnunetchat_la_CFLAGS += \
+  -O0 -D _DEBUG -ggdb3
+else
+libgnunetchat_la_CFLAGS += \
+  -O2 -D NDEBUG
+endif

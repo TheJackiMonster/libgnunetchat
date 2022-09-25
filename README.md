@@ -22,16 +22,24 @@ The following dependencies are required and need to be installed to build the li
 
  - [gnunet](https://git.gnunet.org/gnunet.git/): For using GNUnet services and its datatypes
 
-Then you can simply use the provided Makefile as follows:
+Then you can simply use [Autotools](https://www.gnu.org/software/automake/) as follows:
+```
+./bootstrap        # Generate the configure script
+./configure        # Configure the Makefiles for your system
+make               # Build the library using the Makefiles
+sudo make install  # Install the library
+```
 
- - `make` to just compile everything with default parameters
+Here is a list of some useful build targets in the Makefile:
+
+ - `make` to just compile everything with configured parameters
  - `make clean` to cleanup build files in case you want to recompile
- - `make debug` to compile everything with debug parameters
- - `make release` to compile everything with build optimizations enabled
  - `make install` to install the compiled files (you might need sudo permissions to install)
  - `make dist` to create a tar file for distribution
  - `make docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
  - `make check` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
+
+If you want to change the installation location, use the `--prefix=` parameter in the `configure` script. Also you can enable debugging builds by adding `--enable-debug` as parameter when running the `configure` script.
 
 ## Contribution
 
