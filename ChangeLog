@@ -1,3 +1,8 @@
+## Version 0.1.1
+* Fixes typos, memory leaks and other reliability issues
+* Transitions from single Makefile to GNU Automake
+* Updates API usage regarding changes in GNUnet 0.18.0
+
 ## Version 0.1.0
 * This release requires the GNUnet Messenger Service 0.1!
 * It allows account management (creation, listing and deletion).
