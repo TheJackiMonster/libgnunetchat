@@ -22,6 +22,8 @@
  * @file gnunet_chat_lib_intern.c
  */
 
+#include <stdlib.h>
+
 #define GNUNET_UNUSED __attribute__ ((unused))
 
 void

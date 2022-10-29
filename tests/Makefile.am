@@ -2,6 +2,9 @@
 AM_CFLAGS = -I$(top_srcdir)/include
 AM_LDFLAGS = -L$(top_srcdir)
 
+EXTRA_DIST = \
+  test_gnunet_chat.h
+
 check_PROGRAMS = \
   test_gnunet_chat_handle.test \
   test_gnunet_chat_lobby.test \

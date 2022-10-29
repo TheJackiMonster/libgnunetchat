@@ -1,6 +1,14 @@
 # This Makefile.am is in the public domain
 AM_CFLAGS = -I$(top_srcdir)/include/gnunet
 
+EXTRA_DIST = \
+  gnunet_chat_contact_intern.c \
+  gnunet_chat_context_intern.c \
+  gnunet_chat_group_intern.c \
+  gnunet_chat_handle_intern.c \
+  gnunet_chat_lib_intern.c \
+  gnunet_chat_lobby_intern.c
+
 lib_LTLIBRARIES = libgnunetchat.la
 
 libgnunetchat_la_SOURCES = \
