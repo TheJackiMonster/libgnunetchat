@@ -315,7 +315,7 @@ send_refresh:
 void
 cb_account_creation (void *cls,
 		     const struct GNUNET_IDENTITY_PrivateKey *key,
-		     const char *emsg)
+		     enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
@@ -333,15 +333,24 @@ cb_account_creation (void *cls,
 
   GNUNET_free(accounts);
 
-  if (emsg)
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+  if (GNUNET_EC_NONE != ec)
+  {
+    handle_send_internal_message(
+	handle,
+	NULL,
+	GNUNET_CHAT_FLAG_WARNING,
+	GNUNET_ErrorCode_get_hint(ec)
+    );
+
+    return;
+  }
   else if (key)
     handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
 }
 
 void
 cb_account_deletion (void *cls,
-                     const char *emsg)
+		     enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
@@ -359,9 +368,15 @@ cb_account_deletion (void *cls,
 
   GNUNET_free(accounts);
 
-  if (emsg)
+  if (GNUNET_EC_NONE != ec)
   {
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_WARNING, emsg);
+    handle_send_internal_message(
+	handle,
+	NULL,
+	GNUNET_CHAT_FLAG_WARNING,
+	GNUNET_ErrorCode_get_hint(ec)
+    );
+
     return;
   }
 }

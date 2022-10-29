@@ -25,14 +25,14 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIRS([m4])
 
 AC_CONFIG_HEADERS([
-  include/gnunet_chat_config.h
+  include/gnunet/gnunet_chat_config.h
 ])
 
 AC_CANONICAL_TARGET
 AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([tar-ustar])
-AM_SILENT_RULES([yes])
+AM_SILENT_RULES
 
 # maybe use AC_USE_SYSTEM_EXTENSIONS?
 AH_TOP([#define _GNU_SOURCE 1])

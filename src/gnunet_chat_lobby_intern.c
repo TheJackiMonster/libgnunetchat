@@ -26,8 +26,7 @@
 
 void
 cont_lobby_write_records (void *cls,
-			  GNUNET_UNUSED int32_t success,
-                          const char *emsg)
+			  enum GNUNET_ErrorCode ec)
 {
   struct GNUNET_CHAT_Lobby *lobby = cls;
 
@@ -46,7 +45,7 @@ cont_lobby_write_records (void *cls,
 
   GNUNET_free(name);
 
-  if (!emsg)
+  if (GNUNET_EC_NONE == ec)
   {
     context_write_records(lobby->context);
     goto call_cb;
@@ -56,7 +55,7 @@ cont_lobby_write_records (void *cls,
       lobby->handle,
       lobby->context,
       GNUNET_CHAT_FLAG_WARNING,
-      emsg
+      GNUNET_ErrorCode_get_hint(ec)
   );
 
   if (lobby->uri)
@@ -72,7 +71,7 @@ call_cb:
 void
 cont_lobby_identity_create (void *cls,
 			    const struct GNUNET_IDENTITY_PrivateKey *zone,
-			    const char *emsg)
+			    enum GNUNET_ErrorCode ec)
 {
   struct GNUNET_CHAT_Lobby *lobby = cls;
 
@@ -80,13 +79,13 @@ cont_lobby_identity_create (void *cls,
 
   lobby->op = NULL;
 
-  if (emsg)
+  if (GNUNET_EC_NONE != ec)
   {
     handle_send_internal_message(
 	lobby->handle,
     	lobby->context,
     	GNUNET_CHAT_FLAG_WARNING,
-    	emsg
+	GNUNET_ErrorCode_get_hint(ec)
     );
 
     return;

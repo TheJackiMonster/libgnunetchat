@@ -8,7 +8,6 @@ check_PROGRAMS = \
   test_gnunet_chat_file.test
 
 AM_TESTS_ENVIRONMENT = \
-  ln -sf $(top_srcdir)/include $(top_srcdir)/tests/gnunet;
   export LD_LIBRARY_PATH=$(top_srcdir);
 TESTS = \
   $(check_PROGRAMS)
@@ -30,7 +29,3 @@ test_gnunet_chat_file_test_SOURCES = \
 test_gnunet_chat_file_test_LDADD = \
   -lcheck \
   $(top_builddir)/src/libgnunetchat.la
-
-clean:
-	rm $(top_srcdir)/tests/gnunet
-

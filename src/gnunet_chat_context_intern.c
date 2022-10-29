@@ -25,6 +25,8 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 
+#include <gnunet/gnunet_error_codes.h>
+
 #define GNUNET_UNUSED __attribute__ ((unused))
 
 int
@@ -65,8 +67,7 @@ it_destroy_context_invites (GNUNET_UNUSED void *cls,
 
 void
 cont_context_write_records (void *cls,
-                            GNUNET_UNUSED int32_t success,
-                            const char *emsg)
+			    enum GNUNET_ErrorCode ec)
 {
   struct GNUNET_CHAT_Context *context = cls;
 
@@ -74,11 +75,11 @@ cont_context_write_records (void *cls,
 
   context->query = NULL;
 
-  if (emsg)
+  if (GNUNET_EC_NONE != ec)
     handle_send_internal_message(
 	context->handle,
 	context,
 	GNUNET_CHAT_FLAG_WARNING,
-	emsg
+	GNUNET_ErrorCode_get_hint(ec)
     );
 }

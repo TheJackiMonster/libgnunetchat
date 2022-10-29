@@ -1,4 +1,7 @@
 # This Makefile.am is in the public domain
-include_HEADERS = \
-  gnunet_chat_lib.h
+
+gnunetincludedir = $(includedir)/gnunet
+
+gnunetinclude_HEADERS = \
+  gnunet/gnunet_chat_lib.h
 
