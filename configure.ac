@@ -70,16 +70,65 @@ AC_ARG_WITH(gnunet,
    [
      AC_MSG_RESULT([--with-gnunet not specified])
      PKG_CHECK_MODULES([GNUNET], [gnunetutil >= 0.18.0], gnunet=1)
-     AC_CHECK_HEADERS([gnunet/gnunet_messenger_service.h],
-       AC_CHECK_LIB([gnunetmessenger], [GNUNET_MESSENGER_connect],
-         [
-           EXT_LIB_PATH="-L${lookin}/lib $EXT_LIB_PATH"
-           if test -d "${lookin}/lib64"; then
-             EXT_LIB_PATH="-L${lookin}/lib64 $EXT_LIB_PATH"
-           fi
-         ]
-       ),,[#include <gnunet/platform.h>]
-     )
+      AC_CHECK_HEADERS([gnunet/gnunet_util_lib.h],
+	    AC_CHECK_LIB([gnunetutil], [GNUNET_xfree_],
+	      [
+	        EXT_LIB_PATH="-L${lookin}/lib $EXT_LIB_PATH"
+	        if test -d "${lookin}/lib64"; then
+	          EXT_LIB_PATH="-L${lookin}/lib64 $EXT_LIB_PATH"
+	        fi
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_arm_service.h],
+	    AC_CHECK_LIB([gnunetarm], [GNUNET_ARM_connect],
+	      [
+	        gnunet_arm=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_fs_service.h],
+	    AC_CHECK_LIB([gnunetfs], [GNUNET_FS_start],
+	      [
+	        gnunet_fs=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_gns_service.h],
+	    AC_CHECK_LIB([gnunetgns], [GNUNET_GNS_connect],
+	      [
+	        gnunet_gns=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_identity_service.h],
+	    AC_CHECK_LIB([gnunetidentity], [GNUNET_IDENTITY_connect],
+	      [
+	        gnunet_identity=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_messenger_service.h],
+	    AC_CHECK_LIB([gnunetmessenger], [GNUNET_MESSENGER_connect],
+	      [
+	        gnunet_messenger=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_namestore_service.h],
+	    AC_CHECK_LIB([gnunetnamestore], [GNUNET_NAMESTORE_connect],
+	      [
+	        gnunet_namestore=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
+	  AC_CHECK_HEADERS([gnunet/gnunet_regex_service.h],
+	    AC_CHECK_LIB([gnunetregex], [GNUNET_REGEX_search],
+	      [
+	        gnunet_regex=1
+	      ]
+	    ),,[#include <gnunet/platform.h>]
+	  )
    ]
 )
 
