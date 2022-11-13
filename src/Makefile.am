@@ -28,8 +28,8 @@ libgnunetchat_la_SOURCES = \
 libgnunetchat_la_LIBADD = \
   -lgnunetarm \
   -lgnunetfs \
-  -lgnunetidentity \
   -lgnunetgns \
+  -lgnunetidentity \
   -lgnunetmessenger \
   -lgnunetnamestore \
   -lgnunetregex \

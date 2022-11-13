@@ -71,14 +71,14 @@ AC_ARG_WITH(gnunet,
      AC_MSG_RESULT([--with-gnunet not specified])
      PKG_CHECK_MODULES([GNUNET], [gnunetutil >= 0.18.0], gnunet=1)
      AC_CHECK_HEADERS([gnunet/gnunet_messenger_service.h],
-     AC_CHECK_LIB([gnunetmessenger], [GNUNET_MESSENGER_connect],
-      [
-        EXT_LIB_PATH="-L${lookin}/lib $EXT_LIB_PATH"
-        if test -d "${lookin}/lib64"; then
-          EXT_LIB_PATH="-L${lookin}/lib64 $EXT_LIB_PATH"
-        fi
-      ]
-      ),,[#include <gnunet/platform.h>]
+       AC_CHECK_LIB([gnunetmessenger], [GNUNET_MESSENGER_connect],
+         [
+           EXT_LIB_PATH="-L${lookin}/lib $EXT_LIB_PATH"
+           if test -d "${lookin}/lib64"; then
+             EXT_LIB_PATH="-L${lookin}/lib64 $EXT_LIB_PATH"
+           fi
+         ]
+       ),,[#include <gnunet/platform.h>]
      )
    ]
 )
@@ -106,7 +106,34 @@ AS_IF([test "x$gnunet" = "x0" -a ! "x$lookin" = "x"],
         if test -d "${lookin}/lib64"; then
           EXT_LIB_PATH="-L${lookin}/lib64 $EXT_LIB_PATH"
         fi
-
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  AC_CHECK_HEADERS([gnunet/gnunet_arm_service.h],
+    AC_CHECK_LIB([gnunetarm], [GNUNET_ARM_connect],
+      [
+        gnunet_arm=1
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  AC_CHECK_HEADERS([gnunet/gnunet_fs_service.h],
+    AC_CHECK_LIB([gnunetfs], [GNUNET_FS_start],
+      [
+        gnunet_fs=1
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  AC_CHECK_HEADERS([gnunet/gnunet_gns_service.h],
+    AC_CHECK_LIB([gnunetgns], [GNUNET_GNS_connect],
+      [
+        gnunet_gns=1
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  AC_CHECK_HEADERS([gnunet/gnunet_identity_service.h],
+    AC_CHECK_LIB([gnunetidentity], [GNUNET_IDENTITY_connect],
+      [
+        gnunet_identity=1
       ]
     ),,[#include <gnunet/platform.h>]
   )
@@ -117,15 +144,40 @@ AS_IF([test "x$gnunet" = "x0" -a ! "x$lookin" = "x"],
       ]
     ),,[#include <gnunet/platform.h>]
   )
+  AC_CHECK_HEADERS([gnunet/gnunet_namestore_service.h],
+    AC_CHECK_LIB([gnunetnamestore], [GNUNET_NAMESTORE_connect],
+      [
+        gnunet_namestore=1
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  AC_CHECK_HEADERS([gnunet/gnunet_regex_service.h],
+    AC_CHECK_LIB([gnunetregex], [GNUNET_REGEX_search],
+      [
+        gnunet_regex=1
+      ]
+    ),,[#include <gnunet/platform.h>]
+  )
+  
   LIBS="$backup_LIBS"
   CFLAGS="$backup_CFLAGS"
   CPPFLAGS="$backup_CPPFLAGS"
 ])
 
-AS_IF([test "x$gnunet" = "x0" || test "x$gnunet_messenger" = "x0" ],
- [AC_MSG_ERROR([libgnunetchat requires GNUnet])])
-
-
+AS_IF([
+	test "x$gnunet" = "x0" || 
+	test "x$gnunet_arm" = "x0" ||
+	test "x$gnunet_fs" = "x0" ||
+	test "x$gnunet_gns" = "x0" ||
+	test "x$gnunet_identity" = "x0" ||
+	test "x$gnunet_messenger" = "x0" ||
+	test "x$gnunet_namestore" = "x0" ||
+	test "x$gnunet_regex" = "x0"
+  ],
+  [
+	AC_MSG_ERROR([libgnunetchat requires GNUnet])
+  ]
+)
 
 AC_SUBST(GNUNET_CFLAGS)
 AC_SUBST(GNUNET_LIBS)
