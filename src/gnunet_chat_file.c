@@ -45,7 +45,7 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   GNUNET_memcpy(&(file->key), &(message->key), sizeof(file->key));
   GNUNET_memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
 
-  file->meta = GNUNET_CONTAINER_meta_data_create();
+  file->meta = GNUNET_FS_meta_data_create();
 
   file->uri = GNUNET_FS_uri_parse(message->uri, NULL);
   file->download = NULL;
@@ -89,7 +89,7 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
   GNUNET_memcpy(&(file->key), key, sizeof(file->key));
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
-  file->meta = GNUNET_CONTAINER_meta_data_create();
+  file->meta = GNUNET_FS_meta_data_create();
 
   file->uri = NULL;
   file->download = NULL;
@@ -164,7 +164,7 @@ file_destroy (struct GNUNET_CHAT_File *file)
     GNUNET_FS_uri_destroy(file->uri);
 
   if (file->meta)
-    GNUNET_CONTAINER_meta_data_destroy(file->meta);
+    GNUNET_FS_meta_data_destroy(file->meta);
 
   if (file->name)
     GNUNET_free(file->name);

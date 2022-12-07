@@ -28,14 +28,12 @@
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_config.h>
-#include <gnunet/gnunet_container_lib.h>
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_gns_service.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
-#include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"

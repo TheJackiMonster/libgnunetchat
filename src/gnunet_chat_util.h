@@ -27,8 +27,6 @@
 
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_crypto_lib.h>
-#include <gnunet/gnunet_disk_lib.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 

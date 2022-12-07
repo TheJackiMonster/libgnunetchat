@@ -27,7 +27,6 @@
 
 #include <gnunet/platform.h>
 #include <gnunet/gnunet_common.h>
-#include <gnunet/gnunet_container_lib.h>
 #include <gnunet/gnunet_regex_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
