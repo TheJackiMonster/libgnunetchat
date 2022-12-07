@@ -53,7 +53,6 @@ AS_IF([test "x$enable_shared" = "xno"],
 
 # test for GNUnet core
 gnunet=0
-gnunet_conversation=0
 lookin=${prefix}
 GNUNET_CFLAGS=""
 GNUNET_CPPFLAGS=""
