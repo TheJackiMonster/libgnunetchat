@@ -24,6 +24,7 @@
 
 #include "gnunet_chat_util.h"
 
+
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash)
@@ -268,9 +269,8 @@ util_get_dirname (const char *directory,
 
   return GNUNET_asprintf (
       filename,
-      "%s%c%s",
+      "%s/%s",
       directory,
-      DIR_SEPARATOR,
       subdir
   );
 }
@@ -291,9 +291,8 @@ util_get_filename (const char *directory,
 
   int result = GNUNET_asprintf (
       filename,
-      "%s%c%s",
+      "%s/%s",
       dirname,
-      DIR_SEPARATOR,
       GNUNET_h2s_full(hash)
   );
 

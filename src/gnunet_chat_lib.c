@@ -24,8 +24,11 @@
 
 #include "gnunet_chat_lib.h"
 
+#include <libgen.h>
 #include <limits.h>
 #include <strings.h>
+
+#define _(String) ((const char*) String)
 
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"

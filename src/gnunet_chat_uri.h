@@ -25,8 +25,6 @@
 #ifndef GNUNET_CHAT_URI_H_
 #define GNUNET_CHAT_URI_H_
 
-#include <gnunet/platform.h>
-#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
