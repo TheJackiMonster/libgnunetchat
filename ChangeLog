@@ -1,3 +1,7 @@
+## Version 0.1.2
+* Improve GNU Automake configuration
+* Update API usage regarding changes in GNUnet 0.19.0
+
 ## Version 0.1.1
 * Fixes typos, memory leaks and other reliability issues
 * Transitions from single Makefile to GNU Automake
