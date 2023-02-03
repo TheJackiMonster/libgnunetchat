@@ -25,6 +25,8 @@ project(
     version: run_command('contrib/get_version.sh').stdout().strip(),
 )
 
+pkg = import('pkgconfig')
+
 src_include = include_directories('src', 'include/gnunet')
 tests_include = include_directories('tests', 'include')
 
@@ -49,6 +51,11 @@ gnunetchat_lib = library(
     dependencies: gnunetchat_deps,
     include_directories: src_include,
     extra_files: gnunetchat_internal,
+)
+
+pkg.generate(
+    gnunetchat_lib,
+    description: 'A client-side library for applications to use the Messenger service of GNUnet',
 )
 
 subdir('tests')
