@@ -22,24 +22,23 @@ The following dependencies are required and need to be installed to build the li
 
  - [gnunet](https://git.gnunet.org/gnunet.git/): For using GNUnet services and its datatypes
 
-Then you can simply use [Autotools](https://www.gnu.org/software/automake/) as follows:
+Then you can simply use [Meson](https://mesonbuild.com/) as follows:
 ```
-./bootstrap        # Generate the configure script
-./configure        # Configure the Makefiles for your system
-make               # Build the library using the Makefiles
-sudo make install  # Install the library
+meson build            # Configure the build files for your system
+ninja -C build         # Build the library using those build files
+ninja -C build install # Install the library
 ```
 
-Here is a list of some useful build targets in the Makefile:
+Here is a list of some useful build commands using Meson and [Ninja](https://ninja-build.org/):
 
- - `make` to just compile everything with configured parameters
- - `make clean` to cleanup build files in case you want to recompile
- - `make install` to install the compiled files (you might need sudo permissions to install)
- - `make dist` to create a tar file for distribution
- - `make docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
- - `make check` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
+ - `meson compile -C build` to just compile everything with configured parameters
+ - `rm -r build` to cleanup build files in case you want to recompile
+ - `meson install -C build` to install the compiled files (you might need sudo permissions to install)
+ - `meson dist -C build` to create a tar file for distribution
+ - `ninja -C build docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
+ - `meson test -C build` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
 
-If you want to change the installation location, use the `--prefix=` parameter in the `configure` script. Also you can enable debugging builds by adding `--enable-debug` as parameter when running the `configure` script.
+If you want to change the installation location, use the `--prefix=` parameter in the initial meson command. Also you can enable debugging builds by adding `--buildtype=release` as parameter.
 
 ## Contribution
 
