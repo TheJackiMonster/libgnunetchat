@@ -38,7 +38,7 @@ Here is a list of some useful build commands using Meson and [Ninja](https://nin
  - `ninja -C build docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
  - `meson test -C build` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
 
-If you want to change the installation location, use the `--prefix=` parameter in the initial meson command. Also you can enable optimized release builds by adding `--buildtype=release` as parameter.
+If you want to change the installation location, use the `--prefix=` parameter in the initial meson command. Also you can enable optimized release builds by adding `--buildtype=release` as parameter. In case you installed GNUnet to a custom prefix which is not part of the directories pkg-config is looking at, you can adjust `PKG_CONFIG_PATH` with your selected prefix to build properly.
 
 ## Contribution
 
