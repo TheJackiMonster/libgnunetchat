@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -180,8 +180,8 @@ struct GNUNET_CHAT_Invitation;
  */
 typedef int
 (*GNUNET_CHAT_AccountCallback) (void *cls,
-				const struct GNUNET_CHAT_Handle *handle,
-				struct GNUNET_CHAT_Account *account);
+                                const struct GNUNET_CHAT_Handle *handle,
+                                struct GNUNET_CHAT_Account *account);
 
 /**
  * Method called when a lobby is opened to share with others via a chat URI.
@@ -190,8 +190,8 @@ typedef int
  * @param[in] uri Chat URI of the lobby or NULL on error
  */
 typedef void
-(*GNUNET_CHAT_LobbyCallback) (void *cls,
-			      const struct GNUNET_CHAT_Uri *uri);
+(*GNUNET_CHAT_LobbyCallback) (void *cls, 
+                              const struct GNUNET_CHAT_Uri *uri);
 
 /**
  * Iterator over chat contacts of a specific chat handle.
@@ -204,7 +204,7 @@ typedef void
 typedef int
 (*GNUNET_CHAT_ContactCallback) (void *cls,
                                 struct GNUNET_CHAT_Handle *handle,
-				struct GNUNET_CHAT_Contact *contact);
+                                struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Iterator over chat groups of a specific chat handle.
@@ -217,7 +217,7 @@ typedef int
 typedef int
 (*GNUNET_CHAT_GroupCallback) (void *cls,
                               struct GNUNET_CHAT_Handle *handle,
-			      struct GNUNET_CHAT_Group *group);
+                              struct GNUNET_CHAT_Group *group);
 
 /**
  * Iterator over chat contacts in a specific chat group.
@@ -243,7 +243,7 @@ typedef int
 typedef int
 (*GNUNET_CHAT_ContextMessageCallback) (void *cls,
                                        struct GNUNET_CHAT_Context *context,
-				       const struct GNUNET_CHAT_Message *message);
+                                       const struct GNUNET_CHAT_Message *message);
 
 /**
  * Iterator over chat files in a specific chat context.
@@ -256,7 +256,7 @@ typedef int
 typedef int
 (*GNUNET_CHAT_ContextFileCallback) (void *cls,
                                     struct GNUNET_CHAT_Context *context,
-				    struct GNUNET_CHAT_File *file);
+                                    struct GNUNET_CHAT_File *file);
 
 /**
  * Iterator over chat contacts in a chat to check whether they received a
@@ -272,8 +272,8 @@ typedef int
 typedef int
 (*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls,
                                            const struct GNUNET_CHAT_Message *message,
-					   const struct GNUNET_CHAT_Contact *contact,
-					   int read_receipt);
+                                           const struct GNUNET_CHAT_Contact *contact,
+                                           int read_receipt);
 
 /**
  * Method called during an upload of a specific file in a chat to share it.
@@ -286,8 +286,8 @@ typedef int
 typedef void
 (*GNUNET_CHAT_FileUploadCallback) (void *cls,
                                    const struct GNUNET_CHAT_File *file,
-				   uint64_t completed,
-				   uint64_t size);
+                                   uint64_t completed,
+                                   uint64_t size);
 
 /**
  * Method called during a download of a specific file in a chat which was shared.
@@ -300,8 +300,8 @@ typedef void
 typedef void
 (*GNUNET_CHAT_FileDownloadCallback) (void *cls,
                                      const struct GNUNET_CHAT_File *file,
-				     uint64_t completed,
-				     uint64_t size);
+                                     uint64_t completed,
+                                     uint64_t size);
 
 /**
  * Method called during an unindexing of a specific file in a chat which was
@@ -315,8 +315,8 @@ typedef void
 typedef void
 (*GNUNET_CHAT_FileUnindexCallback) (void *cls,
                                     struct GNUNET_CHAT_File *file,
-				    uint64_t completed,
-				    uint64_t size);
+                                    uint64_t completed,
+                                    uint64_t size);
 
 /**
  * Start a chat handle with a certain configuration.
@@ -331,8 +331,8 @@ typedef void
  */
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
-		   GNUNET_CHAT_ContextMessageCallback msg_cb,
-		   void *msg_cls);
+                   GNUNET_CHAT_ContextMessageCallback msg_cb,
+                   void *msg_cls);
 
 /**
  * Stops a chat handle closing all its remaining resources and frees the
@@ -356,7 +356,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
  */
 int
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
-			    const char* name);
+                            const char* name);
 
 /**
  * Deletes an existing chat account of a given chat <i>handle</i> under a
@@ -368,7 +368,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
  */
 int
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
-			   const char* name);
+                           const char* name);
 
 /**
  * Iterates through the accounts of a given chat <i>handle</i> with a selected
@@ -381,8 +381,8 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
  */
 int
 GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
-			      GNUNET_CHAT_AccountCallback callback,
-			      void *cls);
+                              GNUNET_CHAT_AccountCallback callback,
+                              void *cls);
 
 /**
  * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
@@ -391,7 +391,7 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
  */
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-		     const struct GNUNET_CHAT_Account *account);
+                     const struct GNUNET_CHAT_Account *account);
 
 /**
  * Disconnects a chat <i>handle</i> from the current chat account.
@@ -433,7 +433,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle);
  */
 int
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
-		      const char *name);
+                      const char *name);
 
 /**
  * Returns the name of a chat handle for related communication or NULL if no
@@ -463,7 +463,7 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
  */
 struct GNUNET_CHAT_Uri*
 GNUNET_CHAT_uri_parse (const char *uri,
-		       char **emsg);
+                       char **emsg);
 
 /**
  * Convert a chat URI to a UTF-8 String.
@@ -493,9 +493,9 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri);
  */
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
-			struct GNUNET_TIME_Relative delay,
-			GNUNET_CHAT_LobbyCallback callback,
-			void *cls);
+                        struct GNUNET_TIME_Relative delay,
+                        GNUNET_CHAT_LobbyCallback callback,
+                        void *cls);
 
 /**
  * Closes a chat <i>lobby</i> overriding the expiration to be now.
@@ -514,7 +514,7 @@ GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby);
  */
 void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
-			const struct GNUNET_CHAT_Uri *uri);
+                        const struct GNUNET_CHAT_Uri *uri);
 
 
 /**
@@ -526,7 +526,7 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
  */
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
-			      void *user_pointer);
+                              void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given chat <i>handle</i> or NULL if it
@@ -549,8 +549,8 @@ GNUNET_CHAT_get_user_pointer (const struct GNUNET_CHAT_Handle *handle);
  */
 int
 GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
-			      GNUNET_CHAT_ContactCallback callback,
-			      void *cls);
+                              GNUNET_CHAT_ContactCallback callback,
+                              void *cls);
 
 /**
  * Returns the provided name of a given <i>account</i> or NULL on failure.
@@ -570,7 +570,7 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account);
  */
 void
 GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
-				      void *user_pointer);
+                                      void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given <i>contact</i> or NULL if it was
@@ -597,7 +597,7 @@ GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
  */
 struct GNUNET_CHAT_Group*
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
-			  const char* topic);
+                          const char* topic);
 
 /**
  * Iterates through the groups of a given chat <i>handle</i> with a selected
@@ -610,8 +610,8 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
  */
 int
 GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
-			    GNUNET_CHAT_GroupCallback callback,
-			    void *cls);
+                            GNUNET_CHAT_GroupCallback callback,
+                            void *cls);
 
 /**
  * Leaves the private chat with a specific <i>contact</i> and frees the
@@ -632,7 +632,7 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact);
  */
 void
 GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
-			      const char *name);
+                              const char *name);
 
 /**
  * Returns the provided name of a given <i>contact</i> or its custom nick name
@@ -672,7 +672,7 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact);
  */
 void
 GNUNET_CHAT_contact_set_user_pointer (struct GNUNET_CHAT_Contact *contact,
-				      void *user_pointer);
+                                      void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given <i>contact</i> or NULL if it was
@@ -714,7 +714,7 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group);
  */
 void
 GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
-			    const char *name);
+                            const char *name);
 
 /**
  * Returns the custom nick name of a given <i>group</i> if it was overriden.
@@ -734,7 +734,7 @@ GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group);
  */
 void
 GNUNET_CHAT_group_set_user_pointer (struct GNUNET_CHAT_Group *group,
-				    void *user_pointer);
+                                    void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given <i>group</i> or NULL if it was
@@ -755,7 +755,7 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group);
  */
 void
 GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
-				  struct GNUNET_CHAT_Contact *contact);
+                                  struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Iterates through the contacts of a given <i>group</i> with a selected
@@ -768,8 +768,8 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
  */
 int
 GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
-				    GNUNET_CHAT_GroupContactCallback callback,
-				    void *cls);
+                                    GNUNET_CHAT_GroupContactCallback callback,
+                                    void *cls);
 
 /**
  * Sets a custom <i>user pointer</i> to a given <i>member</i> relative to a
@@ -781,8 +781,8 @@ GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
  */
 void
 GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Group *group,
-				     const struct GNUNET_CHAT_Contact *member,
-				     void *user_pointer);
+                                     const struct GNUNET_CHAT_Contact *member,
+                                     void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given <i>member</i> relative to a
@@ -794,7 +794,7 @@ GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Group *group,
  */
 void*
 GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Group *group,
-				     const struct GNUNET_CHAT_Contact *member);
+                                     const struct GNUNET_CHAT_Contact *member);
 
 /**
  * Returns the chat context for a chat with a given <i>group</i>.
@@ -854,7 +854,7 @@ GNUNET_CHAT_context_get_group (struct GNUNET_CHAT_Context *context);
  */
 void
 GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
-				      void *user_pointer);
+                                      void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given chat <i>context</i> or NULL if it
@@ -875,7 +875,7 @@ GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context)
  */
 int
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
-			       const char *text);
+                               const char *text);
 
 /**
  * Sends a read receipt depending on a selected <i>message</i> into a given
@@ -887,7 +887,7 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
  */
 int
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
-				       const struct GNUNET_CHAT_Message *message);
+                                       const struct GNUNET_CHAT_Message *message);
 
 /**
  * Uploads a local file specified via its <i>path</i> using symmetric encryption
@@ -902,9 +902,9 @@ GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
  */
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
-			       const char *path,
-			       GNUNET_CHAT_FileUploadCallback callback,
-			       void *cls);
+                               const char *path,
+                               GNUNET_CHAT_FileUploadCallback callback,
+                               void *cls);
 
 /**
  * Shares the information to download and decrypt a specific <i>file</i> from
@@ -916,7 +916,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
  */
 int
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
-				const struct GNUNET_CHAT_File *file);
+                                const struct GNUNET_CHAT_File *file);
 
 /**
  * Iterates through the contacts of a given chat <i>context</i> with a selected
@@ -929,8 +929,8 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
  */
 int
 GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
-				      GNUNET_CHAT_ContextMessageCallback callback,
-				      void *cls);
+                                      GNUNET_CHAT_ContextMessageCallback callback,
+                                      void *cls);
 
 /**
  * Iterates through the files of a given chat <i>context</i> with a selected
@@ -943,8 +943,8 @@ GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
  */
 int
 GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
-				   GNUNET_CHAT_ContextFileCallback callback,
-				   void *cls);
+                                   GNUNET_CHAT_ContextFileCallback callback,
+                                   void *cls);
 
 /**
  * Returns the kind of a given <i>message</i> to determine its content and
@@ -1006,8 +1006,8 @@ GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message);
  */
 int
 GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
-				      GNUNET_CHAT_MessageReadReceiptCallback callback,
-				      void *cls);
+                                      GNUNET_CHAT_MessageReadReceiptCallback callback,
+                                      void *cls);
 
 /**
  * Returns the text of a given <i>message</i> if its kind is
@@ -1061,7 +1061,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
  */
 int
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
-			    struct GNUNET_TIME_Relative delay);
+                            struct GNUNET_TIME_Relative delay);
 
 /**
  * Returns the name of a given <i>file</i> handle.
@@ -1145,7 +1145,7 @@ GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file);
  */
 void
 GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
-				   void *user_pointer);
+                                   void *user_pointer);
 
 /**
  * Returns the custom user pointer of a given <i>file</i> handle or NULL if it
@@ -1177,8 +1177,8 @@ GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file);
  */
 int
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
-				 GNUNET_CHAT_FileDownloadCallback callback,
-				 void *cls);
+                                 GNUNET_CHAT_FileDownloadCallback callback,
+                                 void *cls);
 
 /**
  * Pause downloading a file from a given <i>file</i> handle.
@@ -1227,8 +1227,8 @@ GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file);
  */
 int
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
-			  GNUNET_CHAT_FileUnindexCallback callback,
-			  void *cls);
+                          GNUNET_CHAT_FileUnindexCallback callback,
+                          void *cls);
 
 /**
  * Accepts a given chat <i>invitation</i> to enter another chat.

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,6 +30,8 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_util.h"
+#include <gnunet/gnunet_common.h>
+#include <stdio.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
@@ -207,6 +209,20 @@ notify_handle_fs_progress(void* cls,
       );
 
       file->unindex = NULL;
+      const char *directory = handle_get_directory(chat);
+
+      if (!directory)
+        break;
+
+      char *filename;
+      util_get_filename (
+          directory, "files", &(file->hash), &filename
+      );
+
+      if (GNUNET_YES == GNUNET_DISK_file_test_read(filename))
+        remove(filename);
+
+      GNUNET_free(filename);
       break;
     } default: {
       break;

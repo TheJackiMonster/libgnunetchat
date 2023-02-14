@@ -3,6 +3,7 @@
 aclocal.m4
 autom4te.cache/
 build-aux/
+.cache/
 
 config.log
 config.status

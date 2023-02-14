@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -22,12 +22,15 @@
  * @file test_gnunet_chat_file.c
  */
 
+#include "gnunet/gnunet_chat_lib.h"
 #include "test_gnunet_chat.h"
+#include <check.h>
+#include <gnunet/gnunet_common.h>
 
 int
 on_gnunet_chat_file_send_it(void *cls,
-			    const struct GNUNET_CHAT_Handle *handle,
-			    struct GNUNET_CHAT_Account *account)
+                            const struct GNUNET_CHAT_Handle *handle,
+                            struct GNUNET_CHAT_Account *account)
 {
   struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
 
@@ -52,12 +55,12 @@ on_gnunet_chat_file_send_it(void *cls,
 void
 on_gnunet_chat_file_send_upload(void *cls,
                                 const struct GNUNET_CHAT_File *file,
-				uint64_t completed,
-				uint64_t size)
+                                uint64_t completed,
+                                uint64_t size)
 {
-  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
-  ck_assert_ptr_ne(chat, NULL);
+  ck_assert_ptr_ne(handle, NULL);
   ck_assert_ptr_ne(file, NULL);
   ck_assert_uint_le(completed, size);
 
@@ -65,13 +68,36 @@ on_gnunet_chat_file_send_upload(void *cls,
 
   ck_assert_uint_eq(size, check_size);
 
-  // TODO
+  if (completed > size)
+    return;
+  
+  ck_assert_uint_eq(completed, size);
+}
+
+void
+on_gnunet_chat_file_send_unindex(void *cls,
+                                 struct GNUNET_CHAT_File *file,
+                                 uint64_t completed,
+                                 uint64_t size)
+{
+  struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) cls;
+
+  ck_assert_ptr_ne(context, NULL);
+  ck_assert_ptr_ne(file, NULL);
+  ck_assert_uint_le(completed, size);
+
+  if (completed > size)
+    return;
+  
+  ck_assert_uint_eq(completed, size);
+
+  GNUNET_CHAT_context_send_text(context, "gnunet_chat_file_deleted");
 }
 
 int
 on_gnunet_chat_file_send_msg(void *cls,
-			     struct GNUNET_CHAT_Context *context,
-			     const struct GNUNET_CHAT_Message *message)
+                             struct GNUNET_CHAT_Context *context,
+                             const struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
@@ -81,6 +107,10 @@ on_gnunet_chat_file_send_msg(void *cls,
   ck_assert_ptr_ne(message, NULL);
 
   enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
+  struct GNUNET_CHAT_File *file;
+
+  if (kind == GNUNET_CHAT_KIND_TEXT)
+    goto exit_file_test;
 
   if ((kind != GNUNET_CHAT_KIND_REFRESH) ||
       (GNUNET_CHAT_get_connected(handle)))
@@ -89,11 +119,11 @@ on_gnunet_chat_file_send_msg(void *cls,
   ck_assert(kind == GNUNET_CHAT_KIND_REFRESH);
   ck_assert_ptr_eq(context, NULL);
 
-  GNUNET_CHAT_iterate_accounts(
+  ck_assert_int_ne(GNUNET_CHAT_iterate_accounts(
       handle,
       on_gnunet_chat_file_send_it,
       handle
-  );
+  ), GNUNET_SYSERR);
 
   if (!GNUNET_CHAT_get_connected(handle))
     return GNUNET_YES;
@@ -102,7 +132,6 @@ skip_search_account:
   if ((GNUNET_CHAT_KIND_LOGIN != kind) ||
       (context))
     goto skip_file_upload;
-
 
   ck_assert(kind == GNUNET_CHAT_KIND_LOGIN);
   ck_assert_ptr_eq(context, NULL);
@@ -124,7 +153,7 @@ skip_search_account:
 
   ck_assert_ptr_ne(filename, NULL);
 
-  struct GNUNET_CHAT_File *file = GNUNET_CHAT_context_send_file(
+  file = GNUNET_CHAT_context_send_file(
       group_context,
       filename,
       on_gnunet_chat_file_send_upload,
@@ -133,8 +162,6 @@ skip_search_account:
 
   ck_assert_ptr_ne(file, NULL);
 
-  GNUNET_free(filename);
-
 skip_file_upload:
   if (GNUNET_CHAT_KIND_FILE != kind)
     return GNUNET_YES;
@@ -142,8 +169,25 @@ skip_file_upload:
   ck_assert(kind == GNUNET_CHAT_KIND_FILE);
   ck_assert_ptr_ne(context, NULL);
 
-  GNUNET_CHAT_disconnect(handle);
+  file = GNUNET_CHAT_message_get_file(message);
 
+  ck_assert_ptr_ne(file, NULL);
+
+  ck_assert_int_eq(GNUNET_CHAT_file_unindex(
+      file, 
+      on_gnunet_chat_file_send_unindex, 
+      context
+  ), GNUNET_OK);
+
+  return GNUNET_YES;
+
+exit_file_test:
+  ck_assert(kind == GNUNET_CHAT_KIND_TEXT);
+  ck_assert_ptr_ne(context, NULL);
+
+  const char* text = GNUNET_CHAT_message_get_text(message);
+
+  ck_assert_str_eq(text, "gnunet_chat_file_deleted");
   ck_assert_int_eq(GNUNET_CHAT_account_delete(
       handle,
       "gnunet_chat_file_send"
