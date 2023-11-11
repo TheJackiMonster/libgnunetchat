@@ -199,7 +199,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
   if ((!handle) || (handle->destruction))
     return GNUNET_SYSERR;
 
-  return GNUNET_MESSENGER_update(handle->messenger);
+  return handle_update(handle);
 }
 
 

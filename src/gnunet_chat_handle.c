@@ -241,6 +241,10 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   const char *name = account->name;
 
+  const struct GNUNET_IDENTITY_PrivateKey *key = NULL;
+  if (account->ego)
+    key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
+
   char* fs_client_name = NULL;
   GNUNET_asprintf (
       &fs_client_name,
@@ -261,13 +265,14 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   handle->gns = GNUNET_GNS_connect(handle->cfg);
 
   handle->messenger = GNUNET_MESSENGER_connect(
-      handle->cfg, name,
-      on_handle_identity, handle,
+      handle->cfg, name, key,
       on_handle_message, handle
   );
 
   handle->current = account;
   handle_update_key(handle);
+
+  on_handle_identity(handle, handle->messenger);
 }
 
 void
@@ -507,6 +512,16 @@ handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
     return handle->directory;
   else
     return handle->current->directory;
+}
+
+int
+handle_update (struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_assert((handle) && (handle->current));
+
+  // TODO: Implement update function
+
+  return GNUNET_SYSERR;
 }
 
 const struct GNUNET_IDENTITY_PrivateKey*

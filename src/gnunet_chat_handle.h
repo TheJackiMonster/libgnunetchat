@@ -208,6 +208,17 @@ const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Updates the used private key by creating a new identity
+ * using the same identifier as currently in use, replacing
+ * the old identity.
+ *
+ * @param[in] handle Chat handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+int
+handle_update (struct GNUNET_CHAT_Handle *handle);
+
+/**
  * Returns the private key from the current connected chat
  * account of a given chat <i>handle</i>.
  *
