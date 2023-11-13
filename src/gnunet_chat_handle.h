@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -51,6 +51,7 @@ struct GNUNET_CHAT_InternalMessages
 struct GNUNET_CHAT_InternalAccounts
 {
   struct GNUNET_CHAT_Account *account;
+  char *identifier;
 
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_IDENTITY_Operation *op;
@@ -196,6 +197,21 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
 int
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 		       const char *name);
+
+/**
+ * Renames a chat account with a specific <i>old_name</i>
+ * as identifier for a given chat <i>handle</i> to another
+ * specific <i>new_name</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] old_name Old chat account name
+ * @param[in] new_name New chat account name
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
+int
+handle_rename_account (struct GNUNET_CHAT_Handle *handle,
+		       const char *old_name,
+		       const char *new_name);
 
 /**
  * Returns the main directory path to store information

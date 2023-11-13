@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -146,12 +146,16 @@ on_gnunet_chat_handle_connection_msg(void *cls,
   ck_assert_ptr_eq(context, NULL);
   ck_assert_ptr_ne(message, NULL);
 
+  if (GNUNET_CHAT_KIND_LOGIN == GNUNET_CHAT_message_get_kind(message))
+    goto skip_iteration;
+
   GNUNET_CHAT_iterate_accounts(
       handle,
       on_gnunet_chat_handle_connection_it,
       handle
   );
 
+skip_iteration:
   if (!GNUNET_CHAT_get_connected(handle))
     return GNUNET_YES;
 
