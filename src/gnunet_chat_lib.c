@@ -1863,8 +1863,10 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
   struct GNUNET_PeerIdentity door;
   GNUNET_PEER_resolve(invitation->door, &door);
 
-  GNUNET_MESSENGER_enter_room(
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
       invitation->context->handle->messenger,
       &door, &(invitation->key)
   );
+
+  handle_send_room_name(invitation->context->handle, room);
 }

@@ -61,5 +61,11 @@ search_group_by_topic(void *cls,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST)))
     return;
 
-  GNUNET_MESSENGER_enter_room(group->handle->messenger, door, key);
+  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
+      group->handle->messenger,
+      door,
+      key
+  );
+
+  handle_send_room_name(group->handle, room);
 }

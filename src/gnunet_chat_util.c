@@ -24,7 +24,6 @@
 
 #include "gnunet_chat_util.h"
 
-
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash)
