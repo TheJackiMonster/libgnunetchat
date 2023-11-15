@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -147,7 +147,7 @@ it_handle_iterate_groups (void *cls,
 
 struct GNUNET_CHAT_RoomFindContact
 {
-  const struct GNUNET_IDENTITY_PublicKey *ignore_key;
+  const struct GNUNET_CRYPTO_PublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
@@ -158,7 +158,7 @@ it_room_find_contact (void *cls,
 {
   GNUNET_assert((cls) && (member));
 
-  const struct GNUNET_IDENTITY_PublicKey *key = GNUNET_MESSENGER_contact_get_key(
+  const struct GNUNET_CRYPTO_PublicKey *key = GNUNET_MESSENGER_contact_get_key(
       member
   );
 

@@ -270,7 +270,7 @@ GNUNET_CHAT_uri_parse (const char *uri,
     return NULL;
   }
 
-  struct GNUNET_IDENTITY_PublicKey zone;
+  struct GNUNET_CRYPTO_PublicKey zone;
 
   const char *data = uri + prefix_len;
   char *end = strchr(data, '.');
@@ -285,7 +285,7 @@ GNUNET_CHAT_uri_parse (const char *uri,
 
   char *zone_data = GNUNET_strndup(data, (size_t) (end - data));
 
-  if (GNUNET_OK != GNUNET_IDENTITY_public_key_from_string(zone_data, &zone))
+  if (GNUNET_OK != GNUNET_CRYPTO_public_key_from_string(zone_data, &zone))
   {
     GNUNET_free(zone_data);
 
@@ -309,7 +309,7 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   if (!uri)
     return NULL;
 
-  char *key_string = GNUNET_IDENTITY_public_key_to_string(&(uri->zone));
+  char *key_string = GNUNET_CRYPTO_public_key_to_string(&(uri->zone));
 
   char *string;
   GNUNET_asprintf (

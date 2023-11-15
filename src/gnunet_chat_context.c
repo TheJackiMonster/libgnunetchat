@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -273,7 +273,7 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 		(context->handle) &&
 		(context->room));
 
-  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(
+  const struct GNUNET_CRYPTO_PrivateKey *zone = handle_get_key(
       context->handle
   );
 

@@ -140,11 +140,11 @@ handle_update_key (struct GNUNET_CHAT_Handle *handle)
   if (!(handle->messenger))
     return;
 
-  const struct GNUNET_IDENTITY_PublicKey *pubkey;
+  const struct GNUNET_CRYPTO_PublicKey *pubkey;
   pubkey = GNUNET_MESSENGER_get_key(handle->messenger);
 
   if (pubkey)
-    handle->public_key = GNUNET_IDENTITY_public_key_to_string(pubkey);
+    handle->public_key = GNUNET_CRYPTO_public_key_to_string(pubkey);
 }
 
 void
@@ -244,7 +244,7 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
       NULL
   );
 
-  const struct GNUNET_IDENTITY_PrivateKey *zone = handle_get_key(handle);
+  const struct GNUNET_CRYPTO_PrivateKey *zone = handle_get_key(handle);
 
   if ((!zone) || (handle->monitor))
     return;
@@ -286,7 +286,7 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   const char *name = account->name;
 
-  const struct GNUNET_IDENTITY_PrivateKey *key = NULL;
+  const struct GNUNET_CRYPTO_PrivateKey *key = NULL;
   if (account->ego)
     key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
 
@@ -515,7 +515,7 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
       handle->identity,
       name,
       NULL,
-      GNUNET_IDENTITY_TYPE_ECDSA,
+      GNUNET_PUBLIC_KEY_TYPE_ECDSA,
       cb_account_creation,
       accounts
   );
@@ -627,7 +627,7 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
   return result;
 }
 
-const struct GNUNET_IDENTITY_PrivateKey*
+const struct GNUNET_CRYPTO_PrivateKey*
 handle_get_key (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert(handle);

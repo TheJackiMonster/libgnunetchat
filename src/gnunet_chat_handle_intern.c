@@ -30,7 +30,8 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_util.h"
-#include <gnunet/gnunet_common.h>
+
+#include <gnunet/gnunet_util_lib.h>
 #include <stdio.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -333,7 +334,7 @@ send_refresh:
 
 void
 cb_account_creation (void *cls,
-		     const struct GNUNET_IDENTITY_PrivateKey *key,
+		     const struct GNUNET_CRYPTO_PrivateKey *key,
 		     enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
@@ -444,7 +445,7 @@ cb_account_rename (void *cls,
 
 static void
 cb_account_update_completion (void *cls,
-			      const struct GNUNET_IDENTITY_PrivateKey *key,
+			      const struct GNUNET_CRYPTO_PrivateKey *key,
 			      enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
@@ -483,7 +484,7 @@ cb_account_update (void *cls,
       handle->identity,
       accounts->identifier,
       NULL,
-      GNUNET_IDENTITY_TYPE_ECDSA,
+      GNUNET_PUBLIC_KEY_TYPE_ECDSA,
       cb_account_update_completion,
       accounts
   );
@@ -541,7 +542,7 @@ intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
 
 struct GNUNET_CHAT_CheckHandleRoomMembers
 {
-  const struct GNUNET_IDENTITY_PublicKey *ignore_key;
+  const struct GNUNET_CRYPTO_PublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
@@ -554,7 +555,7 @@ check_handle_room_members (void* cls,
 
   GNUNET_assert((check) && (member));
 
-  const struct GNUNET_IDENTITY_PublicKey *member_key = (
+  const struct GNUNET_CRYPTO_PublicKey *member_key = (
       GNUNET_MESSENGER_contact_get_key(member)
   );
 
@@ -588,7 +589,7 @@ scan_handle_room_members (void* cls,
 void
 on_monitor_namestore_record(void *cls,
 			    GNUNET_UNUSED const
-			    struct GNUNET_IDENTITY_PrivateKey *zone,
+			    struct GNUNET_CRYPTO_PrivateKey *zone,
 			    const char *label,
 			    unsigned int count,
 			    const struct GNUNET_GNSRECORD_Data *data)

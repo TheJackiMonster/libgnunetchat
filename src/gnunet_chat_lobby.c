@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -138,7 +138,7 @@ open_zone:
       lobby->handle->identity,
       name,
       NULL,
-      GNUNET_IDENTITY_TYPE_EDDSA,
+      GNUNET_PUBLIC_KEY_TYPE_EDDSA,
       cont_lobby_identity_create,
       lobby
   );

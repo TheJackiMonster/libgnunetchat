@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,14 +25,13 @@
 #ifndef GNUNET_CHAT_URI_H_
 #define GNUNET_CHAT_URI_H_
 
-#include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_Uri
 {
-  struct GNUNET_IDENTITY_PublicKey zone;
+  struct GNUNET_CRYPTO_PublicKey zone;
   char *label;
 };
 
@@ -45,7 +44,7 @@ struct GNUNET_CHAT_Uri
  * @return New chat uri
  */
 struct GNUNET_CHAT_Uri*
-uri_create (const struct GNUNET_IDENTITY_PublicKey *zone,
+uri_create (const struct GNUNET_CRYPTO_PublicKey *zone,
 	    const char *label);
 
 /**

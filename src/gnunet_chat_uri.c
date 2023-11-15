@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,7 +25,7 @@
 #include "gnunet_chat_uri.h"
 
 struct GNUNET_CHAT_Uri*
-uri_create (const struct GNUNET_IDENTITY_PublicKey *zone,
+uri_create (const struct GNUNET_CRYPTO_PublicKey *zone,
 	    const char *label)
 {
   GNUNET_assert((zone) && (label));

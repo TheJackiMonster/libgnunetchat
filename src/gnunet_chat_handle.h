@@ -241,7 +241,7 @@ handle_update (struct GNUNET_CHAT_Handle *handle);
  * @param[in] handle Chat handle
  * @return EGOs private key or NULL
  */
-const struct GNUNET_IDENTITY_PrivateKey*
+const struct GNUNET_CRYPTO_PrivateKey*
 handle_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**

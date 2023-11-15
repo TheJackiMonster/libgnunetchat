@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022 GNUnet e.V.
+   Copyright (C) 2022--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -53,10 +53,10 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
   if (account->directory)
     GNUNET_free(account->directory);
 
-  struct GNUNET_IDENTITY_PublicKey key;
+  struct GNUNET_CRYPTO_PublicKey key;
   GNUNET_IDENTITY_ego_get_public_key(account->ego, &key);
 
-  char *key_string = GNUNET_IDENTITY_public_key_to_string(&key);
+  char *key_string = GNUNET_CRYPTO_public_key_to_string(&key);
 
   if (!key_string)
   {
