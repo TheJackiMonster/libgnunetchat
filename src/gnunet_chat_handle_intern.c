@@ -668,6 +668,9 @@ on_handle_message (void *cls,
 
   GNUNET_MESSENGER_get_message(room, &(msg->header.previous));
 
+  if (GNUNET_MESSENGER_KIND_MERGE == msg->header.kind)
+    GNUNET_MESSENGER_get_message(room, &(msg->body.merge.previous));
+
   if ((GNUNET_CHAT_KIND_UNKNOWN == util_message_kind_from_kind(msg->header.kind)) ||
       (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
     return;
