@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,8 +30,14 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 {
   GNUNET_assert(shorthash);
 
+  const size_t id = GNUNET_MESSENGER_contact_get_id(member);
+
   memset(shorthash, 0, sizeof(*shorthash));
-  GNUNET_memcpy(shorthash, &member, sizeof(member));
+  GNUNET_memcpy(
+      shorthash,
+      &id,
+      sizeof(id) < sizeof(*shorthash) ? sizeof(id) : sizeof(*shorthash)
+  );
 }
 
 void
