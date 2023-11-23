@@ -29,6 +29,12 @@
 
 #include "gnunet_chat_context_intern.c"
 
+static const unsigned int initial_map_size_of_room = 8;
+static const unsigned int initial_map_size_of_contact = 4;
+
+static const char label_prefix_of_contact [] = "contact_";
+static const char label_prefix_of_group [] = "group_";
+
 struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			  struct GNUNET_MESSENGER_Room *room)
@@ -44,10 +50,14 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
-  context->timestamps = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
-  context->messages = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
-  context->invites = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
-  context->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
+      initial_map_size_of_room, GNUNET_NO);
+  context->messages = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_room, GNUNET_NO);
+  context->invites = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_room, GNUNET_NO);
+  context->files = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_room, GNUNET_NO);
 
   context->room = room;
   context->contact = NULL;
@@ -55,8 +65,7 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   context->user_pointer = NULL;
 
   context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
-      8, GNUNET_NO
-  );
+      initial_map_size_of_room, GNUNET_NO);
 
   context->query = NULL;
 
@@ -78,10 +87,14 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
-  context->timestamps = GNUNET_CONTAINER_multishortmap_create(4, GNUNET_NO);
-  context->messages = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
-  context->invites = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
-  context->files = GNUNET_CONTAINER_multihashmap_create(4, GNUNET_NO);
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
+      initial_map_size_of_contact, GNUNET_NO);
+  context->messages = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_contact, GNUNET_NO);
+  context->invites = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_contact, GNUNET_NO);
+  context->files = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_contact, GNUNET_NO);
 
   context->room = NULL;
   context->contact = contact;
@@ -89,8 +102,7 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   context->user_pointer = NULL;
 
   context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
-      8, GNUNET_NO
-  );
+      initial_map_size_of_contact, GNUNET_NO);
 
   context->query = NULL;
 
@@ -156,7 +168,8 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   );
 
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
-  context->timestamps = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
+      initial_map_size_of_room, GNUNET_NO);
 
   GNUNET_CONTAINER_multihashmap_clear(context->messages);
   GNUNET_CONTAINER_multihashmap_clear(context->invites);
@@ -258,9 +271,11 @@ context_read_records (struct GNUNET_CHAT_Context *context,
   if (topic)
     GNUNET_free(topic);
 
-  if (0 == strncmp(label, "group_", 6))
+  if (0 == strncmp(label, label_prefix_of_group,
+		   sizeof(label_prefix_of_group) - 1))
     context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
-  else if (0 == strncmp(label, "contact_", 8))
+  else if (0 == strncmp(label, label_prefix_of_contact,
+			sizeof(label_prefix_of_contact) - 1))
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
   else
     context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
