@@ -49,6 +49,10 @@
   );\
 }
 
+static const uint32_t block_anonymity_level = 1;
+static const uint32_t block_content_priority = 100;
+static const uint32_t block_replication_level = 1;
+
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
 		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
@@ -1207,9 +1211,9 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
 
   struct GNUNET_FS_BlockOptions bo;
 
-  bo.anonymity_level = 1;
-  bo.content_priority = 100;
-  bo.replication_level = 1;
+  bo.anonymity_level = block_anonymity_level;
+  bo.content_priority = block_content_priority;
+  bo.replication_level = block_replication_level;
 
   bo.expiration_time = GNUNET_TIME_absolute_add(
       GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
