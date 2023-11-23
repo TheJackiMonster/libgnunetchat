@@ -28,6 +28,7 @@
 #include "gnunet_chat_group_intern.c"
 
 static const unsigned int initial_map_size_of_context = 8;
+static const uint16_t group_regex_compression = 6;
 
 struct GNUNET_CHAT_Group*
 group_create_from_context (struct GNUNET_CHAT_Handle *handle,
@@ -87,7 +88,7 @@ group_publish (struct GNUNET_CHAT_Group* group)
   group->announcement = GNUNET_REGEX_announce(
       group->handle->cfg, topic,
       GNUNET_TIME_relative_get_minute_(),
-      6
+      group_regex_compression
   );
 
   group->search = GNUNET_REGEX_search(
