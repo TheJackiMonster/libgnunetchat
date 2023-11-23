@@ -26,6 +26,9 @@
 
 #include "gnunet_chat_handle_intern.c"
 
+static const unsigned int initial_map_size_of_handle = 8;
+static const unsigned int minimum_amount_of_other_members_in_group = 2;
+
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 			   GNUNET_CHAT_ContextMessageCallback msg_cb,
@@ -279,10 +282,14 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
     handle->monitor = NULL;
   }
 
-  handle->files = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
-  handle->contexts = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
-  handle->contacts = GNUNET_CONTAINER_multishortmap_create(8, GNUNET_NO);
-  handle->groups = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
+  handle->files = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_handle, GNUNET_NO);
+  handle->contexts = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_handle, GNUNET_NO);
+  handle->contacts = GNUNET_CONTAINER_multishortmap_create(
+      initial_map_size_of_handle, GNUNET_NO);
+  handle->groups = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_handle, GNUNET_NO);
 
   const char *name = account->name;
 
@@ -760,7 +767,7 @@ check_type:
 
     context_write_records(context);
   }
-  else if (checks >= 2)
+  else if (checks >= minimum_amount_of_other_members_in_group)
   {
     context->deleted = GNUNET_YES;
     context_write_records(context);
