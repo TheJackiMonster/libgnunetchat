@@ -166,7 +166,7 @@ util_encrypt_file (const char *filename,
       break;
   }
 
-  if ((mapping) && (GNUNET_OK != GNUNET_DISK_file_unmap(mapping)))
+  if (GNUNET_OK != GNUNET_DISK_file_unmap(mapping))
     result = -1;
 
   if (GNUNET_OK != GNUNET_DISK_file_sync(file))
