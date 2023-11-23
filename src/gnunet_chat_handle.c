@@ -855,7 +855,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (data));
 
-  if (count <= 0)
+  if (!count)
     return NULL;
 
   const struct GNUNET_MESSENGER_RoomEntryRecord *record = NULL;
