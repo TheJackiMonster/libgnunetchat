@@ -36,6 +36,13 @@
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
+static const char gnunet_service_name_arm [] = "arm";
+static const char gnunet_service_name_fs [] = "fs";
+static const char gnunet_service_name_gns [] = "gns";
+static const char gnunet_service_name_identity [] = "identity";
+static const char gnunet_service_name_messenger [] = "messenger";
+static const char gnunet_service_name_namestore [] = "namestore";
+
 void
 on_handle_shutdown(void *cls)
 {
@@ -57,37 +64,37 @@ on_handle_arm_connection(void *cls,
 
   if (GNUNET_YES == connected) {
     GNUNET_ARM_request_service_start(
-    	chat->arm, "identity",
+    	chat->arm, gnunet_service_name_identity,
     	GNUNET_OS_INHERIT_STD_NONE,
     	NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
-	chat->arm, "messenger",
+	chat->arm, gnunet_service_name_messenger,
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
-	chat->arm, "fs",
+	chat->arm, gnunet_service_name_fs,
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
-    	chat->arm, "gns",
+    	chat->arm, gnunet_service_name_gns,
     	GNUNET_OS_INHERIT_STD_NONE,
     	NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
-    	chat->arm, "namestore",
+    	chat->arm, gnunet_service_name_namestore,
     	GNUNET_OS_INHERIT_STD_NONE,
     	NULL, NULL
     );
   } else {
     GNUNET_ARM_request_service_start(
-	chat->arm, "arm",
+	chat->arm, gnunet_service_name_arm,
 	GNUNET_OS_INHERIT_STD_NONE,
 	NULL, NULL
     );
