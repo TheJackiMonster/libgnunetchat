@@ -121,7 +121,7 @@ util_encrypt_file (const char *filename,
   if (!file)
     return GNUNET_SYSERR;
 
-  if (size <= 0)
+  if (!size)
     return GNUNET_DISK_file_close(file);
 
   struct GNUNET_DISK_MapHandle *mapping;
