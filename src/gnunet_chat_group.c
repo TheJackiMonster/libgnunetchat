@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,8 @@
 
 #include "gnunet_chat_group_intern.c"
 
+static const unsigned int initial_map_size_of_context = 8;
+
 struct GNUNET_CHAT_Group*
 group_create_from_context (struct GNUNET_CHAT_Handle *handle,
 			   struct GNUNET_CHAT_Context *context)
@@ -41,7 +43,8 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
   group->announcement = NULL;
   group->search = NULL;
 
-  group->registry = GNUNET_CONTAINER_multipeermap_create(8, GNUNET_NO);
+  group->registry = GNUNET_CONTAINER_multipeermap_create(
+      initial_map_size_of_context, GNUNET_NO);
 
   group->user_pointer = NULL;
 
