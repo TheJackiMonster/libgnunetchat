@@ -236,7 +236,7 @@ notify_handle_fs_progress(void* cls,
 void
 on_handle_gnunet_identity(void *cls,
 			  struct GNUNET_IDENTITY_Ego *ego,
-			  void **ctx,
+			  const void **ctx,
                           const char *name)
 {
   struct GNUNET_CHAT_Handle* handle = cls;
