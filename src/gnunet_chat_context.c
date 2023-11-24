@@ -32,9 +32,6 @@
 static const unsigned int initial_map_size_of_room = 8;
 static const unsigned int initial_map_size_of_contact = 4;
 
-static const char label_prefix_of_contact [] = "contact_";
-static const char label_prefix_of_group [] = "group_";
-
 struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			  struct GNUNET_MESSENGER_Room *room)
@@ -250,14 +247,14 @@ context_read_records (struct GNUNET_CHAT_Context *context,
   if (nick)
     GNUNET_free(nick);
 
+  const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
+      context->room
+  );
+
   if (topic)
   {
     struct GNUNET_HashCode topic_hash;
     GNUNET_CRYPTO_hash(topic, strlen(topic), &topic_hash);
-
-    const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
-	context->room
-    );
 
     if (0 != GNUNET_CRYPTO_hash_cmp(&topic_hash, hash))
     {
@@ -271,14 +268,7 @@ context_read_records (struct GNUNET_CHAT_Context *context,
   if (topic)
     GNUNET_free(topic);
 
-  if (0 == strncmp(label, label_prefix_of_group,
-		   sizeof(label_prefix_of_group) - 1))
-    context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
-  else if (0 == strncmp(label, label_prefix_of_contact,
-			sizeof(label_prefix_of_contact) - 1))
-    context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-  else
-    context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
+  context->type = util_get_context_label_type(label, hash);
 }
 
 void

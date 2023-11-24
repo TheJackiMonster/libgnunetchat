@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2023 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -170,6 +170,18 @@ int
 util_get_context_label (enum GNUNET_CHAT_ContextType type,
 		        const struct GNUNET_HashCode *hash,
 		        char **label);
+
+/**
+ * Extract the chat context type from a used <i>label</i> by
+ * a given context with a certain <i>hash</i> of its room.
+ *
+ * @param[in] label Namestore label
+ * @param[in] hash Hash of room
+ * @return Chat context type or #GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN
+ */
+enum GNUNET_CHAT_ContextType
+util_get_context_label_type (const char *label,
+			     const struct GNUNET_HashCode *hash);
 
 /**
  * Provide a standardized <i>name</i> for a lobby using

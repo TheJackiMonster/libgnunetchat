@@ -24,6 +24,9 @@
 
 #include "gnunet_chat_util.h"
 
+static const char label_prefix_of_contact [] = "contact";
+static const char label_prefix_of_group [] = "group";
+
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 			    struct GNUNET_ShortHashCode *shorthash)
@@ -348,6 +351,30 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
 
   GNUNET_free(low);
   return result;
+}
+
+enum GNUNET_CHAT_ContextType
+util_get_context_label_type (const char *label,
+			     const struct GNUNET_HashCode *hash)
+{
+  enum GNUNET_CHAT_ContextType type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
+
+  char *low = util_get_lower(GNUNET_h2s(hash));
+
+  const char *sub = strstr(label, low);
+  if ((!sub) || (sub == label) || (sub[-1] != '_'))
+    goto cleanup;
+
+  const size_t len = (size_t) (sub - label - 1);
+
+  if (0 == strncmp(label, label_prefix_of_group, len))
+    type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+  else if (0 == strncmp(label, label_prefix_of_contact, len))
+    type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+
+cleanup:
+  GNUNET_free(low);
+  return type;
 }
 
 int
