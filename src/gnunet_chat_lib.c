@@ -151,7 +151,7 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
 
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-		     const struct GNUNET_CHAT_Account *account)
+                     const struct GNUNET_CHAT_Account *account)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 

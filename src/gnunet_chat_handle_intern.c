@@ -366,10 +366,10 @@ cb_account_creation (void *cls,
   if (GNUNET_EC_NONE != ec)
   {
     handle_send_internal_message(
-	handle,
-	NULL,
-	GNUNET_CHAT_FLAG_WARNING,
-	GNUNET_ErrorCode_get_hint(ec)
+	    handle,
+      NULL,
+      GNUNET_CHAT_FLAG_WARNING,
+      GNUNET_ErrorCode_get_hint(ec)
     );
 
     return;

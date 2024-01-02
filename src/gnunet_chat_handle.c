@@ -318,7 +318,8 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   handle->messenger = GNUNET_MESSENGER_connect(
       handle->cfg, name, key,
-      on_handle_message, handle
+      on_handle_message,
+      handle
   );
 
   handle->current = account;
@@ -479,7 +480,7 @@ update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
     accounts->handle = handle;
 
     GNUNET_CONTAINER_DLL_insert_tail(
-	handle->accounts_head,
+	    handle->accounts_head,
     	handle->accounts_tail,
     	accounts
     );

@@ -118,7 +118,7 @@ cont_lobby_identity_create (void *cls,
   lobby->uri = uri_create(&public_zone, label);
   GNUNET_free(label);
 
-  lobby->query = GNUNET_NAMESTORE_records_store(
+  lobby->query = GNUNET_NAMESTORE_record_set_store(
       lobby->handle->namestore,
       zone,
       lobby->uri->label,

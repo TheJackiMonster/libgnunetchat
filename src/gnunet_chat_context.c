@@ -28,6 +28,7 @@
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_context_intern.c"
+#include <gnunet/gnunet_namestore_service.h>
 
 static const unsigned int initial_map_size_of_room = 8;
 static const unsigned int initial_map_size_of_contact = 4;
@@ -363,7 +364,7 @@ skip_record_data:
   if (context->query)
     GNUNET_NAMESTORE_cancel(context->query);
 
-  context->query = GNUNET_NAMESTORE_records_store(
+  context->query = GNUNET_NAMESTORE_record_set_store(
       context->handle->namestore,
       zone,
       label,
