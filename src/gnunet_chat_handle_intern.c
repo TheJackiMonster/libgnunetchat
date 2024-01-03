@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -31,6 +31,7 @@
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_util.h"
 
+#include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 #include <stdio.h>
 
@@ -635,11 +636,11 @@ on_handle_message_callback(void *cls)
     case GNUNET_MESSENGER_KIND_DELETE:
     {
       struct GNUNET_CHAT_Message *target = GNUNET_CONTAINER_multihashmap_get(
-	  context->messages, &(message->msg->body.deletion.hash)
+        context->messages, &(message->msg->body.deletion.hash)
       );
 
       if (target)
-	target->msg = NULL;
+	      target->msg = NULL;
       break;
     }
     default:
@@ -649,6 +650,22 @@ on_handle_message_callback(void *cls)
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
   if (!(handle->msg_cb))
+    return;
+
+  const struct GNUNET_MESSENGER_Contact *sender;
+  sender = GNUNET_MESSENGER_get_sender(context->room, &(message->hash));
+
+  if (!sender)
+    return;
+
+  struct GNUNET_ShortHashCode shorthash;
+  util_shorthash_from_member(sender, &shorthash);
+
+  struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
+      handle->contacts, &shorthash
+  );
+
+  if ((!contact) || (GNUNET_YES == contact->blocked))
     return;
 
   handle->msg_cb(handle->msg_cls, context, message);
@@ -698,7 +715,7 @@ on_handle_message (void *cls,
   );
 
   if (flags & GNUNET_MESSENGER_FLAG_SENT)
-    contact->is_owned = GNUNET_YES;
+    contact->owned = GNUNET_YES;
 
   struct GNUNET_TIME_Absolute *time = GNUNET_CONTAINER_multishortmap_get(
       context->timestamps, &shorthash
@@ -751,7 +768,7 @@ on_handle_message (void *cls,
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
 	  context->invites, hash, invitation,
 	  GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-	invitation_destroy(invitation);
+	      invitation_destroy(invitation);
       break;
     }
     case GNUNET_MESSENGER_KIND_FILE:
@@ -762,11 +779,11 @@ on_handle_message (void *cls,
       );
 
       struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-	  context->handle->files, &(msg->body.file.hash)
+        context->handle->files, &(msg->body.file.hash)
       );
 
       if (file)
-	break;
+	      break;
 
       file = file_create_from_message(
 	  context->handle, &(msg->body.file)
@@ -775,7 +792,7 @@ on_handle_message (void *cls,
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
 	  context->handle->files, &(file->hash), file,
 	  GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-	file_destroy(file);
+	      file_destroy(file);
       break;
     }
     case GNUNET_MESSENGER_KIND_DELETE:

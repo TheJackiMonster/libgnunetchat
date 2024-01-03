@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@
 #ifndef GNUNET_CHAT_CONTACT_H_
 #define GNUNET_CHAT_CONTACT_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -41,7 +42,8 @@ struct GNUNET_CHAT_Contact
   char *public_key;
   void *user_pointer;
 
-  int is_owned;
+  enum GNUNET_GenericReturnValue owned;
+  enum GNUNET_GenericReturnValue blocked;
 };
 
 /**

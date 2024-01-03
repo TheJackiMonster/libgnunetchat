@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,6 +24,7 @@
 
 #include "gnunet_chat_lib.h"
 
+#include <gnunet/gnunet_common.h>
 #include <libgen.h>
 #include <limits.h>
 #include <strings.h>
@@ -87,7 +88,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 			    const char* name)
 {
@@ -105,7 +106,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
 			   const char* name)
 {
@@ -195,7 +196,7 @@ GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -207,7 +208,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
 		      const char *name)
 {
@@ -602,7 +603,7 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -729,7 +730,7 @@ GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -737,11 +738,36 @@ GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return GNUNET_SYSERR;
 
-  return contact->is_owned;
+  return contact->owned;
 }
 
 
-int
+void
+GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
+                                 enum GNUNET_GenericReturnValue blocked)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!contact) || ((GNUNET_YES != blocked) && (GNUNET_NO != blocked)))
+    return;
+
+  contact->blocked = blocked;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!contact)
+    return GNUNET_SYSERR;
+
+  return contact->blocked;
+}
+
+
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -933,7 +959,7 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1072,7 +1098,7 @@ GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 			       const char *text)
 {
@@ -1092,7 +1118,7 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
 				       const struct GNUNET_CHAT_Message *message)
 {
@@ -1246,7 +1272,7 @@ file_binding:
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 				const struct GNUNET_CHAT_File *file)
 {
@@ -1373,7 +1399,7 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1388,7 +1414,7 @@ GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1500,7 +1526,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 			    struct GNUNET_TIME_Relative delay)
 {
@@ -1582,7 +1608,7 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1680,7 +1706,7 @@ GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1692,7 +1718,7 @@ GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 				 GNUNET_CHAT_FileDownloadCallback callback,
 				 void *cls)
@@ -1760,7 +1786,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1773,7 +1799,7 @@ GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1786,7 +1812,7 @@ GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1800,7 +1826,7 @@ GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1812,7 +1838,7 @@ GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
 }
 
 
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 			  GNUNET_CHAT_FileUnindexCallback callback,
 			  void *cls)

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -34,6 +34,7 @@
  */
 /**@{*/
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_util_lib.h>
 
 /**
@@ -354,7 +355,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
  * @param[in] name Account name
  * @return #GNUNET_OK on success, #GNUNET_NO on failure and otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
                             const char* name);
 
@@ -366,7 +367,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
  * @param[in] name Account name
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
                            const char* name);
 
@@ -421,7 +422,7 @@ GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle);
  * @param[in,out] handle Chat handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle);
 
 /**
@@ -431,7 +432,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle);
  * @param[in] name New name or NULL
  * @return #GNUNET_YES on success, #GNUNET_NO on failure and #GNUNET_SYSERR if <i>handle</i> is NULL
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
                       const char *name);
 
@@ -620,7 +621,7 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
  * @param[in,out] contact Cntact
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -689,11 +690,32 @@ GNUNET_CHAT_contact_get_user_pointer (const struct GNUNET_CHAT_Contact *contact)
  * it has sent messages with.
  *
  * @param[in] contact Contact
- * @return GNUNET_YES if the contact is owned, otherwise GNUNET_NO
- *         and GNUNET_SYSERR on failure
+ * @return #GNUNET_YES if the contact is owned, otherwise# GNUNET_NO
+ *         and #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Blocks or unblocks a given <i>contact</i> by the current account.
+ *
+ * @param[in,out] contact Contact
+ * @param[in] blocked #GNUNET_YES to block, #GNUNET_NO to unblock
+ */
+void
+GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
+                                 enum GNUNET_GenericReturnValue blocked);
+
+/**
+ * Returns if a given <i>contact</i> is blocked by the current account and
+ * whether messages of it should be filtered.
+ *
+ * @param[in] contact Contact
+ * @return #GNUNET_YES if the contact is blocked, #GNUNET_SYSERR on failure and 
+ *         #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Leaves a specific <i>group</i> chat and frees its memory if it is not shared
@@ -702,7 +724,7 @@ GNUNET_CHAT_contact_is_owned (const struct GNUNET_CHAT_Contact *contact);
  * @param[in,out] group Group
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group);
 
 /**
@@ -813,7 +835,7 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group);
  * @return #GNUNET_OK if usable, #GNUNET_NO if the context has been requested,
  *         #GNUNET_SYSERR otherwise.
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context);
 
 /**
@@ -873,7 +895,7 @@ GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context)
  * @param[in] text Text
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
                                const char *text);
 
@@ -885,7 +907,7 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
  * @param[in] message Message (optional)
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
                                        const struct GNUNET_CHAT_Message *message);
 
@@ -914,7 +936,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
  * @param[in] file File handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
                                 const struct GNUNET_CHAT_File *file);
 
@@ -981,7 +1003,7 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @return #GNUNET_YES if the message was sent, otherwise #GNUNET_NO
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -992,7 +1014,7 @@ GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message);
  * @return #GNUNET_YES if the message was privately received,
  * 	   otherwise #GNUNET_NO
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -1059,7 +1081,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
  * @param[in] delay Relative delay
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
                             struct GNUNET_TIME_Relative delay);
 
@@ -1108,7 +1130,7 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file);
  * @param[in] file File handle
  * @return #GNUNET_YES during active upload, #GNUNET_NO otherwise
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file);
 
 /**
@@ -1163,7 +1185,7 @@ GNUNET_CHAT_file_get_user_pointer (const struct GNUNET_CHAT_File *file);
  * @param[in] file File handle
  * @return #GNUNET_YES during active download, #GNUNET_NO otherwise
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file);
 
 /**
@@ -1175,7 +1197,7 @@ GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file);
  * @param[in,out] cls Closure for file downloading (optional)
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
                                  GNUNET_CHAT_FileDownloadCallback callback,
                                  void *cls);
@@ -1186,7 +1208,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
  * @param[in,out] file File handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file);
 
 /**
@@ -1195,7 +1217,7 @@ GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file);
  * @param[in,out] file File handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file);
 
 /**
@@ -1204,7 +1226,7 @@ GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file);
  * @param[in,out] file File handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file);
 
 /**
@@ -1213,7 +1235,7 @@ GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file);
  * @param[in] file File handle
  * @return #GNUNET_YES during active unindexing, #GNUNET_NO otherwise
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file);
 
 /**
@@ -1225,7 +1247,7 @@ GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file);
  * @param[in,out] cls Closure for file unindexing (optional)
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
                           GNUNET_CHAT_FileUnindexCallback callback,
                           void *cls);
