@@ -1900,3 +1900,17 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
 
   handle_send_room_name(invitation->context->handle, room);
 }
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!invitation)
+    return GNUNET_NO;
+
+  return GNUNET_CONTAINER_multihashmap_contains(
+      invitation->context->handle->contexts, 
+      &(invitation->key)
+  );
+}

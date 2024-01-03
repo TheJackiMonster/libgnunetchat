@@ -1260,6 +1260,15 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation);
 
+/**
+ * Returns if a given <i>invitation</i> is accepted.
+ *
+ * @param[in] invitation Chat invitation
+ * @return #GNUNET_YES if accepted, #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation);
+
 /**@}*/
 
 #endif /* GNUNET_CHAT_LIB_H_ */
