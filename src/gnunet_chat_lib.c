@@ -25,6 +25,7 @@
 #include "gnunet_chat_lib.h"
 
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_messenger_service.h>
 #include <libgen.h>
 #include <limits.h>
 #include <strings.h>
@@ -1423,6 +1424,21 @@ GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message)
     return GNUNET_SYSERR;
 
   if (message->flags & GNUNET_MESSENGER_FLAG_PRIVATE)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return GNUNET_SYSERR;
+
+  if (message->flags & GNUNET_MESSENGER_FLAG_RECENT)
     return GNUNET_YES;
   else
     return GNUNET_NO;
