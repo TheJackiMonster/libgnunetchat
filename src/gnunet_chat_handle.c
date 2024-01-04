@@ -25,6 +25,7 @@
 #include "gnunet_chat_handle.h"
 
 #include "gnunet_chat_handle_intern.c"
+#include <gnunet/gnunet_reclaim_service.h>
 
 static const unsigned int initial_map_size_of_handle = 8;
 static const unsigned int minimum_amount_of_other_members_in_group = 2;
@@ -95,8 +96,11 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->lobbies_head = NULL;
   handle->lobbies_tail = NULL;
 
-  handle->lobbies_head = NULL;
-  handle->lobbies_tail = NULL;
+  handle->lookups_head = NULL;
+  handle->lookups_tail = NULL;
+
+  handle->tickets_head = NULL;
+  handle->tickets_tail = NULL;
 
   handle->files = NULL;
   handle->contexts = NULL;
@@ -119,6 +123,10 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   );
 
   handle->namestore = GNUNET_NAMESTORE_connect(
+    handle->cfg
+  );
+
+  handle->reclaim = GNUNET_RECLAIM_connect(
     handle->cfg
   );
 
@@ -170,6 +178,29 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->namestore)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
+
+  struct GNUNET_CHAT_TicketProcess *tickets;
+  while (handle->tickets_head)
+  {
+    tickets = handle->tickets_head;
+
+    if (tickets->iter)
+      GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
+
+    if (tickets->op)
+      GNUNET_RECLAIM_cancel(tickets->op);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->tickets_head,
+      handle->tickets_tail,
+      tickets
+    );
+
+    GNUNET_free(tickets);
+  }
+
+  if (handle->reclaim)
+    GNUNET_RECLAIM_disconnect(handle->reclaim);
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
 
@@ -298,10 +329,6 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   const char *name = account->name;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = NULL;
-  if (account->ego)
-    key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
-
   char* fs_client_name = NULL;
   GNUNET_asprintf (
     &fs_client_name,
@@ -320,6 +347,10 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   GNUNET_free(fs_client_name);
 
   handle->gns = GNUNET_GNS_connect(handle->cfg);
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = NULL;
+  if (account->ego)
+    key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
 
   handle->messenger = GNUNET_MESSENGER_connect(
     handle->cfg, name, key,
@@ -961,4 +992,42 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
     group_destroy(group);
 
   return context;
+}
+
+void
+handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
+                       const struct GNUNET_CRYPTO_PrivateKey *identity)
+{
+  GNUNET_assert((handle) && (identity));
+
+  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
+    struct GNUNET_CHAT_TicketProcess
+  );
+
+  if (!tickets)
+    return;
+
+  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
+  GNUNET_memcpy(
+    &(tickets->identity),
+    identity,
+    sizeof(tickets->identity)
+  );
+
+  tickets->iter = GNUNET_RECLAIM_ticket_iteration_start(
+    handle->reclaim,
+    identity,
+    cb_task_error_ticket_update,
+    tickets,
+    cb_iterate_ticket_update,
+    tickets,
+    cb_task_finish_ticket_update,
+    tickets
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
+  );
 }

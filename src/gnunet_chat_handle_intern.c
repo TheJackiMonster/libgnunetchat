@@ -31,9 +31,13 @@
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_util.h"
 
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_util_lib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
@@ -242,11 +246,98 @@ notify_handle_fs_progress(void* cls,
 }
 
 void
-on_handle_gnunet_identity(void *cls,
-                          struct GNUNET_IDENTITY_Ego *ego,
-                          void **ctx,
-                          const char *name)
+cb_task_finish_ticket_update (void *cls)
 {
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  if (tickets->iter)
+    GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
+
+  if (tickets->op)
+    GNUNET_RECLAIM_cancel(tickets->op);
+
+  GNUNET_CONTAINER_DLL_remove(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
+  );
+
+  GNUNET_free(tickets);
+}
+
+void
+cb_task_error_ticket_update (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  handle_send_internal_message(
+    tickets->handle,
+    NULL,
+    GNUNET_CHAT_FLAG_WARNING,
+    "Ticket update failed!"
+  );
+
+  cb_task_finish_ticket_update(cls);
+}
+
+static void
+cont_revoke_ticket_with_status (void *cls,
+                                int32_t success,
+                                const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  tickets->op = NULL;
+
+  GNUNET_RECLAIM_ticket_iteration_next(tickets->iter);
+}
+
+void
+cb_iterate_ticket_update (void *cls,
+                          const struct GNUNET_RECLAIM_Ticket *ticket)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  if (tickets->op)
+    GNUNET_RECLAIM_cancel(tickets->op);
+
+  tickets->op = GNUNET_RECLAIM_ticket_revoke(
+    handle->reclaim,
+    &(tickets->identity),
+    ticket,
+    cont_revoke_ticket_with_status,
+    tickets
+  );
+}
+
+void
+on_handle_gnunet_identity (void *cls,
+                           struct GNUNET_IDENTITY_Ego *ego,
+                           void **ctx,
+                           const char *name)
+{
+  GNUNET_assert(cls);
+
   struct GNUNET_CHAT_Handle* handle = cls;
 
   if (!ctx)
@@ -279,6 +370,12 @@ on_handle_gnunet_identity(void *cls,
     }
     else
     {
+      const struct GNUNET_CRYPTO_PrivateKey *key;
+      key = GNUNET_IDENTITY_ego_get_private_key(ego);
+
+      if (key)
+        handle_update_tickets(handle, key);
+
       if (handle->current == accounts->account)
 	      handle_disconnect(handle);
 
@@ -465,7 +562,14 @@ cb_account_update_completion (void *cls,
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
 
   if ((GNUNET_EC_NONE == ec) && (key))
+  {
+    const struct GNUNET_CRYPTO_PrivateKey *prev= handle_get_key(handle);
+
+    if (prev)
+      handle_update_tickets(handle, prev);
+
     GNUNET_MESSENGER_set_key(handle->messenger, key);
+  }
 
   cb_account_creation(cls, key, ec);
 }

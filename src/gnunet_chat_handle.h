@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
+#include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"
@@ -80,6 +81,19 @@ struct GNUNET_CHAT_UriLookups
   struct GNUNET_CHAT_UriLookups *prev;
 };
 
+struct GNUNET_CHAT_TicketProcess
+{
+  struct GNUNET_CHAT_Handle *handle;
+
+  struct GNUNET_CRYPTO_PrivateKey identity;
+
+  struct GNUNET_RECLAIM_TicketIterator *iter;
+  struct GNUNET_RECLAIM_Operation *op;
+
+  struct GNUNET_CHAT_TicketProcess *next;
+  struct GNUNET_CHAT_TicketProcess *prev;
+};
+
 struct GNUNET_CHAT_Handle
 {
   const struct GNUNET_CONFIGURATION_Handle* cfg;
@@ -106,6 +120,9 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_UriLookups *lookups_head;
   struct GNUNET_CHAT_UriLookups *lookups_tail;
 
+  struct GNUNET_CHAT_TicketProcess *tickets_head;
+  struct GNUNET_CHAT_TicketProcess *tickets_tail;
+
   struct GNUNET_CONTAINER_MultiHashMap *files;
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_CONTAINER_MultiShortmap *contacts;
@@ -117,6 +134,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_IDENTITY_Handle *identity;
   struct GNUNET_MESSENGER_Handle *messenger;
   struct GNUNET_NAMESTORE_Handle *namestore;
+  struct GNUNET_RECLAIM_Handle *reclaim;
 
   char *public_key;
   void *user_pointer;
@@ -325,5 +343,11 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
                         const char *label,
                         unsigned int count,
                         const struct GNUNET_GNSRECORD_Data *data);
+
+/**
+ */
+void
+handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
+                       const struct GNUNET_CRYPTO_PrivateKey *identity);
 
 #endif /* GNUNET_CHAT_HANDLE_H_ */
