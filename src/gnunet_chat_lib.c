@@ -47,7 +47,7 @@
 
 #define GNUNET_CHAT_VERSION_ASSERT() {\
   GNUNET_assert(\
-      (GNUNET_MESSENGER_VERSION == ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFFFFFL))\
+    (GNUNET_MESSENGER_VERSION == ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFFFFFL))\
   );\
 }
 
@@ -57,7 +57,7 @@ static const uint32_t block_replication_level = 1;
 
 struct GNUNET_CHAT_Handle*
 GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
-		   GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
+		               GNUNET_CHAT_ContextMessageCallback msg_cb, void *msg_cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -65,9 +65,9 @@ GNUNET_CHAT_start (const struct GNUNET_CONFIGURATION_Handle *cfg,
     return NULL;
 
   return handle_create_from_config(
-      cfg,
-      msg_cb,
-      msg_cls
+    cfg,
+    msg_cb,
+    msg_cls
   );
 }
 
@@ -81,17 +81,17 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
     return;
 
   handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
-      GNUNET_TIME_absolute_get(),
-      GNUNET_SCHEDULER_PRIORITY_URGENT,
-      task_handle_destruction,
-      handle
+    GNUNET_TIME_absolute_get(),
+    GNUNET_SCHEDULER_PRIORITY_URGENT,
+    task_handle_destruction,
+    handle
   );
 }
 
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
-			    const char* name)
+			                      const char* name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -109,7 +109,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
-			   const char* name)
+			                     const char* name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -122,8 +122,8 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
 
 int
 GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
-			      GNUNET_CHAT_AccountCallback callback,
-			      void *cls)
+                              GNUNET_CHAT_AccountCallback callback,
+                              void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -211,7 +211,7 @@ GNUNET_CHAT_update (struct GNUNET_CHAT_Handle *handle)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
-		      const char *name)
+		                  const char *name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -259,7 +259,7 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 
 struct GNUNET_CHAT_Uri*
 GNUNET_CHAT_uri_parse (const char *uri,
-		       char **emsg)
+		                   char **emsg)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -319,10 +319,10 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
 
   char *string;
   GNUNET_asprintf (
-      &string,
-      "gnunet://chat/%s.%s",
-      key_string,
-      uri->label
+    &string,
+    "gnunet://chat/%s.%s",
+    key_string,
+    uri->label
   );
 
   GNUNET_free(key_string);
@@ -344,9 +344,9 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
 
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
-			struct GNUNET_TIME_Relative delay,
-			GNUNET_CHAT_LobbyCallback callback,
-			void *cls)
+                        struct GNUNET_TIME_Relative delay,
+                        GNUNET_CHAT_LobbyCallback callback,
+                        void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -354,15 +354,15 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
     return NULL;
 
   struct GNUNET_CHAT_InternalLobbies *lobbies = GNUNET_new(
-      struct GNUNET_CHAT_InternalLobbies
+    struct GNUNET_CHAT_InternalLobbies
   );
 
   lobbies->lobby = lobby_create(handle);
 
   GNUNET_CONTAINER_DLL_insert(
-      handle->lobbies_head,
-      handle->lobbies_tail,
-      lobbies
+    handle->lobbies_head,
+    handle->lobbies_tail,
+    lobbies
   );
 
   lobby_open(lobbies->lobby, delay, callback, cls);
@@ -386,9 +386,9 @@ GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
     if (lobbies->lobby == lobby)
     {
       GNUNET_CONTAINER_DLL_remove(
-	  lobby->handle->lobbies_head,
-	  lobby->handle->lobbies_tail,
-	  lobbies
+        lobby->handle->lobbies_head,
+        lobby->handle->lobbies_tail,
+        lobbies
       );
 
       GNUNET_free(lobbies);
@@ -404,7 +404,7 @@ GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
 
 void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
-			const struct GNUNET_CHAT_Uri *uri)
+			                  const struct GNUNET_CHAT_Uri *uri)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -412,33 +412,33 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
     return;
 
   struct GNUNET_CHAT_UriLookups *lookups = GNUNET_new(
-      struct GNUNET_CHAT_UriLookups
+    struct GNUNET_CHAT_UriLookups
   );
 
   lookups->handle = handle;
   lookups->uri = uri_create(&(uri->zone), uri->label);
 
   lookups->request = GNUNET_GNS_lookup(
-      handle->gns,
-      lookups->uri->label,
-      &(uri->zone),
-      GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY,
-      GNUNET_GNS_LO_DEFAULT,
-      cb_lobby_lookup,
-      lookups
+    handle->gns,
+    lookups->uri->label,
+    &(uri->zone),
+    GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY,
+    GNUNET_GNS_LO_DEFAULT,
+    cb_lobby_lookup,
+    lookups
   );
 
   GNUNET_CONTAINER_DLL_insert(
-      handle->lookups_head,
-      handle->lookups_tail,
-      lookups
+    handle->lookups_head,
+    handle->lookups_tail,
+    lookups
   );
 }
 
 
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
-			      void *user_pointer)
+			                        void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -463,8 +463,8 @@ GNUNET_CHAT_get_user_pointer (const struct GNUNET_CHAT_Handle *handle)
 
 int
 GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
-			      GNUNET_CHAT_ContactCallback callback,
-			      void *cls)
+                              GNUNET_CHAT_ContactCallback callback,
+                              void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -477,7 +477,7 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
   it.cls = cls;
 
   return GNUNET_CONTAINER_multishortmap_iterate(
-      handle->contacts, it_handle_iterate_contacts, &it
+    handle->contacts, it_handle_iterate_contacts, &it
   );
 }
 
@@ -496,7 +496,7 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
 
 void
 GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
-				      void *user_pointer)
+				                              void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -521,7 +521,7 @@ GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
 
 struct GNUNET_CHAT_Group *
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
-			  const char* topic)
+			                    const char* topic)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -536,12 +536,11 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
   else
     GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
 
-  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
-      handle->contexts, &key))
+  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(handle->contexts, &key))
     return NULL;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      handle->messenger, &key
+    handle->messenger, &key
   );
 
   if (!room)
@@ -585,8 +584,8 @@ destroy_context:
 
 int
 GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
-			    GNUNET_CHAT_GroupCallback callback,
-			    void *cls)
+                            GNUNET_CHAT_GroupCallback callback,
+                            void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -599,7 +598,7 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
   it.cls = cls;
 
   return GNUNET_CONTAINER_multihashmap_iterate(
-      handle->groups, it_handle_iterate_groups, &it
+    handle->groups, it_handle_iterate_groups, &it
   );
 }
 
@@ -616,15 +615,15 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
   util_shorthash_from_member(contact->member, &shorthash);
 
   GNUNET_CONTAINER_multishortmap_remove(
-      contact->handle->contacts, &shorthash, contact
+    contact->handle->contacts, &shorthash, contact
   );
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      contact->context->room
+    contact->context->room
   );
 
   GNUNET_CONTAINER_multihashmap_remove(
-      contact->handle->contexts, key, contact->context
+    contact->handle->contexts, key, contact->context
   );
 
   GNUNET_MESSENGER_close_room(contact->context->room);
@@ -640,7 +639,7 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
 
 void
 GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
-			      const char *name)
+			                        const char *name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -708,7 +707,7 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
 
 void
 GNUNET_CHAT_contact_set_user_pointer (struct GNUNET_CHAT_Contact *contact,
-				      void *user_pointer)
+				                              void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -777,15 +776,15 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
     return GNUNET_SYSERR;
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      group->context->room
+    group->context->room
   );
 
   GNUNET_CONTAINER_multihashmap_remove(
-      group->handle->groups, key, group
+    group->handle->groups, key, group
   );
 
   GNUNET_CONTAINER_multihashmap_remove(
-      group->handle->contexts, key, group->context
+    group->handle->contexts, key, group->context
   );
 
   GNUNET_MESSENGER_close_room(group->context->room);
@@ -801,7 +800,7 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 
 void
 GNUNET_CHAT_group_set_name (struct GNUNET_CHAT_Group *group,
-			    const char *name)
+			                      const char *name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -832,7 +831,7 @@ GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group)
 
 void
 GNUNET_CHAT_group_set_user_pointer (struct GNUNET_CHAT_Group *group,
-				    void *user_pointer)
+				                            void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -857,7 +856,7 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group)
 
 void
 GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
-				  struct GNUNET_CHAT_Contact *contact)
+				                          struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -870,11 +869,11 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
     return;
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      group->context->room
+    group->context->room
   );
 
   handle_send_room_name(group->handle, GNUNET_MESSENGER_open_room(
-      group->handle->messenger, key
+    group->handle->messenger, key
   ));
 
   struct GNUNET_MESSENGER_Message msg;
@@ -888,8 +887,8 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
 
 int
 GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
-				    GNUNET_CHAT_GroupContactCallback callback,
-				    void *cls)
+                                    GNUNET_CHAT_GroupContactCallback callback,
+                                    void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -902,15 +901,15 @@ GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
   it.cls = cls;
 
   return GNUNET_MESSENGER_iterate_members(
-      group->context->room, it_group_iterate_contacts, &it
+    group->context->room, it_group_iterate_contacts, &it
   );
 }
 
 
 void
 GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Group *group,
-				     const struct GNUNET_CHAT_Contact *member,
-				     void *user_pointer)
+                                     const struct GNUNET_CHAT_Contact *member,
+                                     void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -921,17 +920,17 @@ GNUNET_CHAT_member_set_user_pointer (struct GNUNET_CHAT_Group *group,
   util_shorthash_from_member(member->member, &hash);
 
   GNUNET_CONTAINER_multishortmap_put(
-      group->context->member_pointers,
-      &hash,
-      user_pointer,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE
+    group->context->member_pointers,
+    &hash,
+    user_pointer,
+    GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE
   );
 }
 
 
 void*
 GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Group *group,
-				     const struct GNUNET_CHAT_Contact *member)
+				                             const struct GNUNET_CHAT_Contact *member)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -942,8 +941,8 @@ GNUNET_CHAT_member_get_user_pointer (const struct GNUNET_CHAT_Group *group,
   util_shorthash_from_member(member->member, &hash);
 
   return GNUNET_CONTAINER_multishortmap_get(
-      group->context->member_pointers,
-      &hash
+    group->context->member_pointers,
+    &hash
   );
 }
 
@@ -990,7 +989,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
     return;
 
   struct GNUNET_CHAT_Contact *contact = contact_create_from_member(
-      handle, context->contact
+    handle, context->contact
   );
 
   if (!contact)
@@ -1011,7 +1010,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
     return;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      handle->messenger, &key
+    handle->messenger, &key
   );
 
   if (!room)
@@ -1047,9 +1046,9 @@ GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
   find.contact = NULL;
 
   int member_count = GNUNET_MESSENGER_iterate_members(
-      room,
-      it_room_find_contact,
-      &find
+    room,
+    it_room_find_contact,
+    &find
   );
 
   if ((!find.contact) || (member_count > 2))
@@ -1076,7 +1075,7 @@ GNUNET_CHAT_context_get_group (struct GNUNET_CHAT_Context *context)
 
 void
 GNUNET_CHAT_context_set_user_pointer (struct GNUNET_CHAT_Context *context,
-				      void *user_pointer)
+				                              void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1101,7 +1100,7 @@ GNUNET_CHAT_context_get_user_pointer (const struct GNUNET_CHAT_Context *context)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
-			       const char *text)
+			                         const char *text)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1121,7 +1120,7 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
-				       const struct GNUNET_CHAT_Message *message)
+				                               const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1168,9 +1167,9 @@ skip_filter:
 
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
-			       const char *path,
-			       GNUNET_CHAT_FileUploadCallback callback,
-			       void *cls)
+                               const char *path,
+                               GNUNET_CHAT_FileUploadCallback callback,
+                               void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1187,13 +1186,13 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
     return NULL;
 
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-      context->handle->files,
-      &hash
+    context->handle->files,
+    &hash
   );
 
   char *filename;
   util_get_filename (
-      directory, "files", &hash, &filename
+    directory, "files", &hash, &filename
   );
 
   if (file)
@@ -1219,10 +1218,10 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   char* p = GNUNET_strdup(path);
 
   file = file_create_from_disk(
-      context->handle,
-      basename(p),
-      &hash,
-      &key
+    context->handle,
+    basename(p),
+    &hash,
+    &key
   );
 
   GNUNET_free(p);
@@ -1243,23 +1242,23 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   bo.replication_level = block_replication_level;
 
   bo.expiration_time = GNUNET_TIME_absolute_add(
-      GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
+    GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
   );
 
   struct GNUNET_FS_FileInformation* fi = GNUNET_FS_file_information_create_from_file(
-      context->handle->fs,
-      file,
-      filename,
-      NULL,
-      file->meta,
-      GNUNET_YES,
-      &bo
+    context->handle->fs,
+    file,
+    filename,
+    NULL,
+    file->meta,
+    GNUNET_YES,
+    &bo
   );
 
   file->publish = GNUNET_FS_publish_start(
-      context->handle->fs, fi,
-      NULL, NULL, NULL,
-      GNUNET_FS_PUBLISH_OPTION_NONE
+    context->handle->fs, fi,
+    NULL, NULL, NULL,
+    GNUNET_FS_PUBLISH_OPTION_NONE
   );
 
   if (file->publish)
@@ -1275,7 +1274,7 @@ file_binding:
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
-				const struct GNUNET_CHAT_File *file)
+				                        const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1299,8 +1298,8 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 
 int
 GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
-				      GNUNET_CHAT_ContextMessageCallback callback,
-				      void *cls)
+                                      GNUNET_CHAT_ContextMessageCallback callback,
+                                      void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1313,15 +1312,15 @@ GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
   it.cls = cls;
 
   return GNUNET_CONTAINER_multihashmap_iterate(
-      context->messages, it_context_iterate_messages, &it
+    context->messages, it_context_iterate_messages, &it
   );
 }
 
 
 int
 GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
-				   GNUNET_CHAT_ContextFileCallback callback,
-				   void *cls)
+                                   GNUNET_CHAT_ContextFileCallback callback,
+                                   void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1334,7 +1333,7 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
   it.cls = cls;
 
   return GNUNET_CONTAINER_multihashmap_iterate(
-      context->files, it_context_iterate_files, &it
+    context->files, it_context_iterate_files, &it
   );
 }
 
@@ -1390,7 +1389,7 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
     return NULL;
 
   const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(
-      message->context->room, &(message->hash)
+    message->context->room, &(message->hash)
   );
 
   if (!sender)
@@ -1447,8 +1446,8 @@ GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message)
 
 int
 GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
-				      GNUNET_CHAT_MessageReadReceiptCallback callback,
-				      void *cls)
+                                      GNUNET_CHAT_MessageReadReceiptCallback callback,
+                                      void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1461,7 +1460,7 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
   it.cls = cls;
 
   return GNUNET_MESSENGER_iterate_members(
-      message->context->room, it_message_iterate_read_receipts, &it
+    message->context->room, it_message_iterate_read_receipts, &it
   );
 }
 
@@ -1497,8 +1496,8 @@ GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
     return NULL;
 
   return GNUNET_CONTAINER_multihashmap_get(
-      message->context->handle->files,
-      &(message->msg->body.file.hash)
+    message->context->handle->files,
+    &(message->msg->body.file.hash)
   );
 }
 
@@ -1515,8 +1514,8 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
     return NULL;
 
   return GNUNET_CONTAINER_multihashmap_get(
-      message->context->invites,
-      &(message->hash)
+    message->context->invites,
+    &(message->hash)
   );
 }
 
@@ -1544,7 +1543,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
-			    struct GNUNET_TIME_Relative delay)
+			                      struct GNUNET_TIME_Relative delay)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1612,7 +1611,7 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
 
   char *filename;
   util_get_filename (
-      directory, "files", &(file->hash), &filename
+    directory, "files", &(file->hash), &filename
   );
 
   uint64_t size;
@@ -1654,7 +1653,7 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 
   char *filename;
   util_get_filename (
-      directory, "files", &(file->hash), &filename
+    directory, "files", &(file->hash), &filename
   );
 
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
@@ -1669,8 +1668,7 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 
   if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
       (GNUNET_OK != util_decrypt_file(file->preview,
-				      &(file->hash),
-				      &(file->key))))
+				      &(file->hash), &(file->key))))
   {
     GNUNET_free(file->preview);
     file->preview = NULL;
@@ -1699,7 +1697,7 @@ GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file)
 
 void
 GNUNET_CHAT_file_set_user_pointer (struct GNUNET_CHAT_File *file,
-				   void *user_pointer)
+				                           void *user_pointer)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1736,15 +1734,15 @@ GNUNET_CHAT_file_is_downloading (const struct GNUNET_CHAT_File *file)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
-				 GNUNET_CHAT_FileDownloadCallback callback,
-				 void *cls)
+                                 GNUNET_CHAT_FileDownloadCallback callback,
+                                 void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!file) || (!(file->uri)))
     return GNUNET_SYSERR;
 
-  if (file->download)
+  if (file->download)a
   {
     file_bind_downlaod(file, callback, cls);
 
@@ -1761,11 +1759,12 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
 
   char *filename;
   util_get_filename (
-      directory, "files", &(file->hash), &filename
+    directory, "files", &(file->hash), &filename
   );
 
   uint64_t offset;
-  if (GNUNET_OK != GNUNET_DISK_file_size(filename, &offset, GNUNET_NO, GNUNET_YES))
+  if (GNUNET_OK != GNUNET_DISK_file_size(filename, &offset, 
+      GNUNET_NO, GNUNET_YES))
     offset = 0;
 
   if (offset >= size)
@@ -1781,17 +1780,17 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
   const uint64_t remaining = (size - offset);
 
   file->download = GNUNET_FS_download_start(
-      file->handle->fs,
-      file->uri,
-      file->meta,
-      filename,
-      NULL,
-      offset,
-      remaining,
-      1,
-      GNUNET_FS_DOWNLOAD_OPTION_NONE,
-      file,
-      NULL
+    file->handle->fs,
+    file->uri,
+    file->meta,
+    filename,
+    NULL,
+    offset,
+    remaining,
+    1,
+    GNUNET_FS_DOWNLOAD_OPTION_NONE,
+    file,
+    NULL
   );
 
   if (file->download)
@@ -1856,8 +1855,8 @@ GNUNET_CHAT_file_is_unindexing (const struct GNUNET_CHAT_File *file)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
-			  GNUNET_CHAT_FileUnindexCallback callback,
-			  void *cls)
+                          GNUNET_CHAT_FileUnindexCallback callback,
+                          void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1883,11 +1882,11 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
 
   char *filename;
   util_get_filename (
-      directory, "files", &(file->hash), &filename
+    directory, "files", &(file->hash), &filename
   );
 
   file->unindex = GNUNET_FS_unindex_start(
-      file->handle->fs, filename, file
+    file->handle->fs, filename, file
   );
 
   if (file->unindex)
@@ -1910,12 +1909,13 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
   GNUNET_PEER_resolve(invitation->door, &door);
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
-      invitation->context->handle->messenger,
-      &door, &(invitation->key)
+    invitation->context->handle->messenger,
+    &door, &(invitation->key)
   );
 
   handle_send_room_name(invitation->context->handle, room);
 }
+
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation)
@@ -1926,7 +1926,7 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
     return GNUNET_NO;
 
   return GNUNET_CONTAINER_multihashmap_contains(
-      invitation->context->handle->contexts, 
-      &(invitation->key)
+    invitation->context->handle->contexts, 
+    &(invitation->key)
   );
 }
