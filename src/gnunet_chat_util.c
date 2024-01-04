@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_util.h"
+#include <gnunet/gnunet_messenger_service.h>
 
 static const char label_prefix_of_contact [] = "contact";
 static const char label_prefix_of_group [] = "group";
@@ -420,6 +421,8 @@ util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind)
       return GNUNET_CHAT_KIND_WHISPER;
     case GNUNET_MESSENGER_KIND_DELETE:
       return GNUNET_CHAT_KIND_DELETION;
+    case GNUNET_MESSENGER_KIND_TICKET:
+      return GNUNET_CHAT_KIND_CONTACT;
     default:
       return GNUNET_CHAT_KIND_UNKNOWN;
   }

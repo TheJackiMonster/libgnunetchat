@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2023 GNUnet e.V.
+# Copyright (C) 2023--2024 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -28,6 +28,7 @@ gnunetchat_sources = files([
     'gnunet_chat_invitation.c', 'gnunet_chat_invitation.h',
     'gnunet_chat_lobby.c', 'gnunet_chat_lobby.h',
     'gnunet_chat_message.c', 'gnunet_chat_message.h',
+    'gnunet_chat_ticket.c', 'gnunet_chat_ticket.h',
     'gnunet_chat_uri.c', 'gnunet_chat_uri.h',
     'gnunet_chat_util.c', 'gnunet_chat_util.h',
     'gnunet_chat_lib.c',

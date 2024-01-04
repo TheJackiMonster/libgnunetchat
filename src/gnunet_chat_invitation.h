@@ -39,7 +39,7 @@ struct GNUNET_CHAT_Invitation
 };
 
 /**
- * Creates a chat invitation from a invite body in a
+ * Creates a chat invitation from an invite body in a
  * <i>message</i> with a selected chat <i>context</i>.
  *
  * @param[in,out] context Chat context

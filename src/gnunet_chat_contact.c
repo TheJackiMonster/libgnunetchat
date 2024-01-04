@@ -25,6 +25,7 @@
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_ticket.h"
 
 #include "gnunet_chat_contact_intern.c"
 
@@ -103,6 +104,22 @@ void
 contact_destroy (struct GNUNET_CHAT_Contact* contact)
 {
   GNUNET_assert(contact);
+
+  struct GNUNET_CHAT_InternalTickets *tickets;
+  while (contact->tickets_head)
+  {
+    tickets = contact->tickets_head;
+
+    GNUNET_CONTAINER_DLL_remove(
+      contact->tickets_head,
+      contact->tickets_tail,
+      tickets
+    );
+
+    ticket_destroy(tickets->ticket);
+
+    GNUNET_free(tickets);
+  }
 
   if (contact->public_key)
     GNUNET_free(contact->public_key);

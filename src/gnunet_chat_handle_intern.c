@@ -29,6 +29,7 @@
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
+#include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
 
 #include <gnunet/gnunet_common.h>
@@ -47,6 +48,7 @@ static const char gnunet_service_name_gns [] = "gns";
 static const char gnunet_service_name_identity [] = "identity";
 static const char gnunet_service_name_messenger [] = "messenger";
 static const char gnunet_service_name_namestore [] = "namestore";
+static const char gnunet_service_name_reclaim [] = "reclaim";
 
 void
 on_handle_shutdown(void *cls)
@@ -94,6 +96,12 @@ on_handle_arm_connection(void *cls,
 
     GNUNET_ARM_request_service_start(
     	chat->arm, gnunet_service_name_namestore,
+    	GNUNET_OS_INHERIT_STD_NONE,
+    	NULL, NULL
+    );
+
+    GNUNET_ARM_request_service_start(
+    	chat->arm, gnunet_service_name_reclaim,
     	GNUNET_OS_INHERIT_STD_NONE,
     	NULL, NULL
     );
@@ -916,6 +924,32 @@ on_handle_message (void *cls,
 	      ),
         on_handle_message_callback,
         message
+      );
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TICKET:
+    {
+      struct GNUNET_CHAT_InternalTickets *tickets = GNUNET_new(
+        struct GNUNET_CHAT_InternalTickets
+      );
+
+      if (!tickets)
+        break;
+
+      tickets->ticket = ticket_create_from_message(
+	      handle, sender, &(msg->body.ticket)
+      );
+
+      if (!tickets->ticket)
+      {
+        GNUNET_free(tickets);
+        break;
+      }
+
+      GNUNET_CONTAINER_DLL_insert_tail(
+        contact->tickets_head,
+        contact->tickets_tail,
+        tickets
       );
       break;
     }
