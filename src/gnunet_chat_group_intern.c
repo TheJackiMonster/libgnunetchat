@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,19 +30,21 @@
 void
 search_group_by_topic(void *cls,
                       const struct GNUNET_PeerIdentity *door,
-		      GNUNET_UNUSED const struct GNUNET_PeerIdentity *get_path,
-		      GNUNET_UNUSED unsigned int get_path_length,
-		      GNUNET_UNUSED const struct GNUNET_PeerIdentity *put_path,
-		      GNUNET_UNUSED unsigned int put_path_length)
+                      GNUNET_UNUSED const struct GNUNET_PeerIdentity *get_path,
+                      GNUNET_UNUSED unsigned int get_path_length,
+                      GNUNET_UNUSED const struct GNUNET_PeerIdentity *put_path,
+                      GNUNET_UNUSED unsigned int put_path_length)
 {
   struct GNUNET_CHAT_Group *group = cls;
 
-  GNUNET_assert((group) &&
+  GNUNET_assert(
+    (group) &&
 		(group->handle) &&
 		(group->handle->cfg) &&
 		(group->handle->messenger) &&
 		(group->context) &&
-		(group->context->room));
+		(group->context->room)
+  );
 
   struct GNUNET_PeerIdentity peer;
   GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &peer);
@@ -51,7 +53,7 @@ search_group_by_topic(void *cls,
     return;
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-      group->context->room
+    group->context->room
   );
 
   if ((GNUNET_YES == GNUNET_CONTAINER_multipeermap_contains(
@@ -62,9 +64,9 @@ search_group_by_topic(void *cls,
     return;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
-      group->handle->messenger,
-      door,
-      key
+    group->handle->messenger,
+    door,
+    key
   );
 
   handle_send_room_name(group->handle, room);

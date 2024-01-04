@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2023 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,7 +27,7 @@
 
 struct GNUNET_CHAT_Account*
 account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
-			const char *name)
+			                  const char *name)
 {
   GNUNET_assert((ego) && (name));
 
@@ -46,7 +46,7 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
 
 void
 account_update_directory (struct GNUNET_CHAT_Account *account,
-			  const char *base_directory)
+			                    const char *base_directory)
 {
   GNUNET_assert((account) && (base_directory));
 

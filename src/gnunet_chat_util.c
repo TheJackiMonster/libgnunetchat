@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@ static const char label_prefix_of_group [] = "group";
 
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
-			    struct GNUNET_ShortHashCode *shorthash)
+			                      struct GNUNET_ShortHashCode *shorthash)
 {
   GNUNET_assert(shorthash);
 
@@ -37,9 +37,9 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 
   memset(shorthash, 0, sizeof(*shorthash));
   GNUNET_memcpy(
-      shorthash,
-      &id,
-      sizeof(id) < sizeof(*shorthash) ? sizeof(id) : sizeof(*shorthash)
+    shorthash,
+    &id,
+    sizeof(id) < sizeof(*shorthash) ? sizeof(id) : sizeof(*shorthash)
   );
 }
 
@@ -68,7 +68,7 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash)
     return GNUNET_SYSERR;
 
   struct GNUNET_DISK_FileHandle *file = GNUNET_DISK_file_open(
-      filename, GNUNET_DISK_OPEN_READ, GNUNET_DISK_PERM_USER_READ
+    filename, GNUNET_DISK_OPEN_READ, GNUNET_DISK_PERM_USER_READ
   );
 
   if (!file)
@@ -80,7 +80,7 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash)
   if (size > 0)
   {
     data = GNUNET_DISK_file_map(
-	file, &mapping, GNUNET_DISK_MAP_TYPE_READ, size
+	    file, &mapping, GNUNET_DISK_MAP_TYPE_READ, size
     );
 
     if ((!data) || (!mapping))
@@ -106,8 +106,8 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash)
 
 int
 util_encrypt_file (const char *filename,
-		   const struct GNUNET_HashCode *hash,
-		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
+                   const struct GNUNET_HashCode *hash,
+                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
   GNUNET_assert((filename) && (hash) && (key));
 
@@ -117,8 +117,8 @@ util_encrypt_file (const char *filename,
     return GNUNET_SYSERR;
 
   struct GNUNET_DISK_FileHandle *file = GNUNET_DISK_file_open(
-      filename, GNUNET_DISK_OPEN_READWRITE,
-      GNUNET_DISK_PERM_USER_READ | GNUNET_DISK_PERM_USER_WRITE
+    filename, GNUNET_DISK_OPEN_READWRITE,
+    GNUNET_DISK_PERM_USER_READ | GNUNET_DISK_PERM_USER_WRITE
   );
 
   if (!file)
@@ -129,7 +129,7 @@ util_encrypt_file (const char *filename,
 
   struct GNUNET_DISK_MapHandle *mapping;
   const void* data = GNUNET_DISK_file_map(
-      file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
+    file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
   );
 
   if ((!data) || (!mapping))
@@ -186,8 +186,8 @@ util_encrypt_file (const char *filename,
 
 int
 util_decrypt_file (const char *filename,
-		   const struct GNUNET_HashCode *hash,
-		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
+                   const struct GNUNET_HashCode *hash,
+                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
   GNUNET_assert((filename) && (hash) && (key));
 
@@ -197,8 +197,8 @@ util_decrypt_file (const char *filename,
     return GNUNET_SYSERR;
 
   struct GNUNET_DISK_FileHandle *file = GNUNET_DISK_file_open(
-      filename, GNUNET_DISK_OPEN_READWRITE,
-      GNUNET_DISK_PERM_USER_READ | GNUNET_DISK_PERM_USER_WRITE
+    filename, GNUNET_DISK_OPEN_READWRITE,
+    GNUNET_DISK_PERM_USER_READ | GNUNET_DISK_PERM_USER_WRITE
   );
 
   if (!file)
@@ -206,7 +206,7 @@ util_decrypt_file (const char *filename,
 
   struct GNUNET_DISK_MapHandle *mapping = NULL;
   void* data = GNUNET_DISK_file_map(
-      file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
+    file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
   );
 
   if ((!data) || (!mapping))
@@ -234,11 +234,11 @@ util_decrypt_file (const char *filename,
       memcpy(&iv, hash, sizeof(iv));
 
     result = GNUNET_CRYPTO_symmetric_decrypt(
-	location,
-	remaining >= block_size? block_size : remaining,
-	key,
-	&iv,
-	location
+      location,
+      remaining >= block_size? block_size : remaining,
+      key,
+      &iv,
+      location
     );
 
     if (result < 0)
@@ -268,40 +268,44 @@ util_decrypt_file (const char *filename,
 
 int
 util_get_dirname (const char *directory,
-		  const char *subdir,
-		  char **filename)
+                  const char *subdir,
+                  char **filename)
 {
-  GNUNET_assert((filename) &&
-  		(directory) &&
-  		(subdir));
+  GNUNET_assert(
+    (filename) &&
+    (directory) &&
+    (subdir)
+  );
 
   return GNUNET_asprintf (
-      filename,
-      "%s/%s",
-      directory,
-      subdir
+    filename,
+    "%s/%s",
+    directory,
+    subdir
   );
 }
 
 int
 util_get_filename (const char *directory,
-		   const char *subdir,
-		   const struct GNUNET_HashCode *hash,
-		   char **filename)
+                   const char *subdir,
+                   const struct GNUNET_HashCode *hash,
+                   char **filename)
 {
-  GNUNET_assert((filename) &&
+  GNUNET_assert(
+    (filename) &&
 		(directory) &&
 		(subdir) &&
-		(hash));
+		(hash)
+  );
 
   char* dirname;
   util_get_dirname(directory, subdir, &dirname);
 
   int result = GNUNET_asprintf (
-      filename,
-      "%s/%s",
-      dirname,
-      GNUNET_h2s_full(hash)
+    filename,
+    "%s/%s",
+    dirname,
+    GNUNET_h2s_full(hash)
   );
 
   GNUNET_free(dirname);
@@ -323,8 +327,8 @@ util_get_lower(const char *name)
 
 int
 util_get_context_label (enum GNUNET_CHAT_ContextType type,
-		        const struct GNUNET_HashCode *hash,
-		        char **label)
+                        const struct GNUNET_HashCode *hash,
+                        char **label)
 {
   const char *type_string = "chat";
 
@@ -343,10 +347,10 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
   char *low = util_get_lower(GNUNET_h2s(hash));
 
   int result = GNUNET_asprintf (
-      label,
-      "%s_%s",
-      type_string,
-      low
+    label,
+    "%s_%s",
+    type_string,
+    low
   );
 
   GNUNET_free(low);
@@ -355,7 +359,7 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
 
 enum GNUNET_CHAT_ContextType
 util_get_context_label_type (const char *label,
-			     const struct GNUNET_HashCode *hash)
+			                       const struct GNUNET_HashCode *hash)
 {
   enum GNUNET_CHAT_ContextType type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
 
@@ -379,14 +383,14 @@ cleanup:
 
 int
 util_lobby_name (const struct GNUNET_HashCode *hash,
-		 char **name)
+		             char **name)
 {
   char *low = util_get_lower(GNUNET_h2s(hash));
 
   int result = GNUNET_asprintf (
-      name,
-      "chat_lobby_%s",
-      low
+    name,
+    "chat_lobby_%s",
+    low
   );
 
   GNUNET_free(low);

@@ -56,7 +56,7 @@ struct GNUNET_CHAT_Contact
  */
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
-			    const struct GNUNET_MESSENGER_Contact *member);
+			                      const struct GNUNET_MESSENGER_Contact *member);
 
 /**
  * Updates the string representation of the public key from

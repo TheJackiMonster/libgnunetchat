@@ -57,7 +57,7 @@ on_handle_shutdown(void *cls)
 
 void
 on_handle_arm_connection(void *cls,
-			 int connected)
+			                   int connected)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
@@ -71,15 +71,15 @@ on_handle_arm_connection(void *cls,
     );
 
     GNUNET_ARM_request_service_start(
-	chat->arm, gnunet_service_name_messenger,
-	GNUNET_OS_INHERIT_STD_NONE,
-	NULL, NULL
+      chat->arm, gnunet_service_name_messenger,
+      GNUNET_OS_INHERIT_STD_NONE,
+      NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
-	chat->arm, gnunet_service_name_fs,
-	GNUNET_OS_INHERIT_STD_NONE,
-	NULL, NULL
+      chat->arm, gnunet_service_name_fs,
+      GNUNET_OS_INHERIT_STD_NONE,
+      NULL, NULL
     );
 
     GNUNET_ARM_request_service_start(
@@ -95,16 +95,16 @@ on_handle_arm_connection(void *cls,
     );
   } else {
     GNUNET_ARM_request_service_start(
-	chat->arm, gnunet_service_name_arm,
-	GNUNET_OS_INHERIT_STD_NONE,
-	NULL, NULL
+      chat->arm, gnunet_service_name_arm,
+      GNUNET_OS_INHERIT_STD_NONE,
+      NULL, NULL
     );
   }
 }
 
 void*
 notify_handle_fs_progress(void* cls,
-			  const struct GNUNET_FS_ProgressInfo* info)
+			                    const struct GNUNET_FS_ProgressInfo* info)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
@@ -118,9 +118,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.publish.cctx;
 
       file_update_upload(
-	  file,
-	  0,
-	  info->value.publish.size
+        file,
+        0,
+        info->value.publish.size
       );
 
       return file;
@@ -128,9 +128,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.publish.cctx;
 
       file_update_upload(
-	  file,
-	  info->value.publish.completed,
-	  info->value.publish.size
+        file,
+        info->value.publish.completed,
+        info->value.publish.size
       );
 
       return file;
@@ -138,13 +138,13 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.publish.cctx;
 
       file->uri = GNUNET_FS_uri_dup(
-	  info->value.publish.specifics.completed.chk_uri
+	      info->value.publish.specifics.completed.chk_uri
       );
 
       file_update_upload(
-      	  file,
-	  info->value.publish.size,
-      	  info->value.publish.size
+        file,
+        info->value.publish.size,
+        info->value.publish.size
       );
 
       file->publish = NULL;
@@ -155,9 +155,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.download.cctx;
 
       file_update_download(
-	  file,
-      	  0,
-      	  info->value.download.size
+	      file,
+        0,
+        info->value.download.size
       );
 
       return file;
@@ -169,9 +169,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.download.cctx;
 
       file_update_download(
-      	  file,
-	  info->value.download.completed,
-	  info->value.download.size
+        file,
+        info->value.download.completed,
+        info->value.download.size
       );
 
       return file;
@@ -179,9 +179,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.download.cctx;
 
       file_update_download(
-	  file,
-	  info->value.download.size,
-	  info->value.download.size
+        file,
+        info->value.download.size,
+        info->value.download.size
       );
 
       file->download = NULL;
@@ -192,9 +192,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.unindex.cctx;
 
       file_update_unindex(
-	  file,
-      	  0,
-      	  info->value.unindex.size
+	      file,
+        0,
+        info->value.unindex.size
       );
 
       return file;
@@ -202,9 +202,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.unindex.cctx;
 
       file_update_unindex(
-      	  file,
-	  info->value.unindex.completed,
-	  info->value.unindex.size
+        file,
+        info->value.unindex.completed,
+        info->value.unindex.size
       );
 
       return file;
@@ -212,9 +212,9 @@ notify_handle_fs_progress(void* cls,
       struct GNUNET_CHAT_File *file = info->value.unindex.cctx;
 
       file_update_unindex(
-	  file,
-      	  info->value.unindex.size,
-      	  info->value.unindex.size
+	      file,
+        info->value.unindex.size,
+        info->value.unindex.size
       );
 
       file->unindex = NULL;
@@ -225,7 +225,7 @@ notify_handle_fs_progress(void* cls,
 
       char *filename;
       util_get_filename (
-          directory, "files", &(file->hash), &filename
+        directory, "files", &(file->hash), &filename
       );
 
       if (GNUNET_YES == GNUNET_DISK_file_test_read(filename))
@@ -243,8 +243,8 @@ notify_handle_fs_progress(void* cls,
 
 void
 on_handle_gnunet_identity(void *cls,
-			  struct GNUNET_IDENTITY_Ego *ego,
-			  void **ctx,
+                          struct GNUNET_IDENTITY_Ego *ego,
+                          void **ctx,
                           const char *name)
 {
   struct GNUNET_CHAT_Handle* handle = cls;
@@ -270,34 +270,34 @@ on_handle_gnunet_identity(void *cls,
       util_set_name_field(name, &(accounts->account->name));
 
       if (handle->current == accounts->account)
-	handle_send_internal_message(
-	    handle,
-	    NULL,
-	    GNUNET_CHAT_FLAG_LOGIN,
-	    NULL
-	);
+	      handle_send_internal_message(
+          handle,
+          NULL,
+          GNUNET_CHAT_FLAG_LOGIN,
+          NULL
+        );
     }
     else
     {
       if (handle->current == accounts->account)
-	handle_disconnect(handle);
+	      handle_disconnect(handle);
 
       account_destroy(accounts->account);
 
       if (accounts->op)
       {
-	accounts->account = NULL;
-	goto send_refresh;
+        accounts->account = NULL;
+        goto send_refresh;
       }
 
       GNUNET_CONTAINER_DLL_remove(
-	  handle->accounts_head,
-	  handle->accounts_tail,
-	  accounts
+        handle->accounts_head,
+        handle->accounts_tail,
+        accounts
       );
 
       if (accounts->identifier)
-	GNUNET_free(accounts->identifier);
+	      GNUNET_free(accounts->identifier);
 
       GNUNET_free(accounts);
     }
@@ -306,7 +306,7 @@ on_handle_gnunet_identity(void *cls,
 
 check_matching_name:
     if ((name) && (accounts->account->name) &&
-	(0 == strcmp(accounts->account->name, name)))
+	      (0 == strcmp(accounts->account->name, name)))
     {
       accounts->account->ego = ego;
       goto send_refresh;
@@ -331,9 +331,9 @@ skip_account:
     account_update_directory(accounts->account, handle->directory);
 
   GNUNET_CONTAINER_DLL_insert_tail(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
+    handle->accounts_head,
+    handle->accounts_tail,
+    accounts
   );
 
 send_refresh:
@@ -342,21 +342,21 @@ send_refresh:
 
 void
 cb_account_creation (void *cls,
-		     const struct GNUNET_CRYPTO_PrivateKey *key,
-		     enum GNUNET_ErrorCode ec)
+                     const struct GNUNET_CRYPTO_PrivateKey *key,
+                     enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
+    (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
 
   GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
+    handle->accounts_head,
+    handle->accounts_tail,
+    accounts
   );
 
   if (accounts->identifier)
@@ -381,20 +381,20 @@ cb_account_creation (void *cls,
 
 void
 cb_account_deletion (void *cls,
-		     enum GNUNET_ErrorCode ec)
+		                 enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
+    (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
 
   GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
+    handle->accounts_head,
+    handle->accounts_tail,
+    accounts
   );
 
   if (accounts->identifier)
@@ -405,10 +405,10 @@ cb_account_deletion (void *cls,
   if (GNUNET_EC_NONE != ec)
   {
     handle_send_internal_message(
-	handle,
-	NULL,
-	GNUNET_CHAT_FLAG_WARNING,
-	GNUNET_ErrorCode_get_hint(ec)
+      handle,
+      NULL,
+      GNUNET_CHAT_FLAG_WARNING,
+      GNUNET_ErrorCode_get_hint(ec)
     );
 
     return;
@@ -417,20 +417,20 @@ cb_account_deletion (void *cls,
 
 void
 cb_account_rename (void *cls,
-		   enum GNUNET_ErrorCode ec)
+		               enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
+    (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
 
   GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
+    handle->accounts_head,
+    handle->accounts_tail,
+    accounts
   );
 
   if (accounts->identifier)
@@ -453,13 +453,13 @@ cb_account_rename (void *cls,
 
 static void
 cb_account_update_completion (void *cls,
-			      const struct GNUNET_CRYPTO_PrivateKey *key,
-			      enum GNUNET_ErrorCode ec)
+                              const struct GNUNET_CRYPTO_PrivateKey *key,
+                              enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
+    (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
@@ -472,12 +472,12 @@ cb_account_update_completion (void *cls,
 
 void
 cb_account_update (void *cls,
-		   enum GNUNET_ErrorCode ec)
+		               enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = (
-      (struct GNUNET_CHAT_InternalAccounts*) cls
+    (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
@@ -489,19 +489,19 @@ cb_account_update (void *cls,
   }
 
   accounts->op = GNUNET_IDENTITY_create(
-      handle->identity,
-      accounts->identifier,
-      NULL,
-      GNUNET_PUBLIC_KEY_TYPE_ECDSA,
-      cb_account_update_completion,
-      accounts
+    handle->identity,
+    accounts->identifier,
+    NULL,
+    GNUNET_PUBLIC_KEY_TYPE_ECDSA,
+    cb_account_update_completion,
+    accounts
   );
 }
 
 int
 intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
-				  const struct GNUNET_MESSENGER_Contact *member,
-				  struct GNUNET_CHAT_Context *context)
+                                  const struct GNUNET_MESSENGER_Contact *member,
+                                  struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((handle) && (handle->contacts));
 
@@ -512,7 +512,7 @@ intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
   util_shorthash_from_member(member, &shorthash);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
-      handle->contacts, &shorthash
+    handle->contacts, &shorthash
   );
 
   if (contact)
@@ -556,7 +556,7 @@ struct GNUNET_CHAT_CheckHandleRoomMembers
 
 int
 check_handle_room_members (void* cls,
-			   GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+			                     GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                            const struct GNUNET_MESSENGER_Contact *member)
 {
   struct GNUNET_CHAT_CheckHandleRoomMembers *check = cls;
@@ -564,7 +564,7 @@ check_handle_room_members (void* cls,
   GNUNET_assert((check) && (member));
 
   const struct GNUNET_CRYPTO_PublicKey *member_key = (
-      GNUNET_MESSENGER_contact_get_key(member)
+    GNUNET_MESSENGER_contact_get_key(member)
   );
 
   if ((member_key) && (check->ignore_key) &&
@@ -583,7 +583,7 @@ check_handle_room_members (void* cls,
 
 int
 scan_handle_room_members (void* cls,
-			  GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+			                    GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                           const struct GNUNET_MESSENGER_Contact *member)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
@@ -596,11 +596,11 @@ scan_handle_room_members (void* cls,
 
 void
 on_monitor_namestore_record(void *cls,
-			    GNUNET_UNUSED const
-			    struct GNUNET_CRYPTO_PrivateKey *zone,
-			    const char *label,
-			    unsigned int count,
-			    const struct GNUNET_GNSRECORD_Data *data)
+                            GNUNET_UNUSED const
+                            struct GNUNET_CRYPTO_PrivateKey *zone,
+                            const char *label,
+                            unsigned int count,
+                            const struct GNUNET_GNSRECORD_Data *data)
 {
   struct GNUNET_CHAT_Handle *chat = cls;
 
@@ -622,10 +622,12 @@ on_handle_message_callback(void *cls)
 {
   struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) cls;
 
-  GNUNET_assert((message) &&
+  GNUNET_assert(
+    (message) &&
 		(message->msg) &&
 		(message->context) &&
-		(message->context->handle));
+		(message->context->handle)
+  );
 
   message->task = NULL;
 
@@ -662,7 +664,7 @@ on_handle_message_callback(void *cls)
   util_shorthash_from_member(sender, &shorthash);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
-      handle->contacts, &shorthash
+    handle->contacts, &shorthash
   );
 
   if ((!contact) || (GNUNET_YES == contact->blocked))
@@ -673,18 +675,20 @@ on_handle_message_callback(void *cls)
 
 void
 on_handle_message (void *cls,
-		   struct GNUNET_MESSENGER_Room *room,
-		   const struct GNUNET_MESSENGER_Contact *sender,
-		   const struct GNUNET_MESSENGER_Message *msg,
-		   const struct GNUNET_HashCode *hash,
-		   enum GNUNET_MESSENGER_MessageFlags flags)
+                   struct GNUNET_MESSENGER_Room *room,
+                   const struct GNUNET_MESSENGER_Contact *sender,
+                   const struct GNUNET_MESSENGER_Message *msg,
+                   const struct GNUNET_HashCode *hash,
+                   enum GNUNET_MESSENGER_MessageFlags flags)
 {
   struct GNUNET_CHAT_Handle *handle = cls;
 
-  GNUNET_assert((handle) &&
+  GNUNET_assert(
+    (handle) &&
 		(room) &&
 		(msg) &&
-		(hash));
+		(hash)
+  );
 
   if ((handle->destruction) ||
       (GNUNET_OK != handle_request_context_by_room(handle, room)))
@@ -700,25 +704,25 @@ on_handle_message (void *cls,
     return;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
-      handle->contexts, GNUNET_MESSENGER_room_get_key(room)
+    handle->contexts, GNUNET_MESSENGER_room_get_key(room)
   );
 
   const struct GNUNET_TIME_Absolute timestamp = GNUNET_TIME_absolute_ntoh(
-      msg->header.timestamp
+    msg->header.timestamp
   );
 
   struct GNUNET_ShortHashCode shorthash;
   util_shorthash_from_member(sender, &shorthash);
 
   struct GNUNET_CHAT_Contact *contact = GNUNET_CONTAINER_multishortmap_get(
-      handle->contacts, &shorthash
+    handle->contacts, &shorthash
   );
 
   if (flags & GNUNET_MESSENGER_FLAG_SENT)
     contact->owned = GNUNET_YES;
 
   struct GNUNET_TIME_Absolute *time = GNUNET_CONTAINER_multishortmap_get(
-      context->timestamps, &shorthash
+    context->timestamps, &shorthash
   );
 
   if (!time)
@@ -727,14 +731,14 @@ on_handle_message (void *cls,
     *time = timestamp;
 
     if (GNUNET_OK != GNUNET_CONTAINER_multishortmap_put(
-	context->timestamps, &shorthash, time,
-	GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+        context->timestamps, &shorthash, time,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
       GNUNET_free(time);
   }
   else
   {
     struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
-	timestamp, *time
+	    timestamp, *time
     );
 
     if (GNUNET_TIME_relative_get_zero_().rel_value_us == delta.rel_value_us)
@@ -742,7 +746,7 @@ on_handle_message (void *cls,
   }
 
   struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
-      context->messages, hash
+    context->messages, hash
   );
 
   if (message)
@@ -762,20 +766,20 @@ on_handle_message (void *cls,
     case GNUNET_MESSENGER_KIND_INVITE:
     {
       struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
-	  context, &(msg->body.invite)
+	      context, &(msg->body.invite)
       );
 
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-	  context->invites, hash, invitation,
-	  GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+        context->invites, hash, invitation,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
 	      invitation_destroy(invitation);
       break;
     }
     case GNUNET_MESSENGER_KIND_FILE:
     {
       GNUNET_CONTAINER_multihashmap_put(
-	    context->files, hash, NULL,
-	    GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
+        context->files, hash, NULL,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
       );
 
       struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
@@ -786,28 +790,28 @@ on_handle_message (void *cls,
 	      break;
 
       file = file_create_from_message(
-	  context->handle, &(msg->body.file)
+	      context->handle, &(msg->body.file)
       );
 
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-	  context->handle->files, &(file->hash), file,
-	  GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+          context->handle->files, &(file->hash), file,
+          GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
 	      file_destroy(file);
       break;
     }
     case GNUNET_MESSENGER_KIND_DELETE:
     {
       struct GNUNET_TIME_Relative delay = GNUNET_TIME_relative_ntoh(
-	  msg->body.deletion.delay
+	      msg->body.deletion.delay
       );
 
       task = GNUNET_SCHEDULER_add_delayed(
-	  GNUNET_TIME_absolute_get_difference(
-	      GNUNET_TIME_absolute_get(),
-	      GNUNET_TIME_absolute_add(timestamp, delay)
-	  ),
-	  on_handle_message_callback,
-	  message
+	      GNUNET_TIME_absolute_get_difference(
+          GNUNET_TIME_absolute_get(),
+          GNUNET_TIME_absolute_add(timestamp, delay)
+	      ),
+        on_handle_message_callback,
+        message
       );
       break;
     }
@@ -834,8 +838,8 @@ on_handle_message (void *cls,
 
 int
 it_destroy_handle_groups (GNUNET_UNUSED void *cls,
-			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			  void *value)
+                          GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                          void *value)
 {
   GNUNET_assert(value);
 
@@ -846,8 +850,8 @@ it_destroy_handle_groups (GNUNET_UNUSED void *cls,
 
 int
 it_destroy_handle_contacts (GNUNET_UNUSED void *cls,
-			    GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
-			    void *value)
+                            GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
+                            void *value)
 {
   GNUNET_assert(value);
 
@@ -858,8 +862,8 @@ it_destroy_handle_contacts (GNUNET_UNUSED void *cls,
 
 int
 it_destroy_handle_contexts (GNUNET_UNUSED void *cls,
-			    GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			    void *value)
+                            GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                            void *value)
 {
   GNUNET_assert(value);
 
@@ -870,8 +874,8 @@ it_destroy_handle_contexts (GNUNET_UNUSED void *cls,
 
 int
 it_destroy_handle_files (GNUNET_UNUSED void *cls,
-			 GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			 void *value)
+                         GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                         void *value)
 {
   GNUNET_assert(value);
 

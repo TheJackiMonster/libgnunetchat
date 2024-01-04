@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,11 +30,9 @@
 
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
-			  const struct GNUNET_MESSENGER_MessageFile *message)
+			                    const struct GNUNET_MESSENGER_MessageFile *message)
 {
-  GNUNET_assert((handle) &&
-		(message) &&
-		(message->name));
+  GNUNET_assert((handle) && (message) && (message->name));
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
@@ -71,14 +69,11 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
-		       const char *name,
-		       const struct GNUNET_HashCode *hash,
-		       const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
+                       const char *name,
+                       const struct GNUNET_HashCode *hash,
+                       const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
-  GNUNET_assert((handle) &&
-		(name) &&
-		(hash) &&
-		(key));
+  GNUNET_assert((handle) && (name) && (hash) && (key));
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
@@ -124,9 +119,9 @@ file_destroy (struct GNUNET_CHAT_File *file)
     upload = file->upload_head;
 
     GNUNET_CONTAINER_DLL_remove(
-	file->upload_head,
-	file->upload_tail,
-	upload
+      file->upload_head,
+      file->upload_tail,
+      upload
     );
 
     GNUNET_free(upload);
@@ -138,9 +133,9 @@ file_destroy (struct GNUNET_CHAT_File *file)
     download = file->download_head;
 
     GNUNET_CONTAINER_DLL_remove(
-       file->download_head,
-       file->download_tail,
-       download
+      file->download_head,
+      file->download_tail,
+      download
     );
 
     GNUNET_free(download);
@@ -152,9 +147,9 @@ file_destroy (struct GNUNET_CHAT_File *file)
     unindex = file->unindex_head;
 
     GNUNET_CONTAINER_DLL_remove(
-       file->unindex_head,
-       file->unindex_tail,
-       unindex
+      file->unindex_head,
+      file->unindex_tail,
+      unindex
     );
 
     GNUNET_free(unindex);
@@ -174,14 +169,14 @@ file_destroy (struct GNUNET_CHAT_File *file)
 
 void
 file_bind_upload (struct GNUNET_CHAT_File *file,
-		  struct GNUNET_CHAT_Context *context,
-		  GNUNET_CHAT_FileUploadCallback cb,
-		  void *cls)
+                  struct GNUNET_CHAT_Context *context,
+                  GNUNET_CHAT_FileUploadCallback cb,
+                  void *cls)
 {
   GNUNET_assert(file);
 
   struct GNUNET_CHAT_FileUpload *upload = GNUNET_new(
-      struct GNUNET_CHAT_FileUpload
+    struct GNUNET_CHAT_FileUpload
   );
 
   upload->context = context;
@@ -189,58 +184,58 @@ file_bind_upload (struct GNUNET_CHAT_File *file,
   upload->cls = cls;
 
   GNUNET_CONTAINER_DLL_insert(
-      file->upload_head,
-      file->upload_tail,
-      upload
+    file->upload_head,
+    file->upload_tail,
+    upload
   );
 }
 
 void
 file_bind_downlaod (struct GNUNET_CHAT_File *file,
-		    GNUNET_CHAT_FileDownloadCallback cb,
-		    void *cls)
+                    GNUNET_CHAT_FileDownloadCallback cb,
+                    void *cls)
 {
   GNUNET_assert(file);
 
   struct GNUNET_CHAT_FileDownload *download = GNUNET_new(
-      struct GNUNET_CHAT_FileDownload
+    struct GNUNET_CHAT_FileDownload
   );
 
   download->callback = cb;
   download->cls = cls;
 
   GNUNET_CONTAINER_DLL_insert(
-      file->download_head,
-      file->download_tail,
-      download
+    file->download_head,
+    file->download_tail,
+    download
   );
 }
 
 void
 file_bind_unindex (struct GNUNET_CHAT_File *file,
-		   GNUNET_CHAT_FileUnindexCallback cb,
-		   void *cls)
+                   GNUNET_CHAT_FileUnindexCallback cb,
+                   void *cls)
 {
   GNUNET_assert(file);
 
   struct GNUNET_CHAT_FileUnindex *unindex = GNUNET_new(
-      struct GNUNET_CHAT_FileUnindex
+    struct GNUNET_CHAT_FileUnindex
   );
 
   unindex->callback = cb;
   unindex->cls = cls;
 
   GNUNET_CONTAINER_DLL_insert(
-      file->unindex_head,
-      file->unindex_tail,
-      unindex
+    file->unindex_head,
+    file->unindex_tail,
+    unindex
   );
 }
 
 void
 file_update_upload (struct GNUNET_CHAT_File *file,
-		    uint64_t completed,
-		    uint64_t size)
+                    uint64_t completed,
+                    uint64_t size)
 {
   GNUNET_assert(file);
 
@@ -284,14 +279,14 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   GNUNET_free(msg.body.file.uri);
 
   file->status &= (
-      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_PUBLISH
+    GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_PUBLISH
   );
 }
 
 void
 file_update_download (struct GNUNET_CHAT_File *file,
-		      uint64_t completed,
-		      uint64_t size)
+                      uint64_t completed,
+                      uint64_t size)
 {
   GNUNET_assert(file);
 
@@ -324,14 +319,14 @@ file_update_download (struct GNUNET_CHAT_File *file,
   }
 
   file->status &= (
-      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_DOWNLOAD
+    GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_DOWNLOAD
   );
 }
 
 void
 file_update_unindex (struct GNUNET_CHAT_File *file,
-		     uint64_t completed,
-		     uint64_t size)
+                     uint64_t completed,
+                     uint64_t size)
 {
   GNUNET_assert(file);
 
@@ -364,6 +359,6 @@ file_update_unindex (struct GNUNET_CHAT_File *file,
   }
 
   file->status &= (
-      GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_UNINDEX
+    GNUNET_CHAT_FILE_STATUS_MASK ^ GNUNET_CHAT_FILE_STATUS_UNINDEX
   );
 }

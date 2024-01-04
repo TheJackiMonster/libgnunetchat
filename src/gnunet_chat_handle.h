@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -134,8 +134,8 @@ struct GNUNET_CHAT_Handle
  */
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
-			   GNUNET_CHAT_ContextMessageCallback msg_cb,
-			   void *msg_cls);
+                           GNUNET_CHAT_ContextMessageCallback msg_cb,
+                           void *msg_cls);
 
 /**
  * Updates the string representation of the public key from
@@ -163,7 +163,7 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle);
  */
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		const struct GNUNET_CHAT_Account *account);
+		            const struct GNUNET_CHAT_Account *account);
 
 /**
  * Disconnects a given chat <i>handle</i> from its current
@@ -184,7 +184,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle);
  */
 int
 handle_create_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *name);
+		                   const char *name);
 
 /**
  * Enqueues a deletion for a chat account with a specific
@@ -196,7 +196,7 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
  */
 int
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *name);
+		                   const char *name);
 
 /**
  * Renames a chat account with a specific <i>old_name</i>
@@ -210,8 +210,8 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
  */
 int
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *old_name,
-		       const char *new_name);
+                       const char *old_name,
+                       const char *new_name);
 
 /**
  * Returns the main directory path to store information
@@ -256,9 +256,9 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle);
  */
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
-			      struct GNUNET_CHAT_Context *context,
-			      enum GNUNET_CHAT_MessageFlag flag,
-			      const char *warning);
+                              struct GNUNET_CHAT_Context *context,
+                              enum GNUNET_CHAT_MessageFlag flag,
+                              const char *warning);
 
 /**
  * Sends a name message to a messenger <i>room</i> with
@@ -269,7 +269,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
  */
 void
 handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
-		       struct GNUNET_MESSENGER_Room *room);
+		                   struct GNUNET_MESSENGER_Room *room);
 
 /**
  * Checks a given chat <i>handle</i> for any chat context
@@ -282,7 +282,7 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
  */
 int
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
-				struct GNUNET_MESSENGER_Room *room);
+				                        struct GNUNET_MESSENGER_Room *room);
 
 /**
  * Returns the chat contact registered for a given messenger
@@ -294,7 +294,7 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
  */
 struct GNUNET_CHAT_Contact*
 handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
-				   const struct GNUNET_MESSENGER_Contact *contact);
+				                           const struct GNUNET_MESSENGER_Contact *contact);
 
 /**
  * Returns the chat group registered for a given messenger
@@ -306,7 +306,7 @@ handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
  */
 struct GNUNET_CHAT_Group*
 handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
-				 const struct GNUNET_MESSENGER_Room *room);
+				                         const struct GNUNET_MESSENGER_Room *room);
 
 /**
  * Processes the <i>data</i> of records under a given
@@ -322,8 +322,8 @@ handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
  */
 struct GNUNET_CHAT_Context*
 handle_process_records (struct GNUNET_CHAT_Handle *handle,
-			const char *label,
-			unsigned int count,
-			const struct GNUNET_GNSRECORD_Data *data);
+                        const char *label,
+                        unsigned int count,
+                        const struct GNUNET_GNSRECORD_Data *data);
 
 #endif /* GNUNET_CHAT_HANDLE_H_ */

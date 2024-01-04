@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -32,7 +32,7 @@ static const uint16_t group_regex_compression = 6;
 
 struct GNUNET_CHAT_Group*
 group_create_from_context (struct GNUNET_CHAT_Handle *handle,
-			   struct GNUNET_CHAT_Context *context)
+			                     struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((handle) && (context));
 
@@ -45,7 +45,7 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
   group->search = NULL;
 
   group->registry = GNUNET_CONTAINER_multipeermap_create(
-      initial_map_size_of_context, GNUNET_NO);
+    initial_map_size_of_context, GNUNET_NO);
 
   group->user_pointer = NULL;
 
@@ -72,28 +72,30 @@ group_destroy (struct GNUNET_CHAT_Group* group)
 void
 group_publish (struct GNUNET_CHAT_Group* group)
 {
-  GNUNET_assert((group) &&
+  GNUNET_assert(
+    (group) &&
 		(group->context) &&
 		(group->context->topic) &&
 		(group->handle) &&
-		(group->handle->cfg));
+		(group->handle->cfg)
+  );
 
   char* topic = NULL;
   GNUNET_asprintf (
-      &topic,
-      "GNUNET_CHAT_%s",
-      group->context->topic
+    &topic,
+    "GNUNET_CHAT_%s",
+    group->context->topic
   );
 
   group->announcement = GNUNET_REGEX_announce(
-      group->handle->cfg, topic,
-      GNUNET_TIME_relative_get_minute_(),
-      group_regex_compression
+    group->handle->cfg, topic,
+    GNUNET_TIME_relative_get_minute_(),
+    group_regex_compression
   );
 
   group->search = GNUNET_REGEX_search(
-      group->handle->cfg, topic,
-      search_group_by_topic, group
+    group->handle->cfg, topic,
+    search_group_by_topic, group
   );
 
   GNUNET_free(topic);

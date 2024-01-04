@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -110,7 +110,7 @@ struct GNUNET_CHAT_File
  */
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
-			  const struct GNUNET_MESSENGER_MessageFile *message);
+			                    const struct GNUNET_MESSENGER_MessageFile *message);
 
 /**
  * Creates a chat file handle from a local file on disk
@@ -126,9 +126,9 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
  */
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
-		       const char *name,
-		       const struct GNUNET_HashCode *hash,
-		       const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
+                       const char *name,
+                       const struct GNUNET_HashCode *hash,
+                       const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
 /**
  * Destroys a chat <i>file</i> handle and frees its memory.
@@ -150,9 +150,9 @@ file_destroy (struct GNUNET_CHAT_File *file);
  */
 void
 file_bind_upload (struct GNUNET_CHAT_File *file,
-		  struct GNUNET_CHAT_Context *context,
-		  GNUNET_CHAT_FileUploadCallback cb,
-		  void *cls);
+                  struct GNUNET_CHAT_Context *context,
+                  GNUNET_CHAT_FileUploadCallback cb,
+                  void *cls);
 
 /**
  * Binds a callback and a closure to a given chat <i>file</i>
@@ -165,8 +165,8 @@ file_bind_upload (struct GNUNET_CHAT_File *file,
  */
 void
 file_bind_downlaod (struct GNUNET_CHAT_File *file,
-		    GNUNET_CHAT_FileDownloadCallback cb,
-		    void *cls);
+                    GNUNET_CHAT_FileDownloadCallback cb,
+                    void *cls);
 
 /**
  * Binds a callback and a closure to a given chat <i>file</i>
@@ -179,8 +179,8 @@ file_bind_downlaod (struct GNUNET_CHAT_File *file,
  */
 void
 file_bind_unindex (struct GNUNET_CHAT_File *file,
-		   GNUNET_CHAT_FileUnindexCallback cb,
-		   void *cls);
+                   GNUNET_CHAT_FileUnindexCallback cb,
+                   void *cls);
 
 /**
  * Calls the regarding events and bound callback of a given
@@ -194,8 +194,8 @@ file_bind_unindex (struct GNUNET_CHAT_File *file,
  */
 void
 file_update_upload (struct GNUNET_CHAT_File *file,
-		    uint64_t completed,
-		    uint64_t size);
+                    uint64_t completed,
+                    uint64_t size);
 
 /**
  * Calls the regarding events and bound callback of a given
@@ -209,8 +209,8 @@ file_update_upload (struct GNUNET_CHAT_File *file,
  */
 void
 file_update_download (struct GNUNET_CHAT_File *file,
-		      uint64_t completed,
-		      uint64_t size);
+                      uint64_t completed,
+                      uint64_t size);
 
 /**
  * Calls the regarding events and bound callback of a given
@@ -224,7 +224,7 @@ file_update_download (struct GNUNET_CHAT_File *file,
  */
 void
 file_update_unindex (struct GNUNET_CHAT_File *file,
-		     uint64_t completed,
-		     uint64_t size);
+                     uint64_t completed,
+                     uint64_t size);
 
 #endif /* GNUNET_CHAT_FILE_H_ */

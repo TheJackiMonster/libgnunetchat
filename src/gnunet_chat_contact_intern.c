@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -34,8 +34,8 @@ struct GNUNET_CHAT_ContactFindRoom
 
 int
 it_contact_find_room (void *cls,
-		      struct GNUNET_MESSENGER_Room *room,
-		      GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
+                      struct GNUNET_MESSENGER_Room *room,
+                      GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
 {
   GNUNET_assert((cls) && (room));
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2023 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -59,7 +59,7 @@ lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
   if (lobby->context)
   {
     const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-	lobby->context->room
+	    lobby->context->room
     );
 
     if (!key)
@@ -87,9 +87,9 @@ skip_deletion:
 
 void
 lobby_open (struct GNUNET_CHAT_Lobby *lobby,
-	    struct GNUNET_TIME_Relative delay,
-	    GNUNET_CHAT_LobbyCallback callback,
-	    void *cls)
+            struct GNUNET_TIME_Relative delay,
+            GNUNET_CHAT_LobbyCallback callback,
+            void *cls)
 {
   GNUNET_assert(lobby);
 
@@ -109,8 +109,8 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
   GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-      lobby->handle->messenger,
-      &key
+    lobby->handle->messenger,
+    &key
   );
 
   if (!room)
@@ -135,12 +135,12 @@ open_zone:
   util_lobby_name(&key, &name);
 
   lobby->op = GNUNET_IDENTITY_create(
-      lobby->handle->identity,
-      name,
-      NULL,
-      GNUNET_PUBLIC_KEY_TYPE_EDDSA,
-      cont_lobby_identity_create,
-      lobby
+    lobby->handle->identity,
+    name,
+    NULL,
+    GNUNET_PUBLIC_KEY_TYPE_EDDSA,
+    cont_lobby_identity_create,
+    lobby
   );
 
   GNUNET_free(name);

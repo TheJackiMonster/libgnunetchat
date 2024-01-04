@@ -1742,7 +1742,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
   if ((!file) || (!(file->uri)))
     return GNUNET_SYSERR;
 
-  if (file->download)a
+  if (file->download)
   {
     file_bind_downlaod(file, callback, cls);
 

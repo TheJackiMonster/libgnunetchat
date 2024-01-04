@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -31,8 +31,8 @@
 
 int
 it_destroy_context_timestamps (GNUNET_UNUSED void *cls,
-			       GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
-			       void *value)
+                               GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
+                               void *value)
 {
   GNUNET_assert(value);
 
@@ -43,8 +43,8 @@ it_destroy_context_timestamps (GNUNET_UNUSED void *cls,
 
 int
 it_destroy_context_messages (GNUNET_UNUSED void *cls,
-			     GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			     void *value)
+                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                             void *value)
 {
   GNUNET_assert(value);
 
@@ -55,8 +55,8 @@ it_destroy_context_messages (GNUNET_UNUSED void *cls,
 
 int
 it_destroy_context_invites (GNUNET_UNUSED void *cls,
-			    GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			    void *value)
+                            GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                            void *value)
 {
   GNUNET_assert(value);
 
@@ -67,7 +67,7 @@ it_destroy_context_invites (GNUNET_UNUSED void *cls,
 
 void
 cont_context_write_records (void *cls,
-			    enum GNUNET_ErrorCode ec)
+			                      enum GNUNET_ErrorCode ec)
 {
   struct GNUNET_CHAT_Context *context = cls;
 
@@ -77,9 +77,9 @@ cont_context_write_records (void *cls,
 
   if (GNUNET_EC_NONE != ec)
     handle_send_internal_message(
-	context->handle,
-	context,
-	GNUNET_CHAT_FLAG_WARNING,
-	GNUNET_ErrorCode_get_hint(ec)
+      context->handle,
+      context,
+      GNUNET_CHAT_FLAG_WARNING,
+      GNUNET_ErrorCode_get_hint(ec)
     );
 }

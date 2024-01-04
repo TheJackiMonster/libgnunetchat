@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2022 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -76,9 +76,9 @@ struct GNUNET_CHAT_Message
  */
 struct GNUNET_CHAT_Message*
 message_create_from_msg (struct GNUNET_CHAT_Context *context,
-			 const struct GNUNET_HashCode *hash,
-			 enum GNUNET_MESSENGER_MessageFlags flags,
-			 const struct GNUNET_MESSENGER_Message *msg);
+                         const struct GNUNET_HashCode *hash,
+                         enum GNUNET_MESSENGER_MessageFlags flags,
+                         const struct GNUNET_MESSENGER_Message *msg);
 
 /**
  * Creates an internal chat message with an optional chat
@@ -92,8 +92,8 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
  */
 struct GNUNET_CHAT_Message*
 message_create_internally (struct GNUNET_CHAT_Context *context,
-			   enum GNUNET_CHAT_MessageFlag flag,
-			   const char *warning);
+                           enum GNUNET_CHAT_MessageFlag flag,
+                           const char *warning);
 
 /**
  * Destroys a chat <i>message</i> and frees its memory.

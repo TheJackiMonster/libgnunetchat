@@ -30,7 +30,7 @@
 
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
-			    const struct GNUNET_MESSENGER_Contact *member)
+			                      const struct GNUNET_MESSENGER_Contact *member)
 {
   GNUNET_assert((handle) && (member));
 
@@ -84,18 +84,18 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact)
   find.room = NULL;
 
   GNUNET_MESSENGER_find_rooms(
-      contact->handle->messenger,
-      contact->member,
-      it_contact_find_room,
-      &find
+    contact->handle->messenger,
+    contact->member,
+    it_contact_find_room,
+    &find
   );
 
   if (!(find.room))
     return NULL;
 
   return GNUNET_CONTAINER_multihashmap_get(
-      contact->handle->contexts,
-      GNUNET_MESSENGER_room_get_key(find.room)
+    contact->handle->contexts,
+    GNUNET_MESSENGER_room_get_key(find.room)
   );
 }
 

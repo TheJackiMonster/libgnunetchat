@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -45,13 +45,13 @@ task_handle_destruction (void *cls)
   if (accounts)
   {
     handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
-	GNUNET_TIME_absolute_add(
-	    GNUNET_TIME_absolute_get(),
-	    GNUNET_TIME_relative_get_millisecond_()
-	),
-	GNUNET_SCHEDULER_PRIORITY_IDLE,
-	task_handle_destruction,
-	handle
+      GNUNET_TIME_absolute_add(
+          GNUNET_TIME_absolute_get(),
+          GNUNET_TIME_relative_get_millisecond_()
+      ),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      task_handle_destruction,
+      handle
     );
 
     return;
@@ -63,8 +63,8 @@ task_handle_destruction (void *cls)
 
 void
 cb_lobby_lookup (void *cls,
-		 uint32_t count,
-		 const struct GNUNET_GNSRECORD_Data *data)
+                 uint32_t count,
+                 const struct GNUNET_GNSRECORD_Data *data)
 {
   GNUNET_assert(cls);
 
@@ -74,10 +74,10 @@ cb_lobby_lookup (void *cls,
     goto drop_lookup;
 
   struct GNUNET_CHAT_Context *context = handle_process_records(
-      lookups->handle,
-      lookups->uri->label,
-      count,
-      data
+    lookups->handle,
+    lookups->uri->label,
+    count,
+    data
   );
 
   if (context)
@@ -106,8 +106,8 @@ struct GNUNET_CHAT_HandleIterateContacts
 
 int
 it_handle_iterate_contacts (void *cls,
-			    GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
-			    void *value)
+                            GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
+                            void *value)
 {
   GNUNET_assert((cls) && (value));
 
@@ -130,8 +130,8 @@ struct GNUNET_CHAT_HandleIterateGroups
 
 int
 it_handle_iterate_groups (void *cls,
-			  GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			  void *value)
+                          GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                          void *value)
 {
   GNUNET_assert((cls) && (value));
 
@@ -153,8 +153,8 @@ struct GNUNET_CHAT_RoomFindContact
 
 int
 it_room_find_contact (void *cls,
-		      GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
-		      const struct GNUNET_MESSENGER_Contact *member)
+                      GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+                      const struct GNUNET_MESSENGER_Contact *member)
 {
   GNUNET_assert((cls) && (member));
 
@@ -181,7 +181,7 @@ struct GNUNET_CHAT_GroupIterateContacts
 
 int
 it_group_iterate_contacts (void* cls,
-			   GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+			                     GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                            const struct GNUNET_MESSENGER_Contact *member)
 {
   GNUNET_assert((cls) && (member));
@@ -192,7 +192,7 @@ it_group_iterate_contacts (void* cls,
     return GNUNET_YES;
 
   return it->cb(it->cls, it->group, handle_get_contact_from_messenger(
-      it->group->handle, member
+    it->group->handle, member
   ));
 }
 
@@ -205,8 +205,8 @@ struct GNUNET_CHAT_ContextIterateMessages
 
 int
 it_context_iterate_messages (void *cls,
-			     GNUNET_UNUSED const struct GNUNET_HashCode *key,
-			     void *value)
+                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                             void *value)
 {
   GNUNET_assert((cls) && (value));
 
@@ -229,8 +229,8 @@ struct GNUNET_CHAT_ContextIterateFiles
 
 int
 it_context_iterate_files (void *cls,
-			  const struct GNUNET_HashCode *key,
-			  GNUNET_UNUSED void *value)
+                          const struct GNUNET_HashCode *key,
+                          GNUNET_UNUSED void *value)
 {
   GNUNET_assert((cls) && (key));
 
@@ -240,14 +240,14 @@ it_context_iterate_files (void *cls,
     return GNUNET_YES;
 
   struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
-      it->context->messages, key
+    it->context->messages, key
   );
 
   if (!message)
     return GNUNET_YES;
 
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-      it->context->handle->files, &(message->hash)
+    it->context->handle->files, &(message->hash)
   );
 
   if (!file)
@@ -265,8 +265,8 @@ struct GNUNET_CHAT_MessageIterateReadReceipts
 
 int
 it_message_iterate_read_receipts (void *cls,
-				  GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
-				  const struct GNUNET_MESSENGER_Contact *member)
+                                  GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
+                                  const struct GNUNET_MESSENGER_Contact *member)
 {
   GNUNET_assert((cls) && (member));
 
@@ -287,14 +287,14 @@ it_message_iterate_read_receipts (void *cls,
     return GNUNET_YES;
 
   struct GNUNET_TIME_Absolute *timestamp = GNUNET_CONTAINER_multishortmap_get(
-      it->message->context->timestamps, &shorthash
+    it->message->context->timestamps, &shorthash
   );
 
   if (!timestamp)
     return GNUNET_YES;
 
   struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
-      *timestamp, GNUNET_CHAT_message_get_timestamp(it->message)
+    *timestamp, GNUNET_CHAT_message_get_timestamp(it->message)
   );
 
   int read_receipt;

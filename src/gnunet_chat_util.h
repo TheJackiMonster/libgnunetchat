@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -61,7 +61,7 @@ enum GNUNET_CHAT_ContextType
  */
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
-			    struct GNUNET_ShortHashCode *shorthash);
+			                      struct GNUNET_ShortHashCode *shorthash);
 
 /**
  * Updates the stored content of a <i>field</i> with
@@ -96,8 +96,8 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash);
  */
 int
 util_encrypt_file (const char *filename,
-		   const struct GNUNET_HashCode *hash,
-		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
+                   const struct GNUNET_HashCode *hash,
+                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
 /**
  * Decrypts a file inplace under a given <i>filename</i>
@@ -112,8 +112,8 @@ util_encrypt_file (const char *filename,
  */
 int
 util_decrypt_file (const char *filename,
-		   const struct GNUNET_HashCode *hash,
-		   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
+                   const struct GNUNET_HashCode *hash,
+                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
 /**
  * Append the path of a <i>directory</i> and a custom
@@ -126,8 +126,8 @@ util_decrypt_file (const char *filename,
  */
 int
 util_get_dirname (const char *directory,
-		  const char *subdir,
-		  char **filename);
+                  const char *subdir,
+                  char **filename);
 
 /**
  * Append the path of a <i>directory</i>, a custom
@@ -142,9 +142,9 @@ util_get_dirname (const char *directory,
  */
 int
 util_get_filename (const char *directory,
-		   const char *subdir,
-		   const struct GNUNET_HashCode *hash,
-		   char **filename);
+                   const char *subdir,
+                   const struct GNUNET_HashCode *hash,
+                   char **filename);
 
 /**
  * Allocates a new string representing the lower case versionn
@@ -168,8 +168,8 @@ util_get_lower(const char *name);
  */
 int
 util_get_context_label (enum GNUNET_CHAT_ContextType type,
-		        const struct GNUNET_HashCode *hash,
-		        char **label);
+                        const struct GNUNET_HashCode *hash,
+                        char **label);
 
 /**
  * Extract the chat context type from a used <i>label</i> by
@@ -181,7 +181,7 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
  */
 enum GNUNET_CHAT_ContextType
 util_get_context_label_type (const char *label,
-			     const struct GNUNET_HashCode *hash);
+			                       const struct GNUNET_HashCode *hash);
 
 /**
  * Provide a standardized <i>name</i> for a lobby using
@@ -193,7 +193,7 @@ util_get_context_label_type (const char *label,
  */
 int
 util_lobby_name (const struct GNUNET_HashCode *hash,
-		 char **name);
+		             char **name);
 
 /**
  * Return the chat related kind for a messages original kind

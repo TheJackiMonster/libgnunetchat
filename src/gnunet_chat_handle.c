@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2023 GNUnet e.V.
+   Copyright (C) 2021--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -31,8 +31,8 @@ static const unsigned int minimum_amount_of_other_members_in_group = 2;
 
 struct GNUNET_CHAT_Handle*
 handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
-			   GNUNET_CHAT_ContextMessageCallback msg_cb,
-			   void *msg_cls)
+                           GNUNET_CHAT_ContextMessageCallback msg_cb,
+                           void *msg_cls)
 {
   GNUNET_assert(cfg);
 
@@ -40,7 +40,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->cfg = cfg;
   handle->shutdown_hook = GNUNET_SCHEDULER_add_shutdown(
-      on_handle_shutdown, handle
+    on_handle_shutdown, handle
   );
 
   handle->destruction = NULL;
@@ -61,7 +61,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     handle->directory = NULL;
   }
   else if ((GNUNET_YES != GNUNET_DISK_directory_test(handle->directory, GNUNET_YES)) &&
-	   (GNUNET_OK != GNUNET_DISK_directory_create(handle->directory)))
+	         (GNUNET_OK != GNUNET_DISK_directory_create(handle->directory)))
   {
     GNUNET_free(handle->directory);
 
@@ -74,7 +74,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     util_get_dirname(handle->directory, "chat", &chat_directory);
 
     if ((GNUNET_YES != GNUNET_DISK_directory_test(chat_directory, GNUNET_YES)) &&
-    	(GNUNET_OK != GNUNET_DISK_directory_create(chat_directory)))
+    	  (GNUNET_OK != GNUNET_DISK_directory_create(chat_directory)))
       GNUNET_free(chat_directory);
     else
     {
@@ -104,21 +104,22 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->groups = NULL;
 
   handle->arm = GNUNET_ARM_connect(
-      handle->cfg,
-      on_handle_arm_connection, handle
+    handle->cfg,
+    on_handle_arm_connection, 
+    handle
   );
 
   if (handle->arm)
     on_handle_arm_connection(handle, GNUNET_NO);
 
   handle->identity = GNUNET_IDENTITY_connect(
-      handle->cfg,
-      on_handle_gnunet_identity,
-      handle
+    handle->cfg,
+    on_handle_gnunet_identity,
+    handle
   );
 
   handle->namestore = GNUNET_NAMESTORE_connect(
-      handle->cfg
+    handle->cfg
   );
 
   handle->fs = NULL;
@@ -212,9 +213,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
       message_destroy(internal->msg);
 
     GNUNET_CONTAINER_DLL_remove(
-	handle->internal_head,
-	handle->internal_tail,
-	internal
+      handle->internal_head,
+      handle->internal_tail,
+      internal
     );
 
     GNUNET_free(internal);
@@ -226,10 +227,12 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 static void
 handle_update_identity(struct GNUNET_CHAT_Handle *handle)
 {
-  GNUNET_assert((handle) &&
+  GNUNET_assert(
+    (handle) &&
 		(handle->contexts) &&
 		(handle->groups) &&
-		(handle->contacts));
+		(handle->contacts)
+  );
 
   handle_update_key(handle);
 
@@ -241,10 +244,10 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
   GNUNET_assert(handle->messenger);
 
   handle_send_internal_message(
-      handle,
-      NULL,
-      GNUNET_CHAT_FLAG_LOGIN,
-      NULL
+    handle,
+    NULL,
+    GNUNET_CHAT_FLAG_LOGIN,
+    NULL
   );
 
   const struct GNUNET_CRYPTO_PrivateKey *zone = handle_get_key(handle);
@@ -253,28 +256,30 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
     return;
 
   handle->monitor = GNUNET_NAMESTORE_zone_monitor_start(
-      handle->cfg,
-      zone,
-      GNUNET_YES,
-      NULL,
-      NULL,
-      on_monitor_namestore_record,
-      handle,
-      NULL,
-      NULL
+    handle->cfg,
+    zone,
+    GNUNET_YES,
+    NULL,
+    NULL,
+    on_monitor_namestore_record,
+    handle,
+    NULL,
+    NULL
   );
 }
 
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		const struct GNUNET_CHAT_Account *account)
+		            const struct GNUNET_CHAT_Account *account)
 {
-  GNUNET_assert((handle) && (account) &&
+  GNUNET_assert(
+    (handle) && (account) &&
 		(!(handle->current)) &&
 		(!(handle->groups)) &&
 		(!(handle->contacts)) &&
 		(!(handle->contexts)) &&
-		(!(handle->files)));
+		(!(handle->files))
+  );
 
   if (handle->monitor)
   {
@@ -283,13 +288,13 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   }
 
   handle->files = GNUNET_CONTAINER_multihashmap_create(
-      initial_map_size_of_handle, GNUNET_NO);
+    initial_map_size_of_handle, GNUNET_NO);
   handle->contexts = GNUNET_CONTAINER_multihashmap_create(
-      initial_map_size_of_handle, GNUNET_NO);
+    initial_map_size_of_handle, GNUNET_NO);
   handle->contacts = GNUNET_CONTAINER_multishortmap_create(
-      initial_map_size_of_handle, GNUNET_NO);
+    initial_map_size_of_handle, GNUNET_NO);
   handle->groups = GNUNET_CONTAINER_multihashmap_create(
-      initial_map_size_of_handle, GNUNET_NO);
+    initial_map_size_of_handle, GNUNET_NO);
 
   const char *name = account->name;
 
@@ -299,17 +304,17 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   char* fs_client_name = NULL;
   GNUNET_asprintf (
-      &fs_client_name,
-      "GNUNET_CHAT_%s%s",
-      name? "_" : "anonymous",
-      name? name : ""
+    &fs_client_name,
+    "GNUNET_CHAT_%s%s",
+    name? "_" : "anonymous",
+    name? name : ""
   );
 
   handle->fs = GNUNET_FS_start(
-      handle->cfg, fs_client_name,
-      notify_handle_fs_progress, handle,
-      GNUNET_FS_FLAGS_NONE,
-      GNUNET_FS_OPTIONS_END
+    handle->cfg, fs_client_name,
+    notify_handle_fs_progress, handle,
+    GNUNET_FS_FLAGS_NONE,
+    GNUNET_FS_OPTIONS_END
   );
 
   GNUNET_free(fs_client_name);
@@ -317,9 +322,9 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   handle->gns = GNUNET_GNS_connect(handle->cfg);
 
   handle->messenger = GNUNET_MESSENGER_connect(
-      handle->cfg, name, key,
-      on_handle_message,
-      handle
+    handle->cfg, name, key,
+    on_handle_message,
+    handle
   );
 
   handle->current = account;
@@ -329,23 +334,25 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 void
 handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 {
-  GNUNET_assert((handle) &&
+  GNUNET_assert(
+    (handle) &&
 		(handle->current) &&
 		(handle->groups) &&
 		(handle->contacts) &&
 		(handle->contexts) &&
-		(handle->files));
+		(handle->files)
+  );
 
   GNUNET_CONTAINER_multihashmap_iterate(
-      handle->groups, it_destroy_handle_groups, NULL
+    handle->groups, it_destroy_handle_groups, NULL
   );
 
   GNUNET_CONTAINER_multishortmap_iterate(
-      handle->contacts, it_destroy_handle_contacts, NULL
+    handle->contacts, it_destroy_handle_contacts, NULL
   );
 
   GNUNET_CONTAINER_multihashmap_iterate(
-      handle->contexts, it_destroy_handle_contexts, NULL
+    handle->contexts, it_destroy_handle_contexts, NULL
   );
 
   struct GNUNET_CHAT_InternalMessages *internal;
@@ -395,7 +402,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     GNUNET_GNS_disconnect(handle->gns);
 
   GNUNET_CONTAINER_multihashmap_iterate(
-      handle->files, it_destroy_handle_files, NULL
+    handle->files, it_destroy_handle_files, NULL
   );
 
   if (handle->fs)
@@ -438,7 +445,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 
 static struct GNUNET_CHAT_InternalAccounts*
 find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
-		       const char *name)
+		                   const char *name)
 {
   GNUNET_assert((handle) && (name));
 
@@ -449,7 +456,7 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
       goto skip_account;
 
     if ((accounts->account->name) &&
-      (0 == strcmp(accounts->account->name, name)))
+        (0 == strcmp(accounts->account->name, name)))
       break;
 
   skip_account:
@@ -461,9 +468,9 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
 
 static int
 update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
-			   struct GNUNET_CHAT_Handle *handle,
-			   const char *name,
-			   int wait_for_completion)
+                           struct GNUNET_CHAT_Handle *handle,
+                           const char *name,
+                           int wait_for_completion)
 {
   GNUNET_assert(handle);
 
@@ -504,7 +511,7 @@ update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
 
 int
 handle_create_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *name)
+		                   const char *name)
 {
   GNUNET_assert((handle) && (name));
 
@@ -514,18 +521,23 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
   if (accounts)
     return GNUNET_NO;
 
-  int result = update_accounts_operation(&accounts, handle, NULL, GNUNET_NO);
+  int result = update_accounts_operation(
+    &accounts, 
+    handle, 
+    NULL, 
+    GNUNET_NO
+  );
 
   if (GNUNET_OK != result)
     return result;
 
   accounts->op = GNUNET_IDENTITY_create(
-      handle->identity,
-      name,
-      NULL,
-      GNUNET_PUBLIC_KEY_TYPE_ECDSA,
-      cb_account_creation,
-      accounts
+    handle->identity,
+    name,
+    NULL,
+    GNUNET_PUBLIC_KEY_TYPE_ECDSA,
+    cb_account_creation,
+    accounts
   );
 
   if (!accounts->op)
@@ -536,23 +548,28 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
 
 int
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *name)
+		                   const char *name)
 {
   GNUNET_assert((handle) && (name));
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, name);
 
-  int result = update_accounts_operation(&accounts, handle, NULL, GNUNET_YES);
+  int result = update_accounts_operation(
+    &accounts, 
+    handle, 
+    NULL, 
+    GNUNET_YES
+  );
 
   if (GNUNET_OK != result)
     return result;
 
   accounts->op = GNUNET_IDENTITY_delete(
-      handle->identity,
-      name,
-      cb_account_deletion,
-      accounts
+    handle->identity,
+    name,
+    cb_account_deletion,
+    accounts
   );
 
   if (!accounts->op)
@@ -563,25 +580,30 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 
 int
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
-		       const char *old_name,
-		       const char *new_name)
+                       const char *old_name,
+                       const char *new_name)
 {
   GNUNET_assert((handle) && (old_name) && (new_name));
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, old_name);
 
-  int result = update_accounts_operation(&accounts, handle, NULL, GNUNET_YES);
+  int result = update_accounts_operation(
+    &accounts, 
+    handle, 
+    NULL, 
+    GNUNET_YES
+  );
 
   if (GNUNET_OK != result)
     return result;
 
   accounts->op = GNUNET_IDENTITY_rename(
-      handle->identity,
-      old_name,
-      new_name,
-      cb_account_rename,
-      accounts
+    handle->identity,
+    old_name,
+    new_name,
+    cb_account_rename,
+    accounts
   );
 
   if (!accounts->op)
@@ -617,16 +639,21 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, name);
 
-  int result = update_accounts_operation(&accounts, handle, name, GNUNET_YES);
+  int result = update_accounts_operation(
+    &accounts, 
+    handle, 
+    name, 
+    GNUNET_YES
+  );
 
   if (GNUNET_OK != result)
     return result;
 
   accounts->op = GNUNET_IDENTITY_delete(
-      handle->identity,
-      name,
-      cb_account_update,
-      accounts
+    handle->identity,
+    name,
+    cb_account_update,
+    accounts
   );
 
   if (!accounts->op)
@@ -644,15 +671,15 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle)
     return NULL;
 
   return GNUNET_IDENTITY_ego_get_private_key(
-      handle->current->ego
+    handle->current->ego
   );
 }
 
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
-			      struct GNUNET_CHAT_Context *context,
-			      enum GNUNET_CHAT_MessageFlag flag,
-			      const char *warning)
+                              struct GNUNET_CHAT_Context *context,
+                              enum GNUNET_CHAT_MessageFlag flag,
+                              const char *warning)
 {
   GNUNET_assert((handle) && (GNUNET_CHAT_FLAG_NONE != flag));
 
@@ -660,11 +687,11 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
     return;
 
   struct GNUNET_CHAT_InternalMessages *internal = GNUNET_new(
-      struct GNUNET_CHAT_InternalMessages
+    struct GNUNET_CHAT_InternalMessages
   );
 
   internal->msg = message_create_internally(
-      context, flag, warning
+    context, flag, warning
   );
 
   if (!(internal->msg))
@@ -677,9 +704,9 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 
   if (context)
     GNUNET_CONTAINER_DLL_insert(
-        handle->internal_head,
-        handle->internal_tail,
-        internal
+      handle->internal_head,
+      handle->internal_tail,
+      internal
     );
   else
     GNUNET_CONTAINER_DLL_insert_tail(
@@ -715,16 +742,18 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
 
 int
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
-				struct GNUNET_MESSENGER_Room *room)
+				                        struct GNUNET_MESSENGER_Room *room)
 {
-  GNUNET_assert((handle) &&
+  GNUNET_assert(
+    (handle) &&
 		(handle->contexts) &&
-		(room));
+		(room)
+  );
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(room);
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
-      handle->contexts, key
+    handle->contexts, key
   );
 
   struct GNUNET_CHAT_CheckHandleRoomMembers check;
@@ -752,7 +781,7 @@ check_type:
   check.contact = NULL;
 
   const int checks = GNUNET_MESSENGER_iterate_members(
-      room, check_handle_room_members, &check
+    room, check_handle_room_members, &check
   );
 
   if ((check.contact) &&
@@ -779,11 +808,11 @@ check_type:
     if (context->contact)
     {
       struct GNUNET_CHAT_Contact *contact = handle_get_contact_from_messenger(
-	  handle, check.contact
+	      handle, check.contact
       );
 
       if ((contact) && (contact->context == context))
-	contact->context = NULL;
+	      contact->context = NULL;
 
       context->contact = NULL;
     }
@@ -804,14 +833,14 @@ setup_group:
     group_publish(group);
 
   if (GNUNET_OK == GNUNET_CONTAINER_multihashmap_put(
-    handle->groups, key, group,
-    GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+      handle->groups, key, group,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     handle_send_internal_message(
-	handle,
-	context,
-	GNUNET_CHAT_FLAG_UPDATE,
-	NULL
+      handle,
+      context,
+      GNUNET_CHAT_FLAG_UPDATE,
+      NULL
     );
 
     context_write_records(context);
@@ -827,7 +856,7 @@ setup_group:
 
 struct GNUNET_CHAT_Contact*
 handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
-				   const struct GNUNET_MESSENGER_Contact *contact)
+				                           const struct GNUNET_MESSENGER_Contact *contact)
 {
   GNUNET_assert((handle) && (handle->contacts) && (contact));
 
@@ -835,13 +864,13 @@ handle_get_contact_from_messenger (const struct GNUNET_CHAT_Handle *handle,
   util_shorthash_from_member(contact, &shorthash);
 
   return GNUNET_CONTAINER_multishortmap_get(
-      handle->contacts, &shorthash
+    handle->contacts, &shorthash
   );
 }
 
 struct GNUNET_CHAT_Group*
 handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
-				 const struct GNUNET_MESSENGER_Room *room)
+				                         const struct GNUNET_MESSENGER_Room *room)
 {
   GNUNET_assert((handle) && (handle->groups) && (room));
 
@@ -851,15 +880,15 @@ handle_get_group_from_messenger (const struct GNUNET_CHAT_Handle *handle,
     return NULL;
 
   return GNUNET_CONTAINER_multihashmap_get(
-      handle->groups, key
+    handle->groups, key
   );
 }
 
 struct GNUNET_CHAT_Context*
 handle_process_records (struct GNUNET_CHAT_Handle *handle,
-			const char *label,
-			unsigned int count,
-			const struct GNUNET_GNSRECORD_Data *data)
+                        const char *label,
+                        unsigned int count,
+                        const struct GNUNET_GNSRECORD_Data *data)
 {
   GNUNET_assert((handle) && (data));
 
@@ -885,8 +914,8 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
     return NULL;
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
-      handle->contexts,
-      &(record->key)
+    handle->contexts,
+    &(record->key)
   );
 
   if (context)
@@ -896,9 +925,9 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   }
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
-      handle->messenger,
-      &(record->door),
-      &(record->key)
+    handle->messenger,
+    &(record->door),
+    &(record->key)
   );
 
   if (!room)
