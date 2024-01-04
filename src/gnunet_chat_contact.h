@@ -31,6 +31,14 @@
 
 struct GNUNET_CHAT_Handle;
 struct GNUNET_CHAT_Context;
+struct GNUNET_CHAT_Ticket;
+
+struct GNUNET_CHAT_InternalTickets
+{
+  struct GNUNET_CHAT_Ticket *ticket;
+  struct GNUNET_CHAT_InternalTickets *next;
+  struct GNUNET_CHAT_InternalTickets *prev;
+};
 
 struct GNUNET_CHAT_Contact
 {
@@ -38,6 +46,9 @@ struct GNUNET_CHAT_Contact
   struct GNUNET_CHAT_Context *context;
 
   const struct GNUNET_MESSENGER_Contact *member;
+
+  struct GNUNET_CHAT_InternalTickets *tickets_head;
+  struct GNUNET_CHAT_InternalTickets *tickets_tail;
 
   char *public_key;
   void *user_pointer;

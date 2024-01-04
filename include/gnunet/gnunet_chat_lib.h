@@ -172,6 +172,11 @@ struct GNUNET_CHAT_File;
 struct GNUNET_CHAT_Invitation;
 
 /**
+ * Struct of a chat ticket.
+ */
+struct GNUNET_CHAT_Ticket;
+
+/**
  * Iterator over chat accounts of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_accounts
@@ -179,7 +184,7 @@ struct GNUNET_CHAT_Invitation;
  * @param[in,out] account Chat account
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_AccountCallback) (void *cls,
                                 const struct GNUNET_CHAT_Handle *handle,
                                 struct GNUNET_CHAT_Account *account);
@@ -202,10 +207,23 @@ typedef void
  * @param[in,out] contact Chat contact
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContactCallback) (void *cls,
                                 struct GNUNET_CHAT_Handle *handle,
                                 struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Iterator over chat tickets of a specific chat contact.
+ *
+ * @param[in,out] cls Closure
+ * @param[in] contact Chat contact
+ * @param[in,out] ticket Chat ticket
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_ContactTicketCallback) (void *cls,
+                                      const struct GNUNET_CHAT_Contact *contact,
+                                      struct GNUNET_CHAT_Ticket *ticket);
 
 /**
  * Iterator over chat groups of a specific chat handle.
@@ -215,7 +233,7 @@ typedef int
  * @param[in,out] group Chat group
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_GroupCallback) (void *cls,
                               struct GNUNET_CHAT_Handle *handle,
                               struct GNUNET_CHAT_Group *group);
@@ -228,7 +246,7 @@ typedef int
  * @param[in,out] contact Chat contact
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_GroupContactCallback) (void *cls,
                                      const struct GNUNET_CHAT_Group *group,
                                      struct GNUNET_CHAT_Contact *contact);
@@ -241,7 +259,7 @@ typedef int
  * @param[in] message Chat message
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContextMessageCallback) (void *cls,
                                        struct GNUNET_CHAT_Context *context,
                                        const struct GNUNET_CHAT_Message *message);
@@ -254,7 +272,7 @@ typedef int
  * @param[in,out] file Chat file
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContextFileCallback) (void *cls,
                                     struct GNUNET_CHAT_Context *context,
                                     struct GNUNET_CHAT_File *file);
@@ -270,7 +288,7 @@ typedef int
  * 			   #GNUNET_NO otherwise
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef int
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls,
                                            const struct GNUNET_CHAT_Message *message,
                                            const struct GNUNET_CHAT_Contact *contact,
@@ -716,6 +734,20 @@ GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Iterates through the tickets of a given <i>contact</i> with a selected
+ * callback and custom closure.
+ *
+ * @param[in,out] contact Contact
+ * @param[in] callback Callback for ticket iteration (optional)
+ * @param[in,out] cls Closure for ticket iteration (optional)
+ * @return Amount of tickets iterated
+ */
+int
+GNUNET_CHAT_contact_iterate_tickets (const struct GNUNET_CHAT_Contact *contact,
+                                     GNUNET_CHAT_ContactTicketCallback callback,
+                                     void *cls);
 
 /**
  * Leaves a specific <i>group</i> chat and frees its memory if it is not shared

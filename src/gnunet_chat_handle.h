@@ -345,6 +345,11 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
                         const struct GNUNET_GNSRECORD_Data *data);
 
 /**
+ * Updates the tickets of a given chat <i>handle</i>, revoking 
+ * all tickets of a <i>identity</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] identity Identity private key
  */
 void
 handle_update_tickets (struct GNUNET_CHAT_Handle *handle,

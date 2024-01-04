@@ -767,6 +767,35 @@ GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact)
 }
 
 
+int
+GNUNET_CHAT_contact_iterate_tickets (const struct GNUNET_CHAT_Contact *contact,
+                                     GNUNET_CHAT_ContactTicketCallback callback,
+                                     void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!contact)
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_InternalTickets *tickets;
+  int result = 0;
+
+  tickets = contact->tickets_head;
+  
+  while (tickets)
+  {
+    result++;
+
+    if ((callback) && (GNUNET_NO == callback(cls, contact, tickets->ticket)))
+      break;
+
+    tickets = tickets->next;
+  }
+
+  return result;
+}
+
+
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 {
