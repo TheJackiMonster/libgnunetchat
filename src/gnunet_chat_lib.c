@@ -40,7 +40,7 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
-
+#include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_lib_intern.c"
@@ -1958,4 +1958,35 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
     invitation->context->handle->contexts, 
     &(invitation->key)
   );
+}
+
+
+const struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_ticket_get_contact (const struct GNUNET_CHAT_Ticket *ticket)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!ticket)
+    return NULL;
+
+  struct GNUNET_ShortHashCode shorthash;
+  util_shorthash_from_member(ticket->issuer, &shorthash);
+
+  return GNUNET_CONTAINER_multishortmap_get(
+    ticket->handle->contacts, &shorthash
+  );
+}
+
+
+void
+GNUNET_CHAT_ticket_consume (struct GNUNET_CHAT_Ticket *ticket,
+                            GNUNET_CHAT_TicketAttributeCallback callback,
+                            void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!ticket)
+    return;
+
+  ticket_consume(ticket, callback, cls);
 }

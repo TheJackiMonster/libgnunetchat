@@ -29,6 +29,8 @@
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
+#include "gnunet_chat_lib.h"
+
 struct GNUNET_CHAT_Handle;
 
 struct GNUNET_CHAT_Ticket
@@ -36,6 +38,11 @@ struct GNUNET_CHAT_Ticket
   struct GNUNET_CHAT_Handle *handle;
   
   const struct GNUNET_MESSENGER_Contact *issuer;
+
+  GNUNET_CHAT_TicketAttributeCallback callback;
+  void *closure;
+
+  struct GNUNET_RECLAIM_Operation *op;
 
   struct GNUNET_RECLAIM_Ticket ticket;
 };
@@ -54,6 +61,16 @@ struct GNUNET_CHAT_Ticket*
 ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
                             const struct GNUNET_MESSENGER_Contact *issuer,
                             const struct GNUNET_MESSENGER_MessageTicket *message);
+
+/**
+ * Consumes a chat <i>ticket</i>.
+ *
+ * @param[in,out] ticket Chat ticket
+ */
+void
+ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
+               GNUNET_CHAT_TicketAttributeCallback callback,
+               void *cls);
 
 /**
  * Destroys a chat <i>ticket</i> and frees its memory.

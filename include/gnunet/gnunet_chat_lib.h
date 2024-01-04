@@ -338,6 +338,20 @@ typedef void
                                     uint64_t size);
 
 /**
+ * Method called during a chat ticket consumption for each of its attributes.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_ticket_consume
+ * @param[in] ticket Chat ticket
+ * @param[in] name Attribute name
+ * @param[in] value Attribute value
+ */
+typedef void
+(*GNUNET_CHAT_TicketAttributeCallback) (void *cls,
+                                        const struct GNUNET_CHAT_Ticket *ticket,
+                                        const char *name,
+                                        const char *value);
+
+/**
  * Start a chat handle with a certain configuration.
  *
  * A custom callback for warnings and message events can be provided optionally
@@ -1311,6 +1325,27 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation);
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation);
+
+/**
+ * Returns the contact of the issuer from a given chat <i>ticket</i>.
+ *
+ * @param[in] invitation Chat invitation
+ * @return Chat contact
+ */
+const struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_ticket_get_contact (const struct GNUNET_CHAT_Ticket *ticket);
+
+/**
+ * Consumes a given chat <i>ticket</i>.
+ *
+ * @param[in,out] ticket Chat ticket
+ * @param[in] callback Callback for ticket consumption (optional)
+ * @param[in,out] cls Closure for ticket consumption (optional)
+ */
+void
+GNUNET_CHAT_ticket_consume (struct GNUNET_CHAT_Ticket *ticket,
+                            GNUNET_CHAT_TicketAttributeCallback callback,
+                            void *cls);
 
 /**@}*/
 
