@@ -88,6 +88,9 @@ struct GNUNET_CHAT_AttributeProcess
 
   struct GNUNET_RECLAIM_Attribute *attribute;
 
+  GNUNET_CHAT_AttributeCallback callback;
+  void *closure;
+
   struct GNUNET_RECLAIM_AttributeIterator *iter;
   struct GNUNET_RECLAIM_Operation *op;
 

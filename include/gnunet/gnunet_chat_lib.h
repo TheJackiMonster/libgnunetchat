@@ -191,6 +191,20 @@ typedef enum GNUNET_GenericReturnValue
                                 struct GNUNET_CHAT_Account *account);
 
 /**
+ * Method called for each attribute of a specific chat handle.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
+ * @param[in] handle Chat handle
+ * @param[in] name Attribute name
+ * @param[in] value Attribute value
+ */
+typedef void
+(*GNUNET_CHAT_AttributeCallback) (void *cls,
+                                  struct GNUNET_CHAT_Handle *handle,
+                                  const char *name,
+                                  const char *value);
+
+/**
  * Method called when a lobby is opened to share with others via a chat URI.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_lobby_open
@@ -513,6 +527,19 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
 void
 GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
                               const char *name);
+
+/**
+ * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] callback Callback for attribute iteration (optional)
+ * @param[in,out] cls Closure for attribute iteration (optional)
+ */
+void
+GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
+                            GNUNET_CHAT_AttributeCallback callback,
+                            void *cls);
 
 /**
  * Convert an UTF-8 String to a chat URI which will be newly allocated.
@@ -1363,7 +1390,8 @@ const struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_ticket_get_contact (const struct GNUNET_CHAT_Ticket *ticket);
 
 /**
- * Consumes a given chat <i>ticket</i>.
+ * Consumes a given chat <i>ticket</i> and calls an optional <i>callback</i>
+ * for each of its attributes.
  *
  * @param[in,out] ticket Chat ticket
  * @param[in] callback Callback for ticket consumption (optional)

@@ -343,3 +343,71 @@ cont_update_attribute_with_status (void *cls,
     attributes
   );
 }
+
+void
+cb_task_finish_iterate_attribute (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  if (attributes->iter)
+    GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+  GNUNET_CONTAINER_DLL_remove(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+
+  GNUNET_free(attributes);
+}
+
+void
+cb_task_error_iterate_attribute (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  handle_send_internal_message(
+    attributes->handle,
+    NULL,
+    GNUNET_CHAT_FLAG_WARNING,
+    "Attribute iteration failed!"
+  );
+
+  cb_task_finish_iterate_attribute(cls);
+}
+
+void
+cb_iterate_attribute (void *cls,
+                      const struct GNUNET_CRYPTO_PublicKey *identity,
+                      const struct GNUNET_RECLAIM_Attribute *attribute)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  const char *value = GNUNET_RECLAIM_attribute_value_to_string(
+    attribute->type,
+    attribute->data,
+    attribute->data_size
+  );
+
+  if (attributes->callback)
+    attributes->callback(attributes->closure, handle, attribute->name, value);
+
+  if (attributes->iter)
+    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+}

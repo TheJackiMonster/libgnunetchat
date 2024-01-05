@@ -358,6 +358,9 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
     struct GNUNET_CHAT_AttributeProcess
   );
 
+  if (!attributes)
+    return;
+
   memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
 
   attributes->handle = handle;
@@ -380,6 +383,56 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
     key,
     attributes->attribute,
     cont_update_attribute_with_status,
+    attributes
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+}
+
+
+void
+GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
+                            GNUNET_CHAT_AttributeCallback callback,
+                            void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if (!key)
+    return;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
+    struct GNUNET_CHAT_AttributeProcess
+  );
+
+  if (!attributes)
+    return;
+
+  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
+
+  attributes->handle = handle;
+
+  attributes->callback = callback;
+  attributes->closure = cls;
+
+  attributes->iter = GNUNET_RECLAIM_get_attributes_start(
+    handle->reclaim,
+    key,
+    cb_task_error_iterate_attribute,
+    attributes,
+    cb_iterate_attribute,
+    attributes,
+    cb_task_finish_iterate_attribute,
     attributes
   );
 
