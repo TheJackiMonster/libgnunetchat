@@ -311,7 +311,25 @@ cont_revoke_ticket_with_status (void *cls,
 
   tickets->op = NULL;
 
-  GNUNET_RECLAIM_ticket_iteration_next(tickets->iter);
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  if (GNUNET_SYSERR == success)
+  {
+    handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_KIND_WARNING,
+      emsg
+    );
+
+    if (tickets->iter)
+      GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
+
+    return;
+  }
+
+  if (tickets->iter)
+    GNUNET_RECLAIM_ticket_iteration_next(tickets->iter);
 }
 
 void

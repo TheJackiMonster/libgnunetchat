@@ -48,10 +48,13 @@ ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_Ticket *ticket = GNUNET_new(struct GNUNET_CHAT_Ticket);
 
-  memset(ticket, 0, sizeof(struct GNUNET_CHAT_Ticket));
-
   ticket->handle = handle;
   ticket->issuer = issuer;
+
+  ticket->callback = NULL;
+  ticket->closure = NULL;
+
+  ticket->op = NULL;
 
   GNUNET_memcpy(&(ticket->ticket.identity), identity, sizeof(ticket->ticket.identity));
   GNUNET_memcpy(&(ticket->ticket.audience), audience, sizeof(ticket->ticket.audience));

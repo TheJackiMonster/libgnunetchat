@@ -26,6 +26,9 @@
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_reclaim_lib.h>
+#include <gnunet/gnunet_reclaim_service.h>
+#include <gnunet/gnunet_time_lib.h>
 #include <libgen.h>
 #include <limits.h>
 #include <strings.h>
@@ -254,6 +257,137 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
     return NULL;
 
   return handle->public_key;
+}
+
+
+void
+GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
+                           const char *name,
+                           const char *value,
+                           const struct GNUNET_TIME_Relative *expires)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if ((!key) || (!name))
+    return;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
+    struct GNUNET_CHAT_AttributeProcess
+  );
+
+  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
+
+  attributes->handle = handle;
+  attributes->attribute = GNUNET_RECLAIM_attribute_new(
+    name,
+    NULL,
+    GNUNET_RECLAIM_ATTRIBUTE_TYPE_NONE,
+    NULL,
+    0
+  );
+
+  if (!attributes->attribute)
+  {
+    GNUNET_free(attributes);
+    return;
+  }
+
+  if (value)
+  {
+    void *data = NULL;
+
+    enum GNUNET_GenericReturnValue result;
+    result = GNUNET_RECLAIM_attribute_string_to_value(
+      GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING,
+      value,
+      &data,
+      &(attributes->attribute->data_size)
+    );
+
+    if (GNUNET_OK != result)
+    {
+      GNUNET_free(attributes->attribute);
+      GNUNET_free(attributes);
+      return;
+    }
+
+    attributes->attribute->data = data;
+  }
+
+  attributes->op = GNUNET_RECLAIM_attribute_store(
+    handle->reclaim,
+    key,
+    attributes->attribute,
+    expires,
+    cont_update_attribute_with_status,
+    attributes
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+}
+
+
+void
+GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
+                              const char *name)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if ((!key) || (!name))
+    return;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
+    struct GNUNET_CHAT_AttributeProcess
+  );
+
+  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
+
+  attributes->handle = handle;
+  attributes->attribute = GNUNET_RECLAIM_attribute_new(
+    name,
+    NULL,
+    GNUNET_RECLAIM_ATTRIBUTE_TYPE_NONE,
+    NULL,
+    0
+  );
+
+  if (!attributes->attribute)
+  {
+    GNUNET_free(attributes);
+    return;
+  }
+
+  attributes->op = GNUNET_RECLAIM_attribute_delete(
+    handle->reclaim,
+    key,
+    attributes->attribute,
+    cont_update_attribute_with_status,
+    attributes
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
 }
 
 

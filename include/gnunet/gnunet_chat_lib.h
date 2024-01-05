@@ -35,6 +35,7 @@
 /**@{*/
 
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
 /**
@@ -486,6 +487,32 @@ GNUNET_CHAT_get_name (const struct GNUNET_CHAT_Handle *handle);
  */
 const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
+
+/**
+ * Updates an attribute of a chat handle for related communication under a given 
+ * <i>name</i> and a custom <i>value</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Attribute name
+ * @param[in] value Attribute value
+ * @param[in] expires Expiration time or NULL
+ */
+void
+GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
+                           const char *name,
+                           const char *value,
+                           const struct GNUNET_TIME_Relative *expires);
+
+/**
+ * Deletes an attribute of a chat handle for related communication under a given
+ * <i>name</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Attribute name
+ */
+void
+GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
+                              const char *name);
 
 /**
  * Convert an UTF-8 String to a chat URI which will be newly allocated.

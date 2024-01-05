@@ -22,6 +22,7 @@
  * @file gnunet_chat_lib_intern.c
  */
 
+#include <gnunet/gnunet_common.h>
 #include <stdlib.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -307,4 +308,38 @@ it_message_iterate_read_receipts (void *cls,
     it->cb(it->cls, it->message, contact, read_receipt);
 
   return GNUNET_YES;
+}
+
+void
+cont_update_attribute_with_status (void *cls,
+                                   int32_t success,
+                                   const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  attributes->op = NULL;
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  if (GNUNET_SYSERR == success)
+  {
+    handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_KIND_WARNING,
+      emsg
+    );
+
+    return;
+  }
+
+  GNUNET_CONTAINER_DLL_remove(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
 }

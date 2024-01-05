@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
+#include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -81,6 +82,19 @@ struct GNUNET_CHAT_UriLookups
   struct GNUNET_CHAT_UriLookups *prev;
 };
 
+struct GNUNET_CHAT_AttributeProcess
+{
+  struct GNUNET_CHAT_Handle *handle;
+
+  struct GNUNET_RECLAIM_Attribute *attribute;
+
+  struct GNUNET_RECLAIM_AttributeIterator *iter;
+  struct GNUNET_RECLAIM_Operation *op;
+
+  struct GNUNET_CHAT_AttributeProcess *next;
+  struct GNUNET_CHAT_AttributeProcess *prev;
+};
+
 struct GNUNET_CHAT_TicketProcess
 {
   struct GNUNET_CHAT_Handle *handle;
@@ -119,6 +133,9 @@ struct GNUNET_CHAT_Handle
 
   struct GNUNET_CHAT_UriLookups *lookups_head;
   struct GNUNET_CHAT_UriLookups *lookups_tail;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes_head;
+  struct GNUNET_CHAT_AttributeProcess *attributes_tail;
 
   struct GNUNET_CHAT_TicketProcess *tickets_head;
   struct GNUNET_CHAT_TicketProcess *tickets_tail;

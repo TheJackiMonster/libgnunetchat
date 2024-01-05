@@ -99,6 +99,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->lookups_head = NULL;
   handle->lookups_tail = NULL;
 
+  handle->attributes_head = NULL;
+  handle->attributes_tail = NULL;
+
   handle->tickets_head = NULL;
   handle->tickets_tail = NULL;
 
@@ -458,6 +461,29 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     );
 
     GNUNET_free(lobbies);
+  }
+
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  while (handle->attributes_head)
+  {
+    attributes = handle->attributes_head;
+
+    if (attributes->attribute)
+      GNUNET_free(attributes->attribute);
+
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    if (attributes->op)
+      GNUNET_RECLAIM_cancel(attributes->op);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->attributes_head,
+      handle->attributes_tail,
+      attributes
+    );
+
+    GNUNET_free(attributes);
   }
 
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);
