@@ -1786,12 +1786,7 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
   if ((!message) || (!(message->msg)) || (!(message->context)))
     return GNUNET_SYSERR;
 
-  struct GNUNET_MESSENGER_Message msg;
-  msg.header.kind = GNUNET_MESSENGER_KIND_DELETE;
-  GNUNET_memcpy(&(msg.body.deletion.hash), &(message->hash), sizeof(message->hash));
-  msg.body.deletion.delay = GNUNET_TIME_relative_hton(delay);
-
-  GNUNET_MESSENGER_send_message(message->context->room, &msg, NULL);
+  GNUNET_MESSENGER_delete_message(message->context->room, &(message->hash), delay);
   return GNUNET_OK;
 }
 
