@@ -1097,6 +1097,15 @@ struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message);
 
 /**
+ * Returns the contact of the recipient from a given <i>message</i>.
+ *
+ * @param[in] message Message
+ * @return Contact of the messages recipient or NULL
+ */
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message);
+
+/**
  * Returns #GNUNET_YES if the message was sent by the related chat handle,
  * otherwise it returns #GNUNET_NO.
  *

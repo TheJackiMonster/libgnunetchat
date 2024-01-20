@@ -807,6 +807,7 @@ void
 on_handle_message (void *cls,
                    struct GNUNET_MESSENGER_Room *room,
                    const struct GNUNET_MESSENGER_Contact *sender,
+                   const struct GNUNET_MESSENGER_Contact *recipient,
                    const struct GNUNET_MESSENGER_Message *msg,
                    const struct GNUNET_HashCode *hash,
                    enum GNUNET_MESSENGER_MessageFlags flags)

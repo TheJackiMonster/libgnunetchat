@@ -1615,6 +1615,26 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 }
 
 
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
+      (!(message->context)) || (!(message->context->room)))
+    return NULL;
+  
+  const struct GNUNET_MESSENGER_Contact *recipient = GNUNET_MESSENGER_get_recipient(
+    message->context->room, &(message->hash)
+  );
+
+  if (!recipient)
+    return NULL;
+
+  return handle_get_contact_from_messenger(message->context->handle, recipient);
+}
+
+
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message)
 {
