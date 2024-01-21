@@ -881,10 +881,11 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
   struct GNUNET_CHAT_Context *context = contact_find_context(contact);
 
   if ((context) && (GNUNET_CHAT_CONTEXT_TYPE_CONTACT == context->type))
-    return context;
+    goto attach_return;
 
   context = context_create_from_contact(contact->handle, contact->member);
 
+attach_return:
   if (context)
     contact->context = context;
 
@@ -1216,23 +1217,29 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   struct GNUNET_CHAT_Context *other = contact_find_context(contact);
 
   if ((!other) || (!(other->room)))
-    return;
+    goto cleanup_contact;
 
   struct GNUNET_HashCode key;
   GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
       handle->contexts, &key))
-    return;
+    goto cleanup_contact;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
     handle->messenger, &key
   );
 
   if (!room)
-    return;
+    goto cleanup_contact;
 
   context_update_room(context, room);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->contexts, &key, context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    goto cleanup_room;
+
   handle_send_room_name(handle, room);
 
   struct GNUNET_MESSENGER_Message msg;
@@ -1241,6 +1248,13 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
   GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);
+  return;
+
+cleanup_room:
+  GNUNET_MESSENGER_close_room(room);
+
+cleanup_contact:
+  contact_destroy(contact);
 }
 
 

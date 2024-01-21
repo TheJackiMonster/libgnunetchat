@@ -124,5 +124,8 @@ contact_destroy (struct GNUNET_CHAT_Contact* contact)
   if (contact->public_key)
     GNUNET_free(contact->public_key);
 
+  if ((contact->context) && (!contact->context->room))
+    context_destroy(contact->context);
+
   GNUNET_free(contact);
 }
