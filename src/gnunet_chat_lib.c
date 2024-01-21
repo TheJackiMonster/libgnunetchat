@@ -1077,7 +1077,7 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!group) || (!contact))
+  if ((!group) || (!contact) || (!contact->member))
     return;
 
   struct GNUNET_CHAT_Context *context = contact_find_context(contact);
@@ -1637,7 +1637,7 @@ GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message)
   if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
       (!(message->context)) || (!(message->context->room)))
     return NULL;
-  
+
   const struct GNUNET_MESSENGER_Contact *recipient = GNUNET_MESSENGER_get_recipient(
     message->context->room, &(message->hash)
   );
