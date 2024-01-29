@@ -1026,6 +1026,9 @@ handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (identity));
 
+  if (!handle->reclaim)
+    return;
+
   struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
     struct GNUNET_CHAT_TicketProcess
   );
@@ -1034,6 +1037,7 @@ handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
     return;
 
   memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
+  tickets->handle = handle;
   GNUNET_memcpy(
     &(tickets->identity),
     identity,
