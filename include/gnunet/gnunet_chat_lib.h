@@ -74,7 +74,7 @@ enum GNUNET_CHAT_MessageKind
   /**
    * The kind to inform that a context was updated.
    */
-  GNUNET_CHAT_KIND_UPDATE = 4,      /**< GNUNET_CHAT_KIND_UPDATE */
+  GNUNET_CHAT_KIND_UPDATE = 4,     /**< GNUNET_CHAT_KIND_UPDATE */
 
   /**
    * The kind to inform that a contact has joined a chat.
@@ -110,6 +110,11 @@ enum GNUNET_CHAT_MessageKind
    * The kind to inform about a deletion of a previous message.
    */
   GNUNET_CHAT_KIND_DELETION = 11,  /**< GNUNET_CHAT_KIND_DELETION */
+
+  /**
+   * The kind to tag a previous message.
+   */
+  GNUNET_CHAT_KIND_TAG = 12,       /**< GNUNET_CHAT_KIND_TAG */
 
   /**
    * An unknown kind of message.

@@ -1725,12 +1725,15 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
     return message->warning;
-  if (GNUNET_MESSENGER_KIND_FILE == message->msg->header.kind)
-    return message->msg->body.file.name;
-  if (GNUNET_MESSENGER_KIND_TEXT != message->msg->header.kind)
-    return NULL;
 
-  return message->msg->body.text.text;
+  if (GNUNET_MESSENGER_KIND_TEXT == message->msg->header.kind)
+    return message->msg->body.text.text;
+  else if (GNUNET_MESSENGER_KIND_FILE == message->msg->header.kind)
+    return message->msg->body.file.name;
+  else if (GNUNET_MESSENGER_KIND_TAG == message->msg->header.kind)
+    return message->msg->body.tag.tag;
+  else
+    return NULL;
 }
 
 
@@ -1782,8 +1785,10 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 
   if (GNUNET_MESSENGER_KIND_DELETE == message->msg->header.kind)
     target = GNUNET_CONTAINER_multihashmap_get(
-	message->context->messages, &(message->msg->body.deletion.hash)
-    );
+	message->context->messages, &(message->msg->body.deletion.hash));
+  else if (GNUNET_MESSENGER_KIND_TAG == message->msg->header.kind)
+    target = GNUNET_CONTAINER_multihashmap_get(
+      message->context->messages, &(message->msg->body.tag.hash));
   else
     target = NULL;
 

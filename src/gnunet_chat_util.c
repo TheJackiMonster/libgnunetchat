@@ -421,6 +421,8 @@ util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind)
       return GNUNET_CHAT_KIND_DELETION;
     case GNUNET_MESSENGER_KIND_TICKET:
       return GNUNET_CHAT_KIND_CONTACT;
+    case GNUNET_MESSENGER_KIND_TAG:
+      return GNUNET_CHAT_KIND_TAG;
     default:
       return GNUNET_CHAT_KIND_UNKNOWN;
   }
