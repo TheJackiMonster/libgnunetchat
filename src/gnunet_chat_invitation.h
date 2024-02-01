@@ -34,6 +34,9 @@ struct GNUNET_CHAT_Invitation
 {
   struct GNUNET_CHAT_Context *context;
 
+  struct GNUNET_HashCode hash;
+  struct GNUNET_HashCode rejection;
+
   struct GNUNET_HashCode key;
   GNUNET_PEER_Id door;
 };
@@ -48,6 +51,7 @@ struct GNUNET_CHAT_Invitation
  */
 struct GNUNET_CHAT_Invitation*
 invitation_create_from_message (struct GNUNET_CHAT_Context *context,
+                                const struct GNUNET_HashCode *hash,
 				                        const struct GNUNET_MESSENGER_MessageInvite *message);
 
 /**

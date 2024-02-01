@@ -2167,6 +2167,32 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
 }
 
 
+void
+GNUNET_CHAT_invitation_reject (struct GNUNET_CHAT_Invitation *invitation)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!invitation)
+    return;
+
+  const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(
+    invitation->context->room, &(invitation->hash)
+  );
+
+  if (!sender)
+    return;
+
+  struct GNUNET_MESSENGER_Message msg;
+
+  msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
+  GNUNET_memcpy(&(msg.body.tag.hash), &(invitation->hash),
+                sizeof(struct GNUNET_HashCode));
+  msg.body.tag.tag = NULL;
+
+  GNUNET_MESSENGER_send_message(invitation->context->room, &msg, sender);
+}
+
+
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation)
 {
@@ -2179,6 +2205,29 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
     invitation->context->handle->contexts, 
     &(invitation->key)
   );
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!invitation)
+    return GNUNET_NO;
+
+  if (0 == GNUNET_CRYPTO_hash_cmp(&(invitation->hash), &(invitation->rejection)))
+    return GNUNET_NO;
+
+  const struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
+    invitation->context->messages, &(invitation->rejection)
+  );
+
+  if ((!message) || (!message->msg) || (message->msg->header.kind != GNUNET_MESSENGER_KIND_TAG) ||
+      (message->msg->body.tag.tag))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
 }
 
 

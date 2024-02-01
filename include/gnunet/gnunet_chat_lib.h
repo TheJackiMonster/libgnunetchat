@@ -1381,13 +1381,30 @@ void
 GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation);
 
 /**
- * Returns if a given <i>invitation</i> is accepted.
+ * Rejects a given chat <i>invitation</i> to enter another chat.
+ *
+ * @param[in,out] invitation Chat invitation
+ */
+void
+GNUNET_CHAT_invitation_reject (struct GNUNET_CHAT_Invitation *invitation);
+
+/**
+ * Returns if a given <i>invitation</i> got accepted.
  *
  * @param[in] invitation Chat invitation
  * @return #GNUNET_YES if accepted, #GNUNET_NO otherwise
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitation);
+
+/**
+ * Returns if a given <i>invitation</i> got rejected.
+ *
+ * @param[in] invitation Chat invitation
+ * @return #GNUNET_YES if rejected, #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation);
 
 /**
  * Returns the contact of the issuer from a given chat <i>ticket</i>.

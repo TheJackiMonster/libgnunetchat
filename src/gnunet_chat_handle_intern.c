@@ -896,7 +896,7 @@ on_handle_message (void *cls,
     case GNUNET_MESSENGER_KIND_INVITE:
     {
       struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
-	      context, &(msg->body.invite)
+	      context, hash, &(msg->body.invite)
       );
 
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
@@ -969,6 +969,21 @@ on_handle_message (void *cls,
         contact->tickets_tail,
         tickets
       );
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TAG:
+    {
+      if (msg->body.tag.tag)
+        break;
+
+      struct GNUNET_CHAT_Invitation *invitation = GNUNET_CONTAINER_multihashmap_get(
+        context->invites, &(msg->body.tag.hash)
+      );
+
+      if (invitation)
+        GNUNET_memcpy(&(invitation->rejection), hash,
+                      sizeof(invitation->rejection));
+
       break;
     }
     default:

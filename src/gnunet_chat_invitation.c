@@ -23,16 +23,21 @@
  */
 
 #include "gnunet_chat_invitation.h"
+#include <gnunet/gnunet_common.h>
 
 struct GNUNET_CHAT_Invitation*
 invitation_create_from_message (struct GNUNET_CHAT_Context *context,
+                                const struct GNUNET_HashCode *hash,
 				                        const struct GNUNET_MESSENGER_MessageInvite *message)
 {
-  GNUNET_assert((context) && (message));
+  GNUNET_assert((context) && (hash) && (message));
 
   struct GNUNET_CHAT_Invitation *invitation = GNUNET_new(struct GNUNET_CHAT_Invitation);
 
   invitation->context = context;
+
+  GNUNET_memcpy(&(invitation->hash), hash, sizeof(invitation->hash));
+  GNUNET_memcpy(&(invitation->rejection), hash, sizeof(invitation->rejection));
 
   GNUNET_memcpy(&(invitation->key), &(message->key), sizeof(invitation->key));
   invitation->door = GNUNET_PEER_intern(&(message->door));

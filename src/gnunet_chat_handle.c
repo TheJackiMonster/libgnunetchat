@@ -775,7 +775,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 
 void
 handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
-		       struct GNUNET_MESSENGER_Room *room)
+		                   struct GNUNET_MESSENGER_Room *room)
 {
   GNUNET_assert((handle) && (handle->messenger) && (room));
 
