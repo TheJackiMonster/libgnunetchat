@@ -762,23 +762,6 @@ on_handle_message_callback(void *cls)
   message->task = NULL;
 
   struct GNUNET_CHAT_Context *context = message->context;
-
-  switch (message->msg->header.kind)
-  {
-    case GNUNET_MESSENGER_KIND_DELETE:
-    {
-      struct GNUNET_CHAT_Message *target = GNUNET_CONTAINER_multihashmap_get(
-        context->messages, &(message->msg->body.deletion.hash)
-      );
-
-      if (target)
-	      target->msg = NULL;
-      break;
-    }
-    default:
-      break;
-  }
-
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
   if (!(handle->msg_cb))
@@ -881,10 +864,26 @@ on_handle_message (void *cls,
   );
 
   if (message)
-    return;
+  {
+    message_update_msg (message, flags, msg);
+
+    if (message->flags & GNUNET_MESSENGER_FLAG_UPDATE)
+      goto handle_callback;
+    else
+      return;
+  }
+  else if (msg->header.kind == GNUNET_MESSENGER_KIND_DELETE)
+  {
+    message = GNUNET_CONTAINER_multihashmap_get(
+      context->messages, &(msg->body.deletion.hash)
+    );
+
+    if ((!message) || (message->msg) || 
+        (0 == (message->flags & GNUNET_MESSENGER_FLAG_DELETE)))
+      return;
+  }
 
   struct GNUNET_SCHEDULER_Task* task = NULL;
-
   message = message_create_from_msg(context, hash, flags, msg);
 
   switch (msg->header.kind)
@@ -987,6 +986,7 @@ on_handle_message (void *cls,
     return;
   }
 
+handle_callback:
   if (!task)
     on_handle_message_callback(message);
   else

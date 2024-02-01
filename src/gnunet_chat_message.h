@@ -96,6 +96,19 @@ message_create_internally (struct GNUNET_CHAT_Context *context,
                            const char *warning);
 
 /**
+ * Updates a chat message representing an actual message
+ * from the messenger service.
+ *
+ * @param[in,out] message Chat message
+ * @param[in] flags Message flags
+ * @param[in] msg Messenger message
+ */
+void
+message_update_msg (struct GNUNET_CHAT_Message* message,
+                    enum GNUNET_MESSENGER_MessageFlags flags,
+                    const struct GNUNET_MESSENGER_Message *msg);
+
+/**
  * Destroys a chat <i>message</i> and frees its memory.
  *
  * @param[in,out] message Chat message

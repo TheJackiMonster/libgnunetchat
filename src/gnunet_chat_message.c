@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_message.h"
+#include <gnunet/gnunet_messenger_service.h>
 
 struct GNUNET_CHAT_Message*
 message_create_from_msg (struct GNUNET_CHAT_Context *context,
@@ -63,6 +64,23 @@ message_create_internally (struct GNUNET_CHAT_Context *context,
   message->warning = warning;
 
   return message;
+}
+
+void
+message_update_msg (struct GNUNET_CHAT_Message* message,
+                    enum GNUNET_MESSENGER_MessageFlags flags,
+                    const struct GNUNET_MESSENGER_Message *msg)
+{
+  GNUNET_assert(message);
+
+  if (flags & GNUNET_MESSENGER_FLAG_UPDATE)
+    message->msg = msg;
+  else if (flags & GNUNET_MESSENGER_FLAG_DELETE)
+    message->msg = NULL;
+  else
+    return;
+
+  message->flags = flags | GNUNET_MESSENGER_FLAG_UPDATE;
 }
 
 void

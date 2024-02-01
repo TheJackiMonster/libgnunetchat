@@ -107,14 +107,9 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_FILE = 10,      /**< GNUNET_CHAT_KIND_FILE */
 
   /**
-   * The kind to describe a whispered message.
-   */
-  GNUNET_CHAT_KIND_WHISPER = 11,   /**< GNUNET_CHAT_KIND_WHISPER */
-
-  /**
    * The kind to inform about a deletion of a previous message.
    */
-  GNUNET_CHAT_KIND_DELETION = 12,  /**< GNUNET_CHAT_KIND_DELETION */
+  GNUNET_CHAT_KIND_DELETION = 11,  /**< GNUNET_CHAT_KIND_DELETION */
 
   /**
    * An unknown kind of message.
