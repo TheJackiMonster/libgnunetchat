@@ -55,18 +55,6 @@ it_destroy_context_messages (GNUNET_UNUSED void *cls,
 }
 
 int
-it_destroy_context_rejections (GNUNET_UNUSED void *cls,
-                               GNUNET_UNUSED const struct GNUNET_HashCode *key,
-                               void *value)
-{
-  GNUNET_assert(value);
-
-  struct GNUNET_HashCode *hash = value;
-  GNUNET_free(hash);
-  return GNUNET_YES;
-}
-
-int
 it_destroy_context_invites (GNUNET_UNUSED void *cls,
                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
                             void *value)

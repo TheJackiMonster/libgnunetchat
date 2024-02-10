@@ -126,10 +126,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
     context->messages, it_destroy_context_messages, NULL
   );
 
-  GNUNET_CONTAINER_multihashmap_iterate(
-    context->rejections, it_destroy_context_rejections, NULL
-  );
-
+  GNUNET_CONTAINER_multihashmap_clear(context->rejections);
   GNUNET_CONTAINER_multihashmap_iterate(
     context->invites, it_destroy_context_invites, NULL
   );

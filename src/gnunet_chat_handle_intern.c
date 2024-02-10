@@ -772,12 +772,14 @@ on_handle_message_callback(void *cls)
 
   GNUNET_assert(
     (message) &&
-		(message->msg) &&
 		(message->context) &&
 		(message->context->handle)
   );
 
   message->task = NULL;
+
+  if (! message->msg)
+    return;
 
   struct GNUNET_CHAT_Context *context = message->context;
   struct GNUNET_CHAT_Handle *handle = context->handle;
@@ -1004,17 +1006,9 @@ on_handle_message (void *cls,
       if (msg->body.tag.tag)
         break;
 
-      struct GNUNET_HashCode *rejection = GNUNET_new(struct GNUNET_HashCode);
-
-      if (!rejection)
-        break;
-
-      GNUNET_memcpy(rejection, hash, sizeof(struct GNUNET_HashCode));
-
-      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-          context->rejections, &(msg->body.tag.hash), rejection,
-          GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE))
-        GNUNET_free (rejection);
+      GNUNET_CONTAINER_multihashmap_put(
+        context->rejections, &(msg->body.tag.hash), 
+        message, GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
 
       break;
     }
