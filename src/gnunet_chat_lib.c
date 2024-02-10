@@ -1584,6 +1584,8 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
       return GNUNET_CHAT_KIND_REFRESH;
     case GNUNET_CHAT_FLAG_LOGIN:
       return GNUNET_CHAT_KIND_LOGIN;
+    case GNUNET_CHAT_FLAG_LOGOUT:
+      return GNUNET_CHAT_KIND_LOGOUT;
     case GNUNET_CHAT_FLAG_UPDATE:
       return GNUNET_CHAT_KIND_UPDATE;
     default:

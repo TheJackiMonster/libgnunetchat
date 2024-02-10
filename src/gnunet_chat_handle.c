@@ -377,6 +377,13 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 		(handle->files)
   );
 
+  handle_send_internal_message(
+    handle,
+    NULL,
+    GNUNET_CHAT_FLAG_LOGOUT,
+    NULL
+  );
+
   GNUNET_CONTAINER_multihashmap_iterate(
     handle->groups, it_destroy_handle_groups, NULL
   );
