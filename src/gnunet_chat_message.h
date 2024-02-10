@@ -25,6 +25,7 @@
 #ifndef GNUNET_CHAT_MESSAGE_H_
 #define GNUNET_CHAT_MESSAGE_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
@@ -95,6 +96,16 @@ struct GNUNET_CHAT_Message*
 message_create_internally (struct GNUNET_CHAT_Context *context,
                            enum GNUNET_CHAT_MessageFlag flag,
                            const char *warning);
+
+/**
+ * Returns whether a chat <i>message</i> contains an actual
+ * message from the messenger service.
+ *
+ * @param[in] message Chat message
+ * @return #GNUNET_YES if it contains message content, #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+message_has_msg (const struct GNUNET_CHAT_Message* message);
 
 /**
  * Updates a chat message representing an actual message

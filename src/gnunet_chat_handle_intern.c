@@ -779,7 +779,7 @@ on_handle_message_callback(void *cls)
 
   message->task = NULL;
 
-  if (! message->msg)
+  if (GNUNET_YES != message_has_msg(message))
     return;
 
   const struct GNUNET_TIME_Absolute timestamp = GNUNET_TIME_absolute_ntoh(
@@ -1040,7 +1040,7 @@ on_handle_message (void *cls,
       context->messages, &(msg->body.deletion.hash)
     );
 
-    if ((!message) || (message->msg) || 
+    if ((!message) || (GNUNET_YES == message_has_msg(message)) || 
         (0 == (message->flags & GNUNET_MESSENGER_FLAG_DELETE)))
       return;
   }

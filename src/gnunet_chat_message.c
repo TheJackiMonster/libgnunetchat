@@ -66,12 +66,29 @@ message_create_internally (struct GNUNET_CHAT_Context *context,
   return message;
 }
 
+enum GNUNET_GenericReturnValue
+message_has_msg (const struct GNUNET_CHAT_Message* message)
+{
+  GNUNET_assert(message);
+
+  if (message->flag != GNUNET_CHAT_FLAG_NONE)
+    return GNUNET_NO;
+
+  if (message->msg)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
 void
 message_update_msg (struct GNUNET_CHAT_Message* message,
                     enum GNUNET_MESSENGER_MessageFlags flags,
                     const struct GNUNET_MESSENGER_Message *msg)
 {
   GNUNET_assert(message);
+
+  if (message->flag != GNUNET_CHAT_FLAG_NONE)
+    return;
 
   if (flags & GNUNET_MESSENGER_FLAG_UPDATE)
     message->msg = msg;

@@ -1381,7 +1381,7 @@ GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
       return GNUNET_SYSERR;
   }
 
-  if ((!(message->msg)) ||
+  if ((GNUNET_YES != message_has_msg(message)) ||
       (GNUNET_MESSENGER_KIND_TEXT != message->msg->header.kind))
     goto skip_filter;
 
@@ -1592,7 +1592,7 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
       break;
   }
 
-  if (!(message->msg))
+  if (GNUNET_YES != message_has_msg(message))
     return GNUNET_CHAT_KIND_UNKNOWN;
 
   return util_message_kind_from_kind(message->msg->header.kind);
@@ -1604,7 +1604,7 @@ GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)))
     return GNUNET_TIME_absolute_get_zero_();
 
   return GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp);
@@ -1703,7 +1703,8 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)) || (!(message->context)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+      (!(message->context)))
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_MessageIterateReadReceipts it;
@@ -1722,7 +1723,7 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)))
     return NULL;
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
@@ -1744,7 +1745,8 @@ GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)) || (!(message->context)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+      (!(message->context)))
     return NULL;
 
   if (GNUNET_MESSENGER_KIND_FILE != message->msg->header.kind)
@@ -1762,7 +1764,8 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)) || (!(message->context)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+      (!(message->context)))
     return NULL;
 
   if (GNUNET_MESSENGER_KIND_INVITE != message->msg->header.kind)
@@ -1780,7 +1783,8 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)) || (!(message->context)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+      (!(message->context)))
     return NULL;
 
   struct GNUNET_CHAT_Message *target;
@@ -1804,7 +1808,8 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (!(message->msg)) || (!(message->context)))
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+      (!(message->context)))
     return GNUNET_SYSERR;
 
   GNUNET_MESSENGER_delete_message(message->context->room, &(message->hash), delay);
