@@ -45,6 +45,7 @@ struct GNUNET_CHAT_Context
   struct GNUNET_CONTAINER_MultiShortmap *timestamps;
   struct GNUNET_CONTAINER_MultiHashMap *dependencies;
   struct GNUNET_CONTAINER_MultiHashMap *messages;
+  struct GNUNET_CONTAINER_MultiHashMap *rejections;
   struct GNUNET_CONTAINER_MultiHashMap *invites;
   struct GNUNET_CONTAINER_MultiHashMap *files;
 

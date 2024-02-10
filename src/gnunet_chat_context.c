@@ -48,6 +48,8 @@ init_new_context (struct GNUNET_CHAT_Context *context,
     initial_map_size, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
+  context->rejections = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
   context->invites = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
   context->files = GNUNET_CONTAINER_multihashmap_create(
@@ -107,6 +109,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 		(context->timestamps) &&
     (context->dependencies) &&
 		(context->messages) &&
+    (context->rejections) &&
 		(context->invites) &&
 		(context->files)
   );
@@ -124,6 +127,10 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   );
 
   GNUNET_CONTAINER_multihashmap_iterate(
+    context->rejections, it_destroy_context_rejections, NULL
+  );
+
+  GNUNET_CONTAINER_multihashmap_iterate(
     context->invites, it_destroy_context_invites, NULL
   );
 
@@ -132,6 +139,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
   GNUNET_CONTAINER_multihashmap_destroy(context->dependencies);
   GNUNET_CONTAINER_multihashmap_destroy(context->messages);
+  GNUNET_CONTAINER_multihashmap_destroy(context->rejections);
   GNUNET_CONTAINER_multihashmap_destroy(context->invites);
   GNUNET_CONTAINER_multihashmap_destroy(context->files);
 

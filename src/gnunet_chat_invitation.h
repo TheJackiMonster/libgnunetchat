@@ -35,7 +35,6 @@ struct GNUNET_CHAT_Invitation
   struct GNUNET_CHAT_Context *context;
 
   struct GNUNET_HashCode hash;
-  struct GNUNET_HashCode rejection;
 
   struct GNUNET_HashCode key;
   GNUNET_PEER_Id door;

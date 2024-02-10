@@ -2204,7 +2204,7 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
     return GNUNET_NO;
 
   return GNUNET_CONTAINER_multihashmap_contains(
-    invitation->context->handle->contexts, 
+    invitation->context->handle->contexts,
     &(invitation->key)
   );
 }
@@ -2218,18 +2218,10 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
   if (!invitation)
     return GNUNET_NO;
 
-  if (0 == GNUNET_CRYPTO_hash_cmp(&(invitation->hash), &(invitation->rejection)))
-    return GNUNET_NO;
-
-  const struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
-    invitation->context->messages, &(invitation->rejection)
+  return GNUNET_CONTAINER_multihashmap_contains(
+    invitation->context->rejections,
+    &(invitation->hash)
   );
-
-  if ((!message) || (!message->msg) || (message->msg->header.kind != GNUNET_MESSENGER_KIND_TAG) ||
-      (message->msg->body.tag.tag))
-    return GNUNET_NO;
-  else
-    return GNUNET_YES;
 }
 
 

@@ -1004,13 +1004,17 @@ on_handle_message (void *cls,
       if (msg->body.tag.tag)
         break;
 
-      struct GNUNET_CHAT_Invitation *invitation = GNUNET_CONTAINER_multihashmap_get(
-        context->invites, &(msg->body.tag.hash)
-      );
+      struct GNUNET_HashCode *rejection = GNUNET_new(struct GNUNET_HashCode);
 
-      if (invitation)
-        GNUNET_memcpy(&(invitation->rejection), hash,
-                      sizeof(invitation->rejection));
+      if (!rejection)
+        break;
+
+      GNUNET_memcpy(rejection, hash, sizeof(struct GNUNET_HashCode));
+
+      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+          context->rejections, &(msg->body.tag.hash), rejection,
+          GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE))
+        GNUNET_free (rejection);
 
       break;
     }

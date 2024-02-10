@@ -25,6 +25,7 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_error_codes.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -50,6 +51,18 @@ it_destroy_context_messages (GNUNET_UNUSED void *cls,
 
   struct GNUNET_CHAT_Message *message = value;
   message_destroy(message);
+  return GNUNET_YES;
+}
+
+int
+it_destroy_context_rejections (GNUNET_UNUSED void *cls,
+                               GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                               void *value)
+{
+  GNUNET_assert(value);
+
+  struct GNUNET_HashCode *hash = value;
+  GNUNET_free(hash);
   return GNUNET_YES;
 }
 
