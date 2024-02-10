@@ -28,6 +28,11 @@
 #include "gnunet_chat_ticket.h"
 
 #include "gnunet_chat_contact_intern.c"
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_time_lib.h>
+
+static const unsigned int initial_map_size_of_contact = 8;
 
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
@@ -41,15 +46,60 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
   contact->context = NULL;
 
   contact->member = member;
+  contact->joined = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size_of_contact, GNUNET_NO);
+
+  contact->tickets_head = NULL;
+  contact->tickets_tail = NULL;
 
   contact->public_key = NULL;
   contact->user_pointer = NULL;
 
   contact->owned = GNUNET_NO;
-  contact->blocked = GNUNET_NO;
 
   contact_update_key (contact);
   return contact;
+}
+
+void
+contact_update_join (struct GNUNET_CHAT_Contact *contact,
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_HashCode *hash,
+                     enum GNUNET_MESSENGER_MessageFlags flags)
+{
+  GNUNET_assert(
+    (contact) &&
+    (contact->joined) &&
+    (context) &&
+    (context->room) &&
+    (hash)
+  );
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+    context->room
+  );
+
+  struct GNUNET_HashCode *current = GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    key
+  );
+
+  if (! current)
+  {
+    current = GNUNET_new(struct GNUNET_HashCode);
+
+    if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      contact->joined, key, current, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    {
+      GNUNET_free(current);
+      return;
+    }
+  }
+  else if (0 == (flags & GNUNET_MESSENGER_FLAG_RECENT))
+    return;
+
+  GNUNET_memcpy(current, hash, 
+    sizeof(struct GNUNET_HashCode));
 }
 
 void
@@ -100,6 +150,134 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact)
   );
 }
 
+enum GNUNET_GenericReturnValue
+contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
+                    const struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert(
+    (contact) &&
+    (contact->joined) &&
+    (context)
+  );
+
+  if (!(context->room))
+    return GNUNET_NO;
+
+  const struct GNUNET_HashCode *hash;
+  hash = GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    GNUNET_MESSENGER_room_get_key(context->room)
+  );
+
+  if (! hash)
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_ContactFindJoin find;
+  find.hash = NULL;
+
+  GNUNET_CONTAINER_multihashmap_get_multiple(
+    context->rejections,
+    hash,
+    it_contact_find_rejection,
+    &find
+  );
+
+  if (find.hash)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
+void
+contact_unblock (struct GNUNET_CHAT_Contact *contact,
+                 struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert(
+    (contact) &&
+    (contact->joined) &&
+    (context)
+  );
+
+  if (!(context->room))
+    return;
+
+  const struct GNUNET_HashCode *hash;
+  hash = GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    GNUNET_MESSENGER_room_get_key(context->room)
+  );
+
+  if (! hash)
+    return;
+
+  struct GNUNET_CHAT_ContactFindJoin find;
+  find.hash = NULL;
+
+  GNUNET_CONTAINER_multihashmap_get_multiple(
+    context->rejections,
+    hash,
+    it_contact_find_rejection,
+    &find
+  );
+
+  if ((! find.hash) || (! context->room))
+    return;
+
+  GNUNET_MESSENGER_delete_message(
+    context->room,
+    find.hash,
+    GNUNET_TIME_relative_get_zero_()
+  );
+}
+
+void
+contact_block (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert(
+    (contact) &&
+    (contact->joined) &&
+    (context)
+  );
+
+  if (!(context->room))
+    return;
+
+  const struct GNUNET_HashCode *hash;
+  hash = GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    GNUNET_MESSENGER_room_get_key(context->room)
+  );
+
+  if (! hash)
+    return;
+
+  struct GNUNET_CHAT_ContactFindJoin find;
+  find.hash = NULL;
+
+  GNUNET_CONTAINER_multihashmap_get_multiple(
+    context->rejections,
+    hash,
+    it_contact_find_rejection,
+    &find
+  );
+
+  if ((find.hash) || (! context->room))
+    return;
+
+  struct GNUNET_MESSENGER_Message msg;
+  msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
+  GNUNET_memcpy(&(msg.body.tag.hash), hash,
+    sizeof(struct GNUNET_HashCode));
+  msg.body.tag.tag = NULL;
+
+  GNUNET_MESSENGER_send_message(
+    context->room,
+    &msg,
+    contact->member
+  );
+}
+
 void
 contact_destroy (struct GNUNET_CHAT_Contact* contact)
 {
@@ -123,6 +301,9 @@ contact_destroy (struct GNUNET_CHAT_Contact* contact)
 
   if (contact->public_key)
     GNUNET_free(contact->public_key);
+
+  if (contact->joined)
+    GNUNET_CONTAINER_multihashmap_destroy(contact->joined);
 
   if ((contact->context) && (!contact->context->room))
     context_destroy(contact->context);

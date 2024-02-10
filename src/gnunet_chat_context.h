@@ -32,6 +32,7 @@
 #include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_Handle;
+struct GNUNET_CHAT_Message;
 
 struct GNUNET_CHAT_Context
 {
@@ -111,6 +112,17 @@ context_update_room (struct GNUNET_CHAT_Context *context,
 void
 context_update_nick (struct GNUNET_CHAT_Context *context,
 		                 const char *nick);
+
+/**
+ * Deletes linked content from a given chat <i>context</i>
+ * of a specific chat <i>message</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] message Chat message
+ */
+void
+context_delete_message (struct GNUNET_CHAT_Context *context,
+                        const struct GNUNET_CHAT_Message *message);
 
 /**
  * Reads the <i>data</i> of records under a given <i>label</i>

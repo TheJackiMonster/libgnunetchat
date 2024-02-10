@@ -830,7 +830,8 @@ GNUNET_CHAT_contact_set_name (struct GNUNET_CHAT_Contact *contact,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!contact) || (!(contact->context)))
+  if ((!contact) || (!(contact->context)) ||
+      (contact->context->topic))
     return;
 
   context_update_nick(contact->context, name);
@@ -848,7 +849,8 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return NULL;
 
-  if ((contact->context) && (contact->context->nick[0]))
+  if ((contact->context) && (! contact->context->topic) &&
+      (contact->context->nick[0]))
     return contact->context->nick;
 
   return GNUNET_MESSENGER_contact_get_name(contact->member);
@@ -936,10 +938,24 @@ GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!contact) || ((GNUNET_YES != blocked) && (GNUNET_NO != blocked)))
+  if (!contact)
     return;
 
-  contact->blocked = blocked;
+  struct GNUNET_CHAT_ContactIterateContexts it;
+  it.contact = contact;
+  
+  if (GNUNET_NO == blocked)
+    it.cb = contact_unblock;
+  else if (GNUNET_YES == blocked)
+    it.cb = contact_block;
+  else
+    return;
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+    contact->joined,
+    it_contact_iterate_contexts,
+    &it
+  );
 }
 
 
@@ -951,7 +967,12 @@ GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return GNUNET_SYSERR;
 
-  return contact->blocked;
+  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
+
+  if (!context)
+    return GNUNET_SYSERR;
+
+  return contact_is_blocked(contact, context);
 }
 
 

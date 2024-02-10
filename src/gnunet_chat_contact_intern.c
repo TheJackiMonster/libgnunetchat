@@ -22,6 +22,11 @@
  * @file gnunet_chat_contact_intern.c
  */
 
+#include "gnunet_chat_context.h"
+#include "gnunet_chat_message.h"
+
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_messenger_service.h>
 #include <stdlib.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -32,7 +37,7 @@ struct GNUNET_CHAT_ContactFindRoom
   struct GNUNET_MESSENGER_Room *room;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_contact_find_room (void *cls,
                       struct GNUNET_MESSENGER_Room *room,
                       GNUNET_UNUSED const struct GNUNET_MESSENGER_Contact *member)
@@ -52,3 +57,33 @@ it_contact_find_room (void *cls,
 
   return GNUNET_YES;
 }
+
+struct GNUNET_CHAT_ContactFindJoin
+{
+  const struct GNUNET_HashCode *hash;
+};
+
+enum GNUNET_GenericReturnValue
+it_contact_find_rejection (void *cls,
+                           const struct GNUNET_HashCode *key,
+                           void *value)
+{
+  GNUNET_assert((cls) && (key) && (value));
+
+  struct GNUNET_CHAT_ContactFindJoin *find = cls;
+
+  const struct GNUNET_CHAT_Message *message = value;
+
+  if (GNUNET_YES != message_has_msg(message))
+    return GNUNET_YES;
+
+  if (message->flags & GNUNET_MESSENGER_FLAG_SENT)
+  {
+    find->hash = &(message->hash);
+    return GNUNET_NO;
+  }
+
+  return GNUNET_YES;
+}
+
+

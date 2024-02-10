@@ -22,6 +22,9 @@
  * @file gnunet_chat_lib_intern.c
  */
 
+#include "gnunet_chat_contact.h"
+#include "gnunet_chat_handle.h"
+
 #include <gnunet/gnunet_common.h>
 #include <stdlib.h>
 
@@ -105,7 +108,7 @@ struct GNUNET_CHAT_HandleIterateContacts
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_handle_iterate_contacts (void *cls,
                             GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
                             void *value)
@@ -129,7 +132,7 @@ struct GNUNET_CHAT_HandleIterateGroups
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_handle_iterate_groups (void *cls,
                           GNUNET_UNUSED const struct GNUNET_HashCode *key,
                           void *value)
@@ -146,13 +149,46 @@ it_handle_iterate_groups (void *cls,
   return it->cb(it->cls, it->handle, group);
 }
 
+typedef void
+(*GNUNET_CHAT_ContactIterateContextCallback) (struct GNUNET_CHAT_Contact *contact,
+                                              struct GNUNET_CHAT_Context *context);
+
+struct GNUNET_CHAT_ContactIterateContexts
+{
+  struct GNUNET_CHAT_Contact *contact;
+  GNUNET_CHAT_ContactIterateContextCallback cb;
+};
+
+enum GNUNET_GenericReturnValue
+it_contact_iterate_contexts (void *cls,
+                             const struct GNUNET_HashCode *key,
+                             GNUNET_UNUSED void *value)
+{
+  GNUNET_assert((cls) && (key));
+
+  struct GNUNET_CHAT_ContactIterateContexts *it = cls;
+
+  if (!(it->cb))
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_Handle *handle = it->contact->handle;
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+    handle->contexts, key);
+  
+  if (! context)
+    return GNUNET_YES;
+
+  it->cb(it->contact, context);
+  return GNUNET_YES;
+}
+
 struct GNUNET_CHAT_RoomFindContact
 {
   const struct GNUNET_CRYPTO_PublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_room_find_contact (void *cls,
                       GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                       const struct GNUNET_MESSENGER_Contact *member)
@@ -180,7 +216,7 @@ struct GNUNET_CHAT_GroupIterateContacts
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_group_iterate_contacts (void* cls,
 			                     GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                            const struct GNUNET_MESSENGER_Contact *member)
@@ -204,7 +240,7 @@ struct GNUNET_CHAT_ContextIterateMessages
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_context_iterate_messages (void *cls,
                              GNUNET_UNUSED const struct GNUNET_HashCode *key,
                              void *value)
@@ -228,7 +264,7 @@ struct GNUNET_CHAT_ContextIterateFiles
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_context_iterate_files (void *cls,
                           const struct GNUNET_HashCode *key,
                           GNUNET_UNUSED void *value)
@@ -264,7 +300,7 @@ struct GNUNET_CHAT_MessageIterateReadReceipts
   void *cls;
 };
 
-int
+enum GNUNET_GenericReturnValue
 it_message_iterate_read_receipts (void *cls,
                                   GNUNET_UNUSED struct GNUNET_MESSENGER_Room *room,
                                   const struct GNUNET_MESSENGER_Contact *member)

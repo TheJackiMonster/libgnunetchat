@@ -23,10 +23,13 @@
  */
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_file.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_message.h"
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_context_intern.c"
+#include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
 
 static const unsigned int initial_map_size_of_room = 8;
@@ -271,6 +274,64 @@ context_read_records (struct GNUNET_CHAT_Context *context,
     GNUNET_free(topic);
 
   context->type = util_get_context_label_type(label, hash);
+}
+
+void
+context_delete_message (struct GNUNET_CHAT_Context *context,
+                        const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_assert((context) && (message));
+
+  if (GNUNET_YES != message_has_msg(message))
+    return;
+
+  switch (message->msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_INVITE:
+    {
+      struct GNUNET_CHAT_Invitation *invite = GNUNET_CONTAINER_multihashmap_get(
+        context->invites, &(message->hash)
+      );
+
+      if (! invite)
+        break;
+
+      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
+        context->invites, &(message->hash), invite))
+        invitation_destroy(invite);
+      
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_FILE:
+    {
+      struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+        context->files, &(message->hash)
+      );
+
+      if (! file)
+        break;
+
+      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
+        context->files, &(message->hash), file))
+        file_destroy(file);
+
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TAG:
+    {
+      if (message->msg->body.tag.tag)
+        break;
+
+      GNUNET_CONTAINER_multihashmap_remove(
+        context->rejections, 
+        &(message->msg->body.tag.hash), 
+        message);
+
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 void

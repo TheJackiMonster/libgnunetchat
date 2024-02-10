@@ -897,6 +897,13 @@ on_handle_message_callback(void *cls)
 
   switch (message->msg->header.kind)
   {
+    case GNUNET_MESSENGER_KIND_JOIN:
+    {
+      contact_update_join(contact, context, 
+        &(message->hash), message->flags);
+      
+      break;
+    }
     case GNUNET_MESSENGER_KIND_KEY:
     {
       contact_update_key(contact);
@@ -932,7 +939,7 @@ on_handle_message_callback(void *cls)
       break;
   }
 
-  if (GNUNET_YES == contact->blocked)
+  if (GNUNET_YES == contact_is_blocked(contact, context))
     goto clear_dependencies;
 
   handle->msg_cb(handle->msg_cls, context, message);
@@ -1029,10 +1036,10 @@ on_handle_message (void *cls,
   {
     message_update_msg (message, flags, msg);
 
-    if (message->flags & GNUNET_MESSENGER_FLAG_UPDATE)
-      goto handle_callback;
-    else
+    if (0 != (message->flags & GNUNET_MESSENGER_FLAG_UPDATE))
       return;
+
+    goto handle_callback;
   }
   else if (msg->header.kind == GNUNET_MESSENGER_KIND_DELETE)
   {

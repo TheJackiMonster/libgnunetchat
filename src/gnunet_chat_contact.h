@@ -46,6 +46,7 @@ struct GNUNET_CHAT_Contact
   struct GNUNET_CHAT_Context *context;
 
   const struct GNUNET_MESSENGER_Contact *member;
+  struct GNUNET_CONTAINER_MultiHashMap *joined;
 
   struct GNUNET_CHAT_InternalTickets *tickets_head;
   struct GNUNET_CHAT_InternalTickets *tickets_tail;
@@ -54,7 +55,6 @@ struct GNUNET_CHAT_Contact
   void *user_pointer;
 
   enum GNUNET_GenericReturnValue owned;
-  enum GNUNET_GenericReturnValue blocked;
 };
 
 /**
@@ -68,6 +68,21 @@ struct GNUNET_CHAT_Contact
 struct GNUNET_CHAT_Contact*
 contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
 			                      const struct GNUNET_MESSENGER_Contact *member);
+
+/**
+ * Updates the latest <i>hash</i> of a join message from a given
+ * chat <i>contact</i> in a current chat <i>context</i>.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in,out] context Chat context
+ * @param[in] hash Join message hash
+ * @param[in] flags Join message flags
+ */
+void
+contact_update_join (struct GNUNET_CHAT_Contact *contact,
+                     struct GNUNET_CHAT_Context *context,
+                     const struct GNUNET_HashCode *hash,
+                     enum GNUNET_MESSENGER_MessageFlags flags);
 
 /**
  * Updates the string representation of the public key from
@@ -87,6 +102,40 @@ contact_update_key (struct GNUNET_CHAT_Contact *contact);
  */
 struct GNUNET_CHAT_Context*
 contact_find_context (const struct GNUNET_CHAT_Contact *contact);
+
+/**
+ * Returns whether a chat <i>contact</i> is blocked in
+ * a given chat <i>context</i>.
+ *
+ * @param[in] contact Chat contact
+ * @param[in] context Chat context
+ * @return #GNUNET_YES if blocked, otherwise #GNUNET_NO
+ */
+enum GNUNET_GenericReturnValue
+contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
+                    const struct GNUNET_CHAT_Context *context);
+
+/**
+ * Unblocks a given chat <i>contact</i> in
+ * a given chat <i>context</i>.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in,out] context Chat context
+ */
+void
+contact_unblock (struct GNUNET_CHAT_Contact *contact,
+                 struct GNUNET_CHAT_Context *context);
+
+/**
+ * Blocks a given chat <i>contact</i> in
+ * a given chat <i>context</i>.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in,out] context Chat context
+ */
+void
+contact_block (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context);
 
 /**
  * Destroys a chat <i>contact</i> and frees its memory.
