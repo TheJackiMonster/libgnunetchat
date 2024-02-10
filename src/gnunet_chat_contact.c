@@ -71,8 +71,14 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
     (contact) &&
     (contact->joined) &&
     (context) &&
-    (context->room) &&
     (hash)
+  );
+
+  if (!(context->room))
+    return;
+
+  const enum GNUNET_GenericReturnValue blocked = contact_is_blocked(
+    contact, context
   );
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
@@ -94,12 +100,22 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
       GNUNET_free(current);
       return;
     }
+
+    GNUNET_memcpy(current, hash, 
+      sizeof(struct GNUNET_HashCode));
+    return;
   }
   else if (0 == (flags & GNUNET_MESSENGER_FLAG_RECENT))
     return;
 
+  if (GNUNET_YES == blocked)
+    contact_unblock(contact, context);
+
   GNUNET_memcpy(current, hash, 
     sizeof(struct GNUNET_HashCode));
+  
+  if (GNUNET_YES == blocked)
+    contact_block(contact, context);
 }
 
 void
