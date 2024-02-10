@@ -37,6 +37,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
+#include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 #include <stdio.h>
 #include <string.h>
@@ -781,8 +782,99 @@ on_handle_message_callback(void *cls)
   if (! message->msg)
     return;
 
+  const struct GNUNET_TIME_Absolute timestamp = GNUNET_TIME_absolute_ntoh(
+    message->msg->header.timestamp
+  );
+
+  struct GNUNET_TIME_Relative task_delay;
+  switch (message->msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_DELETE:
+    {
+      const struct GNUNET_TIME_Relative delay = GNUNET_TIME_relative_ntoh(
+	      message->msg->body.deletion.delay
+      );
+
+      task_delay = GNUNET_TIME_absolute_get_difference(
+        GNUNET_TIME_absolute_get(),
+        GNUNET_TIME_absolute_add(timestamp, delay)
+      );
+
+      break;
+    }
+    default:
+    {
+      task_delay = GNUNET_TIME_relative_get_zero_();
+      break;
+    }
+  }
+
+  if (! GNUNET_TIME_relative_is_zero(task_delay))
+  {
+    message->task = GNUNET_SCHEDULER_add_delayed(
+      task_delay,
+      on_handle_message_callback,
+      message
+    );
+
+    return;
+  }
+
   struct GNUNET_CHAT_Context *context = message->context;
   struct GNUNET_CHAT_Handle *handle = context->handle;
+
+  switch (message->msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_INVITE:
+    {
+      struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
+	      context, &(message->hash), &(message->msg->body.invite)
+      );
+
+      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+        context->invites, &(message->hash), invitation,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+	      invitation_destroy(invitation);
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_FILE:
+    {
+      GNUNET_CONTAINER_multihashmap_put(
+        context->files, &(message->hash), NULL,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
+      );
+
+      struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+        context->handle->files, &(message->msg->body.file.hash)
+      );
+
+      if (file)
+	      break;
+
+      file = file_create_from_message(
+	      context->handle, &(message->msg->body.file)
+      );
+
+      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+          context->handle->files, &(file->hash), file,
+          GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+	      file_destroy(file);
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TAG:
+    {
+      if (message->msg->body.tag.tag)
+        break;
+
+      GNUNET_CONTAINER_multihashmap_put(
+        context->rejections, &(message->msg->body.tag.hash), 
+        message, GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
+
+      break;
+    }
+    default:
+      break;
+  }
 
   if (!(handle->msg_cb))
     goto clear_dependencies;
@@ -800,7 +892,47 @@ on_handle_message_callback(void *cls)
     handle->contacts, &shorthash
   );
 
-  if ((!contact) || (GNUNET_YES == contact->blocked))
+  if (!contact)
+    goto clear_dependencies;
+
+  switch (message->msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_KEY:
+    {
+      contact_update_key(contact);
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TICKET:
+    {
+      struct GNUNET_CHAT_InternalTickets *tickets = GNUNET_new(
+        struct GNUNET_CHAT_InternalTickets
+      );
+
+      if (!tickets)
+        break;
+
+      tickets->ticket = ticket_create_from_message(
+	      handle, sender, &(message->msg->body.ticket)
+      );
+
+      if (!tickets->ticket)
+      {
+        GNUNET_free(tickets);
+        break;
+      }
+
+      GNUNET_CONTAINER_DLL_insert_tail(
+        contact->tickets_head,
+        contact->tickets_tail,
+        tickets
+      );
+      break;
+    }
+    default:
+      break;
+  }
+
+  if (GNUNET_YES == contact->blocked)
     goto clear_dependencies;
 
   handle->msg_cb(handle->msg_cls, context, message);
@@ -879,15 +1011,14 @@ on_handle_message (void *cls,
   }
   else
   {
-    struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
+    const struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
 	    timestamp, *time
     );
 
-    if (GNUNET_TIME_relative_get_zero_().rel_value_us == delta.rel_value_us)
+    if (GNUNET_TIME_relative_is_zero(delta))
       *time = timestamp;
   }
 
-  struct GNUNET_SCHEDULER_Task *task = NULL;
   const struct GNUNET_HashCode *dependency = NULL;
 
   struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
@@ -920,111 +1051,8 @@ on_handle_message (void *cls,
       context->messages, hash, message,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
-    if (task)
-      GNUNET_SCHEDULER_cancel(task);
-
     message_destroy(message);
     return;
-  }
-
-  switch (msg->header.kind)
-  {
-    case GNUNET_MESSENGER_KIND_KEY:
-    {
-      contact_update_key(contact);
-      break;
-    }
-    case GNUNET_MESSENGER_KIND_INVITE:
-    {
-      struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
-	      context, hash, &(msg->body.invite)
-      );
-
-      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-        context->invites, hash, invitation,
-        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-	      invitation_destroy(invitation);
-      break;
-    }
-    case GNUNET_MESSENGER_KIND_FILE:
-    {
-      GNUNET_CONTAINER_multihashmap_put(
-        context->files, hash, NULL,
-        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
-      );
-
-      struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-        context->handle->files, &(msg->body.file.hash)
-      );
-
-      if (file)
-	      break;
-
-      file = file_create_from_message(
-	      context->handle, &(msg->body.file)
-      );
-
-      if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-          context->handle->files, &(file->hash), file,
-          GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-	      file_destroy(file);
-      break;
-    }
-    case GNUNET_MESSENGER_KIND_DELETE:
-    {
-      struct GNUNET_TIME_Relative delay = GNUNET_TIME_relative_ntoh(
-	      msg->body.deletion.delay
-      );
-
-      task = GNUNET_SCHEDULER_add_delayed(
-	      GNUNET_TIME_absolute_get_difference(
-          GNUNET_TIME_absolute_get(),
-          GNUNET_TIME_absolute_add(timestamp, delay)
-	      ),
-        on_handle_message_callback,
-        message
-      );
-      break;
-    }
-    case GNUNET_MESSENGER_KIND_TICKET:
-    {
-      struct GNUNET_CHAT_InternalTickets *tickets = GNUNET_new(
-        struct GNUNET_CHAT_InternalTickets
-      );
-
-      if (!tickets)
-        break;
-
-      tickets->ticket = ticket_create_from_message(
-	      handle, sender, &(msg->body.ticket)
-      );
-
-      if (!tickets->ticket)
-      {
-        GNUNET_free(tickets);
-        break;
-      }
-
-      GNUNET_CONTAINER_DLL_insert_tail(
-        contact->tickets_head,
-        contact->tickets_tail,
-        tickets
-      );
-      break;
-    }
-    case GNUNET_MESSENGER_KIND_TAG:
-    {
-      if (msg->body.tag.tag)
-        break;
-
-      GNUNET_CONTAINER_multihashmap_put(
-        context->rejections, &(msg->body.tag.hash), 
-        message, GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
-
-      break;
-    }
-    default:
-      break;
   }
 
 handle_callback:
@@ -1060,11 +1088,10 @@ handle_callback:
     );
 
     GNUNET_MESSENGER_get_message(room, dependency);
+    return;
   }
-  else if (!task)
-    on_handle_message_callback(message);
 
-  message->task = task;
+  on_handle_message_callback(message);
 }
 
 int
