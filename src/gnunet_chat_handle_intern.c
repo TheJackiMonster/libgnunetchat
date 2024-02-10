@@ -916,6 +916,17 @@ on_handle_message (void *cls,
 
   message = message_create_from_msg(context, hash, flags, msg);
 
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      context->messages, hash, message,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    if (task)
+      GNUNET_SCHEDULER_cancel(task);
+
+    message_destroy(message);
+    return;
+  }
+
   switch (msg->header.kind)
   {
     case GNUNET_MESSENGER_KIND_KEY:
@@ -1014,17 +1025,6 @@ on_handle_message (void *cls,
     }
     default:
       break;
-  }
-
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      context->messages, hash, message,
-      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-  {
-    if (task)
-      GNUNET_SCHEDULER_cancel(task);
-
-    message_destroy(message);
-    return;
   }
 
 handle_callback:
