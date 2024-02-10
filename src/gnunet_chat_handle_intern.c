@@ -36,6 +36,7 @@
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 #include <stdio.h>
 #include <string.h>
@@ -748,6 +749,23 @@ on_monitor_namestore_record(void *cls,
 }
 
 void
+on_handle_message_callback(void *cls);
+
+static enum GNUNET_GenericReturnValue
+it_context_iterate_dependencies(void *cls,
+                                const struct GNUNET_HashCode *key,
+                                void *value)
+{
+  struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) value;
+
+  if ((message) && (!message->task))
+    message->task = GNUNET_SCHEDULER_add_now(
+      on_handle_message_callback, message);
+
+  return GNUNET_YES;
+}
+
+void
 on_handle_message_callback(void *cls)
 {
   struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) cls;
@@ -765,13 +783,13 @@ on_handle_message_callback(void *cls)
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
   if (!(handle->msg_cb))
-    return;
+    goto clear_dependencies;
 
   const struct GNUNET_MESSENGER_Contact *sender;
   sender = GNUNET_MESSENGER_get_sender(context->room, &(message->hash));
 
   if (!sender)
-    return;
+    goto clear_dependencies;
 
   struct GNUNET_ShortHashCode shorthash;
   util_shorthash_from_member(sender, &shorthash);
@@ -781,9 +799,17 @@ on_handle_message_callback(void *cls)
   );
 
   if ((!contact) || (GNUNET_YES == contact->blocked))
-    return;
+    goto clear_dependencies;
 
   handle->msg_cb(handle->msg_cls, context, message);
+
+clear_dependencies:
+  GNUNET_CONTAINER_multihashmap_get_multiple(context->dependencies,
+                                             &(message->hash),
+                                             it_context_iterate_dependencies,
+                                             NULL);
+  GNUNET_CONTAINER_multihashmap_remove_all(context->dependencies,
+                                           &(message->hash));
 }
 
 void
@@ -859,6 +885,9 @@ on_handle_message (void *cls,
       *time = timestamp;
   }
 
+  struct GNUNET_SCHEDULER_Task *task = NULL;
+  const struct GNUNET_HashCode *dependency = NULL;
+
   struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
     context->messages, hash
   );
@@ -883,7 +912,6 @@ on_handle_message (void *cls,
       return;
   }
 
-  struct GNUNET_SCHEDULER_Task* task = NULL;
   message = message_create_from_msg(context, hash, flags, msg);
 
   switch (msg->header.kind)
@@ -1002,10 +1030,43 @@ on_handle_message (void *cls,
   }
 
 handle_callback:
-  if (!task)
+  switch (msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_DELETE:
+    {
+      dependency = &(msg->body.deletion.hash);
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TRANSCRIPT:
+    {
+      dependency = &(msg->body.transcript.hash);
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_TAG:
+    {
+      dependency = &(msg->body.tag.hash);
+      break;
+    }
+    default:
+      break;
+  }
+
+  if ((dependency) && 
+      (GNUNET_YES != GNUNET_CONTAINER_multihashmap_contains(context->messages, dependency)))
+  {
+    GNUNET_CONTAINER_multihashmap_put(
+      context->dependencies,
+      dependency,
+      message,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE
+    );
+
+    GNUNET_MESSENGER_get_message(room, dependency);
+  }
+  else if (!task)
     on_handle_message_callback(message);
-  else
-    message->task = task;
+
+  message->task = task;
 }
 
 int

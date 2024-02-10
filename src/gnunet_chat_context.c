@@ -32,6 +32,35 @@
 static const unsigned int initial_map_size_of_room = 8;
 static const unsigned int initial_map_size_of_contact = 4;
 
+static void
+init_new_context (struct GNUNET_CHAT_Context *context,
+                  unsigned int initial_map_size)
+{
+  GNUNET_assert(context);
+
+  context->nick[0] = '\0';
+  context->topic = NULL;
+  context->deleted = GNUNET_NO;
+
+  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
+    initial_map_size, GNUNET_NO);
+  context->dependencies = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
+  context->messages = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
+  context->invites = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
+  context->files = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
+  
+  context->user_pointer = NULL;
+
+  context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
+    initial_map_size, GNUNET_NO);
+
+  context->query = NULL;
+}
+
 struct GNUNET_CHAT_Context*
 context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 			                    struct GNUNET_MESSENGER_Room *room)
@@ -41,30 +70,12 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_Context* context = GNUNET_new(struct GNUNET_CHAT_Context);
 
   context->handle = handle;
-
   context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
-  context->nick[0] = '\0';
-  context->topic = NULL;
-  context->deleted = GNUNET_NO;
-
-  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
-    initial_map_size_of_room, GNUNET_NO);
-  context->messages = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_room, GNUNET_NO);
-  context->invites = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_room, GNUNET_NO);
-  context->files = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_room, GNUNET_NO);
+  
+  init_new_context(context, initial_map_size_of_room);
 
   context->room = room;
   context->contact = NULL;
-
-  context->user_pointer = NULL;
-
-  context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
-    initial_map_size_of_room, GNUNET_NO);
-
-  context->query = NULL;
 
   return context;
 }
@@ -78,30 +89,12 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_Context* context = GNUNET_new(struct GNUNET_CHAT_Context);
 
   context->handle = handle;
-
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
-  context->nick[0] = '\0';
-  context->topic = NULL;
-  context->deleted = GNUNET_NO;
 
-  context->timestamps = GNUNET_CONTAINER_multishortmap_create(
-    initial_map_size_of_contact, GNUNET_NO);
-  context->messages = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_contact, GNUNET_NO);
-  context->invites = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_contact, GNUNET_NO);
-  context->files = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_contact, GNUNET_NO);
+  init_new_context(context, initial_map_size_of_contact);
 
   context->room = NULL;
   context->contact = contact;
-
-  context->user_pointer = NULL;
-
-  context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
-    initial_map_size_of_contact, GNUNET_NO);
-
-  context->query = NULL;
 
   return context;
 }
@@ -112,6 +105,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   GNUNET_assert(
     (context) &&
 		(context->timestamps) &&
+    (context->dependencies) &&
 		(context->messages) &&
 		(context->invites) &&
 		(context->files)
@@ -124,6 +118,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
     context->timestamps, it_destroy_context_timestamps, NULL
   );
 
+  GNUNET_CONTAINER_multihashmap_clear(context->dependencies);
   GNUNET_CONTAINER_multihashmap_iterate(
     context->messages, it_destroy_context_messages, NULL
   );
@@ -135,6 +130,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   GNUNET_CONTAINER_multishortmap_destroy(context->member_pointers);
 
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
+  GNUNET_CONTAINER_multihashmap_destroy(context->dependencies);
   GNUNET_CONTAINER_multihashmap_destroy(context->messages);
   GNUNET_CONTAINER_multihashmap_destroy(context->invites);
   GNUNET_CONTAINER_multihashmap_destroy(context->files);
