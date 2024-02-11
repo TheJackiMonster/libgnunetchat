@@ -967,12 +967,7 @@ GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return GNUNET_SYSERR;
 
-  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
-
-  if (!context)
-    return GNUNET_SYSERR;
-
-  return contact_is_blocked(contact, context);
+  return contact_is_blocked(contact, NULL);
 }
 
 

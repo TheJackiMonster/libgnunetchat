@@ -108,7 +108,7 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact);
  * a given chat <i>context</i>.
  *
  * @param[in] contact Chat contact
- * @param[in] context Chat context
+ * @param[in] context Chat context or NULL (optional)
  * @return #GNUNET_YES if blocked, otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue

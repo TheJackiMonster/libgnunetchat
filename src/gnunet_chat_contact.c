@@ -172,11 +172,41 @@ contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
 {
   GNUNET_assert(
     (contact) &&
-    (contact->joined) &&
-    (context)
+    (contact->joined)
   );
 
-  if (!(context->room))
+  const enum GNUNET_GenericReturnValue general = (
+    context ? GNUNET_NO : GNUNET_YES
+  );
+
+  if (context)
+    goto skip_context_search;
+
+  struct GNUNET_CONTAINER_MultiHashMapIterator *iter;
+  iter = GNUNET_CONTAINER_multihashmap_iterator_create(
+    contact->handle->contexts
+  );
+
+  if (iter)
+  {
+    struct GNUNET_HashCode key;
+    const void *value;
+
+    while (! context)
+    {
+      if (GNUNET_YES != GNUNET_CONTAINER_multihashmap_iterator_next(
+          iter, &key, &value))
+        break;
+
+      context = GNUNET_CONTAINER_multihashmap_get(
+        contact->handle->contexts, &key);
+    }
+
+    GNUNET_CONTAINER_multihashmap_iterator_destroy(iter);
+  }
+
+skip_context_search:
+  if ((! context) || (!(context->room)))
     return GNUNET_NO;
 
   const struct GNUNET_HashCode *hash;
@@ -186,7 +216,10 @@ contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
   );
 
   if (! hash)
-    return GNUNET_YES;
+    return (general == GNUNET_YES? 
+      GNUNET_NO : 
+      contact_is_blocked(contact, NULL)
+    );
 
   struct GNUNET_CHAT_ContactFindJoin find;
   find.hash = NULL;
