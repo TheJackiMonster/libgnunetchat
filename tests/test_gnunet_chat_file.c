@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2023 GNUnet e.V.
+   Copyright (C) 2022--2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -159,6 +159,8 @@ skip_search_account:
       on_gnunet_chat_file_send_upload,
       handle
   );
+
+  GNUNET_free(filename);
 
   ck_assert_ptr_ne(file, NULL);
 
