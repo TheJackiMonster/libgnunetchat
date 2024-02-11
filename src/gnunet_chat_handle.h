@@ -43,6 +43,14 @@
 
 struct GNUNET_CHAT_Handle;
 
+struct GNUNET_CHAT_InternalServices
+{
+  struct GNUNET_CHAT_Handle *chat;
+  struct GNUNET_ARM_Operation *op;
+  struct GNUNET_CHAT_InternalServices *next;
+  struct GNUNET_CHAT_InternalServices *prev;
+};
+
 struct GNUNET_CHAT_InternalMessages
 {
   struct GNUNET_CHAT_Message *msg;
@@ -116,6 +124,10 @@ struct GNUNET_CHAT_Handle
   const struct GNUNET_CONFIGURATION_Handle* cfg;
   struct GNUNET_SCHEDULER_Task *shutdown_hook;
   struct GNUNET_SCHEDULER_Task *destruction;
+  struct GNUNET_SCHEDULER_Task *disconnection;
+
+  struct GNUNET_CHAT_InternalServices *services_head;
+  struct GNUNET_CHAT_InternalServices *services_tail;
 
   struct GNUNET_CHAT_InternalMessages *internal_head;
   struct GNUNET_CHAT_InternalMessages *internal_tail;

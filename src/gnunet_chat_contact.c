@@ -352,7 +352,13 @@ contact_destroy (struct GNUNET_CHAT_Contact* contact)
     GNUNET_free(contact->public_key);
 
   if (contact->joined)
+  {
+    GNUNET_CONTAINER_multihashmap_iterate(
+      contact->joined, it_free_join_hashes, NULL
+    );
+
     GNUNET_CONTAINER_multihashmap_destroy(contact->joined);
+  }
 
   if ((contact->context) && (!contact->context->room))
     context_destroy(contact->context);

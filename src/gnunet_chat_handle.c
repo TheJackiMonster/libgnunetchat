@@ -25,6 +25,8 @@
 #include "gnunet_chat_handle.h"
 
 #include "gnunet_chat_handle_intern.c"
+#include <gnunet/gnunet_arm_service.h>
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_reclaim_service.h>
 
 static const unsigned int initial_map_size_of_handle = 8;
@@ -45,6 +47,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   );
 
   handle->destruction = NULL;
+
+  handle->services_head = NULL;
+  handle->services_tail = NULL;
 
   handle->internal_head = NULL;
   handle->internal_tail = NULL;
@@ -173,6 +178,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->destruction)
     GNUNET_SCHEDULER_cancel(handle->destruction);
 
+  if (handle->disconnection)
+    GNUNET_SCHEDULER_cancel(handle->disconnection);
+
   if (handle->monitor)
     GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
 
@@ -231,6 +239,23 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->identity)
     GNUNET_IDENTITY_disconnect(handle->identity);
+
+  struct GNUNET_CHAT_InternalServices *services;
+  while (handle->services_head)
+  {
+    services = handle->services_head;
+
+    if (services->op)
+      GNUNET_ARM_operation_cancel(services->op);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->services_head,
+      handle->services_tail,
+      services
+    );
+
+    GNUNET_free(services);
+  }
 
   if (handle->arm)
     GNUNET_ARM_disconnect(handle->arm);

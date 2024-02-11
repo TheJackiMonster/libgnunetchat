@@ -24,12 +24,13 @@
 
 #include "test_gnunet_chat.h"
 #include <check.h>
+#include <gnunet/gnunet_chat_lib.h>
 #include <stdio.h>
 
 int
 on_gnunet_chat_message_text_it(void *cls,
-			       const struct GNUNET_CHAT_Handle *handle,
-			       struct GNUNET_CHAT_Account *account)
+                               const struct GNUNET_CHAT_Handle *handle,
+                               struct GNUNET_CHAT_Account *account)
 {
   struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
 
@@ -53,11 +54,11 @@ on_gnunet_chat_message_text_it(void *cls,
 
 int
 on_gnunet_chat_message_text_msg(void *cls,
-				struct GNUNET_CHAT_Context *context,
-				const struct GNUNET_CHAT_Message *message)
+                                struct GNUNET_CHAT_Context *context,
+                                const struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
-      (struct GNUNET_CHAT_Handle**) cls
+    (struct GNUNET_CHAT_Handle**) cls
   );
 
   ck_assert_ptr_ne(handle, NULL);
@@ -67,9 +68,9 @@ on_gnunet_chat_message_text_msg(void *cls,
     goto skip_search_account;
 
   GNUNET_CHAT_iterate_accounts(
-      handle,
-      on_gnunet_chat_message_text_it,
-      handle
+    handle,
+    on_gnunet_chat_message_text_it,
+    handle
   );
 
   if (!GNUNET_CHAT_get_connected(handle))
@@ -91,6 +92,14 @@ skip_search_account:
 	      GNUNET_CHAT_group_get_context(group), "test_text_message"
       ), GNUNET_OK);
       break;
+    case GNUNET_CHAT_KIND_LOGOUT:
+      ck_assert_int_eq(GNUNET_CHAT_account_delete(
+	      handle,
+	      "gnunet_chat_message_text"
+      ), GNUNET_OK);
+
+      GNUNET_CHAT_stop(handle);
+      break;
     case GNUNET_CHAT_KIND_TEXT:
       ck_assert_ptr_ne(context, NULL);
 
@@ -101,12 +110,8 @@ skip_search_account:
 
       ck_assert_int_eq(strcmp(text, "test_text_message"), 0);
       ck_assert_int_eq(GNUNET_CHAT_group_leave(group), GNUNET_OK);
-      ck_assert_int_eq(GNUNET_CHAT_account_delete(
-	      handle,
-	      "gnunet_chat_message_text"
-      ), GNUNET_OK);
 
-      GNUNET_CHAT_stop(handle);
+      GNUNET_CHAT_disconnect(handle);
       break;
     default:
       break;
@@ -123,8 +128,8 @@ call_gnunet_chat_message_text(const struct GNUNET_CONFIGURATION_Handle *cfg)
 
   ck_assert_ptr_ne(handle, NULL);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
-      handle,
-      "gnunet_chat_message_text"
+    handle,
+    "gnunet_chat_message_text"
   ), GNUNET_OK);
 }
 

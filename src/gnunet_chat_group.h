@@ -36,6 +36,8 @@ struct GNUNET_CHAT_Group
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_CHAT_Context *context;
 
+  struct GNUNET_SCHEDULER_Task *destruction;
+
   struct GNUNET_REGEX_Announcement *announcement;
   struct GNUNET_REGEX_Search *search;
 

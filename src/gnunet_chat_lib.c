@@ -28,6 +28,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <libgen.h>
 #include <limits.h>
@@ -181,10 +182,14 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (handle->destruction) || (!(handle->current)))
+  if ((!handle) || (handle->destruction) || 
+      (!(handle->current)) || (handle->disconnection))
     return;
 
-  handle_disconnect(handle);
+  handle->disconnection = GNUNET_SCHEDULER_add_now(
+    task_handle_disconnection,
+    handle
+  );
 }
 
 
@@ -1005,28 +1010,14 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!group)
+  if ((!group) || (group->destruction))
     return GNUNET_SYSERR;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    group->context->room
+  group->destruction = GNUNET_SCHEDULER_add_now(
+    task_group_destruction,
+    group
   );
 
-  GNUNET_CONTAINER_multihashmap_remove(
-    group->handle->groups, key, group
-  );
-
-  GNUNET_CONTAINER_multihashmap_remove(
-    group->handle->contexts, key, group->context
-  );
-
-  GNUNET_MESSENGER_close_room(group->context->room);
-
-  group->context->deleted = GNUNET_YES;
-  context_write_records(group->context);
-
-  context_destroy(group->context);
-  group_destroy(group);
   return GNUNET_OK;
 }
 

@@ -86,4 +86,14 @@ it_contact_find_rejection (void *cls,
   return GNUNET_YES;
 }
 
+enum GNUNET_GenericReturnValue
+it_free_join_hashes (void *cls,
+                     const struct GNUNET_HashCode *key,
+                     void *value)
+{
+  GNUNET_assert((key) && (value));
 
+  struct GNUNET_HashCode *hash = value;
+  GNUNET_free(hash);
+  return GNUNET_YES;
+}

@@ -26,6 +26,7 @@
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_group_intern.c"
+#include <gnunet/gnunet_scheduler_lib.h>
 
 static const unsigned int initial_map_size_of_context = 8;
 static const uint16_t group_regex_compression = 6;
@@ -40,6 +41,8 @@ group_create_from_context (struct GNUNET_CHAT_Handle *handle,
 
   group->handle = handle;
   group->context = context;
+
+  group->destruction = NULL;
 
   group->announcement = NULL;
   group->search = NULL;
@@ -56,6 +59,9 @@ void
 group_destroy (struct GNUNET_CHAT_Group* group)
 {
   GNUNET_assert(group);
+
+  if (group->destruction)
+    GNUNET_SCHEDULER_cancel(group->destruction);
 
   if (group->registry)
     GNUNET_CONTAINER_multipeermap_destroy(group->registry);

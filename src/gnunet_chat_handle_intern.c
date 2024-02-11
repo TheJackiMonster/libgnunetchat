@@ -32,6 +32,7 @@
 #include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
 
+#include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
@@ -64,6 +65,59 @@ on_handle_shutdown(void *cls)
 }
 
 void
+on_handle_service_request(void *cls, 
+                          enum GNUNET_ARM_RequestStatus status, 
+                          enum GNUNET_ARM_Result result)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_InternalServices *services = cls;
+  services->op = NULL;
+
+  if (status != GNUNET_ARM_REQUEST_SENT_OK)
+    return;
+
+  struct GNUNET_CHAT_Handle *chat = services->chat;
+
+  GNUNET_CONTAINER_DLL_remove(
+    chat->services_head,
+    chat->services_tail,
+    services
+  );
+
+  GNUNET_free(services);
+}
+
+static void
+_request_service_via_arm(struct GNUNET_CHAT_Handle *chat,
+                         const char *service_name)
+{
+  GNUNET_assert((chat) && (chat->arm) && (service_name));
+
+  struct GNUNET_CHAT_InternalServices *services = GNUNET_new(
+    struct GNUNET_CHAT_InternalServices
+  );
+
+  if (! services)
+    return;
+
+  services->chat = chat;
+  services->op = GNUNET_ARM_request_service_start(
+    chat->arm,
+    service_name,
+    GNUNET_OS_INHERIT_STD_NONE,
+    on_handle_service_request,
+    services
+  );
+
+  GNUNET_CONTAINER_DLL_insert(
+    chat->services_head,
+    chat->services_tail,
+    services
+  );
+}
+
+void
 on_handle_arm_connection(void *cls,
 			                   int connected)
 {
@@ -72,47 +126,14 @@ on_handle_arm_connection(void *cls,
   GNUNET_assert((chat) && (chat->arm));
 
   if (GNUNET_YES == connected) {
-    GNUNET_ARM_request_service_start(
-    	chat->arm, gnunet_service_name_identity,
-    	GNUNET_OS_INHERIT_STD_NONE,
-    	NULL, NULL
-    );
-
-    GNUNET_ARM_request_service_start(
-      chat->arm, gnunet_service_name_messenger,
-      GNUNET_OS_INHERIT_STD_NONE,
-      NULL, NULL
-    );
-
-    GNUNET_ARM_request_service_start(
-      chat->arm, gnunet_service_name_fs,
-      GNUNET_OS_INHERIT_STD_NONE,
-      NULL, NULL
-    );
-
-    GNUNET_ARM_request_service_start(
-    	chat->arm, gnunet_service_name_gns,
-    	GNUNET_OS_INHERIT_STD_NONE,
-    	NULL, NULL
-    );
-
-    GNUNET_ARM_request_service_start(
-    	chat->arm, gnunet_service_name_namestore,
-    	GNUNET_OS_INHERIT_STD_NONE,
-    	NULL, NULL
-    );
-
-    GNUNET_ARM_request_service_start(
-    	chat->arm, gnunet_service_name_reclaim,
-    	GNUNET_OS_INHERIT_STD_NONE,
-    	NULL, NULL
-    );
+    _request_service_via_arm(chat, gnunet_service_name_identity);
+    _request_service_via_arm(chat, gnunet_service_name_messenger);
+    _request_service_via_arm(chat, gnunet_service_name_fs);
+    _request_service_via_arm(chat, gnunet_service_name_gns);
+    _request_service_via_arm(chat, gnunet_service_name_namestore);
+    _request_service_via_arm(chat, gnunet_service_name_reclaim);
   } else {
-    GNUNET_ARM_request_service_start(
-      chat->arm, gnunet_service_name_arm,
-      GNUNET_OS_INHERIT_STD_NONE,
-      NULL, NULL
-    );
+    _request_service_via_arm(chat, gnunet_service_name_arm);
   }
 }
 
@@ -266,12 +287,6 @@ cb_task_finish_ticket_update (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = tickets->handle;
 
-  if (tickets->iter)
-    GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
-
-  if (tickets->op)
-    GNUNET_RECLAIM_cancel(tickets->op);
-
   GNUNET_CONTAINER_DLL_remove(
     handle->tickets_head,
     handle->tickets_tail,
@@ -327,6 +342,7 @@ cont_revoke_ticket_with_status (void *cls,
     if (tickets->iter)
       GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
 
+    tickets->iter = NULL;
     return;
   }
 

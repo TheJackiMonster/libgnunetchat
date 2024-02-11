@@ -66,6 +66,17 @@ task_handle_destruction (void *cls)
 }
 
 void
+task_handle_disconnection (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+
+  handle_disconnect(handle);
+  handle->disconnection = NULL;
+}
+
+void
 cb_lobby_lookup (void *cls,
                  uint32_t count,
                  const struct GNUNET_GNSRECORD_Data *data)
@@ -207,6 +218,36 @@ it_room_find_contact (void *cls,
 
   find->contact = member;
   return GNUNET_NO;
+}
+
+void
+task_group_destruction (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Group *group = (struct GNUNET_CHAT_Group*) cls;
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+    group->context->room
+  );
+
+  GNUNET_CONTAINER_multihashmap_remove(
+    group->handle->groups, key, group
+  );
+
+  GNUNET_CONTAINER_multihashmap_remove(
+    group->handle->contexts, key, group->context
+  );
+
+  GNUNET_MESSENGER_close_room(group->context->room);
+
+  group->context->deleted = GNUNET_YES;
+  context_write_records(group->context);
+
+  group->destruction = NULL;
+
+  context_destroy(group->context);
+  group_destroy(group);
 }
 
 struct GNUNET_CHAT_GroupIterateContacts
