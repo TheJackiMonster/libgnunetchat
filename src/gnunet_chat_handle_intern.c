@@ -839,6 +839,9 @@ on_handle_message_callback(void *cls)
   struct GNUNET_CHAT_Context *context = message->context;
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
+  if (GNUNET_MESSENGER_FLAG_UPDATE & message->flags)
+    goto skip_msg_handing;
+
   switch (message->msg->header.kind)
   {
     case GNUNET_MESSENGER_KIND_INVITE:
@@ -892,11 +895,9 @@ on_handle_message_callback(void *cls)
       break;
   }
 
-  if (!(handle->msg_cb))
-    goto clear_dependencies;
-
-  const struct GNUNET_MESSENGER_Contact *sender;
-  sender = GNUNET_MESSENGER_get_sender(context->room, &(message->hash));
+skip_msg_handing:
+  const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(
+    context->room, &(message->hash));
 
   if (!sender)
     goto clear_dependencies;
@@ -910,6 +911,9 @@ on_handle_message_callback(void *cls)
 
   if (!contact)
     goto clear_dependencies;
+
+  if (GNUNET_MESSENGER_FLAG_UPDATE & message->flags)
+    goto skip_sender_handing;
 
   switch (message->msg->header.kind)
   {
@@ -955,9 +959,16 @@ on_handle_message_callback(void *cls)
       break;
   }
 
+skip_sender_handing:
+  if (!(handle->msg_cb))
+    goto clear_dependencies;
+
   handle->msg_cb(handle->msg_cls, context, message);
 
 clear_dependencies:
+  if (GNUNET_MESSENGER_FLAG_DELETE & message->flags)
+    message->msg = NULL;
+
   GNUNET_CONTAINER_multihashmap_get_multiple(context->dependencies,
                                              &(message->hash),
                                              it_context_iterate_dependencies,

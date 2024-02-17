@@ -1178,6 +1178,29 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message);
 
 /**
+ * Returns #GNUNET_YES if the message was received because of an update by
+ * related chat handle, otherwise it returns #GNUNET_NO.
+ *
+ * @param[in] message Message
+ * @return #GNUNET_YES if the message was received to update
+ *     a previous message, otherwise #GNUNET_NO 
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_update (const struct GNUNET_CHAT_Message *message);
+
+/**
+ * Returns #GNUNET_YES if the message was received because of a deletion by
+ * related chat handle or if it has been deleted internally, otherwise it 
+ * returns #GNUNET_NO.
+ *
+ * @param[in] message Message
+ * @return #GNUNET_YES if the message was received to delete
+ *     a previous message, otherwise #GNUNET_NO 
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_deleted (const struct GNUNET_CHAT_Message *message);
+
+/**
  * Iterates through the contacts of the context related to a given chat
  * <i>message</i> to check whether it was received by each of the contacts.
  *

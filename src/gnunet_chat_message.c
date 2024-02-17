@@ -95,10 +95,7 @@ message_update_msg (struct GNUNET_CHAT_Message* message,
   if (flags & GNUNET_MESSENGER_FLAG_UPDATE)
     message->msg = msg;
   else if (flags & GNUNET_MESSENGER_FLAG_DELETE)
-  {
     context_delete_message(message->context, message);
-    message->msg = NULL;
-  }
   else
     return;
 

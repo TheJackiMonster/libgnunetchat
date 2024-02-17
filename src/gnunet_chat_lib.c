@@ -1761,6 +1761,38 @@ GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message)
 }
 
 
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_update (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return GNUNET_SYSERR;
+
+  if (message->flags & GNUNET_MESSENGER_FLAG_UPDATE)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_deleted (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return GNUNET_SYSERR;
+
+  if ((GNUNET_CHAT_FLAG_NONE == message->flag) &&
+      ((message->flags & GNUNET_MESSENGER_FLAG_DELETE) ||
+       (!message->msg)))
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
+
 int
 GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
                                       GNUNET_CHAT_MessageReadReceiptCallback callback,
