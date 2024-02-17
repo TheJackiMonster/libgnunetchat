@@ -839,7 +839,7 @@ on_handle_message_callback(void *cls)
   struct GNUNET_CHAT_Context *context = message->context;
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
-  if (GNUNET_MESSENGER_FLAG_UPDATE & message->flags)
+  if (GNUNET_MESSENGER_FLAG_DELETE & message->flags)
     goto skip_msg_handing;
 
   switch (message->msg->header.kind)
@@ -912,7 +912,7 @@ skip_msg_handing:
   if (!contact)
     goto clear_dependencies;
 
-  if (GNUNET_MESSENGER_FLAG_UPDATE & message->flags)
+  if (GNUNET_MESSENGER_FLAG_DELETE & message->flags)
     goto skip_sender_handing;
 
   switch (message->msg->header.kind)
@@ -1064,16 +1064,6 @@ on_handle_message (void *cls,
       return;
 
     goto handle_callback;
-  }
-  else if (msg->header.kind == GNUNET_MESSENGER_KIND_DELETE)
-  {
-    message = GNUNET_CONTAINER_multihashmap_get(
-      context->messages, &(msg->body.deletion.hash)
-    );
-
-    if ((!message) || (GNUNET_YES == message_has_msg(message)) || 
-        (0 == (message->flags & GNUNET_MESSENGER_FLAG_DELETE)))
-      return;
   }
 
   message = message_create_from_msg(context, hash, flags, msg);
