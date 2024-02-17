@@ -955,9 +955,6 @@ on_handle_message_callback(void *cls)
       break;
   }
 
-  if (GNUNET_YES == contact_is_blocked(contact, context))
-    goto clear_dependencies;
-
   handle->msg_cb(handle->msg_cls, context, message);
 
 clear_dependencies:

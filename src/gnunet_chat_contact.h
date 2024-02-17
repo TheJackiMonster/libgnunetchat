@@ -104,38 +104,43 @@ struct GNUNET_CHAT_Context*
 contact_find_context (const struct GNUNET_CHAT_Contact *contact);
 
 /**
- * Returns whether a chat <i>contact</i> is blocked in
- * a given chat <i>context</i>.
+ * Returns whether a chat <i>contact</i> is tagged in
+ * a given chat <i>context</i> with a specific <i>tag</i>.
  *
  * @param[in] contact Chat contact
  * @param[in] context Chat context or NULL (optional)
- * @return #GNUNET_YES if blocked, otherwise #GNUNET_NO
+ * @param[in] tag Tag or NULL
+ * @return #GNUNET_YES if tagged, otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue
-contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
-                    const struct GNUNET_CHAT_Context *context);
+contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
+                   const struct GNUNET_CHAT_Context *context,
+                   const char *tag);
 
 /**
- * Unblocks a given chat <i>contact</i> in
- * a given chat <i>context</i>.
+ * Untags a given chat <i>contact</i> in
+ * a given chat <i>context</i> from a specific <i>tag</i>.
  *
  * @param[in,out] contact Chat contact
  * @param[in,out] context Chat context
  */
 void
-contact_unblock (struct GNUNET_CHAT_Contact *contact,
-                 struct GNUNET_CHAT_Context *context);
+contact_untag (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context,
+               const char *tag);
 
 /**
- * Blocks a given chat <i>contact</i> in
- * a given chat <i>context</i>.
+ * Tags a given chat <i>contact</i> in
+ * a given chat <i>context</i> with a specific <i>tag</i>.
  *
  * @param[in,out] contact Chat contact
  * @param[in,out] context Chat context
+ * @param[in] tag Tag or NULL
  */
 void
-contact_block (struct GNUNET_CHAT_Contact *contact,
-               struct GNUNET_CHAT_Context *context);
+contact_tag (struct GNUNET_CHAT_Contact *contact,
+             struct GNUNET_CHAT_Context *context,
+             const char *tag);
 
 /**
  * Destroys a chat <i>contact</i> and frees its memory.

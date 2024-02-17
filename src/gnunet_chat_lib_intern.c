@@ -162,11 +162,14 @@ it_handle_iterate_groups (void *cls,
 
 typedef void
 (*GNUNET_CHAT_ContactIterateContextCallback) (struct GNUNET_CHAT_Contact *contact,
-                                              struct GNUNET_CHAT_Context *context);
+                                              struct GNUNET_CHAT_Context *context,
+                                              const char *tag);
 
 struct GNUNET_CHAT_ContactIterateContexts
 {
   struct GNUNET_CHAT_Contact *contact;
+  const char *tag;
+
   GNUNET_CHAT_ContactIterateContextCallback cb;
 };
 
@@ -189,7 +192,7 @@ it_contact_iterate_contexts (void *cls,
   if (! context)
     return GNUNET_YES;
 
-  it->cb(it->contact, context);
+  it->cb(it->contact, context, it->tag);
   return GNUNET_YES;
 }
 

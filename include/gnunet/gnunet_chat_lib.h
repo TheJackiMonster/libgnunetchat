@@ -810,6 +810,40 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact);
 
 /**
+ * Tags a given <i>contact</i> by the current account with a specific
+ * <i>tag</i>.
+ *
+ * @param[in,out] contact Contact
+ * @param[in] tag Tag
+ */
+void
+GNUNET_CHAT_contact_tag (struct GNUNET_CHAT_Contact *contact,
+                         const char *tag);
+
+/**
+ * Untags a given <i>contact</i> by the current account with a specific
+ * <i>tag</i>.
+ *
+ * @param[in,out] contact Contact
+ * @param[in] tag Tag
+ */
+void
+GNUNET_CHAT_contact_untag (struct GNUNET_CHAT_Contact *contact,
+                           const char *tag);
+
+/**
+ * Returns if a given <i>contact</i> is tagged by the current account with
+ * a specific <i>tag</i>.
+ *
+ * @param[in] contact Contact
+ * @return #GNUNET_YES if the contact is tagged, #GNUNET_SYSERR on failure and 
+ *         #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
+                               const char *tag);
+
+/**
  * Iterates through the tickets of a given <i>contact</i> with a selected
  * callback and custom closure.
  *

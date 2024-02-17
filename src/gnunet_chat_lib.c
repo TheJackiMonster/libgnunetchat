@@ -948,11 +948,12 @@ GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
 
   struct GNUNET_CHAT_ContactIterateContexts it;
   it.contact = contact;
+  it.tag = NULL;
   
   if (GNUNET_NO == blocked)
-    it.cb = contact_unblock;
+    it.cb = contact_untag;
   else if (GNUNET_YES == blocked)
-    it.cb = contact_block;
+    it.cb = contact_tag;
   else
     return;
 
@@ -972,7 +973,64 @@ GNUNET_CHAT_contact_is_blocked (const struct GNUNET_CHAT_Contact *contact)
   if (!contact)
     return GNUNET_SYSERR;
 
-  return contact_is_blocked(contact, NULL);
+  return contact_is_tagged(contact, NULL, NULL);
+}
+
+
+void
+GNUNET_CHAT_contact_tag (struct GNUNET_CHAT_Contact *contact,
+                         const char *tag)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!contact) || (!tag) || (!tag[0]))
+    return;
+
+  struct GNUNET_CHAT_ContactIterateContexts it;
+  it.contact = contact;
+  it.tag = tag;
+  it.cb = contact_tag;
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+    contact->joined,
+    it_contact_iterate_contexts,
+    &it
+  );
+}
+
+
+void
+GNUNET_CHAT_contact_untag (struct GNUNET_CHAT_Contact *contact,
+                           const char *tag)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!contact) || (!tag) || (!tag[0]))
+    return;
+
+  struct GNUNET_CHAT_ContactIterateContexts it;
+  it.contact = contact;
+  it.tag = tag;
+  it.cb = contact_untag;
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+    contact->joined,
+    it_contact_iterate_contexts,
+    &it
+  );
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
+                               const char *tag)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!contact) || (!tag) || (!tag[0]))
+    return GNUNET_SYSERR;
+
+  return contact_is_tagged(contact, NULL, tag);
 }
 
 
@@ -1623,7 +1681,7 @@ GNUNET_CHAT_message_get_sender (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)) || (!(message->context->room)))
     return NULL;
 
@@ -1643,7 +1701,7 @@ GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_CHAT_FLAG_NONE != message->flag) ||
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)) || (!(message->context->room)))
     return NULL;
 

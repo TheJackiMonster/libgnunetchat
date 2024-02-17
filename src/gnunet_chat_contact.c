@@ -77,8 +77,8 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
   if (!(context->room))
     return;
 
-  const enum GNUNET_GenericReturnValue blocked = contact_is_blocked(
-    contact, context
+  const enum GNUNET_GenericReturnValue blocked = contact_is_tagged(
+    contact, context, NULL
   );
 
   const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
@@ -109,13 +109,13 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
     return;
 
   if (GNUNET_YES == blocked)
-    contact_unblock(contact, context);
+    contact_untag(contact, context, NULL);
 
   GNUNET_memcpy(current, hash, 
     sizeof(struct GNUNET_HashCode));
   
   if (GNUNET_YES == blocked)
-    contact_block(contact, context);
+    contact_tag(contact, context, NULL);
 }
 
 void
@@ -167,8 +167,9 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact)
 }
 
 enum GNUNET_GenericReturnValue
-contact_is_blocked (const struct GNUNET_CHAT_Contact *contact,
-                    const struct GNUNET_CHAT_Context *context)
+contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
+                   const struct GNUNET_CHAT_Context *context,
+                   const char *tag)
 {
   GNUNET_assert(
     (contact) &&
@@ -218,7 +219,7 @@ skip_context_search:
   if (! hash)
     return (general == GNUNET_YES? 
       GNUNET_NO : 
-      contact_is_blocked(contact, NULL)
+      contact_is_tagged(contact, NULL, tag)
     );
 
   struct GNUNET_CHAT_ContactFindJoin find;
@@ -238,8 +239,9 @@ skip_context_search:
 }
 
 void
-contact_unblock (struct GNUNET_CHAT_Contact *contact,
-                 struct GNUNET_CHAT_Context *context)
+contact_untag (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context,
+               const char *tag)
 {
   GNUNET_assert(
     (contact) &&
@@ -280,8 +282,9 @@ contact_unblock (struct GNUNET_CHAT_Contact *contact,
 }
 
 void
-contact_block (struct GNUNET_CHAT_Contact *contact,
-               struct GNUNET_CHAT_Context *context)
+contact_tag (struct GNUNET_CHAT_Contact *contact,
+             struct GNUNET_CHAT_Context *context,
+             const char *tag)
 {
   GNUNET_assert(
     (contact) &&
@@ -314,17 +317,22 @@ contact_block (struct GNUNET_CHAT_Contact *contact,
   if ((find.hash) || (! context->room))
     return;
 
+  char *tag_value = tag? GNUNET_strdup(tag) : NULL;
+
   struct GNUNET_MESSENGER_Message msg;
   msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
   GNUNET_memcpy(&(msg.body.tag.hash), hash,
     sizeof(struct GNUNET_HashCode));
-  msg.body.tag.tag = NULL;
+  msg.body.tag.tag = tag_value;
 
   GNUNET_MESSENGER_send_message(
     context->room,
     &msg,
     contact->member
   );
+
+  if (tag_value)
+    GNUNET_free(tag_value);
 }
 
 void
