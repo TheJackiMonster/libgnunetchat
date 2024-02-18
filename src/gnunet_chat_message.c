@@ -87,7 +87,7 @@ message_update_msg (struct GNUNET_CHAT_Message* message,
                     enum GNUNET_MESSENGER_MessageFlags flags,
                     const struct GNUNET_MESSENGER_Message *msg)
 {
-  GNUNET_assert(message);
+  GNUNET_assert((message) && (msg));
 
   if (message->flag != GNUNET_CHAT_FLAG_NONE)
     return;

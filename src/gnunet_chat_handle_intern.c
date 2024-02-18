@@ -1068,7 +1068,7 @@ on_handle_message (void *cls,
   {
     message_update_msg (message, flags, msg);
 
-    if (0 != (message->flags & GNUNET_MESSENGER_FLAG_UPDATE))
+    if (0 == (message->flags & GNUNET_MESSENGER_FLAG_UPDATE))
       return;
 
     goto handle_callback;
