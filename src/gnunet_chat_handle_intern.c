@@ -846,6 +846,10 @@ on_handle_message_callback(void *cls)
   {
     case GNUNET_MESSENGER_KIND_INVITE:
     {
+      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(context->invites, 
+                                                               &(message->hash)))
+        break;
+      
       struct GNUNET_CHAT_Invitation *invitation = invitation_create_from_message(
 	      context, &(message->hash), &(message->msg->body.invite)
       );
@@ -858,6 +862,10 @@ on_handle_message_callback(void *cls)
     }
     case GNUNET_MESSENGER_KIND_FILE:
     {
+      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(context->files, 
+                                                               &(message->hash)))
+        break;
+
       GNUNET_CONTAINER_multihashmap_put(
         context->files, &(message->hash), NULL,
         GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST
