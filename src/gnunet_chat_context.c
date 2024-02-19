@@ -51,7 +51,7 @@ init_new_context (struct GNUNET_CHAT_Context *context,
     initial_map_size, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
-  context->rejections = GNUNET_CONTAINER_multihashmap_create(
+  context->taggings = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
   context->invites = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
@@ -112,7 +112,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 		(context->timestamps) &&
     (context->dependencies) &&
 		(context->messages) &&
-    (context->rejections) &&
+    (context->taggings) &&
 		(context->invites) &&
 		(context->files)
   );
@@ -129,7 +129,10 @@ context_destroy (struct GNUNET_CHAT_Context *context)
     context->messages, it_destroy_context_messages, NULL
   );
 
-  GNUNET_CONTAINER_multihashmap_clear(context->rejections);
+  GNUNET_CONTAINER_multihashmap_iterate(
+    context->taggings, it_destroy_context_taggings, NULL
+  );
+
   GNUNET_CONTAINER_multihashmap_iterate(
     context->invites, it_destroy_context_invites, NULL
   );
@@ -139,7 +142,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
   GNUNET_CONTAINER_multihashmap_destroy(context->dependencies);
   GNUNET_CONTAINER_multihashmap_destroy(context->messages);
-  GNUNET_CONTAINER_multihashmap_destroy(context->rejections);
+  GNUNET_CONTAINER_multihashmap_destroy(context->taggings);
   GNUNET_CONTAINER_multihashmap_destroy(context->invites);
   GNUNET_CONTAINER_multihashmap_destroy(context->files);
 
@@ -319,14 +322,15 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
     }
     case GNUNET_MESSENGER_KIND_TAG:
     {
-      if (message->msg->body.tag.tag)
+      struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+        context->taggings,
+        &(message->msg->body.tag.hash)
+      );
+
+      if (!tagging)
         break;
 
-      GNUNET_CONTAINER_multihashmap_remove(
-        context->rejections, 
-        &(message->msg->body.tag.hash), 
-        message);
-
+      tagging_remove(tagging, message);
       break;
     }
     default:

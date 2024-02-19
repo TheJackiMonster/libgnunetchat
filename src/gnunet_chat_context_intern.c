@@ -24,13 +24,14 @@
 
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
+#include "gnunet_chat_tagging.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_error_codes.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
-int
+enum GNUNET_GenericReturnValue
 it_destroy_context_timestamps (GNUNET_UNUSED void *cls,
                                GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
                                void *value)
@@ -42,7 +43,7 @@ it_destroy_context_timestamps (GNUNET_UNUSED void *cls,
   return GNUNET_YES;
 }
 
-int
+enum GNUNET_GenericReturnValue
 it_destroy_context_messages (GNUNET_UNUSED void *cls,
                              GNUNET_UNUSED const struct GNUNET_HashCode *key,
                              void *value)
@@ -54,7 +55,19 @@ it_destroy_context_messages (GNUNET_UNUSED void *cls,
   return GNUNET_YES;
 }
 
-int
+enum GNUNET_GenericReturnValue
+it_destroy_context_taggings (GNUNET_UNUSED void *cls,
+                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                             void *value)
+{
+  GNUNET_assert(value);
+
+  struct GNUNET_CHAT_Tagging *tagging = value;
+  tagging_destroy(tagging);
+  return GNUNET_YES;
+}
+
+enum GNUNET_GenericReturnValue
 it_destroy_context_invites (GNUNET_UNUSED void *cls,
                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
                             void *value)

@@ -25,6 +25,7 @@
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
 
 #include "gnunet_chat_contact_intern.c"
@@ -166,6 +167,21 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact)
   );
 }
 
+const struct GNUNET_HashCode*
+get_contact_join_hash (const struct GNUNET_CHAT_Contact *contact,
+                       const struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert((contact) && (context));
+
+  if (!(context->room))
+    return NULL;
+
+  return GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    GNUNET_MESSENGER_room_get_key(context->room)
+  );
+}
+
 enum GNUNET_GenericReturnValue
 contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
                    const struct GNUNET_CHAT_Context *context,
@@ -207,28 +223,34 @@ contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
   }
 
 skip_context_search:
-  if ((! context) || (!(context->room)))
+  if (! context)
     return GNUNET_NO;
 
-  const struct GNUNET_HashCode *hash;
-  hash = GNUNET_CONTAINER_multihashmap_get(
-    contact->joined,
-    GNUNET_MESSENGER_room_get_key(context->room)
-  );
+  const struct GNUNET_HashCode *hash = get_contact_join_hash(
+    contact, context);
 
   if (! hash)
     return (general == GNUNET_YES? 
       GNUNET_NO : 
       contact_is_tagged(contact, NULL, tag)
     );
+  
+  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    context->taggings,
+    hash
+  );
 
-  struct GNUNET_CHAT_ContactFindJoin find;
+  if (! tagging)
+    return GNUNET_NO;
+
+  struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  GNUNET_CONTAINER_multihashmap_get_multiple(
-    context->rejections,
-    hash,
-    it_contact_find_rejection,
+  tagging_iterate(
+    tagging,
+    GNUNET_NO,
+    tag,
+    it_contact_find_tag,
     &find
   );
 
@@ -249,25 +271,28 @@ contact_untag (struct GNUNET_CHAT_Contact *contact,
     (context)
   );
 
-  if (!(context->room))
-    return;
-
-  const struct GNUNET_HashCode *hash;
-  hash = GNUNET_CONTAINER_multihashmap_get(
-    contact->joined,
-    GNUNET_MESSENGER_room_get_key(context->room)
-  );
+  const struct GNUNET_HashCode *hash = get_contact_join_hash(
+    contact, context);
 
   if (! hash)
     return;
 
-  struct GNUNET_CHAT_ContactFindJoin find;
+  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    context->taggings,
+    hash
+  );
+
+  if (! tagging)
+    return;
+
+  struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  GNUNET_CONTAINER_multihashmap_get_multiple(
-    context->rejections,
-    hash,
-    it_contact_find_rejection,
+  tagging_iterate(
+    tagging,
+    GNUNET_NO,
+    tag,
+    it_contact_find_tag,
     &find
   );
 
@@ -292,29 +317,36 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
     (context)
   );
 
-  if (!(context->room))
-    return;
-
-  const struct GNUNET_HashCode *hash;
-  hash = GNUNET_CONTAINER_multihashmap_get(
-    contact->joined,
-    GNUNET_MESSENGER_room_get_key(context->room)
-  );
+  const struct GNUNET_HashCode *hash = get_contact_join_hash(
+    contact, context);
 
   if (! hash)
     return;
 
-  struct GNUNET_CHAT_ContactFindJoin find;
+  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    context->taggings,
+    hash
+  );
+
+  if (! tagging)
+    goto skip_tag_search;
+
+  struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  GNUNET_CONTAINER_multihashmap_get_multiple(
-    context->rejections,
-    hash,
-    it_contact_find_rejection,
+  tagging_iterate(
+    tagging,
+    GNUNET_NO,
+    tag,
+    it_contact_find_tag,
     &find
   );
 
-  if ((find.hash) || (! context->room))
+  if (find.hash)
+    return;
+
+skip_tag_search:
+  if (! context->room)
     return;
 
   char *tag_value = tag? GNUNET_strdup(tag) : NULL;

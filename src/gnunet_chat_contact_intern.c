@@ -58,21 +58,18 @@ it_contact_find_room (void *cls,
   return GNUNET_YES;
 }
 
-struct GNUNET_CHAT_ContactFindJoin
+struct GNUNET_CHAT_ContactFindTag
 {
   const struct GNUNET_HashCode *hash;
 };
 
 enum GNUNET_GenericReturnValue
-it_contact_find_rejection (void *cls,
-                           const struct GNUNET_HashCode *key,
-                           void *value)
+it_contact_find_tag (void *cls,
+                     const struct GNUNET_CHAT_Message *message)
 {
-  GNUNET_assert((cls) && (key) && (value));
+  GNUNET_assert((cls) && (message));
 
-  struct GNUNET_CHAT_ContactFindJoin *find = cls;
-
-  const struct GNUNET_CHAT_Message *message = value;
+  struct GNUNET_CHAT_ContactFindTag *find = cls;
 
   if ((GNUNET_YES != message_has_msg(message)) ||
       (message->flags & GNUNET_MESSENGER_FLAG_DELETE))
