@@ -89,7 +89,8 @@ message_update_msg (struct GNUNET_CHAT_Message* message,
 {
   GNUNET_assert((message) && (msg));
 
-  if (message->flag != GNUNET_CHAT_FLAG_NONE)
+  if ((GNUNET_YES != message_has_msg(message)) ||
+      (message->flags & GNUNET_MESSENGER_FLAG_DELETE))
     return;
 
   if (flags & GNUNET_MESSENGER_FLAG_UPDATE)

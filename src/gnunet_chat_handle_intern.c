@@ -974,9 +974,6 @@ skip_sender_handing:
   handle->msg_cb(handle->msg_cls, context, message);
 
 clear_dependencies:
-  if (GNUNET_MESSENGER_FLAG_DELETE & message->flags)
-    message->msg = NULL;
-
   GNUNET_CONTAINER_multihashmap_get_multiple(context->dependencies,
                                              &(message->hash),
                                              it_context_iterate_dependencies,
@@ -1066,6 +1063,9 @@ on_handle_message (void *cls,
 
   if (message)
   {
+    if (message->flags & GNUNET_MESSENGER_FLAG_DELETE)
+      return;
+
     message_update_msg (message, flags, msg);
 
     if (0 == (message->flags & GNUNET_MESSENGER_FLAG_UPDATE))

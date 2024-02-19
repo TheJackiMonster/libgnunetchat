@@ -74,7 +74,8 @@ it_contact_find_rejection (void *cls,
 
   const struct GNUNET_CHAT_Message *message = value;
 
-  if (GNUNET_YES != message_has_msg(message))
+  if ((GNUNET_YES != message_has_msg(message)) ||
+      (message->flags & GNUNET_MESSENGER_FLAG_DELETE))
     return GNUNET_YES;
 
   if (message->flags & GNUNET_MESSENGER_FLAG_SENT)
