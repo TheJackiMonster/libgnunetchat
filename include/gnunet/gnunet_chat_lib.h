@@ -316,6 +316,17 @@ typedef enum GNUNET_GenericReturnValue
                                            int read_receipt);
 
 /**
+ * Iterator over chat messages.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_context_iterate_messages
+ * @param[in] message Chat message
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_MessageCallback) (void *cls,
+                                const struct GNUNET_CHAT_Message *message);
+
+/**
  * Method called during an upload of a specific file in a chat to share it.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_context_send_file
@@ -1081,6 +1092,20 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
                                 const struct GNUNET_CHAT_File *file);
 
 /**
+ * Sends a tag message targeting a selected <i>message</i> into a given
+ * chat <i>context</i> with a given <i>tag</i> value.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] message Message
+ * @param[in] tag Tag value
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
+                              const struct GNUNET_CHAT_Message *message,
+                              const char *tag);
+
+/**
  * Iterates through the contacts of a given chat <i>context</i> with a selected
  * callback and custom closure.
  *
@@ -1146,8 +1171,8 @@ struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the message was sent by the related chat handle,
- * otherwise it returns #GNUNET_NO.
+ * Returns #GNUNET_YES if the <i>message</i> was sent by the related chat 
+ * handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was sent, otherwise #GNUNET_NO
@@ -1156,8 +1181,8 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_sent (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the message was received privately encrypted by the
- * related chat handle, otherwise it returns #GNUNET_NO.
+ * Returns #GNUNET_YES if the <i>message</i> was received privately encrypted
+ * by the related chat handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was privately received,
@@ -1167,8 +1192,8 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the message was received recently by related chat 
- * handle, otherwise it returns #GNUNET_NO.
+ * Returns #GNUNET_YES if the <i>message</i> was received recently by related 
+ * chat handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received recently,
@@ -1178,8 +1203,8 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the message was received because of an update by
- * related chat handle, otherwise it returns #GNUNET_NO.
+ * Returns #GNUNET_YES if the <i>message</i> was received because of an 
+ * update by related chat handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received to update
@@ -1189,9 +1214,9 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_update (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the message was received because of a deletion by
- * related chat handle or if it has been deleted internally, otherwise it 
- * returns #GNUNET_NO.
+ * Returns #GNUNET_YES if the <i>message</i> was received because of a 
+ * deletion by related chat handle or if it has been deleted internally, 
+ * otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received to delete
@@ -1199,6 +1224,18 @@ GNUNET_CHAT_message_is_update (const struct GNUNET_CHAT_Message *message);
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_deleted (const struct GNUNET_CHAT_Message *message);
+
+/**
+ * Returns #GNUNET_YES if the <i>message</i> was tagged with a custom
+ * <i>tag</i> value, otherwise it returns #GNUNET_NO.
+ *
+ * @param[in] message Message
+ * @return #GNUNET_YES if the message was tagged with
+ *     the given tag value, otherwise #GNUNET_NO
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
+                               const char *tag);
 
 /**
  * Iterates through the contacts of the context related to a given chat
@@ -1267,6 +1304,20 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
                             struct GNUNET_TIME_Relative delay);
+
+/**
+ * Iterates through the tag messages in the context of a given 
+ * <i>message</i>.
+ *
+ * @param[in] message Message
+ * @param[in] callback Callback for tag message iteration (optional)
+ * @param[in,out] cls Closure for tag message iteration (optional)
+ * @return Amount of tag messages iterated or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
+                                  GNUNET_CHAT_MessageCallback callback,
+                                  void *cls);
 
 /**
  * Returns the name of a given <i>file</i> handle.

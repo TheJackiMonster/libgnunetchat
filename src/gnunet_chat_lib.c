@@ -1592,6 +1592,35 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 }
 
 
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
+                              const struct GNUNET_CHAT_Message *message,
+                              const char *tag)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!context) || (!message) || (!tag) || (!(context->room)))
+    return GNUNET_SYSERR;
+
+  char *tag_value = GNUNET_strdup(tag);
+
+  struct GNUNET_MESSENGER_Message msg;
+  msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
+  GNUNET_memcpy(&(msg.body.tag.hash), &(message->hash),
+    sizeof(struct GNUNET_HashCode));
+  msg.body.tag.tag = tag_value;
+
+  GNUNET_MESSENGER_send_message(
+    context->room,
+    &msg,
+    NULL
+  );
+
+  GNUNET_free(tag_value);
+  return GNUNET_OK;
+}
+
+
 int
 GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
                                       GNUNET_CHAT_ContextMessageCallback callback,
@@ -1794,6 +1823,28 @@ GNUNET_CHAT_message_is_deleted (const struct GNUNET_CHAT_Message *message)
 }
 
 
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
+                               const char *tag)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (!(message->context)))
+    return GNUNET_SYSERR;
+
+  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    message->context->taggings, &(message->hash));
+  
+  if (!tagging)
+    return GNUNET_NO;
+
+  if (tagging_iterate(tagging, GNUNET_NO, tag, NULL, NULL) > 0)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
+}
+
+
 int
 GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
                                       GNUNET_CHAT_MessageReadReceiptCallback callback,
@@ -1912,6 +1963,26 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 
   GNUNET_MESSENGER_delete_message(message->context->room, &(message->hash), delay);
   return GNUNET_OK;
+}
+
+
+int
+GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
+                                  GNUNET_CHAT_MessageCallback callback,
+                                  void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (!(message->context)))
+    return GNUNET_SYSERR;
+
+  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    message->context->taggings, &(message->hash));
+  
+  if (!tagging)
+    return 0;
+
+  return tagging_iterate(tagging, GNUNET_YES, NULL, callback, cls);
 }
 
 
