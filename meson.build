@@ -29,6 +29,7 @@ pkg = import('pkgconfig')
 
 src_include = include_directories('src', 'include/gnunet')
 tests_include = include_directories('tests', 'include')
+tools_include = include_directories('include')
 
 gnunetchat_deps = [
     dependency('gnunetarm'),
@@ -60,6 +61,7 @@ pkg.generate(
 )
 
 subdir('tests')
+subdir('tools')
 
 run_target(
     'docs', 
