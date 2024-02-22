@@ -176,13 +176,11 @@ chat_message (void *cls,
   }
 
   if (GNUNET_CHAT_KIND_REFRESH == kind)
-  {
     GNUNET_CHAT_iterate_accounts(
       tool->handle,
       accounts_iterate,
       tool
     );
-  }
 
   if ((!(tool->quit)) && (!(tool->task)))
     tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(

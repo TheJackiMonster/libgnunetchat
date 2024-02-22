@@ -21,7 +21,19 @@
 libgnunetchat_uml = executable(
   'libgnunetchat_uml',
   [ 'gnunet_chat_lib_uml.c' ],
-  dependencies: [ dependency('gnunetutil') ],
+  dependencies: [
+    dependency('gnunetutil')
+  ],
   link_with: gnunetchat_lib,
   include_directories: tools_include,
+)
+
+messenger_uml = executable(
+  'messenger_uml',
+  [ 'gnunet_messenger_uml.c' ],
+  dependencies: [
+    dependency('gnunetidentity'),
+    dependency('gnunetmessenger'),
+    dependency('gnunetutil')
+  ],
 )
