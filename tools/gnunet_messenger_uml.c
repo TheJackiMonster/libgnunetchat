@@ -55,6 +55,8 @@ struct GNUNET_MESSENGER_Tool
 
   char *ego_name;
   char *room_name;
+  int ignore_targets;
+
   bool quit;
 };
 
@@ -260,17 +262,17 @@ message_callback (void *cls,
     );
   }
 
-  if (GNUNET_MESSENGER_KIND_REQUEST == message->header.kind)
-    add_link(tool, hash, &(message->body.request.hash), true);
+  if (0 == tool->ignore_targets)
+  {
+    if (GNUNET_MESSENGER_KIND_REQUEST == message->header.kind)
+      add_link(tool, hash, &(message->body.request.hash), true);
 
-  if (GNUNET_MESSENGER_KIND_DELETE == message->header.kind)
-    add_link(tool, hash, &(message->body.deletion.hash), true);
+    if (GNUNET_MESSENGER_KIND_DELETE == message->header.kind)
+      add_link(tool, hash, &(message->body.deletion.hash), true);
 
-  if (GNUNET_MESSENGER_KIND_REQUEST == message->header.kind)
-    add_link(tool, hash, &(message->body.request.hash), true);
-
-  if (GNUNET_MESSENGER_KIND_TAG == message->header.kind)
-    add_link(tool, hash, &(message->body.tag.hash), true);
+    if (GNUNET_MESSENGER_KIND_TAG == message->header.kind)
+      add_link(tool, hash, &(message->body.tag.hash), true);
+  }
 
   add_link(tool, hash, &(message->header.previous), false);
 
@@ -383,6 +385,12 @@ main (int argc,
       "ROOM_NAME",
       "name of room to read messages from",
       &(tool.room_name)
+    ),
+    GNUNET_GETOPT_option_flag(
+      'i',
+      "ignore-targets",
+      "ignore indirect connections between messages and their targets",
+      &(tool.ignore_targets)
     ),
     GNUNET_GETOPT_OPTION_END
   };
