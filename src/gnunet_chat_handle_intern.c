@@ -1017,19 +1017,19 @@ on_handle_message (void *cls,
   if ((handle->destruction) ||
       (GNUNET_OK != handle_request_context_by_room(handle, room)))
     return;
+  
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
+    handle->contexts, GNUNET_MESSENGER_room_get_key(room)
+  );
 
-  GNUNET_MESSENGER_get_message(room, &(msg->header.previous));
+  context_request_message(context, &(msg->header.previous));
 
   if (GNUNET_MESSENGER_KIND_MERGE == msg->header.kind)
-    GNUNET_MESSENGER_get_message(room, &(msg->body.merge.previous));
+    context_request_message(context, &(msg->body.merge.previous));
 
   if ((GNUNET_CHAT_KIND_UNKNOWN == util_message_kind_from_kind(msg->header.kind)) ||
       (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
     return;
-
-  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
-    handle->contexts, GNUNET_MESSENGER_room_get_key(room)
-  );
 
   const struct GNUNET_TIME_Absolute timestamp = GNUNET_TIME_absolute_ntoh(
     msg->header.timestamp

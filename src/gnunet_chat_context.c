@@ -29,8 +29,10 @@
 #include "gnunet_chat_util.h"
 
 #include "gnunet_chat_context_intern.c"
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 
 static const unsigned int initial_map_size_of_room = 8;
 static const unsigned int initial_map_size_of_contact = 4;
@@ -45,11 +47,15 @@ init_new_context (struct GNUNET_CHAT_Context *context,
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
+  context->request_task = NULL;
+
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(
     initial_map_size, GNUNET_NO);
   context->dependencies = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
   context->messages = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size, GNUNET_NO);
+  context->requests = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
   context->taggings = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size, GNUNET_NO);
@@ -117,6 +123,9 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 		(context->files)
   );
 
+  if (context->request_task)
+    GNUNET_SCHEDULER_cancel(context->request_task);
+
   if (context->query)
     GNUNET_NAMESTORE_cancel(context->query);
 
@@ -142,6 +151,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
   GNUNET_CONTAINER_multihashmap_destroy(context->dependencies);
   GNUNET_CONTAINER_multihashmap_destroy(context->messages);
+  GNUNET_CONTAINER_multihashmap_destroy(context->requests);
   GNUNET_CONTAINER_multihashmap_destroy(context->taggings);
   GNUNET_CONTAINER_multihashmap_destroy(context->invites);
   GNUNET_CONTAINER_multihashmap_destroy(context->files);
@@ -150,6 +160,26 @@ context_destroy (struct GNUNET_CHAT_Context *context)
     GNUNET_free(context->topic);
 
   GNUNET_free(context);
+}
+
+void
+context_request_message (struct GNUNET_CHAT_Context* context,
+                         const struct GNUNET_HashCode *hash)
+{
+  GNUNET_assert((context) && (hash));
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(context->requests,
+      hash, NULL, GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE))
+    return;
+  
+  if (context->request_task)
+    return;
+
+  context->request_task = GNUNET_SCHEDULER_add_with_priority(
+    GNUNET_SCHEDULER_PRIORITY_IDLE,
+    cb_context_request_messages,
+    context
+  );
 }
 
 void
@@ -178,6 +208,7 @@ context_update_room (struct GNUNET_CHAT_Context *context,
     initial_map_size_of_room, GNUNET_NO);
 
   GNUNET_CONTAINER_multihashmap_clear(context->messages);
+  GNUNET_CONTAINER_multihashmap_clear(context->requests);
   GNUNET_CONTAINER_multihashmap_clear(context->invites);
   GNUNET_CONTAINER_multihashmap_clear(context->files);
 

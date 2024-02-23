@@ -25,6 +25,7 @@
 #ifndef GNUNET_CHAT_CONTEXT_H_
 #define GNUNET_CHAT_CONTEXT_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_gnsrecord_lib.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
@@ -43,9 +44,12 @@ struct GNUNET_CHAT_Context
   char *topic;
   int deleted;
 
+  struct GNUNET_SCHEDULER_Task *request_task;
+
   struct GNUNET_CONTAINER_MultiShortmap *timestamps;
   struct GNUNET_CONTAINER_MultiHashMap *dependencies;
   struct GNUNET_CONTAINER_MultiHashMap *messages;
+  struct GNUNET_CONTAINER_MultiHashMap *requests;
   struct GNUNET_CONTAINER_MultiHashMap *taggings;
   struct GNUNET_CONTAINER_MultiHashMap *invites;
   struct GNUNET_CONTAINER_MultiHashMap *files;
@@ -91,6 +95,17 @@ context_create_from_contact (struct GNUNET_CHAT_Handle *handle,
  */
 void
 context_destroy (struct GNUNET_CHAT_Context* context);
+
+/**
+ * Request a message from a chat <i>context</i> with a
+ * given <i>hash</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] hash Message hash
+ */
+void
+context_request_message (struct GNUNET_CHAT_Context* context,
+                         const struct GNUNET_HashCode *hash);
 
 /**
  * Updates the connected messenger <i>room</i> of a

@@ -25,6 +25,7 @@
 #ifndef GNUNET_CHAT_HANDLE_H_
 #define GNUNET_CHAT_HANDLE_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_gns_service.h>

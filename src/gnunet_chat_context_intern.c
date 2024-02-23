@@ -28,6 +28,7 @@
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_error_codes.h>
+#include <gnunet/gnunet_messenger_service.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
@@ -77,6 +78,49 @@ it_destroy_context_invites (GNUNET_UNUSED void *cls,
   struct GNUNET_CHAT_Invitation *invitation = value;
   invitation_destroy(invitation);
   return GNUNET_YES;
+}
+
+enum GNUNET_GenericReturnValue
+it_iterate_context_requests (void *cls,
+                             const struct GNUNET_HashCode *key,
+                             GNUNET_UNUSED void *value)
+{
+  struct GNUNET_CHAT_Context *context = cls;
+
+  GNUNET_assert((context) && (context->room) && (key));
+
+  GNUNET_MESSENGER_get_message(context->room, key);
+
+  return GNUNET_YES;
+}
+
+void
+cb_context_request_messages (void *cls)
+{
+  struct GNUNET_CHAT_Context *context = cls;
+
+  GNUNET_assert(context);
+
+  context->request_task = NULL;
+
+  if (!(context->room))
+  {
+    context->request_task = GNUNET_SCHEDULER_add_with_priority(
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      cb_context_request_messages,
+      context
+    );
+
+    return;
+  }
+
+  GNUNET_CONTAINER_multihashmap_iterate(
+    context->requests,
+    it_iterate_context_requests,
+    context
+  );
+
+  GNUNET_CONTAINER_multihashmap_clear(context->requests);
 }
 
 void
