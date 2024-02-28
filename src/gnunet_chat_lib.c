@@ -856,7 +856,7 @@ GNUNET_CHAT_contact_get_name (const struct GNUNET_CHAT_Contact *contact)
     return NULL;
 
   if ((contact->context) && (! contact->context->topic) &&
-      (contact->context->nick[0]))
+      (contact->context->nick))
     return contact->context->nick;
 
   return GNUNET_MESSENGER_contact_get_name(contact->member);
@@ -1105,7 +1105,7 @@ GNUNET_CHAT_group_get_name (const struct GNUNET_CHAT_Group *group)
   if ((!group) || (!(group->context)))
     return NULL;
 
-  if (group->context->nick[0])
+  if (group->context->nick)
     return group->context->nick;
 
   return group->context->topic;

@@ -33,6 +33,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
+#include <string.h>
 
 static const unsigned int initial_map_size_of_room = 8;
 static const unsigned int initial_map_size_of_contact = 4;
@@ -43,7 +44,8 @@ init_new_context (struct GNUNET_CHAT_Context *context,
 {
   GNUNET_assert(context);
 
-  context->nick[0] = '\0';
+  context->flags = 0;
+  context->nick = NULL;
   context->topic = NULL;
   context->deleted = GNUNET_NO;
 
@@ -226,12 +228,13 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 {
   GNUNET_assert(context);
 
-  size_t len = nick? strlen(nick) : 0;
-  if (len >= sizeof(context->nick))
-    len = sizeof(context->nick) - 1;
+  if (context->nick)
+    GNUNET_free(context->nick);
 
-  GNUNET_memcpy(context->nick, nick, len);
-  context->nick[len] = '\0';
+  if (nick)
+    context->nick = GNUNET_strdup(nick);
+  else
+    context->nick = NULL;
 
   if (!(context->handle))
     return;
@@ -281,6 +284,7 @@ context_read_records (struct GNUNET_CHAT_Context *context,
     }
   }
 
+  context->flags = flags;
   context_update_nick(context, nick);
 
   if (nick)
@@ -397,6 +401,8 @@ context_write_records (struct GNUNET_CHAT_Context *context)
   );
 
   struct GNUNET_MESSENGER_RoomDetailsRecord room_details;
+  memset(room_details.name, 0, sizeof(room_details.name));
+  
   const char *topic = context->topic;
 
   if (topic)
@@ -426,8 +432,17 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 
   if (context->nick)
   {
-    GNUNET_memcpy(room_details.name, context->nick, sizeof(room_details.name));
-    room_details.flags = 0;
+    size_t name_len = strlen(context->nick);
+    if (name_len >= sizeof(room_details.name))
+      name_len = sizeof(room_details.name) - 1;
+
+    GNUNET_memcpy(room_details.name, context->nick, name_len);
+    room_details.name[name_len] = '\0';
+  }
+
+  if ((context->nick) || (context->flags != 0))
+  {
+    room_details.flags = context->flags;
 
     data[count].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_DETAILS;
     data[count].data = &room_details;

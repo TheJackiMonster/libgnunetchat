@@ -29,6 +29,7 @@
 #include <gnunet/gnunet_gnsrecord_lib.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
+#include <stdint.h>
 
 #include "gnunet_chat_util.h"
 
@@ -40,7 +41,8 @@ struct GNUNET_CHAT_Context
   struct GNUNET_CHAT_Handle *handle;
 
   enum GNUNET_CHAT_ContextType type;
-  char nick [256 + 1];
+  uint32_t flags;
+  char *nick;
   char *topic;
   int deleted;
 
