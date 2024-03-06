@@ -2395,7 +2395,13 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
   const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     invitation->context->taggings, &(invitation->hash));
   
-  return tagging_iterate(tagging, GNUNET_NO, NULL, NULL, NULL) > 0;
+  if (!tagging)
+    return GNUNET_NO;
+  
+  if (tagging_iterate(tagging, GNUNET_NO, NULL, NULL, NULL) > 0)
+    return GNUNET_YES;
+  else
+    return GNUNET_NO;
 }
 
 
