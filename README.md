@@ -8,13 +8,14 @@ This library is an abstraction layer using the client API from different [GNUnet
 
 Implementing all those typical features of a messenger application requires more than only a service to exchange messages. Therefore this library utilizes multiple different services provided by GNUnet to achieve this goal:
 
- - [ARM](https://docs.gnunet.org/handbook/gnunet.html#Automatic-Restart-Manager-_0028ARM_0029) to automatically start all required services without manual setup from a user
- - [FS](https://docs.gnunet.org/handbook/gnunet.html#File_002dsharing-_0028FS_0029-Subsystem) to upload, download and share files via the network in a secure way
- - [GNS](https://docs.gnunet.org/handbook/gnunet.html#GNU-Name-System-_0028GNS_0029) to resolve published records of open lobbies, potentially exchanging contact credentials and opening a chat
- - [IDENTITY](https://docs.gnunet.org/handbook/gnunet.html#IDENTITY-Subsystem) to create, delete and manage accounts as well as providing information to verify another users identity
- - [MESSENGER](https://docs.gnunet.org/handbook/gnunet.html#MESSENGER-Subsystem) to open, close and manage any kind of chats as well as exchanging messages in a decentralized and secure way with other users
- - [NAMESTORE](https://docs.gnunet.org/handbook/gnunet.html#NAMESTORE-Subsystem) to store contact and group chat information locally and to publish records of lobbies accessible via GNS
- - [REGEX](https://docs.gnunet.org/handbook/gnunet.html#REGEX-Subsystem) to publish peer information allowing other peers to quickly form a public group chat around a certain topic
+ - [ARM](https://docs.gnunet.org/doxygen/d4/d56/group__arm.html) to automatically start all required services without manual setup from a user
+ - [FS](https://docs.gnunet.org/doxygen/d1/db9/group__fs.html) to upload, download and share files via the network in a secure way
+ - [GNS](https://docs.gnunet.org/doxygen/d5/d60/group__GNS.html) to resolve published records of open lobbies, potentially exchanging contact credentials and opening a chat
+ - [IDENTITY](https://docs.gnunet.org/doxygen/d0/d2f/group__identity.html) to create, delete and manage accounts as well as providing information to verify another users identity
+ - [MESSENGER](https://docs.gnunet.org/doxygen/d6/d08/group__messenger.html) to open, close and manage any kind of chats as well as exchanging messages in a decentralized and secure way with other users
+ - [NAMESTORE](https://docs.gnunet.org/doxygen/d3/da4/group__namestore.html) to store contact and group chat information locally and to publish records of lobbies accessible via GNS
+ - [RECLAIM](https://docs.gnunet.org/doxygen/de/dea/group__reclaim.html) to claim and issue tickets regarding contacts and share private information with selected users
+ - [REGEX](https://docs.gnunet.org/doxygen/d0/d57/group__regex.html) to publish peer information allowing other peers to quickly form a public group chat around a certain topic
 
 ## Build & Installation
 

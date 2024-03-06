@@ -1,3 +1,19 @@
+## Version 0.3.0
+* This release requires the GNUnet Messenger Service 0.3!
+* It allows ticket management for tickets sent from contacts.
+* Deletions or other updates of messages result in separate event calls.
+* It is possible to tag messages or contacts.
+* Invitations can be rejected via tag messages.
+* Contacts can be blocked or unblocked which results in filtering messages.
+* Processing of messages is ensured by enforcing logical order of callbacks while querying old messages.
+* Private messages are readable to its sender.
+* Messages provide information about its recipient.
+* Logouts get processed on application level on exit.
+* Delays message callbacks depending on message kind (deletion with custom delay).
+* New debug tools are available to visualize the message graph.
+* Add test case for message receivement.
+* Multiple issues are fixed.
+
 ## Version 0.1.3
 * Use Meson as build system instead of GNU Automake
 * Fix issues regarding inclusion of private headers

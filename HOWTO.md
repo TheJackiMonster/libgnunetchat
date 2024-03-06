@@ -43,11 +43,15 @@ Most capabilities like sending text messages, files and such will be handled by 
 
 There are two functionalities which differentiate between direct chats and group chats. Groups allow you to list all of their current members with `GNUNET_CHAT_group_iterate_contacts()` and you can invite any contact using `GNUNET_CHAT_group_invite_contact()`. Inviting people via your contacts will automatically send them an encrypted invite message through the common chat with least amount of other members (this is likely to be the direct chat with that given contact). But even if the invitation will be sent via another common group chat, you can be sure that it is encrypted and others won't be able to read it.
 
+If the recipient of an invitation rejects it, you will receive a message to be notified about it. However it's application and user specific whether a contact needs to accept or reject any invitation.
+
 ## Contacts
 
 Anyone in your contacts needs to share at least one chat with you. This can either be a group chat or a direct chat. All contacts can be listed via `GNUNET_CHAT_iterate_contacts()`. If you want to get rid of a specific contact you can call `GNUNET_CHAT_contact_delete()` which will at least close the direct chat with them. But you would need to drop all common group chats to remove them fully from your contacts list.
 
 Each contact will provide a context for a direct chat with them. But it's recommend to check its status first. If a contact is only part of your contacts list because of a common group, there is no direct chat established. That means you will first need to invite them to a direct chat. The function `GNUNET_CHAT_context_request()` will take care of that and change the contexts status after success and depending on the acceptance of your invitation. Keep in mind that all requests and invitations for chats with other people can be ignored by them. Any chat is designed opt-in.
+
+If you don't like to receive further messages from any contact, it is possible to block them via `GNUNET_CHAT_contact_set_blocked()`. This will mark the contact in every common chat as blocked and it's fully reversible at any time. Additionally you can tag or untag contacts via `GNUNET_CHAT_contact_tag()` and `GNUNET_CHAT_contact_untag()` respectively. This is a feature to individually group contacts.
 
 ## Contexts
 
@@ -62,6 +66,8 @@ One thing to mention is that read receipts will use another callback instead of 
 This also means that a user can not disable to receiving "read receipts". But they can decide whether they want to send them via `GNUNET_CHAT_context_send_read_receipt()`. Internally this will just send an empty text message. But if you wanted to send text, you would use `GNUNET_CHAT_context_send_text()` instead.
 
 A special feature of the GNUnet Messenger service is that messages can be deleted despite the decentralized networking structure behind the front-end. An application can request the deletion of any message with a custom delay to operate using `GNUNET_CHAT_message_delete()`. This will operate differently depending on the original sender of the message. If the current account is the original sender, a deletion message will be sent into the chat requesting all members to delete its content from storage. Obviously it is trust required that other systems will enforce this demand on permission but the default implementation in GNUnet will just do as said as long the permission to delete the message by the sender can be verified.
+
+If you want to tag any message in a chat, you can do that via `GNUNET_CHAT_context_send_tag()` which will send a specific message to add a tag to another message. That tag can be deleted later on as any other generic message.
 
 Last thing to add about messages is that there will be kinds of messages which do not have any counterpart in the GNUnet Messenger service. They will usually represent internal events or information of the API. This allows the application to deal with warnings, refresh- or login-events in a similar way as with other received information from the chats.
 
