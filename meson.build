@@ -63,7 +63,12 @@ pkg.generate(
     description: 'A client-side library for applications to use the Messenger service of GNUnet',
 )
 
-subdir('tests')
+check_dep = dependency('check', required: false)
+
+if check_dep.found()
+  subdir('tests')
+endif
+
 subdir('tools')
 
 run_target(
