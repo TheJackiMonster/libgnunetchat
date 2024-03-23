@@ -839,6 +839,7 @@ on_handle_message_callback(void *cls)
 
   struct GNUNET_CHAT_Context *context = message->context;
   struct GNUNET_CHAT_Handle *handle = context->handle;
+  const struct GNUNET_MESSENGER_Contact *sender;
 
   if (GNUNET_MESSENGER_FLAG_DELETE & message->flags)
     goto skip_msg_handing;
@@ -918,8 +919,7 @@ on_handle_message_callback(void *cls)
   }
 
 skip_msg_handing:
-  const struct GNUNET_MESSENGER_Contact *sender = GNUNET_MESSENGER_get_sender(
-    context->room, &(message->hash));
+  sender = GNUNET_MESSENGER_get_sender(context->room, &(message->hash));
 
   if (!sender)
     goto clear_dependencies;
