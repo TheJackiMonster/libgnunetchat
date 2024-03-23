@@ -25,7 +25,7 @@ The following dependencies are required and need to be installed to build the li
 
 Then you can simply use [Meson](https://mesonbuild.com/) as follows:
 ```
-meson build            # Configure the build files for your system
+meson setup build      # Configure the build files for your system
 ninja -C build         # Build the library using those build files
 ninja -C build install # Install the library
 ```

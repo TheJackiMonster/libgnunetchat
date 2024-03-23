@@ -1,3 +1,8 @@
+## Version 0.3.1
+* Makes dependency to libcheck optional (only required for building test cases)
+* Fixes file iteration of chat context
+* Fixes some build issues
+
 ## Version 0.3.0
 * This release requires the GNUnet Messenger Service 0.3!
 * It allows ticket management for tickets sent from contacts.
