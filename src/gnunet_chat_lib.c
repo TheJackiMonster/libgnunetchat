@@ -231,11 +231,17 @@ GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_NO;
 
   char *low = util_get_lower(name);
+  int result;
 
   if (handle->current)
-    handle_rename_account(handle, handle->current->name, low);
+    result = handle_rename_account(handle, handle->current->name, low);
+  else
+    result = GNUNET_OK;
 
-  int result = GNUNET_MESSENGER_set_name(handle->messenger, low);
+  if (GNUNET_OK != result)
+    return result;
+
+  result = GNUNET_MESSENGER_set_name(handle->messenger, low);
 
   GNUNET_free(low);
   return result;

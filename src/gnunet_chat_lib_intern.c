@@ -324,11 +324,11 @@ it_context_iterate_files (void *cls,
     it->context->messages, key
   );
 
-  if (!message)
+  if ((!message) || (! message->msg))
     return GNUNET_YES;
 
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-    it->context->handle->files, &(message->hash)
+    it->context->handle->files, &(message->msg->body.file.hash)
   );
 
   if (!file)
