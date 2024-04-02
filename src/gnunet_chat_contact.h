@@ -94,6 +94,14 @@ void
 contact_update_key (struct GNUNET_CHAT_Contact *contact);
 
 /**
+ * Returns the public key from a given chat <i>contact</i>.
+ *
+ * @param[in] contact Chat contact
+ */
+const struct GNUNET_CRYPTO_PublicKey*
+contact_get_key (const struct GNUNET_CHAT_Contact *contact);
+
+/**
  * Searches for a chat context containing a given chat
  * <i>contact</i> and the least amount of other members.
  *

@@ -127,16 +127,24 @@ contact_update_key (struct GNUNET_CHAT_Contact *contact)
   if (contact->public_key)
     GNUNET_free(contact->public_key);
 
-  contact->public_key = NULL;
-
-  if (!(contact->member))
-    return;
-
   const struct GNUNET_CRYPTO_PublicKey *pubkey;
-  pubkey = GNUNET_MESSENGER_contact_get_key(contact->member);
+  pubkey = contact_get_key(contact);
 
   if (pubkey)
     contact->public_key = GNUNET_CRYPTO_public_key_to_string(pubkey);
+  else
+    contact->public_key = NULL;
+}
+
+const struct GNUNET_CRYPTO_PublicKey*
+contact_get_key (const struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_assert(contact);
+
+  if (!(contact->member))
+    return NULL;
+
+  return GNUNET_MESSENGER_contact_get_key(contact->member);
 }
 
 struct GNUNET_CHAT_Context*
