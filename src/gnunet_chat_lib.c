@@ -31,7 +31,6 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <libgen.h>
-#include <limits.h>
 #include <strings.h>
 
 #define _(String) ((const char*) String)
@@ -1041,32 +1040,29 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
 }
 
 
-int
-GNUNET_CHAT_contact_iterate_tickets (const struct GNUNET_CHAT_Contact *contact,
-                                     GNUNET_CHAT_ContactTicketCallback callback,
-                                     void *cls)
+void
+GNUNET_CHAT_contact_get_attributes (struct GNUNET_CHAT_Contact *contact,
+                                    GNUNET_CHAT_ContactAttributeCallback callback,
+                                    void *cls)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if (!contact)
-    return GNUNET_SYSERR;
+    return;
 
   struct GNUNET_CHAT_InternalTickets *tickets;
-  int result = 0;
-
   tickets = contact->tickets_head;
   
   while (tickets)
   {
-    result++;
-
-    if ((callback) && (GNUNET_NO == callback(cls, contact, tickets->ticket)))
-      break;
+    ticket_consume(
+      tickets->ticket,
+      callback,
+      cls
+    );
 
     tickets = tickets->next;
   }
-
-  return result;
 }
 
 
@@ -2408,35 +2404,4 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
     return GNUNET_YES;
   else
     return GNUNET_NO;
-}
-
-
-const struct GNUNET_CHAT_Contact*
-GNUNET_CHAT_ticket_get_contact (const struct GNUNET_CHAT_Ticket *ticket)
-{
-  GNUNET_CHAT_VERSION_ASSERT();
-
-  if (!ticket)
-    return NULL;
-
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(ticket->issuer, &shorthash);
-
-  return GNUNET_CONTAINER_multishortmap_get(
-    ticket->handle->contacts, &shorthash
-  );
-}
-
-
-void
-GNUNET_CHAT_ticket_consume (struct GNUNET_CHAT_Ticket *ticket,
-                            GNUNET_CHAT_TicketAttributeCallback callback,
-                            void *cls)
-{
-  GNUNET_CHAT_VERSION_ASSERT();
-
-  if (!ticket)
-    return;
-
-  ticket_consume(ticket, callback, cls);
 }

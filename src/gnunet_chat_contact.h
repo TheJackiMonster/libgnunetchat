@@ -29,13 +29,17 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
+#include "gnunet_chat_lib.h"
+
 struct GNUNET_CHAT_Handle;
+struct GNUNET_CHAT_Contact;
 struct GNUNET_CHAT_Context;
 struct GNUNET_CHAT_Ticket;
 
 struct GNUNET_CHAT_InternalTickets
 {
   struct GNUNET_CHAT_Ticket *ticket;
+
   struct GNUNET_CHAT_InternalTickets *next;
   struct GNUNET_CHAT_InternalTickets *prev;
 };

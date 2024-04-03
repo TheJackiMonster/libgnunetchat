@@ -24,15 +24,17 @@
 
 #include "gnunet_chat_ticket.h"
 
+#include "gnunet_chat_contact.h"
 #include "gnunet_chat_ticket_intern.c"
 #include "gnunet_chat_handle.h"
+
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <string.h>
 
 struct GNUNET_CHAT_Ticket*
 ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
-                            const struct GNUNET_MESSENGER_Contact *issuer,
+                            const struct GNUNET_CHAT_Contact *issuer,
                             const struct GNUNET_MESSENGER_MessageTicket *message)
 {
   GNUNET_assert((handle) && (issuer) && (message));
@@ -40,7 +42,7 @@ ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
   const struct GNUNET_CRYPTO_PublicKey *identity;
   const struct GNUNET_CRYPTO_PublicKey *audience;
 
-  identity = GNUNET_MESSENGER_contact_get_key(issuer);
+  identity = contact_get_key(issuer);
   audience = GNUNET_MESSENGER_get_key(handle->messenger);
 
   if ((!identity) || (!audience))
@@ -65,7 +67,7 @@ ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
 void
 ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
-               GNUNET_CHAT_TicketAttributeCallback callback,
+               GNUNET_CHAT_ContactAttributeCallback callback,
                void *cls)
 {
   GNUNET_assert(ticket);

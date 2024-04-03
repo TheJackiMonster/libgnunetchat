@@ -179,11 +179,6 @@ struct GNUNET_CHAT_File;
 struct GNUNET_CHAT_Invitation;
 
 /**
- * Struct of a chat ticket.
- */
-struct GNUNET_CHAT_Ticket;
-
-/**
  * Iterator over chat accounts of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_accounts
@@ -197,14 +192,15 @@ typedef enum GNUNET_GenericReturnValue
                                 struct GNUNET_CHAT_Account *account);
 
 /**
- * Method called for each attribute of a specific chat handle.
+ * Iterator over attributes of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
  * @param[in] handle Chat handle
  * @param[in] name Attribute name
  * @param[in] value Attribute value
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
-typedef void
+typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_AttributeCallback) (void *cls,
                                   struct GNUNET_CHAT_Handle *handle,
                                   const char *name,
@@ -234,17 +230,19 @@ typedef enum GNUNET_GenericReturnValue
                                 struct GNUNET_CHAT_Contact *contact);
 
 /**
- * Iterator over chat tickets of a specific chat contact.
+ * Iterator over accessible attributes of a specific chat contact.
  *
  * @param[in,out] cls Closure
  * @param[in] contact Chat contact
- * @param[in,out] ticket Chat ticket
+ * @param[in] name Attribute name
+ * @param[in] value Attribute value
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
-(*GNUNET_CHAT_ContactTicketCallback) (void *cls,
-                                      const struct GNUNET_CHAT_Contact *contact,
-                                      struct GNUNET_CHAT_Ticket *ticket);
+(*GNUNET_CHAT_ContactAttributeCallback) (void *cls,
+                                         const struct GNUNET_CHAT_Contact *contact,
+                                         const char *name,
+                                         const char *value);
 
 /**
  * Iterator over chat groups of a specific chat handle.
@@ -368,20 +366,6 @@ typedef void
                                     struct GNUNET_CHAT_File *file,
                                     uint64_t completed,
                                     uint64_t size);
-
-/**
- * Method called during a chat ticket consumption for each of its attributes.
- *
- * @param[in,out] cls Closure from #GNUNET_CHAT_ticket_consume
- * @param[in] ticket Chat ticket
- * @param[in] name Attribute name
- * @param[in] value Attribute value
- */
-typedef void
-(*GNUNET_CHAT_TicketAttributeCallback) (void *cls,
-                                        const struct GNUNET_CHAT_Ticket *ticket,
-                                        const char *name,
-                                        const char *value);
 
 /**
  * Start a chat handle with a certain configuration.
@@ -855,18 +839,17 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
                                const char *tag);
 
 /**
- * Iterates through the tickets of a given <i>contact</i> with a selected
- * callback and custom closure.
+ * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * <i>contact</i>.
  *
- * @param[in,out] contact Contact
- * @param[in] callback Callback for ticket iteration (optional)
- * @param[in,out] cls Closure for ticket iteration (optional)
- * @return Amount of tickets iterated
+ * @param[in,out] contact Chat contact
+ * @param[in] callback Callback for attribute iteration (optional)
+ * @param[in,out] cls Closure for attribute iteration (optional)
  */
-int
-GNUNET_CHAT_contact_iterate_tickets (const struct GNUNET_CHAT_Contact *contact,
-                                     GNUNET_CHAT_ContactTicketCallback callback,
-                                     void *cls);
+void
+GNUNET_CHAT_contact_get_attributes (struct GNUNET_CHAT_Contact *contact,
+                                    GNUNET_CHAT_ContactAttributeCallback callback,
+                                    void *cls);
 
 /**
  * Leaves a specific <i>group</i> chat and frees its memory if it is not shared
@@ -1519,28 +1502,6 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation);
-
-/**
- * Returns the contact of the issuer from a given chat <i>ticket</i>.
- *
- * @param[in] invitation Chat invitation
- * @return Chat contact
- */
-const struct GNUNET_CHAT_Contact*
-GNUNET_CHAT_ticket_get_contact (const struct GNUNET_CHAT_Ticket *ticket);
-
-/**
- * Consumes a given chat <i>ticket</i> and calls an optional <i>callback</i>
- * for each of its attributes.
- *
- * @param[in,out] ticket Chat ticket
- * @param[in] callback Callback for ticket consumption (optional)
- * @param[in,out] cls Closure for ticket consumption (optional)
- */
-void
-GNUNET_CHAT_ticket_consume (struct GNUNET_CHAT_Ticket *ticket,
-                            GNUNET_CHAT_TicketAttributeCallback callback,
-                            void *cls);
 
 /**@}*/
 

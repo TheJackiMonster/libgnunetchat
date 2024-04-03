@@ -961,7 +961,7 @@ skip_msg_handing:
         break;
 
       tickets->ticket = ticket_create_from_message(
-	      handle, sender, &(message->msg->body.ticket)
+	      handle, contact, &(message->msg->body.ticket)
       );
 
       if (!tickets->ticket)

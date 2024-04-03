@@ -31,15 +31,13 @@
 
 #include "gnunet_chat_lib.h"
 
-struct GNUNET_CHAT_Handle;
-
 struct GNUNET_CHAT_Ticket
 {
   struct GNUNET_CHAT_Handle *handle;
   
-  const struct GNUNET_MESSENGER_Contact *issuer;
+  const struct GNUNET_CHAT_Contact *issuer;
 
-  GNUNET_CHAT_TicketAttributeCallback callback;
+  GNUNET_CHAT_ContactAttributeCallback callback;
   void *closure;
 
   struct GNUNET_RECLAIM_Operation *op;
@@ -59,17 +57,21 @@ struct GNUNET_CHAT_Ticket
  */
 struct GNUNET_CHAT_Ticket*
 ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
-                            const struct GNUNET_MESSENGER_Contact *issuer,
+                            const struct GNUNET_CHAT_Contact *issuer,
                             const struct GNUNET_MESSENGER_MessageTicket *message);
 
 /**
- * Consumes a chat <i>ticket</i>.
+ * Consumes a chat <i>ticket</i> and calls a selected
+ * <i>callback</i> for each of its attributes using
+ * a custom closure.
  *
  * @param[in,out] ticket Chat ticket
+ * @param[in] callback Attribute callback
+ * @param[in,out] cls Closure
  */
 void
 ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
-               GNUNET_CHAT_TicketAttributeCallback callback,
+               GNUNET_CHAT_ContactAttributeCallback callback,
                void *cls);
 
 /**

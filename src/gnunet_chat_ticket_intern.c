@@ -45,5 +45,5 @@ cb_ticket_consume_attribute (void *cls,
   );
 
   if (ticket->callback)
-    ticket->callback(ticket->closure, ticket, attribute->name, value);
+    ticket->callback(ticket->closure, ticket->issuer, attribute->name, value);
 }
