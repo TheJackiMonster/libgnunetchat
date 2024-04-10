@@ -30,8 +30,8 @@
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_check_it(void *cls,
-                               const struct GNUNET_CHAT_Handle *handle,
-                               struct GNUNET_CHAT_Account *account)
+                                  const struct GNUNET_CHAT_Handle *handle,
+                                  struct GNUNET_CHAT_Account *account)
 {
   struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
 
@@ -59,11 +59,15 @@ on_gnunet_chat_attribute_check_attr(void *cls,
                                     const char *name,
                                     const char *value)
 {
+  ck_assert_ptr_eq(cls, NULL);
+  ck_assert_ptr_ne(handle, NULL);
   ck_assert_ptr_ne(name, NULL);
+
   if (0 == strcmp(name, "test_attribute_name"))
   {
     ck_assert_ptr_ne(value, NULL);
     ck_assert_int_eq(strcmp(value, "test_attribute_value"), 0);
+
     GNUNET_CHAT_delete_attribute(handle, "test_attribute_name");
     return GNUNET_NO;
   }

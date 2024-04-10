@@ -562,13 +562,16 @@ cb_iterate_attribute (void *cls,
   if (value)
     GNUNET_free (value);
 
-  if (attributes->iter)
+  if (! attributes->iter)
+    return;
+  
+  if (GNUNET_YES != result)
   {
-    if (GNUNET_YES == result)
-      GNUNET_RECLAIM_get_attributes_next(attributes->iter);
-    else
-      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+    GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+    attributes->iter = NULL;
   }
+  else
+    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
 }
 
 void
