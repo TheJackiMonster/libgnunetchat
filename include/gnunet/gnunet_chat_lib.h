@@ -195,7 +195,7 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over attributes of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
- * @param[in] handle Chat handle
+ * @param[in,out] handle Chat handle
  * @param[in] name Attribute name
  * @param[in] value Attribute value
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
@@ -516,11 +516,11 @@ void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
                            const char *value,
-                           const struct GNUNET_TIME_Relative *expires);
+                           struct GNUNET_TIME_Relative expires);
 
 /**
- * Deletes an attribute of a chat handle for related communication under a given
- * <i>name</i>.
+ * Deletes an attribute of a chat <i>handle</i> for related communication 
+ * under a given <i>name</i>.
  *
  * @param[in,out] handle Chat handle
  * @param[in] name Attribute name
@@ -541,6 +541,47 @@ void
 GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
                             GNUNET_CHAT_AttributeCallback callback,
                             void *cls);
+
+/**
+ * Share an attribute of a chat <i>handle</i> under a given <i>name</i>
+ * with a specific chat <i>contact</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] contact Chat contact
+ * @param[in] name Attribute name
+ */
+void
+GNUNET_CHAT_share_attribute_with (struct GNUNET_CHAT_Handle *handle,
+                                  struct GNUNET_CHAT_Contact *contact,
+                                  const char *name);
+
+/**
+ * Unshare an attribute of a chat <i>handle</i> under a given <i>name</i>
+ * from a specific chat <i>contact</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] contact Chat contact
+ * @param[in] name Attribute name
+ */
+void
+GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
+                                    struct GNUNET_CHAT_Contact *contact,
+                                    const char *name);
+
+/**
+ * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * <i>handle</i> shared with a specific chat <i>contact</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] contact Chat contact
+ * @param[in] callback Callback for attribute iteration (optional)
+ * @param[in,out] cls Closure for attribute iteration (optional)
+ */
+void
+GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
+                                   const struct GNUNET_CHAT_Contact *contact,
+                                   GNUNET_CHAT_ContactAttributeCallback callback,
+                                   void *cls);
 
 /**
  * Convert an UTF-8 String to a chat URI which will be newly allocated.

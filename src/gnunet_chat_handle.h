@@ -94,8 +94,10 @@ struct GNUNET_CHAT_UriLookups
 struct GNUNET_CHAT_AttributeProcess
 {
   struct GNUNET_CHAT_Handle *handle;
+  const struct GNUNET_CHAT_Contact *contact;
 
   struct GNUNET_RECLAIM_Attribute *attribute;
+  char *name;
 
   GNUNET_CHAT_AttributeCallback callback;
   void *closure;
@@ -110,6 +112,13 @@ struct GNUNET_CHAT_AttributeProcess
 struct GNUNET_CHAT_TicketProcess
 {
   struct GNUNET_CHAT_Handle *handle;
+  const struct GNUNET_CHAT_Contact *contact;
+
+  struct GNUNET_RECLAIM_Ticket *ticket;
+  char *name;
+
+  GNUNET_CHAT_ContactAttributeCallback callback;
+  void *closure;
 
   struct GNUNET_CRYPTO_PrivateKey identity;
 
@@ -379,7 +388,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
 
 /**
  * Updates the tickets of a given chat <i>handle</i>, revoking 
- * all tickets of a <i>identity</i>.
+ * all tickets of an <i>identity</i>.
  *
  * @param[in,out] handle Chat handle
  * @param[in] identity Identity private key

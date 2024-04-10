@@ -275,7 +275,7 @@ void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
                            const char *value,
-                           const struct GNUNET_TIME_Relative *expires)
+                           struct GNUNET_TIME_Relative expires)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -336,7 +336,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     handle->reclaim,
     key,
     attributes->attribute,
-    expires,
+    &expires,
     cont_update_attribute_with_status,
     attributes
   );
@@ -375,25 +375,22 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
   memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
 
   attributes->handle = handle;
-  attributes->attribute = GNUNET_RECLAIM_attribute_new(
-    name,
-    NULL,
-    GNUNET_RECLAIM_ATTRIBUTE_TYPE_NONE,
-    NULL,
-    0
-  );
+  attributes->name = GNUNET_strdup(name);
 
-  if (!attributes->attribute)
+  if (!attributes->name)
   {
     GNUNET_free(attributes);
     return;
   }
 
-  attributes->op = GNUNET_RECLAIM_attribute_delete(
+  attributes->iter = GNUNET_RECLAIM_get_attributes_start(
     handle->reclaim,
     key,
-    attributes->attribute,
-    cont_update_attribute_with_status,
+    cb_task_error_iterate_attribute,
+    attributes,
+    cb_delete_attribute,
+    attributes,
+    cb_task_finish_iterate_attribute,
     attributes
   );
 
@@ -451,6 +448,160 @@ GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
     handle->attributes_head,
     handle->attributes_tail,
     attributes
+  );
+}
+
+
+void
+GNUNET_CHAT_share_attribute_with (struct GNUNET_CHAT_Handle *handle,
+                                  struct GNUNET_CHAT_Contact *contact,
+                                  const char *name)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) || (!contact))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+    contact
+  );
+
+  if ((!key) || (!pubkey) || (!name))
+    return;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
+    struct GNUNET_CHAT_AttributeProcess
+  );
+
+  if (!attributes)
+    return;
+
+  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
+
+  attributes->handle = handle;
+  attributes->contact = contact;
+  attributes->name = GNUNET_strdup(name);
+
+  attributes->iter = GNUNET_RECLAIM_get_attributes_start(
+    handle->reclaim,
+    key,
+    cb_task_error_iterate_attribute,
+    attributes,
+    cb_share_attribute,
+    attributes,
+    cb_task_finish_iterate_attribute,
+    attributes
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+}
+
+
+void
+GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
+                                    struct GNUNET_CHAT_Contact *contact,
+                                    const char *name)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) || (!contact))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if ((!key) || (!name))
+    return;
+
+  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
+    struct GNUNET_CHAT_TicketProcess
+  );
+
+  if (!tickets)
+    return;
+
+  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
+
+  tickets->handle = handle;
+  tickets->contact = contact;
+  tickets->name = GNUNET_strdup(name);
+
+  tickets->iter = GNUNET_RECLAIM_ticket_iteration_start(
+    handle->reclaim,
+    key,
+    cb_task_error_iterate_ticket,
+    tickets,
+    cb_iterate_ticket_check,
+    tickets,
+    cb_task_finish_iterate_ticket,
+    tickets
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
+  );
+}
+
+
+void
+GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
+                                   const struct GNUNET_CHAT_Contact *contact,
+                                   GNUNET_CHAT_ContactAttributeCallback callback,
+                                   void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) || (!contact))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if (!key)
+    return;
+
+  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
+    struct GNUNET_CHAT_TicketProcess
+  );
+
+  if (!tickets)
+    return;
+
+  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
+
+  tickets->handle = handle;
+  tickets->contact = contact;
+
+  tickets->callback = callback;
+  tickets->closure = cls;
+
+  tickets->iter = GNUNET_RECLAIM_ticket_iteration_start(
+    handle->reclaim,
+    key,
+    cb_task_error_iterate_ticket,
+    tickets,
+    cb_iterate_ticket,
+    tickets,
+    cb_task_finish_iterate_ticket,
+    tickets
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
   );
 }
 

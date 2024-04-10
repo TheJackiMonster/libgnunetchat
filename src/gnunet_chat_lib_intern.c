@@ -26,7 +26,11 @@
 #include "gnunet_chat_handle.h"
 
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_reclaim_lib.h>
+#include <gnunet/gnunet_reclaim_service.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
@@ -438,6 +442,11 @@ cb_task_finish_iterate_attribute (void *cls)
   if (attributes->iter)
     GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
 
+  attributes->iter = NULL;
+
+  if (attributes->op)
+    return;
+
   GNUNET_CONTAINER_DLL_remove(
     handle->attributes_head,
     handle->attributes_tail,
@@ -467,6 +476,55 @@ cb_task_error_iterate_attribute (void *cls)
 }
 
 void
+cb_delete_attribute (void *cls,
+                     const struct GNUNET_CRYPTO_PublicKey *identity,
+                     const struct GNUNET_RECLAIM_Attribute *attribute)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  if (! attributes->name)
+  {
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+    return;
+  }
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if (0 == strcmp(attribute->name, attributes->name))
+  {
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+    attributes->op = GNUNET_RECLAIM_attribute_delete(
+      handle->reclaim,
+      key,
+      attribute,
+      cont_update_attribute_with_status,
+      attributes
+    );
+
+    GNUNET_free(attributes->name);
+    attributes->name = NULL;
+    return;
+  }
+
+  if (attributes->iter)
+    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+}
+
+void
 cb_iterate_attribute (void *cls,
                       const struct GNUNET_CRYPTO_PublicKey *identity,
                       const struct GNUNET_RECLAIM_Attribute *attribute)
@@ -479,7 +537,7 @@ cb_iterate_attribute (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  const char *value = GNUNET_RECLAIM_attribute_value_to_string(
+  char *value = GNUNET_RECLAIM_attribute_value_to_string(
     attribute->type,
     attribute->data,
     attribute->data_size
@@ -488,6 +546,422 @@ cb_iterate_attribute (void *cls,
   if (attributes->callback)
     attributes->callback(attributes->closure, handle, attribute->name, value);
 
+  if (value)
+    GNUNET_free (value);
+
   if (attributes->iter)
     GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+}
+
+void
+cb_issue_ticket (void *cls,
+                 const struct GNUNET_RECLAIM_Ticket *ticket,
+                 const struct GNUNET_RECLAIM_PresentationList *presentations)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+  struct GNUNET_CHAT_Context *context = contact_find_context(
+    attributes->contact
+  );
+
+  if ((context) && (context->room) && (ticket))
+    GNUNET_MESSENGER_send_ticket(context->room, ticket);
+
+  GNUNET_CONTAINER_DLL_remove(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+
+  GNUNET_free(attributes);
+}
+
+void
+cb_share_attribute (void *cls,
+                    const struct GNUNET_CRYPTO_PublicKey *identity,
+                    const struct GNUNET_RECLAIM_Attribute *attribute)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  if (! attributes->name)
+  {
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+    return;
+  }
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  if (0 == strcmp(attribute->name, attributes->name))
+  {
+    GNUNET_free(attributes->name);
+    attributes->name = NULL;
+
+    const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+      handle
+    );
+
+    const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+      attributes->contact
+    );
+
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+
+    struct GNUNET_RECLAIM_AttributeList *attrs;
+    attrs = GNUNET_new (struct GNUNET_RECLAIM_AttributeList);
+
+    if (attrs)
+      GNUNET_RECLAIM_attribute_list_add(
+        attrs,
+        attribute->name,
+        &(attribute->credential),
+        attribute->type,
+        attribute->data,
+        attribute->data_size
+      );
+
+    if ((key) && (pubkey) && (attrs))
+      attributes->op = GNUNET_RECLAIM_ticket_issue(
+        handle->reclaim,
+        key,
+        pubkey,
+        attrs,
+        cb_issue_ticket,
+        attributes
+      );
+    
+    if (attrs)
+      GNUNET_RECLAIM_attribute_list_destroy(attrs);
+    
+    return;
+  }
+
+  if (attributes->iter)
+    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+}
+
+void
+cb_task_finish_iterate_ticket (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  if (tickets->iter)
+    GNUNET_RECLAIM_ticket_iteration_stop (tickets->iter);
+
+  if (tickets->name)
+    GNUNET_free(tickets->name);
+
+  GNUNET_CONTAINER_DLL_remove(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
+  );
+
+  GNUNET_free(tickets);
+}
+
+void
+cb_task_error_iterate_ticket (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  handle_send_internal_message(
+    tickets->handle,
+    NULL,
+    GNUNET_CHAT_FLAG_WARNING,
+    "Ticket iteration failed!"
+  );
+
+  cb_task_finish_iterate_ticket(cls);
+}
+
+void
+cont_revoke_ticket (void *cls,
+                    int32_t success,
+                    const char *emsg)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  if (success == GNUNET_SYSERR)
+    handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_FLAG_WARNING,
+      emsg
+    );
+  
+  GNUNET_CONTAINER_DLL_remove(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tickets
+  );
+
+  GNUNET_free(tickets);
+}
+
+void
+cb_consume_ticket_check (void *cls,
+                         const struct GNUNET_CRYPTO_PublicKey *identity,
+                         const struct GNUNET_RECLAIM_Attribute *attribute,
+                         const struct GNUNET_RECLAIM_Presentation *presentation)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  if ((!identity) && (!attribute) && (!presentation))
+  {
+    tickets->op = NULL;
+
+    struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+    const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+      handle
+    );
+
+    if (tickets->name)
+    {
+      GNUNET_free(tickets->name);
+      tickets->name = NULL;
+    }
+    else if (!key)
+      tickets->op = GNUNET_RECLAIM_ticket_revoke(
+        handle->reclaim,
+        key,
+        tickets->ticket,
+        cont_revoke_ticket,
+        tickets
+      );
+    
+    if (tickets->ticket)
+      GNUNET_free(tickets->ticket);
+
+    tickets->ticket = NULL;
+
+    if (tickets->op)
+      return;
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->tickets_head,
+      handle->tickets_tail,
+      tickets
+    );
+
+    GNUNET_free(tickets);
+  }
+
+  if ((!attribute) || (! tickets->name) || 
+      (0 != strcmp(tickets->name, attribute->name)))
+    return;
+
+  if (tickets->name)
+    GNUNET_free(tickets->name);
+
+  tickets->name = NULL;
+}
+
+void
+cb_iterate_ticket_check (void *cls,
+                         const struct GNUNET_RECLAIM_Ticket *ticket)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+    tickets->contact
+  );
+
+  if ((!key) || (!pubkey))
+    return;
+
+  if (0 != GNUNET_memcmp(pubkey, &(ticket->audience)))
+    goto skip_ticket;
+
+  struct GNUNET_CHAT_TicketProcess *tick = GNUNET_new(
+    struct GNUNET_CHAT_TicketProcess
+  );
+
+  if (!tick)
+    return;
+
+  memset(tick, 0, sizeof (struct GNUNET_CHAT_TicketProcess));
+
+  tick->handle = handle;
+  tick->contact = tickets->contact;
+
+  if (tickets->name)
+    tick->name = GNUNET_strdup (tickets->name);
+
+  tick->ticket = GNUNET_new (struct GNUNET_RECLAIM_Ticket);
+
+  if (tick->ticket)
+    GNUNET_memcpy (
+      tick->ticket,
+      ticket,
+      sizeof (struct GNUNET_RECLAIM_Ticket)
+    );
+
+  tick->callback = tickets->callback;
+  tick->closure = tickets->closure;
+
+  tick->op = GNUNET_RECLAIM_ticket_consume(
+    handle->reclaim,
+    key,
+    ticket,
+    cb_consume_ticket_check,
+    tick
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tick
+  );
+
+skip_ticket:
+  if (tickets->iter)
+    GNUNET_RECLAIM_ticket_iteration_next (tickets->iter);
+}
+
+void
+cb_consume_ticket (void *cls,
+                   const struct GNUNET_CRYPTO_PublicKey *identity,
+                   const struct GNUNET_RECLAIM_Attribute *attribute,
+                   const struct GNUNET_RECLAIM_Presentation *presentation)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  if ((!identity) && (!attribute) && (!presentation))
+  {
+    struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->tickets_head,
+      handle->tickets_tail,
+      tickets
+    );
+
+    GNUNET_free(tickets);
+    return;
+  }
+
+  if (!attribute)
+    return;
+
+  char *value = GNUNET_RECLAIM_attribute_value_to_string(
+    attribute->type,
+    attribute->data,
+    attribute->data_size
+  );
+
+  if (tickets->callback)
+    tickets->callback(tickets->closure, tickets->contact, attribute->name, value);
+
+  if (value)
+    GNUNET_free (value);
+}
+
+void
+cb_iterate_ticket (void *cls,
+                   const struct GNUNET_RECLAIM_Ticket *ticket)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_TicketProcess *tickets = (
+    (struct GNUNET_CHAT_TicketProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = tickets->handle;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+    tickets->contact
+  );
+
+  if ((!key) || (!pubkey))
+    return;
+
+  if (0 != GNUNET_memcmp(pubkey, &(ticket->audience)))
+    goto skip_ticket;
+
+  struct GNUNET_CHAT_TicketProcess *tick = GNUNET_new(
+    struct GNUNET_CHAT_TicketProcess
+  );
+
+  if (!tick)
+    return;
+
+  memset(tick, 0, sizeof (struct GNUNET_CHAT_TicketProcess));
+
+  tick->handle = handle;
+  tick->contact = tickets->contact;
+
+  tick->callback = tickets->callback;
+  tick->closure = tickets->closure;
+
+  tick->op = GNUNET_RECLAIM_ticket_consume(
+    handle->reclaim,
+    key,
+    ticket,
+    cb_consume_ticket,
+    tick
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->tickets_head,
+    handle->tickets_tail,
+    tick
+  );
+
+skip_ticket:
+  if (tickets->iter)
+    GNUNET_RECLAIM_ticket_iteration_next (tickets->iter);
 }
