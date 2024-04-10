@@ -408,24 +408,36 @@ cont_update_attribute_with_status (void *cls,
   attributes->op = NULL;
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
+  const char *attribute_name = NULL;
+
+  if (attributes->attribute)
+    attribute_name = attributes->attribute->name;
 
   if (GNUNET_SYSERR == success)
-  {
     handle_send_internal_message(
       handle,
       NULL,
       GNUNET_CHAT_KIND_WARNING,
       emsg
     );
-
-    return;
-  }
+  else
+    handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_FLAG_ATTRIBUTES,
+      attribute_name
+    );
+  
+  if (attributes->attribute)
+    GNUNET_free(attributes->attribute);
 
   GNUNET_CONTAINER_DLL_remove(
     handle->attributes_head,
     handle->attributes_tail,
     attributes
   );
+
+  GNUNET_free(attributes);
 }
 
 void
@@ -536,6 +548,7 @@ cb_iterate_attribute (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
+  enum GNUNET_GenericReturnValue result = GNUNET_YES;
 
   char *value = GNUNET_RECLAIM_attribute_value_to_string(
     attribute->type,
@@ -544,13 +557,18 @@ cb_iterate_attribute (void *cls,
   );
 
   if (attributes->callback)
-    attributes->callback(attributes->closure, handle, attribute->name, value);
+    result = attributes->callback(attributes->closure, handle, attribute->name, value);
 
   if (value)
     GNUNET_free (value);
 
   if (attributes->iter)
-    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+  {
+    if (GNUNET_YES == result)
+      GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+    else
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+  }
 }
 
 void
@@ -571,6 +589,13 @@ cb_issue_ticket (void *cls,
 
   if ((context) && (context->room) && (ticket))
     GNUNET_MESSENGER_send_ticket(context->room, ticket);
+
+  handle_send_internal_message(
+    handle,
+    NULL,
+    GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES,
+    NULL
+  );
 
   GNUNET_CONTAINER_DLL_remove(
     handle->attributes_head,
@@ -719,6 +744,13 @@ cont_revoke_ticket (void *cls,
       GNUNET_CHAT_FLAG_WARNING,
       emsg
     );
+  else
+    handle_send_internal_message(
+      handle,
+      NULL,
+      GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES,
+      NULL
+    );
   
   GNUNET_CONTAINER_DLL_remove(
     handle->tickets_head,
@@ -756,7 +788,7 @@ cb_consume_ticket_check (void *cls,
       GNUNET_free(tickets->name);
       tickets->name = NULL;
     }
-    else if (!key)
+    else if (key)
       tickets->op = GNUNET_RECLAIM_ticket_revoke(
         handle->reclaim,
         key,

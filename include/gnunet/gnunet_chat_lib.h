@@ -123,6 +123,16 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_TAG = 13,       /**< GNUNET_CHAT_KIND_TAG */
 
   /**
+   * The kind to inform that attributes were updated.
+   */
+  GNUNET_CHAT_KIND_ATTRIBUTES = 14,
+
+  /**
+   * The kind to inform that attributes were shared.
+   */
+  GNUNET_CHAT_KIND_SHARED_ATTRIBUTES = 15,
+
+  /**
    * An unknown kind of message.
    */
   GNUNET_CHAT_KIND_UNKNOWN = 0     /**< GNUNET_CHAT_KIND_UNKNOWN */

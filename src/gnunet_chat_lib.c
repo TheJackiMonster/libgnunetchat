@@ -318,7 +318,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     result = GNUNET_RECLAIM_attribute_string_to_value(
       GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING,
       value,
-      &data,
+      &(data),
       &(attributes->attribute->data_size)
     );
 
@@ -329,6 +329,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
       return;
     }
 
+    attributes->attribute->type = GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING;
     attributes->attribute->data = data;
   }
 
@@ -1836,6 +1837,10 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
       return GNUNET_CHAT_KIND_LOGOUT;
     case GNUNET_CHAT_FLAG_UPDATE:
       return GNUNET_CHAT_KIND_UPDATE;
+    case GNUNET_CHAT_FLAG_ATTRIBUTES:
+      return GNUNET_CHAT_KIND_ATTRIBUTES;
+    case GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES:
+      return GNUNET_CHAT_KIND_SHARED_ATTRIBUTES;
     default:
       break;
   }
@@ -2025,11 +2030,16 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)))
+  if (!message)
     return NULL;
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
     return message->warning;
+  else if (GNUNET_CHAT_FLAG_ATTRIBUTES == message->flag)
+    return message->attr;
+
+  if (GNUNET_YES != message_has_msg(message))
+    return NULL;
 
   if (GNUNET_MESSENGER_KIND_TEXT == message->msg->header.kind)
     return message->msg->body.text.text;

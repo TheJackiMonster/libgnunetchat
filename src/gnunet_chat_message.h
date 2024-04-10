@@ -47,7 +47,9 @@ enum GNUNET_CHAT_MessageFlag
   GNUNET_CHAT_FLAG_REFRESH = 2,
   GNUNET_CHAT_FLAG_LOGIN = 3,
   GNUNET_CHAT_FLAG_LOGOUT = 4,
-  GNUNET_CHAT_FLAG_UPDATE = 5
+  GNUNET_CHAT_FLAG_UPDATE = 5,
+  GNUNET_CHAT_FLAG_ATTRIBUTES = 6,
+  GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES = 7
 };
 
 struct GNUNET_CHAT_Message
@@ -58,6 +60,7 @@ struct GNUNET_CHAT_Message
   union {
     const struct GNUNET_MESSENGER_Message *msg;
     const char *warning;
+    const char *attr;
   };
 
   struct GNUNET_HashCode hash;
