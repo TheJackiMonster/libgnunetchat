@@ -168,7 +168,11 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
     return;
 
   if (handle->current)
-    handle_disconnect(handle);
+  {
+    handle->next = account;
+    GNUNET_CHAT_disconnect(handle);
+    return;
+  }
 
   if (!account)
     return;
@@ -557,7 +561,7 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
 
 void
 GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
-                                   const struct GNUNET_CHAT_Contact *contact,
+                                   struct GNUNET_CHAT_Contact *contact,
                                    GNUNET_CHAT_ContactAttributeCallback callback,
                                    void *cls)
 {

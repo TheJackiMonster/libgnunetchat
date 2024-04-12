@@ -243,14 +243,14 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over accessible attributes of a specific chat contact.
  *
  * @param[in,out] cls Closure
- * @param[in] contact Chat contact
+ * @param[in,out] contact Chat contact
  * @param[in] name Attribute name
  * @param[in] value Attribute value
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContactAttributeCallback) (void *cls,
-                                         const struct GNUNET_CHAT_Contact *contact,
+                                         struct GNUNET_CHAT_Contact *contact,
                                          const char *name,
                                          const char *value);
 
@@ -589,7 +589,7 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
  */
 void
 GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
-                                   const struct GNUNET_CHAT_Contact *contact,
+                                   struct GNUNET_CHAT_Contact *contact,
                                    GNUNET_CHAT_ContactAttributeCallback callback,
                                    void *cls);
 

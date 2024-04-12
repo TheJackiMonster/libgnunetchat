@@ -34,7 +34,7 @@
 
 struct GNUNET_CHAT_Ticket*
 ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
-                            const struct GNUNET_CHAT_Contact *issuer,
+                            struct GNUNET_CHAT_Contact *issuer,
                             const struct GNUNET_MESSENGER_MessageTicket *message)
 {
   GNUNET_assert((handle) && (issuer) && (message));

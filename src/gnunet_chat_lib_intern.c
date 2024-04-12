@@ -78,6 +78,14 @@ task_handle_disconnection (void *cls)
 
   handle_disconnect(handle);
   handle->disconnection = NULL;
+
+  if (! handle->next)
+    return;
+
+  const struct GNUNET_CHAT_Account *account = handle->next;
+  handle->next = NULL;
+
+  handle_connect(handle, account);
 }
 
 void
@@ -593,13 +601,6 @@ cb_issue_ticket (void *cls,
   if ((context) && (context->room) && (ticket))
     GNUNET_MESSENGER_send_ticket(context->room, ticket);
 
-  handle_send_internal_message(
-    handle,
-    NULL,
-    GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES,
-    NULL
-  );
-
   GNUNET_CONTAINER_DLL_remove(
     handle->attributes_head,
     handle->attributes_tail,
@@ -989,6 +990,12 @@ cb_iterate_ticket (void *cls,
     cb_consume_ticket,
     tick
   );
+
+  if (! tick->op)
+  {
+    GNUNET_free(tick);
+    return;
+  }
 
   GNUNET_CONTAINER_DLL_insert_tail(
     handle->tickets_head,

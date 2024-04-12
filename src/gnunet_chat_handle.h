@@ -94,7 +94,7 @@ struct GNUNET_CHAT_UriLookups
 struct GNUNET_CHAT_AttributeProcess
 {
   struct GNUNET_CHAT_Handle *handle;
-  const struct GNUNET_CHAT_Contact *contact;
+  struct GNUNET_CHAT_Contact *contact;
 
   struct GNUNET_RECLAIM_Attribute *attribute;
   char *name;
@@ -112,7 +112,7 @@ struct GNUNET_CHAT_AttributeProcess
 struct GNUNET_CHAT_TicketProcess
 {
   struct GNUNET_CHAT_Handle *handle;
-  const struct GNUNET_CHAT_Contact *contact;
+  struct GNUNET_CHAT_Contact *contact;
 
   struct GNUNET_RECLAIM_Ticket *ticket;
   char *name;
@@ -150,6 +150,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_head;
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
+  const struct GNUNET_CHAT_Account *next;
   const struct GNUNET_CHAT_Account *current;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 

@@ -420,7 +420,7 @@ util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind)
     case GNUNET_MESSENGER_KIND_DELETE:
       return GNUNET_CHAT_KIND_DELETION;
     case GNUNET_MESSENGER_KIND_TICKET:
-      return GNUNET_CHAT_KIND_CONTACT;
+      return GNUNET_CHAT_KIND_SHARED_ATTRIBUTES;
     case GNUNET_MESSENGER_KIND_TAG:
       return GNUNET_CHAT_KIND_TAG;
     default:
