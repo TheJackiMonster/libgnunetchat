@@ -241,7 +241,6 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     GNUNET_RECLAIM_disconnect(handle->reclaim);
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
-
   while (handle->accounts_head)
   {
     accounts = handle->accounts_head;
@@ -1055,46 +1054,4 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
     group_destroy(group);
 
   return context;
-}
-
-void
-handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
-                       const struct GNUNET_CRYPTO_PrivateKey *identity)
-{
-  GNUNET_assert((handle) && (identity));
-
-  if (!handle->reclaim)
-    return;
-
-  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
-    struct GNUNET_CHAT_TicketProcess
-  );
-
-  if (!tickets)
-    return;
-
-  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
-  tickets->handle = handle;
-  GNUNET_memcpy(
-    &(tickets->identity),
-    identity,
-    sizeof(tickets->identity)
-  );
-
-  tickets->iter = GNUNET_RECLAIM_ticket_iteration_start(
-    handle->reclaim,
-    identity,
-    cb_task_error_ticket_update,
-    tickets,
-    cb_iterate_ticket_update,
-    tickets,
-    cb_task_finish_ticket_update,
-    tickets
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->tickets_head,
-    handle->tickets_tail,
-    tickets
-  );
 }

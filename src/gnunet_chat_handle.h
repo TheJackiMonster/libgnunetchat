@@ -387,15 +387,4 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
                         unsigned int count,
                         const struct GNUNET_GNSRECORD_Data *data);
 
-/**
- * Updates the tickets of a given chat <i>handle</i>, revoking 
- * all tickets of an <i>identity</i>.
- *
- * @param[in,out] handle Chat handle
- * @param[in] identity Identity private key
- */
-void
-handle_update_tickets (struct GNUNET_CHAT_Handle *handle,
-                       const struct GNUNET_CRYPTO_PrivateKey *identity);
-
 #endif /* GNUNET_CHAT_HANDLE_H_ */

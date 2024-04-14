@@ -314,10 +314,10 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     return;
   }
 
+  void *data = NULL;
+
   if (value)
   {
-    void *data = NULL;
-
     enum GNUNET_GenericReturnValue result;
     result = GNUNET_RECLAIM_attribute_string_to_value(
       GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING,
@@ -351,6 +351,9 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     handle->attributes_tail,
     attributes
   );
+
+  if (data)
+    GNUNET_free(data);
 }
 
 
