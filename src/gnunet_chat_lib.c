@@ -300,6 +300,8 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
   memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
 
   attributes->handle = handle;
+  attributes->name = GNUNET_strdup(name);
+  attributes->expires = expires;
   attributes->attribute = GNUNET_RECLAIM_attribute_new(
     name,
     NULL,
@@ -314,7 +316,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     return;
   }
 
-  void *data = NULL;
+  attributes->data = NULL;
 
   if (value)
   {
@@ -322,7 +324,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     result = GNUNET_RECLAIM_attribute_string_to_value(
       GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING,
       value,
-      &(data),
+      &(attributes->data),
       &(attributes->attribute->data_size)
     );
 
@@ -334,15 +336,17 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     }
 
     attributes->attribute->type = GNUNET_RECLAIM_ATTRIBUTE_TYPE_STRING;
-    attributes->attribute->data = data;
+    attributes->attribute->data = attributes->data;
   }
 
-  attributes->op = GNUNET_RECLAIM_attribute_store(
+  attributes->iter = GNUNET_RECLAIM_get_attributes_start(
     handle->reclaim,
     key,
-    attributes->attribute,
-    &expires,
-    cont_update_attribute_with_status,
+    cb_task_error_iterate_attribute,
+    attributes,
+    cb_store_attribute,
+    attributes,
+    cb_task_finish_iterate_attribute,
     attributes
   );
 
@@ -351,9 +355,6 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     handle->attributes_tail,
     attributes
   );
-
-  if (data)
-    GNUNET_free(data);
 }
 
 

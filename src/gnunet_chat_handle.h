@@ -34,6 +34,7 @@
 #include <gnunet/gnunet_namestore_service.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
+#include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
 #include "gnunet_chat_lib.h"
@@ -97,7 +98,9 @@ struct GNUNET_CHAT_AttributeProcess
   struct GNUNET_CHAT_Contact *contact;
 
   struct GNUNET_RECLAIM_Attribute *attribute;
+  struct GNUNET_TIME_Relative expires;
   char *name;
+  void *data;
 
   GNUNET_CHAT_AttributeCallback callback;
   void *closure;

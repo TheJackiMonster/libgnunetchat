@@ -459,10 +459,38 @@ cb_task_finish_iterate_attribute (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
   attributes->iter = NULL;
+
+  if (attributes->name)
+    GNUNET_free(attributes->name);
+
+  attributes->name = NULL;
+
+  if ((! attributes->op) && (key) &&
+      (attributes->attribute))
+    attributes->op = GNUNET_RECLAIM_attribute_store(
+      handle->reclaim,
+      key,
+      attributes->attribute,
+      &(attributes->expires),
+      cont_update_attribute_with_status,
+      attributes
+    );
+  
+  if (attributes->data)
+    GNUNET_free(attributes->data);
+
+  attributes->data = NULL;
 
   if (attributes->op)
     return;
+
+  if (attributes->attribute)
+    GNUNET_free(attributes->attribute);
 
   GNUNET_CONTAINER_DLL_remove(
     handle->attributes_head,
@@ -493,6 +521,69 @@ cb_task_error_iterate_attribute (void *cls)
 }
 
 void
+cb_store_attribute (void *cls,
+                    const struct GNUNET_CRYPTO_PublicKey *identity,
+                    const struct GNUNET_RECLAIM_Attribute *attribute)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = (
+    (struct GNUNET_CHAT_AttributeProcess*) cls
+  );
+
+  struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if (! attributes->name)
+  {
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+    return;
+  }
+
+  if (0 == strcmp(attribute->name, attributes->name))
+  {
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+
+    attributes->iter = NULL;
+
+    if (attributes->attribute)
+    {
+      attributes->attribute->credential = attribute->credential;
+      attributes->attribute->flag = attribute->flag;
+      attributes->attribute->id = attribute->id;
+    }
+
+    attributes->op = GNUNET_RECLAIM_attribute_store(
+      handle->reclaim,
+      key,
+      attributes->attribute,
+      &(attributes->expires),
+      cont_update_attribute_with_status,
+      attributes
+    );
+
+    if (attributes->data)
+      GNUNET_free(attributes->data);
+
+    attributes->data = NULL;
+
+    GNUNET_free(attributes->name);
+    attributes->name = NULL;
+    return;
+  }
+
+  if (attributes->iter)
+    GNUNET_RECLAIM_get_attributes_next(attributes->iter);
+}
+
+void
 cb_delete_attribute (void *cls,
                      const struct GNUNET_CRYPTO_PublicKey *identity,
                      const struct GNUNET_RECLAIM_Attribute *attribute)
@@ -520,7 +611,6 @@ cb_delete_attribute (void *cls,
 
   if (0 == strcmp(attribute->name, attributes->name))
   {
-    
     if (attributes->iter)
       GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
 
