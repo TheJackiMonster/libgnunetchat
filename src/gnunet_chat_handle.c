@@ -131,17 +131,15 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     handle
   );
 
+  handle->fs = NULL;
+  handle->gns = NULL;
+  handle->messenger = NULL;
+
   handle->namestore = GNUNET_NAMESTORE_connect(
     handle->cfg
   );
 
-  handle->reclaim = GNUNET_RECLAIM_connect(
-    handle->cfg
-  );
-
-  handle->fs = NULL;
-  handle->gns = NULL;
-  handle->messenger = NULL;
+  handle->reclaim = NULL;
 
   handle->public_key = NULL;
   handle->user_pointer = NULL;
@@ -188,57 +186,6 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->namestore)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
-
-  struct GNUNET_CHAT_AttributeProcess *attributes;
-  while (handle->attributes_head)
-  {
-    attributes = handle->attributes_head;
-
-    if (attributes->attribute)
-      GNUNET_free(attributes->attribute);
-    if (attributes->name)
-      GNUNET_free(attributes->name);
-
-    if (attributes->iter)
-      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
-    if (attributes->op)
-      GNUNET_RECLAIM_cancel(attributes->op);
-
-    GNUNET_CONTAINER_DLL_remove(
-      handle->attributes_head,
-      handle->attributes_tail,
-      attributes
-    );
-
-    GNUNET_free(attributes);
-  }
-
-  struct GNUNET_CHAT_TicketProcess *tickets;
-  while (handle->tickets_head)
-  {
-    tickets = handle->tickets_head;
-
-    if (tickets->ticket)
-      GNUNET_free(tickets->ticket);
-    if (tickets->name)
-      GNUNET_free(tickets->name);
-
-    if (tickets->iter)
-      GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
-    if (tickets->op)
-      GNUNET_RECLAIM_cancel(tickets->op);
-
-    GNUNET_CONTAINER_DLL_remove(
-      handle->tickets_head,
-      handle->tickets_tail,
-      tickets
-    );
-
-    GNUNET_free(tickets);
-  }
-
-  if (handle->reclaim)
-    GNUNET_RECLAIM_disconnect(handle->reclaim);
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
   while (handle->accounts_head)
@@ -406,6 +353,10 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   if (account->ego)
     key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
 
+  handle->reclaim = GNUNET_RECLAIM_connect(
+    handle->cfg
+  );
+
   handle->messenger = GNUNET_MESSENGER_connect(
     handle->cfg, name, key,
     on_handle_message,
@@ -435,6 +386,59 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     GNUNET_CHAT_FLAG_LOGOUT,
     NULL
   );
+
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  while (handle->attributes_head)
+  {
+    attributes = handle->attributes_head;
+
+    if (attributes->attribute)
+      GNUNET_free(attributes->attribute);
+    if (attributes->name)
+      GNUNET_free(attributes->name);
+
+    if (attributes->iter)
+      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
+    if (attributes->op)
+      GNUNET_RECLAIM_cancel(attributes->op);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->attributes_head,
+      handle->attributes_tail,
+      attributes
+    );
+
+    GNUNET_free(attributes);
+  }
+
+  struct GNUNET_CHAT_TicketProcess *tickets;
+  while (handle->tickets_head)
+  {
+    tickets = handle->tickets_head;
+
+    if (tickets->ticket)
+      GNUNET_free(tickets->ticket);
+    if (tickets->name)
+      GNUNET_free(tickets->name);
+
+    if (tickets->iter)
+      GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
+    if (tickets->op)
+      GNUNET_RECLAIM_cancel(tickets->op);
+
+    GNUNET_CONTAINER_DLL_remove(
+      handle->tickets_head,
+      handle->tickets_tail,
+      tickets
+    );
+
+    GNUNET_free(tickets);
+  }
+
+  if (handle->reclaim)
+    GNUNET_RECLAIM_disconnect(handle->reclaim);
+
+  handle->reclaim = NULL;
 
   GNUNET_CONTAINER_multihashmap_iterate(
     handle->groups, it_destroy_handle_groups, NULL

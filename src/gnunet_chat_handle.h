@@ -120,8 +120,6 @@ struct GNUNET_CHAT_TicketProcess
   GNUNET_CHAT_ContactAttributeCallback callback;
   void *closure;
 
-  struct GNUNET_CRYPTO_PrivateKey identity;
-
   struct GNUNET_RECLAIM_TicketIterator *iter;
   struct GNUNET_RECLAIM_Operation *op;
 
