@@ -30,14 +30,6 @@
 
 #include "gnunet_chat_util.h"
 
-enum GNUNET_CHAT_UriType
-{
-  GNUNET_CHAT_URI_TYPE_CHAT = 1,
-  GNUNET_CHAT_URI_TYPE_FS = 2,
-
-  GNUNET_CHAT_URI_TYPE_UNKNOWN = 0
-};
-
 struct GNUNET_CHAT_UriChat
 {
   struct GNUNET_CRYPTO_PublicKey zone;

@@ -52,6 +52,27 @@
 #define GNUNET_CHAT_URI_PREFIX "gnunet://chat/"
 
 /**
+ * Enum for the different types of supported URIs.
+ */
+enum GNUNET_CHAT_UriType
+{
+  /**
+   * The type to share and join a lobby or chat.
+   */
+  GNUNET_CHAT_URI_TYPE_CHAT = 1,   /**< GNUNET_CHAT_URI_TYPE_CHAT */
+
+  /**
+   * The type to download and query files vis FS service from GNUnet.
+   */
+  GNUNET_CHAT_URI_TYPE_FS = 2,     /**< GNUNET_CHAT_URI_TYPE_FS */
+
+  /**
+   * An unknown type of uri.
+   */
+  GNUNET_CHAT_URI_TYPE_UNKNOWN = 0 /**< GNUNET_CHAT_URI_TYPE_UNKNOWN */
+};
+
+/**
  * Enum for the different kinds of messages.
  */
 enum GNUNET_CHAT_MessageKind
@@ -612,6 +633,15 @@ GNUNET_CHAT_uri_parse (const char *uri,
  */
 char*
 GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri);
+
+/**
+ * Returns the type of a given chat URI.
+ *
+ * @param[in] uri Chat URI
+ * @return The type of URI
+ */
+enum GNUNET_CHAT_UriType
+GNUNET_CHAT_uri_get_type (const struct GNUNET_CHAT_Uri *uri);
 
 /**
  * Free an allocated chat URI.

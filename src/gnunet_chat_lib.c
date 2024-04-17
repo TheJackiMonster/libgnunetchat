@@ -642,6 +642,18 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
 }
 
 
+enum GNUNET_CHAT_UriType
+GNUNET_CHAT_uri_get_type (const struct GNUNET_CHAT_Uri *uri)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!uri)
+    return GNUNET_CHAT_URI_TYPE_UNKNOWN;
+
+  return uri->type;
+}
+
+
 void
 GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
 {
