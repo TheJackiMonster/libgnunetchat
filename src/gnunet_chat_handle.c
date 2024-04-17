@@ -723,6 +723,25 @@ handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
     return handle->current->directory;
 }
 
+char*
+handle_create_file_path (const struct GNUNET_CHAT_Handle *handle,
+                         const struct GNUNET_HashCode *hash)
+{
+  GNUNET_assert((handle) && (hash));
+
+  const char *directory = handle_get_directory(handle);
+
+  if (!directory)
+    return NULL;
+
+  char *filename;
+  util_get_filename (
+    directory, "files", hash, &filename
+  );
+
+  return filename;
+}
+
 int
 handle_update (struct GNUNET_CHAT_Handle *handle)
 {

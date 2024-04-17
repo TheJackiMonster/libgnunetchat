@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <libgen.h>
+#include <string.h>
 #include <strings.h>
 
 #define _(String) ((const char*) String)
@@ -1638,19 +1639,16 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   if (GNUNET_OK != util_hash_file(path, &hash))
     return NULL;
 
-  const char *directory = handle_get_directory(context->handle);
+  char *filename = handle_create_file_path(
+    context->handle, &hash
+  );
 
-  if (!directory)
+  if (!filename)
     return NULL;
 
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
     context->handle->files,
     &hash
-  );
-
-  char *filename;
-  util_get_filename (
-    directory, "files", &hash, &filename
   );
 
   if (file)
@@ -2201,15 +2199,12 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
   if (!file)
     return 0;
 
-  const char *directory = handle_get_directory(file->handle);
-
-  if (!directory)
-    return 0;
-
-  char *filename;
-  util_get_filename (
-    directory, "files", &(file->hash), &filename
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
   );
+
+  if (!filename)
+    return 0;
 
   uint64_t size;
   if (GNUNET_OK != GNUNET_DISK_file_size(filename, &size, GNUNET_NO, GNUNET_YES))
@@ -2243,15 +2238,12 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   if (file->preview)
     return file->preview;
 
-  const char *directory = handle_get_directory(file->handle);
-
-  if (!directory)
-    return NULL;
-
-  char *filename;
-  util_get_filename (
-    directory, "files", &(file->hash), &filename
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
   );
+
+  if (!filename)
+    return NULL;
 
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
     goto free_filename;
@@ -2347,17 +2339,14 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
     return GNUNET_OK;
   }
 
-  const char *directory = handle_get_directory(file->handle);
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
+  );
 
-  if (!directory)
+  if (!filename)
     return GNUNET_SYSERR;
 
   const uint64_t size = GNUNET_FS_uri_chk_get_file_size(file->uri);
-
-  char *filename;
-  util_get_filename (
-    directory, "files", &(file->hash), &filename
-  );
 
   uint64_t offset;
   if (GNUNET_OK != GNUNET_DISK_file_size(filename, &offset, 
@@ -2369,7 +2358,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
     if (callback)
       callback(cls, file, size, size);
 
-    return GNUNET_OK;
+    goto free_filename;
   }
 
   file_bind_downlaod(file, callback, cls);
@@ -2393,6 +2382,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
   if (file->download)
     file->status |= GNUNET_CHAT_FILE_STATUS_DOWNLOAD;
 
+free_filename:
   GNUNET_free(filename);
   return GNUNET_OK;
 }
@@ -2472,15 +2462,12 @@ GNUNET_CHAT_file_unindex (struct GNUNET_CHAT_File *file,
   if (file->unindex)
     return GNUNET_OK;
 
-  const char *directory = handle_get_directory(file->handle);
-
-  if (!directory)
-    return GNUNET_SYSERR;
-
-  char *filename;
-  util_get_filename (
-    directory, "files", &(file->hash), &filename
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
   );
+
+  if (!filename)
+    return GNUNET_SYSERR;
 
   file->unindex = GNUNET_FS_unindex_start(
     file->handle->fs, filename, file

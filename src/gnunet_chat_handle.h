@@ -286,6 +286,19 @@ const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Returns an allocated string providing the full path to
+ * a file stored by a chat <i>handle</i> with a given 
+ * <i>hash</i>.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] hash File hash
+ * @return File path
+ */
+char*
+handle_create_file_path (const struct GNUNET_CHAT_Handle *handle,
+                         const struct GNUNET_HashCode *hash);
+
+/**
  * Updates the used private key by creating a new identity
  * using the same identifier as currently in use, replacing
  * the old identity.

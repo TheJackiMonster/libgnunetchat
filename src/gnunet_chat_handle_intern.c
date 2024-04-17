@@ -254,15 +254,12 @@ notify_handle_fs_progress(void* cls,
       );
 
       file->unindex = NULL;
-      const char *directory = handle_get_directory(chat);
-
-      if (!directory)
-        break;
-
-      char *filename;
-      util_get_filename (
-        directory, "files", &(file->hash), &filename
+      char *filename = handle_create_file_path(
+        chat, &(file->hash)
       );
+
+      if (!filename)
+        break;
 
       if (GNUNET_YES == GNUNET_DISK_file_test_read(filename))
         remove(filename);
