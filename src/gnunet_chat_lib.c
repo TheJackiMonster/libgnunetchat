@@ -25,6 +25,7 @@
 #include "gnunet_chat_lib.h"
 
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
@@ -761,6 +762,23 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
     handle->lookups_tail,
     lookups
   );
+}
+
+
+struct GNUNET_CHAT_File*
+GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
+                          const struct GNUNET_CHAT_Uri *uri)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) || 
+      (!uri) || (GNUNET_CHAT_URI_TYPE_FS != uri->type))
+    return NULL;
+  
+  if (!GNUNET_FS_uri_test_chk(uri->fs.uri))
+    return NULL;
+  
+  return file_create_from_chk_uri(handle, uri->fs.uri);
 }
 
 
@@ -1703,8 +1721,9 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!context) || (!file) || (strlen(file->name) > NAME_MAX) ||
-      (!(context->room)))
+  if ((!context) || (!file) || 
+      (!(file->name)) || (strlen(file->name) > NAME_MAX) ||
+      (!(file->uri)) || (!(context->room)))
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
@@ -2235,7 +2254,9 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
     goto free_filename;
 
-  file->preview = GNUNET_DISK_mktemp(file->name);
+  file->preview = GNUNET_DISK_mktemp(
+    file->name? file->name : ""
+  );
 
   if (!(file->preview))
     goto free_filename;

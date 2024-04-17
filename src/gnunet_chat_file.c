@@ -25,19 +25,17 @@
 #include "gnunet_chat_file.h"
 
 #include "gnunet_chat_context.h"
-
-#include <limits.h>
+#include <gnunet/gnunet_common.h>
 
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 			                    const struct GNUNET_MESSENGER_MessageFile *message)
 {
-  GNUNET_assert((handle) && (message) && (message->name));
+  GNUNET_assert((handle) && (message) && (message->uri));
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   file->handle = handle;
-
   file->name = GNUNET_strndup(message->name, NAME_MAX);
 
   GNUNET_memcpy(&(file->key), &(message->key), sizeof(file->key));
@@ -46,6 +44,49 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   file->meta = GNUNET_FS_meta_data_create();
 
   file->uri = GNUNET_FS_uri_parse(message->uri, NULL);
+  file->download = NULL;
+  file->publish = NULL;
+  file->unindex = NULL;
+
+  file->upload_head = NULL;
+  file->upload_tail = NULL;
+
+  file->download_head = NULL;
+  file->download_tail = NULL;
+
+  file->unindex_head = NULL;
+  file->unindex_tail = NULL;
+
+  file->status = 0;
+  file->preview = NULL;
+
+  file->user_pointer = NULL;
+
+  return file;
+}
+
+struct GNUNET_CHAT_File*
+file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
+                          const struct GNUNET_FS_Uri *uri)
+{
+  GNUNET_assert((handle) && (uri));
+
+  const struct GNUNET_HashCode *hash = GNUNET_FS_uri_chk_get_file_hash(uri);
+
+  if (!hash)
+    return NULL;
+
+  struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
+
+  file->handle = handle;
+  file->name = NULL;
+
+  memset(&(file->key), 0, sizeof(file->key));
+  GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
+
+  file->meta = GNUNET_FS_meta_data_create();
+
+  file->uri = GNUNET_FS_uri_dup(uri);
   file->download = NULL;
   file->publish = NULL;
   file->unindex = NULL;
@@ -78,7 +119,6 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   file->handle = handle;
-
   file->name = GNUNET_strndup(name, NAME_MAX);
 
   GNUNET_memcpy(&(file->key), key, sizeof(file->key));

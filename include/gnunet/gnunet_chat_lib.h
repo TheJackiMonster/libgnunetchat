@@ -685,6 +685,16 @@ void
 GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
                         const struct GNUNET_CHAT_Uri *uri);
 
+/**
+ * Requests a file with a given chat <i>handle</i> from a selected chat 
+ * <i>uri</i> to potentially download it.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] uri Chat URI
+ */
+struct GNUNET_CHAT_File*
+GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
+                          const struct GNUNET_CHAT_Uri *uri);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>handle</i> so it can

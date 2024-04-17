@@ -113,6 +113,18 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 			                    const struct GNUNET_MESSENGER_MessageFile *message);
 
 /**
+ * Creates a chat file handle from a FS CHK URI and
+ * with a selected chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] uri FS CHK URI
+ * @return New chat file handle
+ */
+struct GNUNET_CHAT_File*
+file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
+                          const struct GNUNET_FS_Uri *uri);
+
+/**
  * Creates a chat file handle from a local file on disk
  * under a given <i>name</i> using a <i>hash</i> and a
  * selected symmetric <i>key</i> with a selected chat
