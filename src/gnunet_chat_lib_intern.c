@@ -97,12 +97,13 @@ cb_lobby_lookup (void *cls,
 
   struct GNUNET_CHAT_UriLookups *lookups = (struct GNUNET_CHAT_UriLookups*) cls;
 
-  if ((!(lookups->handle)) || (!(lookups->uri)))
+  if ((!(lookups->handle)) || (!(lookups->uri)) ||
+      (GNUNET_CHAT_URI_TYPE_CHAT != lookups->uri->type))
     goto drop_lookup;
 
   struct GNUNET_CHAT_Context *context = handle_process_records(
     lookups->handle,
-    lookups->uri->label,
+    lookups->uri->chat.label,
     count,
     data
   );

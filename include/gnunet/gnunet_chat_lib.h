@@ -598,7 +598,7 @@ GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
  *
  * @param[in] uri UTF-8 string to parse
  * @param[out] emsg Where to store the parser error message (if any)
- * @return NULL on error
+ * @return URI on success, NULL on error
  */
 struct GNUNET_CHAT_Uri*
 GNUNET_CHAT_uri_parse (const char *uri,

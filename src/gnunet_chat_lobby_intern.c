@@ -115,13 +115,13 @@ cont_lobby_identity_create (void *cls,
   char *label;
   util_get_context_label(lobby->context->type, key, &label);
 
-  lobby->uri = uri_create(&public_zone, label);
+  lobby->uri = uri_create_chat(&public_zone, label);
   GNUNET_free(label);
 
   lobby->query = GNUNET_NAMESTORE_record_set_store(
     lobby->handle->namestore,
     zone,
-    lobby->uri->label,
+    lobby->uri->chat.label,
     1,
     data,
     cont_lobby_write_records,

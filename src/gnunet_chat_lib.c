@@ -626,44 +626,7 @@ GNUNET_CHAT_uri_parse (const char *uri,
   if (!uri)
     return NULL;
 
-  const size_t prefix_len = strlen(GNUNET_CHAT_URI_PREFIX);
-
-  if (0 != strncasecmp(GNUNET_CHAT_URI_PREFIX, uri, prefix_len))
-  {
-    if (emsg)
-      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (invalid prefix)"));
-
-    return NULL;
-  }
-
-  struct GNUNET_CRYPTO_PublicKey zone;
-
-  const char *data = uri + prefix_len;
-  char *end = strchr(data, '.');
-
-  if (!end)
-  {
-    if (emsg)
-      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (zone key missing)"));
-
-    return NULL;
-  }
-
-  char *zone_data = GNUNET_strndup(data, (size_t) (end - data));
-
-  if (GNUNET_OK != GNUNET_CRYPTO_public_key_from_string(zone_data, &zone))
-  {
-    GNUNET_free(zone_data);
-
-    if (emsg)
-      *emsg = GNUNET_strdup (_ ("CHAT URI malformed (zone key invalid)"));
-
-    return NULL;
-  }
-
-  GNUNET_free(zone_data);
-
-  return uri_create(&zone, end + 1);
+  return uri_parse_from_string(uri, emsg);
 }
 
 
@@ -675,18 +638,7 @@ GNUNET_CHAT_uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   if (!uri)
     return NULL;
 
-  char *key_string = GNUNET_CRYPTO_public_key_to_string(&(uri->zone));
-
-  char *string;
-  GNUNET_asprintf (
-    &string,
-    "gnunet://chat/%s.%s",
-    key_string,
-    uri->label
-  );
-
-  GNUNET_free(key_string);
-  return string;
+  return uri_to_string(uri);
 }
 
 
@@ -768,7 +720,8 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (handle->destruction) || (!uri) || (!(handle->gns)))
+  if ((!handle) || (handle->destruction) || (!(handle->gns)) ||
+      (!uri) || (GNUNET_CHAT_URI_TYPE_CHAT != uri->type))
     return;
 
   struct GNUNET_CHAT_UriLookups *lookups = GNUNET_new(
@@ -776,12 +729,15 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
   );
 
   lookups->handle = handle;
-  lookups->uri = uri_create(&(uri->zone), uri->label);
+  lookups->uri = uri_create_chat(
+    &(uri->chat.zone),
+    uri->chat.label
+  );
 
   lookups->request = GNUNET_GNS_lookup(
     handle->gns,
-    lookups->uri->label,
-    &(uri->zone),
+    lookups->uri->chat.label,
+    &(uri->chat.zone),
     GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY,
     GNUNET_GNS_LO_DEFAULT,
     cb_lobby_lookup,
