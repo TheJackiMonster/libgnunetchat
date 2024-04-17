@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <libgen.h>
+#include <stdint.h>
 #include <string.h>
 #include <strings.h>
 
@@ -2221,6 +2222,24 @@ GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!file) || (0 == (file->status & GNUNET_CHAT_FILE_STATUS_PUBLISH)))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_is_ready (const struct GNUNET_CHAT_File *file)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!file) || (file->status & GNUNET_CHAT_FILE_STATUS_MASK))
+    return GNUNET_NO;
+
+  const uint64_t size = GNUNET_CHAT_file_get_size(file);
+  const uint64_t local_size = GNUNET_CHAT_file_get_local_size(file);
+
+  if (size != local_size)
     return GNUNET_NO;
   else
     return GNUNET_YES;

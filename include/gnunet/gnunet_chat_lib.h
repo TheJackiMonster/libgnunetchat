@@ -1402,6 +1402,16 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file);
 
 /**
+ * Returns if a given <i>file</i> handle is currently ready
+ * for previewing its content.
+ *
+ * @param[in] file File handle
+ * @return #GNUNET_YES when ready, #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_is_ready (const struct GNUNET_CHAT_File *file);
+
+/**
  * Returns the temporary file name of the decrypted file preview
  * of a given <i>file</i> handle.
  *
