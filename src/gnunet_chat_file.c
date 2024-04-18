@@ -305,7 +305,8 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   {
     upload = file->upload_head;
 
-    GNUNET_MESSENGER_send_message(upload->context->room, &msg, NULL);
+    if (upload->context)
+      GNUNET_MESSENGER_send_message(upload->context->room, &msg, NULL);
 
     GNUNET_CONTAINER_DLL_remove(
       file->upload_head,

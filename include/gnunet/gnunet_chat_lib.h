@@ -691,10 +691,27 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
  *
  * @param[in,out] handle Chat handle
  * @param[in] uri Chat URI
+ * @return File handle on success, NULL on failure
  */
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
                           const struct GNUNET_CHAT_Uri *uri);
+
+/**
+ * Uploads a local file specified via its <i>path</i> to share its uri
+ * with others afterwards.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] path Local file path
+ * @param[in] callback Callback for file uploading (optional)
+ * @param[in,out] cls Closure for file uploading (optional)
+ * @return The file handle on success, NULL on failure
+ */
+struct GNUNET_CHAT_File*
+GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
+                         const char *path,
+                         GNUNET_CHAT_FileUploadCallback callback,
+                         void *cls);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>handle</i> so it can
@@ -1431,6 +1448,16 @@ GNUNET_CHAT_file_get_size (const struct GNUNET_CHAT_File *file);
  */
 uint64_t
 GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns a new allocated uri to access the content of a given 
+ * <i>file</i> handle.
+ *
+ * @param[in] file File handle
+ * @return URI on success, NULL on error
+ */
+struct GNUNET_CHAT_Uri*
+GNUNET_CHAT_file_get_uri (const struct GNUNET_CHAT_File *file);
 
 /**
  * Returns if a given <i>file</i> handle is currently uploading.

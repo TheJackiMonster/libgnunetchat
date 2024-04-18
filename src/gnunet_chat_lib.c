@@ -782,6 +782,111 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
 }
 
 
+struct GNUNET_CHAT_File*
+GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
+                         const char *path,
+                         GNUNET_CHAT_FileUploadCallback callback,
+                         void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) ||
+      (!path))
+    return NULL;
+  
+  struct GNUNET_HashCode hash;
+  if (GNUNET_OK != util_hash_file(path, &hash))
+    return NULL;
+
+  char *filename = handle_create_file_path(
+    handle, &hash
+  );
+
+  if (!filename)
+    return NULL;
+
+  struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+    handle->files,
+    &hash
+  );
+
+  if (file)
+    goto file_binding;
+
+  if ((GNUNET_YES == GNUNET_DISK_file_test(filename)) ||
+      (GNUNET_OK != GNUNET_DISK_directory_create_for_file(filename)) ||
+      (GNUNET_OK != GNUNET_DISK_file_copy(path, filename)))
+  {
+    GNUNET_free(filename);
+    return NULL;
+  }
+
+  struct GNUNET_CRYPTO_SymmetricSessionKey key;
+  GNUNET_CRYPTO_symmetric_create_session_key(&key);
+
+  if (GNUNET_OK != util_encrypt_file(filename, &hash, &key))
+  {
+    GNUNET_free(filename);
+    return NULL;
+  }
+
+  char* p = GNUNET_strdup(path);
+
+  file = file_create_from_disk(
+    handle,
+    basename(p),
+    &hash,
+    &key
+  );
+
+  GNUNET_free(p);
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->files, &hash, file,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    file_destroy(file);
+    GNUNET_free(filename);
+    return NULL;
+  }
+
+  struct GNUNET_FS_BlockOptions bo;
+
+  bo.anonymity_level = block_anonymity_level;
+  bo.content_priority = block_content_priority;
+  bo.replication_level = block_replication_level;
+
+  bo.expiration_time = GNUNET_TIME_absolute_add(
+    GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
+  );
+
+  struct GNUNET_FS_FileInformation* fi = GNUNET_FS_file_information_create_from_file(
+    handle->fs,
+    file,
+    filename,
+    NULL,
+    file->meta,
+    GNUNET_YES,
+    &bo
+  );
+
+  file->publish = GNUNET_FS_publish_start(
+    handle->fs, fi,
+    NULL, NULL, NULL,
+    GNUNET_FS_PUBLISH_OPTION_NONE
+  );
+
+  if (file->publish)
+    file->status |= GNUNET_CHAT_FILE_STATUS_PUBLISH;
+
+  GNUNET_free(filename);
+
+file_binding:
+  file_bind_upload(file, NULL, callback, cls);
+  return file;
+}
+
+
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 			                        void *user_pointer)
@@ -2200,6 +2305,18 @@ GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file)
 
   GNUNET_free(filename);
   return size;
+}
+
+
+struct GNUNET_CHAT_Uri*
+GNUNET_CHAT_file_get_uri (const struct GNUNET_CHAT_File *file)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!file) || (!(file->uri)))
+    return NULL;
+
+  return uri_create_file(file->uri);
 }
 
 
