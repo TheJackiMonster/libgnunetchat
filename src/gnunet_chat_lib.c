@@ -777,6 +777,18 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
   
   if (!GNUNET_FS_uri_test_chk(uri->fs.uri))
     return NULL;
+
+  const struct GNUNET_HashCode *hash = GNUNET_FS_uri_chk_get_file_hash(
+    uri->fs.uri
+  );
+
+  struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
+    handle->files,
+    hash
+  );
+
+  if (file)
+    return file;
   
   return file_create_from_chk_uri(handle, uri->fs.uri);
 }
