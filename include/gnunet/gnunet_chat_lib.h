@@ -248,6 +248,19 @@ typedef void
                               const struct GNUNET_CHAT_Uri *uri);
 
 /**
+ * Iterator over chat files of a specific chat handle.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_files
+ * @param[in,out] handle Chat handle
+ * @param[in,out] file Chat file
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_FileCallback) (void *cls,
+                             struct GNUNET_CHAT_Handle *handle,
+                             struct GNUNET_CHAT_File *file);
+
+/**
  * Iterator over chat contacts of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_contacts
@@ -712,6 +725,20 @@ GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
                          const char *path,
                          GNUNET_CHAT_FileUploadCallback callback,
                          void *cls);
+
+/**
+ * Iterates through the files of a given chat <i>handle</i> with a selected
+ * callback and custom closure.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] callback Callback for file iteration (optional)
+ * @param[in,out] cls Closure for file iteration (optional)
+ * @return Amount of files iterated or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_iterate_files (struct GNUNET_CHAT_Handle *handle,
+                           GNUNET_CHAT_FileCallback callback,
+                           void *cls);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>handle</i> so it can

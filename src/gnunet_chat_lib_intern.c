@@ -125,6 +125,33 @@ drop_lookup:
   GNUNET_free(lookups);
 }
 
+struct GNUNET_CHAT_IterateFiles
+{
+  struct GNUNET_CHAT_Handle *handle;
+  GNUNET_CHAT_FileCallback cb;
+  void *cls;
+};
+
+enum GNUNET_GenericReturnValue
+it_iterate_files (void *cls,
+                  GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                  void *value)
+{
+  GNUNET_assert((cls) && (key));
+
+  struct GNUNET_CHAT_IterateFiles *it = cls;
+
+  if (!(it->cb))
+    return GNUNET_YES;
+
+  struct GNUNET_CHAT_File *file = (struct GNUNET_CHAT_File*) value;
+
+  if (!file)
+    return GNUNET_YES;
+
+  return it->cb(it->cls, it->handle, file);
+}
+
 struct GNUNET_CHAT_HandleIterateContacts
 {
   struct GNUNET_CHAT_Handle *handle;

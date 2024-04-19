@@ -899,6 +899,29 @@ file_binding:
 }
 
 
+int
+GNUNET_CHAT_iterate_files (struct GNUNET_CHAT_Handle *handle,
+                           GNUNET_CHAT_FileCallback callback,
+                           void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction))
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_IterateFiles it;
+  it.handle = handle;
+  it.cb = callback;
+  it.cls = cls;
+
+  return GNUNET_CONTAINER_multihashmap_iterate(
+    handle->files,
+    it_iterate_files,
+    &it
+  );
+}
+
+
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 			                        void *user_pointer)
