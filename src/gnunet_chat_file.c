@@ -131,7 +131,7 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
                        const struct GNUNET_HashCode *hash,
                        const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
-  GNUNET_assert((handle) && (name) && (hash) && (key));
+  GNUNET_assert((handle) && (name) && (hash));
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
@@ -140,6 +140,12 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 
   file->handle = handle;
   file->name = GNUNET_strndup(name, NAME_MAX);
+
+  if (!key)
+  {
+    file->key = NULL;
+    goto skip_key;
+  }
 
   file->key = GNUNET_new(struct GNUNET_CRYPTO_SymmetricSessionKey);
 
@@ -151,6 +157,8 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 
   GNUNET_memcpy(file->key, key,
                 sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
+
+skip_key:
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
