@@ -1050,7 +1050,7 @@ cb_iterate_ticket_check (void *cls,
   tick->ticket = GNUNET_new (struct GNUNET_RECLAIM_Ticket);
 
   if (tick->ticket)
-    GNUNET_memcpy (
+    GNUNET_memcpy(
       tick->ticket,
       ticket,
       sizeof (struct GNUNET_RECLAIM_Ticket)

@@ -1861,7 +1861,8 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
 
   if (file->key)
-    GNUNET_memcpy(&(msg.body.file.key), file->key, sizeof(msg.body.file.key));
+    GNUNET_memcpy(&(msg.body.file.key), file->key,
+                  sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
   else
     memset(&(msg.body.file.key), 0, sizeof(msg.body.file.key));
 

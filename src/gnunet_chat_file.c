@@ -50,7 +50,8 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
     return NULL;
   }
 
-  GNUNET_memcpy(&(file->key), &(message->key), sizeof(message->key));
+  GNUNET_memcpy(file->key, &(message->key),
+                sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
   GNUNET_memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -148,7 +149,8 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
     return NULL;
   }
 
-  GNUNET_memcpy(file->key, key, sizeof(*key));
+  GNUNET_memcpy(file->key, key,
+                sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -227,6 +229,9 @@ file_destroy (struct GNUNET_CHAT_File *file)
 
   if (file->meta)
     GNUNET_FS_meta_data_destroy(file->meta);
+
+  if (file->key)
+    GNUNET_free(file->key);
 
   if (file->name)
     GNUNET_free(file->name);
@@ -325,7 +330,8 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
 
   if (file->key)
-    GNUNET_memcpy(&(msg.body.file.key), file->key, sizeof(msg.body.file.key));
+    GNUNET_memcpy(&(msg.body.file.key), file->key,
+                  sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
   else
     memset(&(msg.body.file.key), 0, sizeof(msg.body.file.key));
 
