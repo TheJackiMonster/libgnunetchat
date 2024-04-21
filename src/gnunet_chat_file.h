@@ -76,7 +76,7 @@ struct GNUNET_CHAT_File
   char *name;
 
   struct GNUNET_HashCode hash;
-  struct GNUNET_CRYPTO_SymmetricSessionKey key;
+  struct GNUNET_CRYPTO_SymmetricSessionKey *key;
 
   struct GNUNET_FS_MetaData *meta;
 

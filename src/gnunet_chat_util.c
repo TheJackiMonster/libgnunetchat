@@ -110,7 +110,7 @@ util_encrypt_file (const char *filename,
                    const struct GNUNET_HashCode *hash,
                    const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
-  GNUNET_assert((filename) && (hash) && (key));
+  GNUNET_assert((filename) && (hash));
 
   uint64_t size;
 
@@ -141,9 +141,12 @@ util_encrypt_file (const char *filename,
 
   struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
   const uint64_t block_size = 1024*1024;
-  ssize_t result = -1;
+  ssize_t result = 0;
 
   const uint64_t blocks = ((size + block_size - 1) / block_size);
+
+  if (!key)
+    goto skip_encryption;
 
   for (uint64_t i = 0; i < blocks; i++)
   {
@@ -170,6 +173,7 @@ util_encrypt_file (const char *filename,
       break;
   }
 
+skip_encryption:
   if (GNUNET_OK != GNUNET_DISK_file_unmap(mapping))
     result = -1;
 
@@ -190,7 +194,7 @@ util_decrypt_file (const char *filename,
                    const struct GNUNET_HashCode *hash,
                    const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
 {
-  GNUNET_assert((filename) && (hash) && (key));
+  GNUNET_assert((filename) && (hash));
 
   uint64_t size;
 
@@ -218,9 +222,13 @@ util_decrypt_file (const char *filename,
 
   struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
   const uint64_t block_size = 1024*1024;
-  ssize_t result = -1;
+  struct GNUNET_HashCode check;
+  ssize_t result = 0;
 
   const uint64_t blocks = ((size + block_size - 1) / block_size);
+
+  if (!key)
+    goto skip_decryption;
 
   for (uint64_t index = 0; index < blocks; index++)
   {
@@ -246,7 +254,7 @@ util_decrypt_file (const char *filename,
       break;
   }
 
-  struct GNUNET_HashCode check;
+skip_decryption:
   GNUNET_CRYPTO_hash(data, size, &check);
 
   if (0 != GNUNET_CRYPTO_hash_cmp(hash, &check))

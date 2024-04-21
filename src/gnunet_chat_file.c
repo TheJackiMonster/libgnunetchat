@@ -26,6 +26,7 @@
 
 #include "gnunet_chat_context.h"
 #include <gnunet/gnunet_common.h>
+#include <string.h>
 
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
@@ -35,10 +36,21 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
+  if (!file)
+    return NULL;
+
   file->handle = handle;
   file->name = GNUNET_strndup(message->name, NAME_MAX);
 
-  GNUNET_memcpy(&(file->key), &(message->key), sizeof(file->key));
+  file->key = GNUNET_new(struct GNUNET_CRYPTO_SymmetricSessionKey);
+
+  if (!(file->key))
+  {
+    GNUNET_free(file);
+    return NULL;
+  }
+
+  GNUNET_memcpy(&(file->key), &(message->key), sizeof(message->key));
   GNUNET_memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -78,10 +90,14 @@ file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
+  if (!file)
+    return NULL;
+
   file->handle = handle;
   file->name = NULL;
 
-  memset(&(file->key), 0, sizeof(file->key));
+  file->key = NULL;
+
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -118,10 +134,21 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
+  if (!file)
+    return NULL;
+
   file->handle = handle;
   file->name = GNUNET_strndup(name, NAME_MAX);
 
-  GNUNET_memcpy(&(file->key), key, sizeof(file->key));
+  file->key = GNUNET_new(struct GNUNET_CRYPTO_SymmetricSessionKey);
+
+  if (!(file->key))
+  {
+    GNUNET_free(file);
+    return NULL;
+  }
+
+  GNUNET_memcpy(file->key, key, sizeof(*key));
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -296,7 +323,12 @@ file_update_upload (struct GNUNET_CHAT_File *file,
 
   struct GNUNET_MESSENGER_Message msg;
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
-  GNUNET_memcpy(&(msg.body.file.key), &(file->key), sizeof(file->key));
+
+  if (file->key)
+    GNUNET_memcpy(&(msg.body.file.key), file->key, sizeof(msg.body.file.key));
+  else
+    memset(&(msg.body.file.key), 0, sizeof(msg.body.file.key));
+
   GNUNET_memcpy(&(msg.body.file.hash), &(file->hash), sizeof(file->hash));
   GNUNET_strlcpy(msg.body.file.name, file->name, NAME_MAX);
   msg.body.file.uri = GNUNET_FS_uri_to_string(file->uri);
