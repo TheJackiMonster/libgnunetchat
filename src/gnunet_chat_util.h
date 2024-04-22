@@ -71,7 +71,8 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
  * @param[out] field String field
  */
 void
-util_set_name_field (const char *name, char **field);
+util_set_name_field (const char *name,
+                     char **field);
 
 /**
  * Generates the <i>hash</i> of a file under a given
@@ -81,8 +82,9 @@ util_set_name_field (const char *name, char **field);
  * @param[out] hash Hash of file
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
-util_hash_file (const char *filename, struct GNUNET_HashCode *hash);
+enum GNUNET_GenericReturnValue
+util_hash_file (const char *filename,
+                struct GNUNET_HashCode *hash);
 
 /**
  * Encrypts a file inplace under a given <i>filename</i>
@@ -94,7 +96,7 @@ util_hash_file (const char *filename, struct GNUNET_HashCode *hash);
  * @param[in] key Symmetric key
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 util_encrypt_file (const char *filename,
                    const struct GNUNET_HashCode *hash,
                    const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
@@ -110,7 +112,7 @@ util_encrypt_file (const char *filename,
  * @param[in] key Symmetric key
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 util_decrypt_file (const char *filename,
                    const struct GNUNET_HashCode *hash,
                    const struct GNUNET_CRYPTO_SymmetricSessionKey *key);

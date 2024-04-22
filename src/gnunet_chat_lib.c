@@ -782,6 +782,9 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
     uri->fs.uri
   );
 
+  if (!hash)
+    return NULL;
+
   struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
     handle->files,
     hash
