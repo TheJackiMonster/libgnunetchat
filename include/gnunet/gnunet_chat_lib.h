@@ -372,13 +372,13 @@ typedef enum GNUNET_GenericReturnValue
  * Method called during an upload of a specific file in a chat to share it.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_context_send_file
- * @param[in] file Chat file
+ * @param[in,out] file Chat file
  * @param[in] completed Amount of the file being uploaded (in bytes)
  * @param[in] size Full size of the uploading file (in bytes)
  */
 typedef void
 (*GNUNET_CHAT_FileUploadCallback) (void *cls,
-                                   const struct GNUNET_CHAT_File *file,
+                                   struct GNUNET_CHAT_File *file,
                                    uint64_t completed,
                                    uint64_t size);
 
@@ -386,13 +386,13 @@ typedef void
  * Method called during a download of a specific file in a chat which was shared.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_file_start_download
- * @param[in] file Chat file
+ * @param[in,out] file Chat file
  * @param[in] completed Amount of the file being downloaded (in bytes)
  * @param[in] size Full size of the downloading file (in bytes)
  */
 typedef void
 (*GNUNET_CHAT_FileDownloadCallback) (void *cls,
-                                     const struct GNUNET_CHAT_File *file,
+                                     struct GNUNET_CHAT_File *file,
                                      uint64_t completed,
                                      uint64_t size);
 

@@ -54,7 +54,7 @@ on_gnunet_chat_file_send_it(void *cls,
 
 void
 on_gnunet_chat_file_send_upload(void *cls,
-                                const struct GNUNET_CHAT_File *file,
+                                struct GNUNET_CHAT_File *file,
                                 uint64_t completed,
                                 uint64_t size)
 {
