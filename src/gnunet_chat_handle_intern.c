@@ -839,7 +839,20 @@ skip_msg_handing:
     }
     case GNUNET_MESSENGER_KIND_TICKET:
     {
-      struct GNUNET_CHAT_InternalTickets *tickets = GNUNET_new(
+      struct GNUNET_CHAT_InternalTickets *tickets = contact->tickets_head;
+      while (tickets)
+      {
+        if (0 == GNUNET_memcmp(&(tickets->ticket->ticket.rnd), 
+                               &(message->msg->body.ticket.identifier)))
+          break;
+
+        tickets = tickets->next;
+      }
+
+      if (tickets)
+        break;
+      
+      tickets = GNUNET_new(
         struct GNUNET_CHAT_InternalTickets
       );
 
