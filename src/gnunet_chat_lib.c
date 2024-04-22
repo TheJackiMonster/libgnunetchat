@@ -792,8 +792,20 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
 
   if (file)
     return file;
+
+  file = file_create_from_chk_uri(handle, uri->fs.uri);
+
+  if (!file)
+    return NULL;
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(handle->files, hash, file, 
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    file_destroy(file);
+    file = NULL;
+  }
   
-  return file_create_from_chk_uri(handle, uri->fs.uri);
+  return file;
 }
 
 
