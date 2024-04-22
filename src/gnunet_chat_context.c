@@ -342,17 +342,10 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
     }
     case GNUNET_MESSENGER_KIND_FILE:
     {
-      struct GNUNET_CHAT_File *file = GNUNET_CONTAINER_multihashmap_get(
-        context->files, &(message->hash)
-      );
-
-      if (! file)
+      if (GNUNET_YES != GNUNET_CONTAINER_multihashmap_contains(context->files, &(message->hash)))
         break;
 
-      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
-        context->files, &(message->hash), file))
-        file_destroy(file);
-
+      GNUNET_CONTAINER_multihashmap_remove_all(context->files, &(message->hash));
       break;
     }
     case GNUNET_MESSENGER_KIND_TAG:

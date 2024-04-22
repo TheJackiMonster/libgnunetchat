@@ -2416,8 +2416,8 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   remove(file->preview);
 
   if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
-      (GNUNET_OK != util_decrypt_file(file->preview,
-				      &(file->hash), file->key)))
+      ((file->key) && (GNUNET_OK != util_decrypt_file(file->preview,
+				&(file->hash), file->key))))
   {
     GNUNET_free(file->preview);
     file->preview = NULL;

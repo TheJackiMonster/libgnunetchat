@@ -76,11 +76,10 @@ struct GNUNET_CHAT_File
   char *name;
 
   struct GNUNET_HashCode hash;
-
   struct GNUNET_CRYPTO_SymmetricSessionKey *key;
   struct GNUNET_FS_MetaData *meta;
-
   struct GNUNET_FS_Uri *uri;
+
   struct GNUNET_FS_DownloadContext *download;
   struct GNUNET_FS_PublishContext *publish;
   struct GNUNET_FS_UnindexContext *unindex;

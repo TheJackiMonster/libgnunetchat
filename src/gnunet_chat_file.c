@@ -28,6 +28,30 @@
 #include <gnunet/gnunet_common.h>
 #include <string.h>
 
+static void
+file_initialize (struct GNUNET_CHAT_File *file)
+{
+  GNUNET_assert(file);
+
+  file->download = NULL;
+  file->publish = NULL;
+  file->unindex = NULL;
+
+  file->upload_head = NULL;
+  file->upload_tail = NULL;
+
+  file->download_head = NULL;
+  file->download_tail = NULL;
+
+  file->unindex_head = NULL;
+  file->unindex_tail = NULL;
+
+  file->status = 0;
+  file->preview = NULL;
+
+  file->user_pointer = NULL;
+}
+
 struct GNUNET_CHAT_File*
 file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 			                    const struct GNUNET_MESSENGER_MessageFile *message)
@@ -55,25 +79,9 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   GNUNET_memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
-
   file->uri = GNUNET_FS_uri_parse(message->uri, NULL);
-  file->download = NULL;
-  file->publish = NULL;
-  file->unindex = NULL;
 
-  file->upload_head = NULL;
-  file->upload_tail = NULL;
-
-  file->download_head = NULL;
-  file->download_tail = NULL;
-
-  file->unindex_head = NULL;
-  file->unindex_tail = NULL;
-
-  file->status = 0;
-  file->preview = NULL;
-
-  file->user_pointer = NULL;
+  file_initialize(file);
 
   return file;
 }
@@ -102,25 +110,9 @@ file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
-
   file->uri = GNUNET_FS_uri_dup(uri);
-  file->download = NULL;
-  file->publish = NULL;
-  file->unindex = NULL;
-
-  file->upload_head = NULL;
-  file->upload_tail = NULL;
-
-  file->download_head = NULL;
-  file->download_tail = NULL;
-
-  file->unindex_head = NULL;
-  file->unindex_tail = NULL;
-
-  file->status = 0;
-  file->preview = NULL;
-
-  file->user_pointer = NULL;
+  
+  file_initialize(file);
 
   return file;
 }
@@ -162,25 +154,9 @@ skip_key:
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
-
   file->uri = NULL;
-  file->download = NULL;
-  file->publish = NULL;
-  file->unindex = NULL;
 
-  file->upload_head = NULL;
-  file->upload_tail = NULL;
-
-  file->download_head = NULL;
-  file->download_tail = NULL;
-
-  file->unindex_head = NULL;
-  file->unindex_tail = NULL;
-
-  file->status = 0;
-  file->preview = NULL;
-
-  file->user_pointer = NULL;
+  file_initialize(file);
 
   return file;
 }
@@ -189,6 +165,12 @@ void
 file_destroy (struct GNUNET_CHAT_File *file)
 {
   GNUNET_assert(file);
+
+  if (file->preview)
+  {
+    remove(file->preview);
+    GNUNET_free(file->preview);
+  }
 
   struct GNUNET_CHAT_FileUpload *upload;
   while (file->upload_head)
