@@ -148,11 +148,13 @@ contact_get_key (const struct GNUNET_CHAT_Contact *contact)
 }
 
 struct GNUNET_CHAT_Context*
-contact_find_context (const struct GNUNET_CHAT_Contact *contact)
+contact_find_context (const struct GNUNET_CHAT_Contact *contact,
+                      enum GNUNET_GenericReturnValue room_required)
 {
   GNUNET_assert(contact);
 
-  if (contact->context)
+  if ((contact->context) &&
+      ((GNUNET_YES != room_required) || (contact->context->room)))
     return contact->context;
 
   struct GNUNET_CHAT_ContactFindRoom find;
@@ -169,10 +171,15 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact)
   if (!(find.room))
     return NULL;
 
-  return GNUNET_CONTAINER_multihashmap_get(
+  struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
     contact->handle->contexts,
     GNUNET_MESSENGER_room_get_key(find.room)
   );
+
+  if ((GNUNET_YES == room_required) && (!(context->room)))
+    return NULL;
+
+  return context;
 }
 
 const struct GNUNET_HashCode*
@@ -408,7 +415,7 @@ contact_destroy (struct GNUNET_CHAT_Contact* contact)
     GNUNET_CONTAINER_multihashmap_destroy(contact->joined);
   }
 
-  if ((contact->context) && (!contact->context->room))
+  if ((contact->context) && (!(contact->context->room)))
     context_destroy(contact->context);
 
   GNUNET_free(contact);

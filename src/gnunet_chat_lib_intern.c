@@ -711,10 +711,11 @@ cb_issue_ticket (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
   struct GNUNET_CHAT_Context *context = contact_find_context(
-    attributes->contact
+    attributes->contact,
+    GNUNET_YES
   );
 
-  if ((context) && (context->room) && (ticket))
+  if ((context) && (ticket))
     GNUNET_MESSENGER_send_ticket(context->room, ticket);
 
   GNUNET_CONTAINER_DLL_remove(

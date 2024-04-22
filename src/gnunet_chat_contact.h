@@ -110,10 +110,12 @@ contact_get_key (const struct GNUNET_CHAT_Contact *contact);
  * <i>contact</i> and the least amount of other members.
  *
  * @param[in] contact Chat contact
+ * @param[in] room_required Flag to suggest a room is required
  * @return Chat context or NULL
  */
 struct GNUNET_CHAT_Context*
-contact_find_context (const struct GNUNET_CHAT_Contact *contact);
+contact_find_context (const struct GNUNET_CHAT_Contact *contact,
+                      enum GNUNET_GenericReturnValue room_required);
 
 /**
  * Returns whether a chat <i>contact</i> is tagged in

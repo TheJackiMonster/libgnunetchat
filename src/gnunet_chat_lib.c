@@ -1185,7 +1185,10 @@ GNUNET_CHAT_contact_get_context (struct GNUNET_CHAT_Contact *contact)
   if (contact->context)
     return contact->context;
 
-  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
+  struct GNUNET_CHAT_Context *context = contact_find_context(
+    contact,
+    GNUNET_NO
+  );
 
   if ((context) && (GNUNET_CHAT_CONTEXT_TYPE_CONTACT == context->type))
     goto attach_return;
@@ -1442,7 +1445,10 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
   if ((!group) || (!contact) || (!contact->member))
     return;
 
-  struct GNUNET_CHAT_Context *context = contact_find_context(contact);
+  struct GNUNET_CHAT_Context *context = contact_find_context(
+    contact,
+    GNUNET_YES
+  );
 
   if (!context)
     return;
@@ -1576,9 +1582,12 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
 
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
 
-  struct GNUNET_CHAT_Context *other = contact_find_context(contact);
+  struct GNUNET_CHAT_Context *other = contact_find_context(
+    contact,
+    GNUNET_YES
+  );
 
-  if ((!other) || (!(other->room)))
+  if (!other)
     goto cleanup_contact;
 
   struct GNUNET_HashCode key;

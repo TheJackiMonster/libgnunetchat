@@ -22,6 +22,7 @@
  * @file gnunet_chat_ticket_intern.c
  */
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -38,7 +39,13 @@ cb_ticket_consume_attribute (void *cls,
     (struct GNUNET_CHAT_Ticket*) cls
   );
 
-  const char *value = GNUNET_RECLAIM_attribute_value_to_string(
+  if (!attribute)
+  {
+    ticket->op = NULL;
+    return;
+  }
+
+  char *value = GNUNET_RECLAIM_attribute_value_to_string(
     attribute->type,
     attribute->data,
     attribute->data_size
@@ -46,4 +53,7 @@ cb_ticket_consume_attribute (void *cls,
 
   if (ticket->callback)
     ticket->callback(ticket->closure, ticket->issuer, attribute->name, value);
+
+  if (value)
+    GNUNET_free(value);
 }
