@@ -111,7 +111,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->tickets_head = NULL;
   handle->tickets_tail = NULL;
 
-  handle->files = NULL;
+  handle->files = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size_of_handle, GNUNET_NO);
+  
   handle->contexts = NULL;
   handle->contacts = NULL;
   handle->groups = NULL;
@@ -131,7 +133,13 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     handle
   );
 
-  handle->fs = NULL;
+  handle->fs = GNUNET_FS_start(
+    handle->cfg, "libgnunetchat",
+    notify_handle_fs_progress, handle,
+    GNUNET_FS_FLAGS_NONE,
+    GNUNET_FS_OPTIONS_END
+  );
+
   handle->gns = NULL;
   handle->messenger = NULL;
 
@@ -139,7 +147,9 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     handle->cfg
   );
 
-  handle->reclaim = NULL;
+  handle->reclaim = GNUNET_RECLAIM_connect(
+    handle->cfg
+  );
 
   handle->public_key = NULL;
   handle->user_pointer = NULL;
@@ -184,6 +194,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->current)
     handle_disconnect(handle);
 
+  if (handle->reclaim)
+    GNUNET_RECLAIM_disconnect(handle->reclaim);
+
   if (handle->namestore)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
 
@@ -210,6 +223,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     GNUNET_free(accounts);
   }
 
+  if (handle->fs)
+    GNUNET_FS_stop(handle->fs);
+
   if (handle->identity)
     GNUNET_IDENTITY_disconnect(handle->identity);
 
@@ -232,6 +248,8 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->arm)
     GNUNET_ARM_disconnect(handle->arm);
+
+  GNUNET_CONTAINER_multihashmap_destroy(handle->files);
 
   if (handle->directory)
     GNUNET_free(handle->directory);
@@ -310,7 +328,7 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 		(!(handle->groups)) &&
 		(!(handle->contacts)) &&
 		(!(handle->contexts)) &&
-		(!(handle->files))
+		(handle->files)
   );
 
   if (handle->monitor)
@@ -319,8 +337,6 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
     handle->monitor = NULL;
   }
 
-  handle->files = GNUNET_CONTAINER_multihashmap_create(
-    initial_map_size_of_handle, GNUNET_NO);
   handle->contexts = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_handle, GNUNET_NO);
   handle->contacts = GNUNET_CONTAINER_multishortmap_create(
@@ -328,36 +344,13 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   handle->groups = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_handle, GNUNET_NO);
 
-  const char *name = account->name;
-
-  char* fs_client_name = NULL;
-  GNUNET_asprintf (
-    &fs_client_name,
-    "GNUNET_CHAT_%s%s",
-    name? "_" : "anonymous",
-    name? name : ""
-  );
-
-  handle->fs = GNUNET_FS_start(
-    handle->cfg, fs_client_name,
-    notify_handle_fs_progress, handle,
-    GNUNET_FS_FLAGS_NONE,
-    GNUNET_FS_OPTIONS_END
-  );
-
-  GNUNET_free(fs_client_name);
-
   handle->gns = GNUNET_GNS_connect(handle->cfg);
 
   const struct GNUNET_CRYPTO_PrivateKey *key;
   key = account_get_key(account);
 
-  handle->reclaim = GNUNET_RECLAIM_connect(
-    handle->cfg
-  );
-
   handle->messenger = GNUNET_MESSENGER_connect(
-    handle->cfg, name, key,
+    handle->cfg, account->name, key,
     on_handle_message,
     handle
   );
@@ -434,11 +427,6 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     GNUNET_free(tickets);
   }
 
-  if (handle->reclaim)
-    GNUNET_RECLAIM_disconnect(handle->reclaim);
-
-  handle->reclaim = NULL;
-
   GNUNET_CONTAINER_multihashmap_iterate(
     handle->groups, it_destroy_handle_groups, NULL
   );
@@ -501,10 +489,6 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     handle->files, it_destroy_handle_files, NULL
   );
 
-  if (handle->fs)
-    GNUNET_FS_stop(handle->fs);
-
-  handle->fs = NULL;
   handle->gns = NULL;
   handle->messenger = NULL;
 
@@ -528,9 +512,8 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);
   GNUNET_CONTAINER_multishortmap_destroy(handle->contacts);
   GNUNET_CONTAINER_multihashmap_destroy(handle->contexts);
-  GNUNET_CONTAINER_multihashmap_destroy(handle->files);
+  GNUNET_CONTAINER_multihashmap_clear(handle->files);
 
-  handle->files = NULL;
   handle->contexts = NULL;
   handle->contacts = NULL;
   handle->groups = NULL;
