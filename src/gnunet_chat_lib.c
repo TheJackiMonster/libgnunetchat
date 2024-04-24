@@ -873,10 +873,7 @@ GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
   bo.anonymity_level = block_anonymity_level;
   bo.content_priority = block_content_priority;
   bo.replication_level = block_replication_level;
-
-  bo.expiration_time = GNUNET_TIME_absolute_add(
-    GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
-  );
+  bo.expiration_time = GNUNET_TIME_absolute_get_forever_();
 
   struct GNUNET_FS_FileInformation* fi = GNUNET_FS_file_information_create_from_file(
     handle->fs,
@@ -1890,10 +1887,7 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
   bo.anonymity_level = block_anonymity_level;
   bo.content_priority = block_content_priority;
   bo.replication_level = block_replication_level;
-
-  bo.expiration_time = GNUNET_TIME_absolute_add(
-    GNUNET_TIME_absolute_get(), GNUNET_TIME_relative_get_hour_()
-  );
+  bo.expiration_time = GNUNET_TIME_absolute_get_forever_();
 
   struct GNUNET_FS_FileInformation* fi = GNUNET_FS_file_information_create_from_file(
     context->handle->fs,
