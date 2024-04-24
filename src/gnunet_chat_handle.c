@@ -194,6 +194,10 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->current)
     handle_disconnect(handle);
 
+  GNUNET_CONTAINER_multihashmap_iterate(
+    handle->files, it_destroy_handle_files, NULL
+  );
+
   if (handle->reclaim)
     GNUNET_RECLAIM_disconnect(handle->reclaim);
 
