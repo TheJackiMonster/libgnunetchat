@@ -22,6 +22,7 @@
  * @file gnunet_chat_lib_intern.c
  */
 
+#include "gnunet_chat_account.h"
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_handle.h"
 
@@ -487,9 +488,12 @@ cb_task_finish_iterate_attribute (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
-    handle
-  );
+  const struct GNUNET_CRYPTO_PrivateKey *key;
+
+  if (attributes->account)
+    key = account_get_key(attributes->account);
+  else
+    key = handle_get_key(handle);
 
   attributes->iter = NULL;
 
@@ -682,6 +686,13 @@ cb_iterate_attribute (void *cls,
 
   if (attributes->callback)
     result = attributes->callback(attributes->closure, handle, attribute->name, value);
+  else if (attributes->account_callback)
+    result = attributes->account_callback(
+      attributes->closure,
+      attributes->account,
+      attribute->name,
+      value
+    );
 
   if (value)
     GNUNET_free (value);

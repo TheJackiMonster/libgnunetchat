@@ -61,6 +61,16 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
 			                    const char *base_directory);
 
 /**
+ * Returns the private key from a given chat
+ * <i>account</i>.
+ *
+ * @param[in] account Chat account
+ * @return EGOs private key or NULL
+ */
+const struct GNUNET_CRYPTO_PrivateKey*
+account_get_key (const struct GNUNET_CHAT_Account *account);
+
+/**
  * Destroys a chat <i>account</i> and frees its memory.
  *
  * @param[in,out] account Chat account

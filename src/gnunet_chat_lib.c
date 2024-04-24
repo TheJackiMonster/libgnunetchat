@@ -987,6 +987,58 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
 
 
 void
+GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
+                                    const struct GNUNET_CHAT_Account *account,
+                                    GNUNET_CHAT_AccountAttributeCallback callback,
+                                    void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction) || (!account))
+    return;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = account_get_key(
+    account
+  );
+
+  if (!key)
+    return;
+
+  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
+    struct GNUNET_CHAT_AttributeProcess
+  );
+
+  if (!attributes)
+    return;
+
+  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
+
+  attributes->handle = handle;
+  attributes->account = account;
+
+  attributes->account_callback = callback;
+  attributes->closure = cls;
+
+  attributes->iter = GNUNET_RECLAIM_get_attributes_start(
+    handle->reclaim,
+    key,
+    cb_task_error_iterate_attribute,
+    attributes,
+    cb_iterate_attribute,
+    attributes,
+    cb_task_finish_iterate_attribute,
+    attributes
+  );
+
+  GNUNET_CONTAINER_DLL_insert_tail(
+    handle->attributes_head,
+    handle->attributes_tail,
+    attributes
+  );
+}
+
+
+void
 GNUNET_CHAT_account_set_user_pointer (struct GNUNET_CHAT_Account *account,
 				                              void *user_pointer)
 {

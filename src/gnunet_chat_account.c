@@ -68,6 +68,19 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
   GNUNET_free(key_string);
 }
 
+const struct GNUNET_CRYPTO_PrivateKey*
+account_get_key (const struct GNUNET_CHAT_Account *account)
+{
+  GNUNET_assert(account);
+
+  if (!(account->ego))
+    return NULL;
+
+  return GNUNET_IDENTITY_ego_get_private_key(
+    account->ego
+  );
+}
+
 void
 account_destroy(struct GNUNET_CHAT_Account *account)
 {

@@ -94,6 +94,8 @@ struct GNUNET_CHAT_UriLookups
 
 struct GNUNET_CHAT_AttributeProcess
 {
+  const struct GNUNET_CHAT_Account *account;
+
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_CHAT_Contact *contact;
 
@@ -103,6 +105,8 @@ struct GNUNET_CHAT_AttributeProcess
   void *data;
 
   GNUNET_CHAT_AttributeCallback callback;
+  GNUNET_CHAT_AccountAttributeCallback account_callback;
+
   void *closure;
 
   struct GNUNET_RECLAIM_AttributeIterator *iter;

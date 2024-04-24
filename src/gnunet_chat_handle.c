@@ -349,9 +349,8 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   handle->gns = GNUNET_GNS_connect(handle->cfg);
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = NULL;
-  if (account->ego)
-    key = GNUNET_IDENTITY_ego_get_private_key(account->ego);
+  const struct GNUNET_CRYPTO_PrivateKey *key;
+  key = account_get_key(account);
 
   handle->reclaim = GNUNET_RECLAIM_connect(
     handle->cfg
@@ -783,12 +782,10 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert(handle);
 
-  if ((!(handle->current)) || (!(handle->current->ego)))
+  if (!(handle->current))
     return NULL;
 
-  return GNUNET_IDENTITY_ego_get_private_key(
-    handle->current->ego
-  );
+  return account_get_key(handle->current);
 }
 
 void

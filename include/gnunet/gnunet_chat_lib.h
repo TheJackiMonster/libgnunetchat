@@ -223,6 +223,21 @@ typedef enum GNUNET_GenericReturnValue
                                 struct GNUNET_CHAT_Account *account);
 
 /**
+ * Iterator over attributes of a specific chat account.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
+ * @param[in] account Chat account
+ * @param[in] name Attribute name
+ * @param[in] value Attribute value
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_AccountAttributeCallback) (void *cls,
+                                         const struct GNUNET_CHAT_Account *account,
+                                         const char *name,
+                                         const char *value);
+
+/**
  * Iterator over attributes of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
@@ -783,6 +798,21 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
  */
 const char*
 GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account);
+
+/**
+ * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * <i>account</i> using a chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] account Chat account
+ * @param[in] callback Callback for attribute iteration (optional)
+ * @param[in,out] cls Closure for attribute iteration (optional)
+ */
+void
+GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
+                                    const struct GNUNET_CHAT_Account *account,
+                                    GNUNET_CHAT_AccountAttributeCallback callback,
+                                    void *cls);
 
 /**
  * Sets a custom <i>user pointer</i> to a given chat <i>account</i> so it can
