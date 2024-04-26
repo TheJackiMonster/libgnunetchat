@@ -2473,6 +2473,12 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
     goto free_filename;
 
+  if (!(file->key))
+  {
+    file->preview = filename;
+    return file->preview;
+  }
+
   file->preview = GNUNET_DISK_mktemp(
     file->name? file->name : ""
   );
@@ -2483,8 +2489,8 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
   remove(file->preview);
 
   if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
-      ((file->key) && (GNUNET_OK != util_decrypt_file(file->preview,
-				&(file->hash), file->key))))
+      (GNUNET_OK != util_decrypt_file(file->preview,
+      &(file->hash), file->key)))
   {
     GNUNET_free(file->preview);
     file->preview = NULL;
@@ -2504,8 +2510,22 @@ GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file)
   if ((!file) || (!(file->preview)))
     return;
 
-  remove(file->preview);
+  if (!(file->key))
+    goto skip_filename;
 
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
+  );
+
+  if (!filename)
+    goto skip_filename;
+
+  if (0 != strcmp(filename, file->preview))
+    remove(file->preview);
+
+  GNUNET_free(filename);
+
+skip_filename:
   GNUNET_free(file->preview);
   file->preview = NULL;
 }

@@ -25,6 +25,8 @@
 #include "gnunet_chat_file.h"
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_handle.h"
+
 #include <gnunet/gnunet_common.h>
 #include <string.h>
 
@@ -166,13 +168,32 @@ file_destroy (struct GNUNET_CHAT_File *file)
 {
   GNUNET_assert(file);
 
-  if (file->preview)
-  {
-    remove(file->preview);
-    GNUNET_free(file->preview);
-  }
-
   struct GNUNET_CHAT_FileUpload *upload;
+  struct GNUNET_CHAT_FileDownload *download;
+  struct GNUNET_CHAT_FileUnindex *unindex;
+
+  if (!(file->preview))
+    goto skip_preview;
+
+  if (!(file->key))
+    goto skip_filename;
+
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
+  );
+
+  if (!filename)
+    goto skip_filename;
+
+  if (0 != strcmp(filename, file->preview))
+    remove(file->preview);
+
+  GNUNET_free(filename);
+
+skip_filename:
+  GNUNET_free(file->preview);
+
+skip_preview:
   while (file->upload_head)
   {
     upload = file->upload_head;
@@ -186,7 +207,6 @@ file_destroy (struct GNUNET_CHAT_File *file)
     GNUNET_free(upload);
   }
 
-  struct GNUNET_CHAT_FileDownload *download;
   while (file->download_head)
   {
     download = file->download_head;
@@ -200,7 +220,6 @@ file_destroy (struct GNUNET_CHAT_File *file)
     GNUNET_free(download);
   }
 
-  struct GNUNET_CHAT_FileUnindex *unindex;
   while (file->unindex_head)
   {
     unindex = file->unindex_head;
