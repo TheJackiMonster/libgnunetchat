@@ -136,6 +136,7 @@ cont_context_write_records (void *cls,
   if (GNUNET_EC_NONE != ec)
     handle_send_internal_message(
       context->handle,
+      NULL,
       context,
       GNUNET_CHAT_FLAG_WARNING,
       GNUNET_ErrorCode_get_hint(ec)

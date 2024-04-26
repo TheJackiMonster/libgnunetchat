@@ -241,6 +241,7 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
 
   handle_send_internal_message(
     context->handle,
+    NULL,
     context,
     GNUNET_CHAT_FLAG_UPDATE,
     NULL

@@ -307,6 +307,7 @@ on_handle_gnunet_identity (void *cls,
       if (handle->current == accounts->account)
 	      handle_send_internal_message(
           handle,
+          accounts->account,
           NULL,
           GNUNET_CHAT_FLAG_LOGIN,
           NULL
@@ -372,7 +373,13 @@ skip_account:
   );
 
 send_refresh:
-  handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
+  handle_send_internal_message(
+    handle,
+    NULL,
+    NULL,
+    GNUNET_CHAT_FLAG_REFRESH,
+    NULL
+  );
 }
 
 void
@@ -387,6 +394,7 @@ cb_account_creation (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
+  struct GNUNET_CHAT_Account *account = accounts->account;
 
   GNUNET_CONTAINER_DLL_remove(
     handle->accounts_head,
@@ -403,6 +411,7 @@ cb_account_creation (void *cls,
   {
     handle_send_internal_message(
 	    handle,
+      account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
       GNUNET_ErrorCode_get_hint(ec)
@@ -411,7 +420,13 @@ cb_account_creation (void *cls,
     return;
   }
   else if (key)
-    handle_send_internal_message(handle, NULL, GNUNET_CHAT_FLAG_REFRESH, NULL);
+    handle_send_internal_message(
+      handle,
+      NULL,
+      NULL,
+      GNUNET_CHAT_FLAG_REFRESH,
+      NULL
+    );
 }
 
 void
@@ -425,6 +440,7 @@ cb_account_deletion (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
+  struct GNUNET_CHAT_Account *account = accounts->account;
 
   GNUNET_CONTAINER_DLL_remove(
     handle->accounts_head,
@@ -441,6 +457,7 @@ cb_account_deletion (void *cls,
   {
     handle_send_internal_message(
       handle,
+      account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
       GNUNET_ErrorCode_get_hint(ec)
@@ -461,6 +478,7 @@ cb_account_rename (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = accounts->handle;
+  struct GNUNET_CHAT_Account *account = accounts->account;
 
   GNUNET_CONTAINER_DLL_remove(
     handle->accounts_head,
@@ -477,6 +495,7 @@ cb_account_rename (void *cls,
   {
     handle_send_internal_message(
       handle,
+      account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
       GNUNET_ErrorCode_get_hint(ec)

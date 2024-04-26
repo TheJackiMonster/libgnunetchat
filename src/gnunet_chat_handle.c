@@ -283,6 +283,7 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert(
     (handle) &&
+    (handle->current) &&
 		(handle->contexts) &&
 		(handle->groups) &&
 		(handle->contacts)
@@ -299,6 +300,7 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
 
   handle_send_internal_message(
     handle,
+    handle->current,
     NULL,
     GNUNET_CHAT_FLAG_LOGIN,
     NULL
@@ -378,6 +380,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 
   handle_send_internal_message(
     handle,
+    handle->current,
     NULL,
     GNUNET_CHAT_FLAG_LOGOUT,
     NULL
@@ -777,6 +780,7 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle)
 
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
+                              const struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
                               const char *warning)
@@ -791,7 +795,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
   );
 
   internal->msg = message_create_internally(
-    context, flag, warning
+    account, context, flag, warning
   );
 
   if (!(internal->msg))
@@ -938,6 +942,7 @@ setup_group:
   {
     handle_send_internal_message(
       handle,
+      NULL,
       context,
       GNUNET_CHAT_FLAG_UPDATE,
       NULL

@@ -1410,6 +1410,16 @@ GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
 const char*
 GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message);
 
+/**
+ * Returns the account of a given <i>message</i> which is either 
+ * its sender or target of the message depending on the kind of
+ * the message, otherwise it returns NULL.
+ *
+ * @param[in] message Message
+ * @return The account of message or NULL
+ */
+const struct GNUNET_CHAT_Account*
+GNUNET_CHAT_message_get_account (const struct GNUNET_CHAT_Message *message);
 
 /**
  * Returns the file handle of a given <i>message</i> if its kind is

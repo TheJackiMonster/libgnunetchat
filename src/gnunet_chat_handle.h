@@ -95,7 +95,7 @@ struct GNUNET_CHAT_UriLookups
 struct GNUNET_CHAT_AttributeProcess
 {
   const struct GNUNET_CHAT_Account *account;
-
+  
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_CHAT_Contact *contact;
 
@@ -325,16 +325,19 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**
  * Sends an internal chat message from a given chat
- * <i>handle</i> with an optional chat <i>context</i>,
- * a custom <i>flag</i> and an optional <i>warning</i> text.
+ * <i>handle</i> with an optional chat <i>account</i> or
+ * <i>context</i>, a custom <i>flag</i> and an optional 
+ * <i>warning</i> text.
  *
  * @param[in,out] handle Chat handle
+ * @param[in] account Chat account or NULL
  * @param[in,out] context Chat context or NULL
  * @param[in] flag Chat message flag
  * @param[in] warning Warning text
  */
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
+                              const struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
                               const char *warning);

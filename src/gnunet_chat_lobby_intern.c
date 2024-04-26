@@ -53,6 +53,7 @@ cont_lobby_write_records (void *cls,
 
   handle_send_internal_message(
     lobby->handle,
+    NULL,
     lobby->context,
     GNUNET_CHAT_FLAG_WARNING,
     GNUNET_ErrorCode_get_hint(ec)
@@ -83,6 +84,7 @@ cont_lobby_identity_create (void *cls,
   {
     handle_send_internal_message(
 	    lobby->handle,
+      NULL,
     	lobby->context,
     	GNUNET_CHAT_FLAG_WARNING,
 	    GNUNET_ErrorCode_get_hint(ec)

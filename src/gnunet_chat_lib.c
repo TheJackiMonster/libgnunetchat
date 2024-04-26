@@ -2253,6 +2253,21 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 }
 
 
+const struct GNUNET_CHAT_Account*
+GNUNET_CHAT_message_get_account (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return NULL;
+
+  if ((message->context) && (message->context->handle))
+    return message->context->handle->current;
+  else
+    return message->account;
+}
+
+
 struct GNUNET_CHAT_File*
 GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 {

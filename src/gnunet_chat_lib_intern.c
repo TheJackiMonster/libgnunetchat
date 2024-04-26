@@ -444,7 +444,9 @@ cont_update_attribute_with_status (void *cls,
 
   attributes->op = NULL;
 
+  const struct GNUNET_CHAT_Account *account = attributes->account;
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
+
   const char *attribute_name = NULL;
 
   if (attributes->attribute)
@@ -453,6 +455,7 @@ cont_update_attribute_with_status (void *cls,
   if (GNUNET_SYSERR == success)
     handle_send_internal_message(
       handle,
+      account,
       NULL,
       GNUNET_CHAT_KIND_WARNING,
       emsg
@@ -460,6 +463,7 @@ cont_update_attribute_with_status (void *cls,
   else
     handle_send_internal_message(
       handle,
+      account,
       NULL,
       GNUNET_CHAT_FLAG_ATTRIBUTES,
       attribute_name
@@ -544,6 +548,7 @@ cb_task_error_iterate_attribute (void *cls)
 
   handle_send_internal_message(
     attributes->handle,
+    attributes->account,
     NULL,
     GNUNET_CHAT_FLAG_WARNING,
     "Attribute iteration failed!"
@@ -897,6 +902,7 @@ cb_task_error_iterate_ticket (void *cls)
   handle_send_internal_message(
     tickets->handle,
     NULL,
+    NULL,
     GNUNET_CHAT_FLAG_WARNING,
     "Ticket iteration failed!"
   );
@@ -921,12 +927,14 @@ cont_revoke_ticket (void *cls,
     handle_send_internal_message(
       handle,
       NULL,
+      NULL,
       GNUNET_CHAT_FLAG_WARNING,
       emsg
     );
   else
     handle_send_internal_message(
       handle,
+      NULL,
       NULL,
       GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES,
       NULL
