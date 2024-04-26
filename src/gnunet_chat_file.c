@@ -28,6 +28,7 @@
 #include "gnunet_chat_handle.h"
 
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_fs_service.h>
 #include <string.h>
 
 static void
@@ -194,6 +195,15 @@ skip_filename:
   GNUNET_free(file->preview);
 
 skip_preview:
+  if (file->publish)
+    GNUNET_FS_publish_stop(file->publish);
+
+  if (file->download)
+    GNUNET_FS_download_stop(file->download, GNUNET_NO);
+
+  if (file->unindex)
+    GNUNET_FS_unindex_stop(file->unindex);
+
   while (file->upload_head)
   {
     upload = file->upload_head;
