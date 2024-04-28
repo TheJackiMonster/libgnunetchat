@@ -296,30 +296,11 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!name))
     return;
 
-  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
-    struct GNUNET_CHAT_AttributeProcess
-  );
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  attributes = internal_attributes_create_store(handle, name, expires);
 
-  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
-
-  attributes->handle = handle;
-  attributes->name = GNUNET_strdup(name);
-  attributes->expires = expires;
-  attributes->attribute = GNUNET_RECLAIM_attribute_new(
-    name,
-    NULL,
-    GNUNET_RECLAIM_ATTRIBUTE_TYPE_NONE,
-    NULL,
-    0
-  );
-
-  if (!attributes->attribute)
-  {
-    GNUNET_free(attributes);
+  if (!attributes)
     return;
-  }
-
-  attributes->data = NULL;
 
   if (value)
   {
@@ -333,8 +314,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
 
     if (GNUNET_OK != result)
     {
-      GNUNET_free(attributes->attribute);
-      GNUNET_free(attributes);
+      internal_attributes_destroy(attributes);
       return;
     }
 
@@ -350,12 +330,6 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
     cb_store_attribute,
     attributes,
     cb_task_finish_iterate_attribute,
-    attributes
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->attributes_head,
-    handle->attributes_tail,
     attributes
   );
 }
@@ -377,23 +351,11 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!name))
     return;
 
-  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
-    struct GNUNET_CHAT_AttributeProcess
-  );
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  attributes = internal_attributes_create(handle, name);
 
   if (!attributes)
     return;
-
-  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
-
-  attributes->handle = handle;
-  attributes->name = GNUNET_strdup(name);
-
-  if (!attributes->name)
-  {
-    GNUNET_free(attributes);
-    return;
-  }
 
   attributes->iter = GNUNET_RECLAIM_get_attributes_start(
     handle->reclaim,
@@ -403,12 +365,6 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
     cb_delete_attribute,
     attributes,
     cb_task_finish_iterate_attribute,
-    attributes
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->attributes_head,
-    handle->attributes_tail,
     attributes
   );
 }
@@ -431,16 +387,11 @@ GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
   if (!key)
     return;
 
-  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
-    struct GNUNET_CHAT_AttributeProcess
-  );
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  attributes = internal_attributes_create(handle, NULL);
 
   if (!attributes)
     return;
-
-  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
-
-  attributes->handle = handle;
 
   attributes->callback = callback;
   attributes->closure = cls;
@@ -453,12 +404,6 @@ GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
     cb_iterate_attribute,
     attributes,
     cb_task_finish_iterate_attribute,
-    attributes
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->attributes_head,
-    handle->attributes_tail,
     attributes
   );
 }
@@ -485,18 +430,11 @@ GNUNET_CHAT_share_attribute_with (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!pubkey) || (!name))
     return;
 
-  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
-    struct GNUNET_CHAT_AttributeProcess
-  );
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  attributes = internal_attributes_create_share(handle, contact, name);
 
   if (!attributes)
     return;
-
-  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
-
-  attributes->handle = handle;
-  attributes->contact = contact;
-  attributes->name = GNUNET_strdup(name);
 
   attributes->iter = GNUNET_RECLAIM_get_attributes_start(
     handle->reclaim,
@@ -506,12 +444,6 @@ GNUNET_CHAT_share_attribute_with (struct GNUNET_CHAT_Handle *handle,
     cb_share_attribute,
     attributes,
     cb_task_finish_iterate_attribute,
-    attributes
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->attributes_head,
-    handle->attributes_tail,
     attributes
   );
 }
@@ -534,18 +466,11 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!name))
     return;
 
-  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
-    struct GNUNET_CHAT_TicketProcess
-  );
+  struct GNUNET_CHAT_TicketProcess *tickets;
+  tickets = internal_tickets_create(handle, contact, name);
 
   if (!tickets)
     return;
-
-  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
-
-  tickets->handle = handle;
-  tickets->contact = contact;
-  tickets->name = GNUNET_strdup(name);
 
   tickets->iter = GNUNET_RECLAIM_ticket_iteration_start(
     handle->reclaim,
@@ -555,12 +480,6 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
     cb_iterate_ticket_check,
     tickets,
     cb_task_finish_iterate_ticket,
-    tickets
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->tickets_head,
-    handle->tickets_tail,
     tickets
   );
 }
@@ -584,17 +503,11 @@ GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
   if (!key)
     return;
 
-  struct GNUNET_CHAT_TicketProcess *tickets = GNUNET_new(
-    struct GNUNET_CHAT_TicketProcess
-  );
+  struct GNUNET_CHAT_TicketProcess *tickets;
+  tickets = internal_tickets_create(handle, contact, NULL);
 
   if (!tickets)
     return;
-
-  memset(tickets, 0, sizeof(struct GNUNET_CHAT_TicketProcess));
-
-  tickets->handle = handle;
-  tickets->contact = contact;
 
   tickets->callback = callback;
   tickets->closure = cls;
@@ -607,12 +520,6 @@ GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
     cb_iterate_ticket,
     tickets,
     cb_task_finish_iterate_ticket,
-    tickets
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->tickets_head,
-    handle->tickets_tail,
     tickets
   );
 }
@@ -1001,17 +908,11 @@ GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
   if (!key)
     return;
 
-  struct GNUNET_CHAT_AttributeProcess *attributes = GNUNET_new(
-    struct GNUNET_CHAT_AttributeProcess
-  );
+  struct GNUNET_CHAT_AttributeProcess *attributes;
+  attributes = internal_attributes_create_request(handle, account);
 
   if (!attributes)
     return;
-
-  memset(attributes, 0, sizeof(struct GNUNET_CHAT_AttributeProcess));
-
-  attributes->handle = handle;
-  attributes->account = account;
 
   attributes->account_callback = callback;
   attributes->closure = cls;
@@ -1024,12 +925,6 @@ GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
     cb_iterate_attribute,
     attributes,
     cb_task_finish_iterate_attribute,
-    attributes
-  );
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->attributes_head,
-    handle->attributes_tail,
     attributes
   );
 }

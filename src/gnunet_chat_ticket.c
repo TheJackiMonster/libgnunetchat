@@ -79,11 +79,11 @@ ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
   if (!key)
     return;
 
-  if (ticket->op)
-    GNUNET_RECLAIM_cancel(ticket->op);
-
   ticket->callback = callback;
   ticket->closure = cls;
+
+  if (ticket->op)
+    GNUNET_RECLAIM_cancel(ticket->op);
 
   ticket->op = GNUNET_RECLAIM_ticket_consume(
     ticket->handle->reclaim,

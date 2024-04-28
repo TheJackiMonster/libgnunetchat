@@ -44,6 +44,8 @@
 #include "gnunet_chat_uri.h"
 
 #include "internal/gnunet_chat_accounts.h"
+#include "internal/gnunet_chat_attribute_process.h"
+#include "internal/gnunet_chat_ticket_process.h"
 
 struct GNUNET_CHAT_Handle;
 
@@ -78,48 +80,6 @@ struct GNUNET_CHAT_UriLookups
 
   struct GNUNET_CHAT_UriLookups *next;
   struct GNUNET_CHAT_UriLookups *prev;
-};
-
-struct GNUNET_CHAT_AttributeProcess
-{
-  const struct GNUNET_CHAT_Account *account;
-  
-  struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_CHAT_Contact *contact;
-
-  struct GNUNET_RECLAIM_Attribute *attribute;
-  struct GNUNET_TIME_Relative expires;
-  char *name;
-  void *data;
-
-  GNUNET_CHAT_AttributeCallback callback;
-  GNUNET_CHAT_AccountAttributeCallback account_callback;
-
-  void *closure;
-
-  struct GNUNET_RECLAIM_AttributeIterator *iter;
-  struct GNUNET_RECLAIM_Operation *op;
-
-  struct GNUNET_CHAT_AttributeProcess *next;
-  struct GNUNET_CHAT_AttributeProcess *prev;
-};
-
-struct GNUNET_CHAT_TicketProcess
-{
-  struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_CHAT_Contact *contact;
-
-  struct GNUNET_RECLAIM_Ticket *ticket;
-  char *name;
-
-  GNUNET_CHAT_ContactAttributeCallback callback;
-  void *closure;
-
-  struct GNUNET_RECLAIM_TicketIterator *iter;
-  struct GNUNET_RECLAIM_Operation *op;
-
-  struct GNUNET_CHAT_TicketProcess *next;
-  struct GNUNET_CHAT_TicketProcess *prev;
 };
 
 struct GNUNET_CHAT_Handle

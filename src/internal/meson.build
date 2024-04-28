@@ -19,5 +19,7 @@
 #
 
 gnunetchat_internal_sources = files([
-  'gnunet_chat_accounts.c', 'gnunet_chat_accounts.h'
+  'gnunet_chat_accounts.c', 'gnunet_chat_accounts.h',
+  'gnunet_chat_attribute_process.c', 'gnunet_chat_attribute_process.h',
+  'gnunet_chat_ticket_process.c', 'gnunet_chat_ticket_process.h'
 ])

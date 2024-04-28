@@ -380,53 +380,11 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     NULL
   );
 
-  struct GNUNET_CHAT_AttributeProcess *attributes;
   while (handle->attributes_head)
-  {
-    attributes = handle->attributes_head;
+    internal_attributes_destroy(handle->attributes_head);
 
-    if (attributes->attribute)
-      GNUNET_free(attributes->attribute);
-    if (attributes->name)
-      GNUNET_free(attributes->name);
-
-    if (attributes->iter)
-      GNUNET_RECLAIM_get_attributes_stop(attributes->iter);
-    if (attributes->op)
-      GNUNET_RECLAIM_cancel(attributes->op);
-
-    GNUNET_CONTAINER_DLL_remove(
-      handle->attributes_head,
-      handle->attributes_tail,
-      attributes
-    );
-
-    GNUNET_free(attributes);
-  }
-
-  struct GNUNET_CHAT_TicketProcess *tickets;
   while (handle->tickets_head)
-  {
-    tickets = handle->tickets_head;
-
-    if (tickets->ticket)
-      GNUNET_free(tickets->ticket);
-    if (tickets->name)
-      GNUNET_free(tickets->name);
-
-    if (tickets->iter)
-      GNUNET_RECLAIM_ticket_iteration_stop(tickets->iter);
-    if (tickets->op)
-      GNUNET_RECLAIM_cancel(tickets->op);
-
-    GNUNET_CONTAINER_DLL_remove(
-      handle->tickets_head,
-      handle->tickets_tail,
-      tickets
-    );
-
-    GNUNET_free(tickets);
-  }
+    internal_tickets_destroy(handle->tickets_head);
 
   GNUNET_CONTAINER_multihashmap_iterate(
     handle->groups, it_destroy_handle_groups, NULL
