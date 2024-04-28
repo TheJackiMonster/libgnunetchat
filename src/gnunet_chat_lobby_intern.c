@@ -34,16 +34,7 @@ cont_lobby_write_records (void *cls,
 
   lobby->query = NULL;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    lobby->context->room
-  );
-
-  char *name;
-  util_lobby_name(key, &name);
-
-  handle_delete_account(lobby->handle, name);
-
-  GNUNET_free(name);
+  handle_delete_lobby(lobby->handle, lobby);
 
   if (GNUNET_EC_NONE == ec)
   {

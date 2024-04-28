@@ -23,10 +23,14 @@
  */
 
 #include "gnunet_chat_util.h"
+
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 
 static const char label_prefix_of_contact [] = "contact";
 static const char label_prefix_of_group [] = "group";
+
+static const char identity_prefix_of_lobby [] = "gnunet_chat_lobby";
 
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
@@ -341,6 +345,8 @@ util_get_context_label (enum GNUNET_CHAT_ContextType type,
                         const struct GNUNET_HashCode *hash,
                         char **label)
 {
+  GNUNET_assert((hash) && (label));
+
   const char *type_string = "chat";
 
   switch (type)
@@ -372,6 +378,8 @@ enum GNUNET_CHAT_ContextType
 util_get_context_label_type (const char *label,
 			                       const struct GNUNET_HashCode *hash)
 {
+  GNUNET_assert((hash) && (label));
+
   enum GNUNET_CHAT_ContextType type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
 
   char *low = util_get_lower(GNUNET_h2s(hash));
@@ -396,16 +404,36 @@ int
 util_lobby_name (const struct GNUNET_HashCode *hash,
 		             char **name)
 {
+  GNUNET_assert((hash) && (name));
+
   char *low = util_get_lower(GNUNET_h2s(hash));
 
   int result = GNUNET_asprintf (
     name,
-    "chat_lobby_%s",
+    "%s_%s",
+    identity_prefix_of_lobby,
     low
   );
 
   GNUNET_free(low);
   return result;
+}
+
+enum GNUNET_GenericReturnValue
+util_is_lobby_name(const char *name)
+{
+  GNUNET_assert(name);
+
+  const char *sub = strstr(name, identity_prefix_of_lobby);
+  if ((!sub) || (sub != name))
+    return GNUNET_NO;
+
+  const size_t len = strlen(identity_prefix_of_lobby);
+
+  if (name[len] != '_')
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
 }
 
 enum GNUNET_CHAT_MessageKind

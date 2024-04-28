@@ -198,6 +198,18 @@ util_lobby_name (const struct GNUNET_HashCode *hash,
 		             char **name);
 
 /**
+ * Check whether an identity <i>name</i> could be a 
+ * standardized name for a lobby.
+ * @see util_lobby_name()
+ *
+ * @param[in] name Identity name
+ * @return #GNUNET_YES if it might be a lobby name,
+ * otherwise #GNUNET_NO
+ */
+enum GNUNET_GenericReturnValue
+util_is_lobby_name(const char *name);
+
+/**
  * Return the chat related kind for a messages original kind
  * from the service. It will return #GNUNET_CHAT_KIND_UNKNOWN
  * in case the message kind is not supported.

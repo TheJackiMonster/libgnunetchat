@@ -28,6 +28,7 @@
 #include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_invitation.h"
+#include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
@@ -282,6 +283,9 @@ on_handle_gnunet_identity (void *cls,
                            const char *name)
 {
   GNUNET_assert(cls);
+
+  if ((name) && (GNUNET_YES == util_is_lobby_name(name)))
+    return;
 
   struct GNUNET_CHAT_Handle* handle = cls;
 
