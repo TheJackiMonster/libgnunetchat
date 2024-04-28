@@ -243,7 +243,7 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
     context->handle,
     NULL,
     context,
-    GNUNET_CHAT_FLAG_UPDATE,
+    GNUNET_CHAT_FLAG_UPDATE_CONTEXT,
     NULL
   );
 }

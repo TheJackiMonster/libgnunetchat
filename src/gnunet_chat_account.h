@@ -25,8 +25,11 @@
 #ifndef GNUNET_CHAT_ACCOUNT_H_
 #define GNUNET_CHAT_ACCOUNT_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_util_lib.h>
+
+struct GNUNET_CHAT_Handle;
 
 struct GNUNET_CHAT_Account
 {
@@ -36,6 +39,15 @@ struct GNUNET_CHAT_Account
 
   void *user_pointer;
 };
+
+/**
+ * Creates a chat account using a given <i>name</i>.
+ *
+ * @param[in] name Name
+ * @return New chat account
+ */
+struct GNUNET_CHAT_Account*
+account_create(const char *name);
 
 /**
  * Creates a chat account using a given <i>ego</i> and
@@ -69,6 +81,20 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
  */
 const struct GNUNET_CRYPTO_PrivateKey*
 account_get_key (const struct GNUNET_CHAT_Account *account);
+
+/**
+ * Updates the key from a given chat <i>account</i> using
+ * the chat <i>handle</i> and a specific <i>ego</i> matching 
+ * the accounts name.
+ *
+ * @param[in,out] account Chat account
+ * @param[in,out] handle Chat handle
+ * @param[in] ego EGO
+ */
+void
+account_update_ego(struct GNUNET_CHAT_Account *account,
+                   struct GNUNET_CHAT_Handle *handle,
+                   struct GNUNET_IDENTITY_Ego *ego);
 
 /**
  * Destroys a chat <i>account</i> and frees its memory.

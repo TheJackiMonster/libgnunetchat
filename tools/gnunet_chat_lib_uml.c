@@ -99,8 +99,17 @@ chat_message (void *cls,
     case GNUNET_CHAT_KIND_LOGOUT:
       kind_name = "LOGOUT";
       break;
-    case GNUNET_CHAT_KIND_UPDATE:
-      kind_name = "UPDATE";
+    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+      kind_name = "CREATED_ACCOUNT";
+      break;
+    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
+      kind_name = "DELETED_ACCOUNT";
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      kind_name = "UPDATE_ACCOUNT";
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
+      kind_name = "UPDATE_CONTEXT";
       break;
     case GNUNET_CHAT_KIND_JOIN:
       kind_name = "JOIN";
@@ -125,6 +134,12 @@ chat_message (void *cls,
       break;
     case GNUNET_CHAT_KIND_TAG:
       kind_name = "TAG";
+      break;
+    case GNUNET_CHAT_KIND_ATTRIBUTES:
+      kind_name = "ATTRIBUTES";
+      break;
+    case GNUNET_CHAT_KIND_SHARED_ATTRIBUTES:
+      kind_name = "SHARED_ATTRIBUTES";
       break;
     default:
       break;

@@ -43,6 +43,8 @@
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_uri.h"
 
+#include "internal/gnunet_chat_accounts.h"
+
 struct GNUNET_CHAT_Handle;
 
 struct GNUNET_CHAT_InternalServices
@@ -58,20 +60,6 @@ struct GNUNET_CHAT_InternalMessages
   struct GNUNET_CHAT_Message *msg;
   struct GNUNET_CHAT_InternalMessages *next;
   struct GNUNET_CHAT_InternalMessages *prev;
-};
-
-struct GNUNET_CHAT_InternalAccounts
-{
-  struct GNUNET_CHAT_Account *account;
-  char *identifier;
-
-  struct GNUNET_CHAT_Handle *handle;
-  struct GNUNET_IDENTITY_Operation *op;
-
-  int wait_for_completion;
-
-  struct GNUNET_CHAT_InternalAccounts *next;
-  struct GNUNET_CHAT_InternalAccounts *prev;
 };
 
 struct GNUNET_CHAT_InternalLobbies

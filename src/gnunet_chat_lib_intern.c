@@ -45,7 +45,7 @@ task_handle_destruction (void *cls)
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
   while (accounts)
   {
-    if ((accounts->op) && (GNUNET_YES == accounts->wait_for_completion))
+    if ((accounts->op) && (GNUNET_CHAT_ACCOUNT_NONE != accounts->method))
       break;
 
     accounts = accounts->next;
@@ -77,8 +77,8 @@ task_handle_disconnection (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
-  handle_disconnect(handle);
   handle->disconnection = NULL;
+  handle_disconnect(handle);
 
   if (! handle->next)
     return;
@@ -936,7 +936,7 @@ cont_revoke_ticket (void *cls,
       handle,
       NULL,
       NULL,
-      GNUNET_CHAT_FLAG_SHARED_ATTRIBUTES,
+      GNUNET_CHAT_FLAG_SHARE_ATTRIBUTES,
       NULL
     );
   

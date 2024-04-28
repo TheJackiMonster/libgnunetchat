@@ -18,6 +18,8 @@
 # SPDX-License-Identifier: AGPL3.0-or-later
 #
 
+subdir('internal')
+
 gnunetchat_sources = files([
     'gnunet_chat_account.c', 'gnunet_chat_account.h',
     'gnunet_chat_contact.c', 'gnunet_chat_contact.h',
@@ -33,7 +35,7 @@ gnunetchat_sources = files([
     'gnunet_chat_uri.c', 'gnunet_chat_uri.h',
     'gnunet_chat_util.c', 'gnunet_chat_util.h',
     'gnunet_chat_lib.c',
-])
+]) + gnunetchat_internal_sources
 
 gnunetchat_internal = files([
     'gnunet_chat_contact_intern.c',

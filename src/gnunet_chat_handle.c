@@ -25,9 +25,11 @@
 #include "gnunet_chat_handle.h"
 
 #include "gnunet_chat_handle_intern.c"
+#include "gnunet_chat_message.h"
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_reclaim_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 
 static const unsigned int initial_map_size_of_handle = 8;
 static const unsigned int minimum_amount_of_other_members_in_group = 2;
@@ -188,6 +190,8 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   if (handle->disconnection)
     GNUNET_SCHEDULER_cancel(handle->disconnection);
 
+  handle->disconnection = NULL;
+
   if (handle->monitor)
     GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
 
@@ -209,22 +213,12 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
   {
     accounts = handle->accounts_head;
 
-    if (accounts->op)
-      GNUNET_IDENTITY_cancel(accounts->op);
+    internal_accounts_stop_method(accounts);
 
     if (accounts->account)
       account_destroy(accounts->account);
 
-    GNUNET_CONTAINER_DLL_remove(
-      handle->accounts_head,
-      handle->accounts_tail,
-      accounts
-    );
-
-    if (accounts->identifier)
-      GNUNET_free(accounts->identifier);
-
-    GNUNET_free(accounts);
+    internal_accounts_destroy(accounts);
   }
 
   if (handle->fs)
@@ -525,7 +519,12 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   handle->contacts = NULL;
   handle->groups = NULL;
 
+  if (handle->disconnection)
+    GNUNET_SCHEDULER_cancel(handle->disconnection);
+
   handle->current = NULL;
+  handle->disconnection = NULL;
+
   handle_update_key(handle);
 }
 
@@ -556,39 +555,23 @@ static int
 update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
                            struct GNUNET_CHAT_Handle *handle,
                            const char *name,
-                           int wait_for_completion)
+                           enum GNUNET_CHAT_AccountMethod method)
 {
   GNUNET_assert(handle);
 
   struct GNUNET_CHAT_InternalAccounts *accounts = *out_accounts;
 
-  if (!accounts)
+  if (accounts)
+    internal_accounts_stop_method(accounts);
+  else
   {
-    accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
+    accounts = internal_accounts_create(handle, NULL);
 
     if (!accounts)
       return GNUNET_SYSERR;
-
-    accounts->account = NULL;
-    accounts->handle = handle;
-
-    GNUNET_CONTAINER_DLL_insert_tail(
-	    handle->accounts_head,
-    	handle->accounts_tail,
-    	accounts
-    );
-  }
-  else
-  {
-    if (accounts->identifier)
-      GNUNET_free(accounts->identifier);
-
-    if (accounts->op)
-      GNUNET_IDENTITY_cancel(accounts->op);
   }
 
-  accounts->identifier = name ? GNUNET_strdup(name) : NULL;
-  accounts->wait_for_completion = wait_for_completion;
+  internal_accounts_start_method(accounts, method, name);
 
   *out_accounts = accounts;
 
@@ -605,13 +588,13 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
   accounts = find_accounts_by_name(handle, name);
 
   if (accounts)
-    return GNUNET_NO;
+    return GNUNET_SYSERR;
 
   int result = update_accounts_operation(
     &accounts, 
     handle, 
-    NULL, 
-    GNUNET_NO
+    name, 
+    GNUNET_CHAT_ACCOUNT_CREATION
   );
 
   if (GNUNET_OK != result)
@@ -641,11 +624,14 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, name);
 
+  if (!accounts)
+    return GNUNET_SYSERR;
+
   int result = update_accounts_operation(
     &accounts, 
     handle, 
     NULL, 
-    GNUNET_YES
+    GNUNET_CHAT_ACCOUNT_DELETION
   );
 
   if (GNUNET_OK != result)
@@ -674,11 +660,14 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, old_name);
 
+  if (!accounts)
+    return GNUNET_SYSERR;
+
   int result = update_accounts_operation(
     &accounts, 
     handle, 
     NULL, 
-    GNUNET_YES
+    GNUNET_CHAT_ACCOUNT_RENAMING
   );
 
   if (GNUNET_OK != result)
@@ -744,11 +733,14 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, name);
 
+  if (!accounts)
+    return GNUNET_SYSERR;
+
   int result = update_accounts_operation(
     &accounts, 
     handle, 
     name, 
-    GNUNET_YES
+    GNUNET_CHAT_ACCOUNT_UPDATING
   );
 
   if (GNUNET_OK != result)
@@ -944,7 +936,7 @@ setup_group:
       handle,
       NULL,
       context,
-      GNUNET_CHAT_FLAG_UPDATE,
+      GNUNET_CHAT_FLAG_UPDATE_CONTEXT,
       NULL
     );
 

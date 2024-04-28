@@ -32,6 +32,7 @@
 #include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
+#include "internal/gnunet_chat_accounts.h"
 
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
@@ -284,10 +285,7 @@ on_handle_gnunet_identity (void *cls,
 
   struct GNUNET_CHAT_Handle* handle = cls;
 
-  if (!ctx)
-    return;
-
-  if (!ego)
+  if ((!ctx) || (!ego))
     goto send_refresh;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
@@ -304,47 +302,30 @@ on_handle_gnunet_identity (void *cls,
     {
       util_set_name_field(name, &(accounts->account->name));
 
-      if (handle->current == accounts->account)
-	      handle_send_internal_message(
-          handle,
-          accounts->account,
-          NULL,
-          GNUNET_CHAT_FLAG_LOGIN,
-          NULL
-        );
+      handle_send_internal_message(
+        handle,
+        accounts->account,
+        NULL,
+        GNUNET_CHAT_FLAG_UPDATE_ACCOUNT,
+        NULL
+      );
     }
-    else
+    else if (!(accounts->op))
     {
       if (handle->current == accounts->account)
 	      handle_disconnect(handle);
 
       account_destroy(accounts->account);
-
-      if (accounts->op)
-      {
-        accounts->account = NULL;
-        goto send_refresh;
-      }
-
-      GNUNET_CONTAINER_DLL_remove(
-        handle->accounts_head,
-        handle->accounts_tail,
-        accounts
-      );
-
-      if (accounts->identifier)
-	      GNUNET_free(accounts->identifier);
-
-      GNUNET_free(accounts);
+      internal_accounts_destroy(accounts);
     }
 
     goto send_refresh;
 
 check_matching_name:
-    if ((name) && (accounts->account->name) &&
+    if ((name) && (accounts->account->name) && (ego) &&
 	      (0 == strcmp(accounts->account->name, name)))
     {
-      accounts->account->ego = ego;
+      account_update_ego(accounts->account, handle, ego);
       goto send_refresh;
     }
 
@@ -355,22 +336,13 @@ skip_account:
   if (!name)
     return;
 
-  accounts = GNUNET_new(struct GNUNET_CHAT_InternalAccounts);
-  accounts->account = account_create_from_ego(ego, name);
-
-  accounts->handle = handle;
-  accounts->op = NULL;
-
-  accounts->wait_for_completion = GNUNET_NO;
+  accounts = internal_accounts_create(
+    handle,
+    account_create_from_ego(ego, name)
+  );
 
   if (handle->directory)
     account_update_directory(accounts->account, handle->directory);
-
-  GNUNET_CONTAINER_DLL_insert_tail(
-    handle->accounts_head,
-    handle->accounts_tail,
-    accounts
-  );
 
 send_refresh:
   handle_send_internal_message(
@@ -393,40 +365,25 @@ cb_account_creation (void *cls,
     (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-  struct GNUNET_CHAT_Account *account = accounts->account;
+  accounts->op = NULL;
 
-  GNUNET_CONTAINER_DLL_remove(
-    handle->accounts_head,
-    handle->accounts_tail,
-    accounts
-  );
-
-  if (accounts->identifier)
-    GNUNET_free(accounts->identifier);
-
-  GNUNET_free(accounts);
-
-  if (GNUNET_EC_NONE != ec)
-  {
-    handle_send_internal_message(
-	    handle,
-      account,
-      NULL,
-      GNUNET_CHAT_FLAG_WARNING,
-      GNUNET_ErrorCode_get_hint(ec)
+  if ((!(accounts->account)) && (accounts->identifier))
+    accounts->account = account_create(
+      accounts->identifier
     );
-
+  
+  internal_accounts_stop_method(accounts);
+  
+  if (GNUNET_EC_NONE == ec)
     return;
-  }
-  else if (key)
-    handle_send_internal_message(
-      handle,
-      NULL,
-      NULL,
-      GNUNET_CHAT_FLAG_REFRESH,
-      NULL
-    );
+
+  handle_send_internal_message(
+    accounts->handle,
+    accounts->account,
+    NULL,
+    GNUNET_CHAT_FLAG_WARNING,
+    GNUNET_ErrorCode_get_hint(ec)
+  );
 }
 
 void
@@ -439,32 +396,32 @@ cb_account_deletion (void *cls,
     (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-  struct GNUNET_CHAT_Account *account = accounts->account;
+  accounts->op = NULL;
 
-  GNUNET_CONTAINER_DLL_remove(
-    handle->accounts_head,
-    handle->accounts_tail,
-    accounts
-  );
+  internal_accounts_stop_method(accounts);
 
-  if (accounts->identifier)
-    GNUNET_free(accounts->identifier);
-
-  GNUNET_free(accounts);
+  if (accounts->handle->current == accounts->account)
+	  handle_disconnect(accounts->handle);
 
   if (GNUNET_EC_NONE != ec)
-  {
     handle_send_internal_message(
-      handle,
-      account,
+      accounts->handle,
+      accounts->account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
       GNUNET_ErrorCode_get_hint(ec)
     );
+  else
+    handle_send_internal_message(
+      accounts->handle,
+      accounts->account,
+      NULL,
+      GNUNET_CHAT_FLAG_DELETE_ACCOUNT,
+      NULL
+    );
 
-    return;
-  }
+  account_destroy(accounts->account);
+  internal_accounts_destroy(accounts);
 }
 
 void
@@ -477,32 +434,20 @@ cb_account_rename (void *cls,
     (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-  struct GNUNET_CHAT_Account *account = accounts->account;
+  accounts->op = NULL;
 
-  GNUNET_CONTAINER_DLL_remove(
-    handle->accounts_head,
-    handle->accounts_tail,
-    accounts
-  );
+  internal_accounts_stop_method(accounts);
 
-  if (accounts->identifier)
-    GNUNET_free(accounts->identifier);
-
-  GNUNET_free(accounts);
-
-  if (GNUNET_EC_NONE != ec)
-  {
-    handle_send_internal_message(
-      handle,
-      account,
-      NULL,
-      GNUNET_CHAT_FLAG_WARNING,
-      GNUNET_ErrorCode_get_hint(ec)
-    );
-
+  if (GNUNET_EC_NONE == ec)
     return;
-  }
+
+  handle_send_internal_message(
+    accounts->handle,
+    accounts->account,
+    NULL,
+    GNUNET_CHAT_FLAG_WARNING,
+    GNUNET_ErrorCode_get_hint(ec)
+  );
 }
 
 static void
@@ -516,10 +461,7 @@ cb_account_update_completion (void *cls,
     (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-
-  if ((GNUNET_EC_NONE == ec) && (key))
-    GNUNET_MESSENGER_set_key(handle->messenger, key);
+  accounts->op = NULL;
 
   cb_account_creation(cls, key, ec);
 }
@@ -534,16 +476,14 @@ cb_account_update (void *cls,
     (struct GNUNET_CHAT_InternalAccounts*) cls
   );
 
-  struct GNUNET_CHAT_Handle *handle = accounts->handle;
-
-  if ((GNUNET_EC_NONE != ec) || (!accounts->identifier))
+  if ((GNUNET_EC_NONE != ec) || (!(accounts->identifier)))
   {
     cb_account_deletion(cls, ec);
     return;
   }
-
+  
   accounts->op = GNUNET_IDENTITY_create(
-    handle->identity,
+    accounts->handle->identity,
     accounts->identifier,
     NULL,
     GNUNET_PUBLIC_KEY_TYPE_ECDSA,

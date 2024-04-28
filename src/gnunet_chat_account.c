@@ -23,7 +23,30 @@
  */
 
 #include "gnunet_chat_account.h"
+#include "gnunet_chat_handle.h"
 #include "gnunet_chat_util.h"
+
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_identity_service.h>
+#include <gnunet/gnunet_messenger_service.h>
+
+struct GNUNET_CHAT_Account*
+account_create(const char *name)
+{
+  GNUNET_assert(name);
+
+  struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
+
+  account->ego = NULL;
+  account->directory = NULL;
+  account->name = NULL;
+
+  util_set_name_field(name, &(account->name));
+
+  account->user_pointer = NULL;
+
+  return account;
+}
 
 struct GNUNET_CHAT_Account*
 account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
@@ -31,15 +54,9 @@ account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
 {
   GNUNET_assert((ego) && (name));
 
-  struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
-
+  struct GNUNET_CHAT_Account *account = account_create(name);
+  
   account->ego = ego;
-  account->directory = NULL;
-  account->name = NULL;
-
-  util_set_name_field(name, &(account->name));
-
-  account->user_pointer = NULL;
 
   return account;
 }
@@ -52,6 +69,12 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
 
   if (account->directory)
     GNUNET_free(account->directory);
+
+  if (!(account->ego))
+  {
+    account->directory = NULL;
+    return;
+  }
 
   struct GNUNET_CRYPTO_PublicKey key;
   GNUNET_IDENTITY_ego_get_public_key(account->ego, &key);
@@ -78,6 +101,43 @@ account_get_key (const struct GNUNET_CHAT_Account *account)
 
   return GNUNET_IDENTITY_ego_get_private_key(
     account->ego
+  );
+}
+
+void
+account_update_ego(struct GNUNET_CHAT_Account *account,
+                   struct GNUNET_CHAT_Handle *handle,
+                   struct GNUNET_IDENTITY_Ego *ego)
+{
+  GNUNET_assert((account) && (handle) && (ego) && (account->ego != ego));
+
+  enum GNUNET_CHAT_MessageFlag flag;
+  if ((!(account->ego)) && (handle->current != account))
+    flag = GNUNET_CHAT_FLAG_CREATE_ACCOUNT;
+  else
+    flag = GNUNET_CHAT_FLAG_UPDATE_ACCOUNT;
+
+  account->ego = ego;
+
+  if (handle->directory)
+    account_update_directory(account, handle->directory);
+
+  if ((handle->current == account) && (handle->messenger))
+  {
+    GNUNET_MESSENGER_set_key(
+      handle->messenger,
+      GNUNET_IDENTITY_ego_get_private_key(account->ego)
+    );
+
+    handle_update_key(handle);
+  }
+
+  handle_send_internal_message(
+    handle,
+    account,
+    NULL,
+    flag,
+    NULL
   );
 }
 
