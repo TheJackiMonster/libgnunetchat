@@ -276,6 +276,24 @@ notify_handle_fs_progress(void* cls,
   return NULL;
 }
 
+static void
+on_handle_refresh (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Handle* handle = cls;
+
+  handle->refresh = NULL;
+
+  handle_send_internal_message(
+    handle,
+    NULL,
+    NULL,
+    GNUNET_CHAT_FLAG_REFRESH,
+    NULL
+  );
+}
+
 void
 on_handle_gnunet_identity (void *cls,
                            struct GNUNET_IDENTITY_Ego *ego,
@@ -349,12 +367,12 @@ skip_account:
     account_update_directory(accounts->account, handle->directory);
 
 send_refresh:
-  handle_send_internal_message(
-    handle,
-    NULL,
-    NULL,
-    GNUNET_CHAT_FLAG_REFRESH,
-    NULL
+  if (handle->refresh)
+    return;
+  
+  handle->refresh = GNUNET_SCHEDULER_add_now(
+    on_handle_refresh,
+    handle
   );
 }
 
