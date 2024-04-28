@@ -645,6 +645,51 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
   return result;
 }
 
+enum GNUNET_GenericReturnValue
+handle_delete_lobby (struct GNUNET_CHAT_Handle *handle,
+                     const struct GNUNET_CHAT_Lobby *lobby)
+{
+  GNUNET_assert((handle) && (lobby));
+
+  if (!(lobby->context))
+    return GNUNET_SYSERR;
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+    lobby->context->room
+  );
+
+  if (!key)
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = NULL;
+  enum GNUNET_GenericReturnValue result = update_accounts_operation(
+    &accounts, 
+    handle, 
+    NULL, 
+    GNUNET_CHAT_ACCOUNT_DELETION
+  );
+
+  if (GNUNET_OK != result)
+    return result;
+
+  char *name;
+  util_lobby_name(key, &name);
+
+  accounts->op = GNUNET_IDENTITY_delete(
+    handle->identity,
+    name,
+    cb_lobby_deletion,
+    accounts
+  );
+
+  GNUNET_free(name);
+
+  if (!accounts->op)
+    return GNUNET_SYSERR;
+
+  return result;
+}
+
 const char*
 handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
 {

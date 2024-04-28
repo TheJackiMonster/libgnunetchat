@@ -450,6 +450,32 @@ cb_account_rename (void *cls,
   );
 }
 
+void
+cb_lobby_deletion (void *cls,
+		               enum GNUNET_ErrorCode ec)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = (
+    (struct GNUNET_CHAT_InternalAccounts*) cls
+  );
+
+  accounts->op = NULL;
+
+  internal_accounts_stop_method(accounts);
+
+  if (GNUNET_EC_NONE != ec)
+    handle_send_internal_message(
+      accounts->handle,
+      accounts->account,
+      NULL,
+      GNUNET_CHAT_FLAG_WARNING,
+      GNUNET_ErrorCode_get_hint(ec)
+    );
+
+  internal_accounts_destroy(accounts);
+}
+
 static void
 cb_account_update_completion (void *cls,
                               const struct GNUNET_CRYPTO_PrivateKey *key,

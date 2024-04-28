@@ -228,6 +228,18 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
                        const char *new_name);
 
 /**
+ * Enqueues a deletion for a chat <i>lobby</i> for a 
+ * given chat <i>handle</i>.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] lobby Chat lobby
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
+enum GNUNET_GenericReturnValue
+handle_delete_lobby (struct GNUNET_CHAT_Handle *handle,
+                     const struct GNUNET_CHAT_Lobby *lobby);
+
+/**
  * Returns the main directory path to store information
  * of a given chat <i>handle</i>.
  *

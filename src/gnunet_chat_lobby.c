@@ -56,21 +56,7 @@ lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
   if ((!(lobby->op)) && (!(lobby->query)))
     goto skip_deletion;
 
-  if (lobby->context)
-  {
-    const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-	    lobby->context->room
-    );
-
-    if (!key)
-      goto skip_deletion;
-
-    char *name;
-    util_lobby_name(key, &name);
-
-    handle_delete_account(lobby->handle, name);
-    GNUNET_free(name);
-  }
+  handle_delete_lobby(lobby->handle, lobby);
 
 skip_deletion:
   if (lobby->op)
