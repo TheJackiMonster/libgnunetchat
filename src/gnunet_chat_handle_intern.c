@@ -370,7 +370,9 @@ send_refresh:
   if (handle->refresh)
     return;
   
-  handle->refresh = GNUNET_SCHEDULER_add_now(
+  handle->refresh = GNUNET_SCHEDULER_add_at_with_priority(
+    GNUNET_TIME_absolute_get(),
+    GNUNET_SCHEDULER_PRIORITY_IDLE,
     on_handle_refresh,
     handle
   );
