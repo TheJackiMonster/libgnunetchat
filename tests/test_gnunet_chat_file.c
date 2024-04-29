@@ -34,14 +34,14 @@ on_gnunet_chat_file_send_it(void *cls,
 {
   struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
 
-  ck_assert_ptr_ne(chat, NULL);
+  ck_assert_ptr_nonnull(chat);
   ck_assert_ptr_eq(handle, chat);
-  ck_assert_ptr_ne(account, NULL);
+  ck_assert_ptr_nonnull(account);
 
   const char *name = GNUNET_CHAT_account_get_name(account);
 
-  ck_assert_ptr_ne(name, NULL);
-  ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
+  ck_assert_ptr_nonnull(name);
+  ck_assert_ptr_null(GNUNET_CHAT_get_connected(handle));
 
   if (0 == strcmp(name, "gnunet_chat_file_send"))
   {
@@ -60,8 +60,8 @@ on_gnunet_chat_file_send_upload(void *cls,
 {
   struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
-  ck_assert_ptr_ne(handle, NULL);
-  ck_assert_ptr_ne(file, NULL);
+  ck_assert_ptr_nonnull(handle);
+  ck_assert_ptr_nonnull(file);
   ck_assert_uint_le(completed, size);
 
   uint64_t check_size = GNUNET_CHAT_file_get_size(file);
@@ -82,8 +82,8 @@ on_gnunet_chat_file_send_unindex(void *cls,
 {
   struct GNUNET_CHAT_Context *context = (struct GNUNET_CHAT_Context*) cls;
 
-  ck_assert_ptr_ne(context, NULL);
-  ck_assert_ptr_ne(file, NULL);
+  ck_assert_ptr_nonnull(context);
+  ck_assert_ptr_nonnull(file);
   ck_assert_uint_le(completed, size);
 
   if (completed > size)
@@ -99,12 +99,14 @@ on_gnunet_chat_file_send_msg(void *cls,
                              struct GNUNET_CHAT_Context *context,
                              const struct GNUNET_CHAT_Message *message)
 {
+  static char *filename = NULL;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
 
-  ck_assert_ptr_ne(handle, NULL);
-  ck_assert_ptr_ne(message, NULL);
+  ck_assert_ptr_nonnull(handle);
+  ck_assert_ptr_nonnull(message);
 
   enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
   struct GNUNET_CHAT_File *file;
@@ -117,7 +119,7 @@ on_gnunet_chat_file_send_msg(void *cls,
     goto skip_search_account;
 
   ck_assert(kind == GNUNET_CHAT_KIND_REFRESH);
-  ck_assert_ptr_eq(context, NULL);
+  ck_assert_ptr_null(context);
 
   ck_assert_int_ne(GNUNET_CHAT_iterate_accounts(
       handle,
@@ -134,24 +136,25 @@ skip_search_account:
     goto skip_file_upload;
 
   ck_assert(kind == GNUNET_CHAT_KIND_LOGIN);
-  ck_assert_ptr_eq(context, NULL);
+  ck_assert_ptr_null(context);
 
   struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
       handle,
       "gnunet_chat_file_send_group"
   );
 
-  ck_assert_ptr_ne(group, NULL);
+  ck_assert_ptr_nonnull(group);
 
   struct GNUNET_CHAT_Context *group_context = GNUNET_CHAT_group_get_context(
       group
   );
 
-  ck_assert_ptr_ne(group_context, NULL);
+  ck_assert_ptr_nonnull(group_context);
+  ck_assert_ptr_null(filename);
 
-  char *filename = GNUNET_DISK_mktemp("gnunet_chat_file_send_name");
+  filename = GNUNET_DISK_mktemp("gnunet_chat_file_send_name");
 
-  ck_assert_ptr_ne(filename, NULL);
+  ck_assert_ptr_nonnull(filename);
 
   file = GNUNET_CHAT_context_send_file(
       group_context,
@@ -160,20 +163,18 @@ skip_search_account:
       handle
   );
 
-  GNUNET_free(filename);
-
-  ck_assert_ptr_ne(file, NULL);
+  ck_assert_ptr_nonnull(file);
 
 skip_file_upload:
   if (GNUNET_CHAT_KIND_FILE != kind)
     return GNUNET_YES;
 
   ck_assert(kind == GNUNET_CHAT_KIND_FILE);
-  ck_assert_ptr_ne(context, NULL);
+  ck_assert_ptr_nonnull(context);
 
   file = GNUNET_CHAT_message_get_file(message);
 
-  ck_assert_ptr_ne(file, NULL);
+  ck_assert_ptr_nonnull(file);
 
   ck_assert_int_eq(GNUNET_CHAT_file_unindex(
       file, 
@@ -185,7 +186,12 @@ skip_file_upload:
 
 exit_file_test:
   ck_assert(kind == GNUNET_CHAT_KIND_TEXT);
-  ck_assert_ptr_ne(context, NULL);
+  ck_assert_ptr_nonnull(context);
+  ck_assert_ptr_nonnull(filename);
+
+  remove(filename);
+  GNUNET_free(filename);
+  filename = NULL;
 
   const char* text = GNUNET_CHAT_message_get_text(message);
 
@@ -205,7 +211,7 @@ call_gnunet_chat_file_send(const struct GNUNET_CONFIGURATION_Handle *cfg)
   static struct GNUNET_CHAT_Handle *handle = NULL;
   handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_file_send_msg, &handle);
 
-  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_ptr_nonnull(handle);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
       handle,
       "gnunet_chat_file_send"

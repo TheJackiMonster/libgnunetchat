@@ -436,6 +436,7 @@ cb_account_deletion (void *cls,
       GNUNET_ErrorCode_get_hint(ec)
     );
   else
+  {
     handle_send_internal_message(
       accounts->handle,
       accounts->account,
@@ -443,6 +444,9 @@ cb_account_deletion (void *cls,
       GNUNET_CHAT_FLAG_DELETE_ACCOUNT,
       NULL
     );
+
+    account_delete(accounts->account);
+  }
 
   account_destroy(accounts->account);
   internal_accounts_destroy(accounts);

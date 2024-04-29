@@ -31,7 +31,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 
 struct GNUNET_CHAT_Account*
-account_create(const char *name)
+account_create (const char *name)
 {
   GNUNET_assert(name);
 
@@ -49,8 +49,8 @@ account_create(const char *name)
 }
 
 struct GNUNET_CHAT_Account*
-account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
-			                  const char *name)
+account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
+			                   const char *name)
 {
   GNUNET_assert((ego) && (name));
 
@@ -105,9 +105,9 @@ account_get_key (const struct GNUNET_CHAT_Account *account)
 }
 
 void
-account_update_ego(struct GNUNET_CHAT_Account *account,
-                   struct GNUNET_CHAT_Handle *handle,
-                   struct GNUNET_IDENTITY_Ego *ego)
+account_update_ego (struct GNUNET_CHAT_Account *account,
+                    struct GNUNET_CHAT_Handle *handle,
+                    struct GNUNET_IDENTITY_Ego *ego)
 {
   GNUNET_assert((account) && (handle) && (ego) && (account->ego != ego));
 
@@ -142,7 +142,26 @@ account_update_ego(struct GNUNET_CHAT_Account *account,
 }
 
 void
-account_destroy(struct GNUNET_CHAT_Account *account)
+account_delete (struct GNUNET_CHAT_Account *account)
+{
+  GNUNET_assert(account);
+
+  if (!(account->directory))
+    return;
+
+  if (GNUNET_YES != GNUNET_DISK_directory_test(account->directory,
+                                               GNUNET_NO))
+    return;
+
+  if (GNUNET_OK != GNUNET_DISK_directory_remove(account->directory))
+    return;
+
+  GNUNET_free(account->directory);
+  account->directory = NULL;
+}
+
+void
+account_destroy (struct GNUNET_CHAT_Account *account)
 {
   GNUNET_assert(account);
 

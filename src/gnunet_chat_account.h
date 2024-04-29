@@ -47,7 +47,7 @@ struct GNUNET_CHAT_Account
  * @return New chat account
  */
 struct GNUNET_CHAT_Account*
-account_create(const char *name);
+account_create (const char *name);
 
 /**
  * Creates a chat account using a given <i>ego</i> and
@@ -58,8 +58,8 @@ account_create(const char *name);
  * @return New chat account
  */
 struct GNUNET_CHAT_Account*
-account_create_from_ego(struct GNUNET_IDENTITY_Ego *ego,
-			                  const char *name);
+account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
+			                   const char *name);
 
 /**
  * Updates the stored directory path by a chat <i>account</i>
@@ -92,9 +92,18 @@ account_get_key (const struct GNUNET_CHAT_Account *account);
  * @param[in] ego EGO
  */
 void
-account_update_ego(struct GNUNET_CHAT_Account *account,
-                   struct GNUNET_CHAT_Handle *handle,
-                   struct GNUNET_IDENTITY_Ego *ego);
+account_update_ego (struct GNUNET_CHAT_Account *account,
+                    struct GNUNET_CHAT_Handle *handle,
+                    struct GNUNET_IDENTITY_Ego *ego);
+
+/**
+ * Deletes all local files and data remaining a given 
+ * chat <i>account</i>.
+ *
+ * @param[in,out] account Chat account
+ */
+void
+account_delete (struct GNUNET_CHAT_Account *account);
 
 /**
  * Destroys a chat <i>account</i> and frees its memory.
@@ -102,6 +111,6 @@ account_update_ego(struct GNUNET_CHAT_Account *account,
  * @param[in,out] account Chat account
  */
 void
-account_destroy(struct GNUNET_CHAT_Account *account);
+account_destroy (struct GNUNET_CHAT_Account *account);
 
 #endif /* GNUNET_CHAT_ACCOUNT_H_ */
