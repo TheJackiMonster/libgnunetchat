@@ -511,7 +511,7 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
   return accounts;
 }
 
-static int
+static enum GNUNET_GenericReturnValue
 update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
                            struct GNUNET_CHAT_Handle *handle,
                            const char *name,
@@ -538,7 +538,7 @@ update_accounts_operation (struct GNUNET_CHAT_InternalAccounts **out_accounts,
   return GNUNET_OK;
 }
 
-int
+enum GNUNET_GenericReturnValue
 handle_create_account (struct GNUNET_CHAT_Handle *handle,
 		                   const char *name)
 {
@@ -550,7 +550,8 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
   if (accounts)
     return GNUNET_SYSERR;
 
-  int result = update_accounts_operation(
+  enum GNUNET_GenericReturnValue result;
+  result = update_accounts_operation(
     &accounts, 
     handle, 
     name, 
@@ -575,7 +576,7 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
   return result;
 }
 
-int
+enum GNUNET_GenericReturnValue
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 		                   const char *name)
 {
@@ -587,7 +588,8 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
   if (!accounts)
     return GNUNET_SYSERR;
 
-  int result = update_accounts_operation(
+  enum GNUNET_GenericReturnValue result;
+  result = update_accounts_operation(
     &accounts, 
     handle, 
     NULL, 
@@ -610,7 +612,7 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
   return result;
 }
 
-int
+enum GNUNET_GenericReturnValue
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
                        const char *old_name,
                        const char *new_name)
@@ -623,7 +625,8 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
   if (!accounts)
     return GNUNET_SYSERR;
 
-  int result = update_accounts_operation(
+  enum GNUNET_GenericReturnValue result;
+  result = update_accounts_operation(
     &accounts, 
     handle, 
     NULL, 
@@ -664,7 +667,8 @@ handle_delete_lobby (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = NULL;
-  enum GNUNET_GenericReturnValue result = update_accounts_operation(
+  enum GNUNET_GenericReturnValue result;
+  result = update_accounts_operation(
     &accounts, 
     handle, 
     NULL, 
@@ -725,7 +729,7 @@ handle_create_file_path (const struct GNUNET_CHAT_Handle *handle,
   return filename;
 }
 
-int
+enum GNUNET_GenericReturnValue
 handle_update (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert((handle) && (handle->current));
@@ -741,7 +745,8 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
   if (!accounts)
     return GNUNET_SYSERR;
 
-  int result = update_accounts_operation(
+  enum GNUNET_GenericReturnValue result;
+  result = update_accounts_operation(
     &accounts, 
     handle, 
     name, 
@@ -841,7 +846,7 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
   GNUNET_free(msg.body.name.name);
 }
 
-int
+enum GNUNET_GenericReturnValue
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 				                        struct GNUNET_MESSENGER_Room *room)
 {

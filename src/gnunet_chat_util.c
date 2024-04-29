@@ -30,7 +30,7 @@
 static const char label_prefix_of_contact [] = "contact";
 static const char label_prefix_of_group [] = "group";
 
-static const char identity_prefix_of_lobby [] = "gnunet_chat_lobby";
+static const char identity_prefix_of_lobby [] = "_gnunet_chat_lobby";
 
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,

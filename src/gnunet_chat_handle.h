@@ -197,7 +197,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle);
  * @param[in] name Chat account name
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 handle_create_account (struct GNUNET_CHAT_Handle *handle,
 		                   const char *name);
 
@@ -209,7 +209,7 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
  * @param[in] name Chat account name
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 		                   const char *name);
 
@@ -223,7 +223,7 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
  * @param[in] new_name New chat account name
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
                        const char *old_name,
                        const char *new_name);
@@ -271,7 +271,7 @@ handle_create_file_path (const struct GNUNET_CHAT_Handle *handle,
  * @param[in] handle Chat handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-int
+enum GNUNET_GenericReturnValue
 handle_update (struct GNUNET_CHAT_Handle *handle);
 
 /**
@@ -323,7 +323,7 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
  * @param[in,out] room Messenger room
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
-int
+enum GNUNET_GenericReturnValue
 handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 				                        struct GNUNET_MESSENGER_Room *room);
 

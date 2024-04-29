@@ -22,35 +22,12 @@
  * @file test_gnunet_chat_file.c
  */
 
-#include "gnunet/gnunet_chat_lib.h"
 #include "test_gnunet_chat.h"
-#include <check.h>
-#include <gnunet/gnunet_common.h>
 
-int
-on_gnunet_chat_file_send_it(void *cls,
-                            const struct GNUNET_CHAT_Handle *handle,
-                            struct GNUNET_CHAT_Account *account)
-{
-  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
-
-  ck_assert_ptr_nonnull(chat);
-  ck_assert_ptr_eq(handle, chat);
-  ck_assert_ptr_nonnull(account);
-
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
-  ck_assert_ptr_nonnull(name);
-  ck_assert_ptr_null(GNUNET_CHAT_get_connected(handle));
-
-  if (0 == strcmp(name, "gnunet_chat_file_send"))
-  {
-    GNUNET_CHAT_connect(chat, account);
-    return GNUNET_NO;
-  }
-
-  return GNUNET_YES;
-}
+#define TEST_SEND_ID       "gnunet_chat_file_send"
+#define TEST_SEND_TEXT     "gnunet_chat_file_deleted"
+#define TEST_SEND_FILENAME "gnunet_chat_file_send_name"
+#define TEST_SEND_GROUP    "gnunet_chat_file_send_group"
 
 void
 on_gnunet_chat_file_send_upload(void *cls,
@@ -91,10 +68,10 @@ on_gnunet_chat_file_send_unindex(void *cls,
   
   ck_assert_uint_eq(completed, size);
 
-  GNUNET_CHAT_context_send_text(context, "gnunet_chat_file_deleted");
+  GNUNET_CHAT_context_send_text(context, TEST_SEND_TEXT);
 }
 
-int
+enum GNUNET_GenericReturnValue
 on_gnunet_chat_file_send_msg(void *cls,
                              struct GNUNET_CHAT_Context *context,
                              const struct GNUNET_CHAT_Message *message)
@@ -108,100 +85,122 @@ on_gnunet_chat_file_send_msg(void *cls,
   ck_assert_ptr_nonnull(handle);
   ck_assert_ptr_nonnull(message);
 
-  enum GNUNET_CHAT_MessageKind kind = GNUNET_CHAT_message_get_kind(message);
+  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Group *group;
   struct GNUNET_CHAT_File *file;
 
-  if (kind == GNUNET_CHAT_KIND_TEXT)
-    goto exit_file_test;
+  const char *name;
+  const char *text;
 
-  if ((kind != GNUNET_CHAT_KIND_REFRESH) ||
-      (GNUNET_CHAT_get_connected(handle)))
-    goto skip_search_account;
+  switch (GNUNET_CHAT_message_get_kind(message))
+  {
+    case GNUNET_CHAT_KIND_WARNING:
+      ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
+      break;
+    case GNUNET_CHAT_KIND_REFRESH:
+      ck_assert_ptr_null(context);
+      break;
+    case GNUNET_CHAT_KIND_LOGIN:
+      ck_assert_ptr_null(context);
 
-  ck_assert(kind == GNUNET_CHAT_KIND_REFRESH);
-  ck_assert_ptr_null(context);
+      group = GNUNET_CHAT_group_create(
+          handle, TEST_SEND_GROUP
+      );
 
-  ck_assert_int_ne(GNUNET_CHAT_iterate_accounts(
-      handle,
-      on_gnunet_chat_file_send_it,
-      handle
-  ), GNUNET_SYSERR);
+      ck_assert_ptr_nonnull(group);
 
-  if (!GNUNET_CHAT_get_connected(handle))
-    return GNUNET_YES;
+      context = GNUNET_CHAT_group_get_context(group);
 
-skip_search_account:
-  if ((GNUNET_CHAT_KIND_LOGIN != kind) ||
-      (context))
-    goto skip_file_upload;
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_null(filename);
 
-  ck_assert(kind == GNUNET_CHAT_KIND_LOGIN);
-  ck_assert_ptr_null(context);
+      filename = GNUNET_DISK_mktemp(TEST_SEND_FILENAME);
 
-  struct GNUNET_CHAT_Group *group = GNUNET_CHAT_group_create(
-      handle,
-      "gnunet_chat_file_send_group"
-  );
+      ck_assert_ptr_nonnull(filename);
 
-  ck_assert_ptr_nonnull(group);
+      file = GNUNET_CHAT_context_send_file(
+          context,
+          filename,
+          on_gnunet_chat_file_send_upload,
+          handle
+      );
 
-  struct GNUNET_CHAT_Context *group_context = GNUNET_CHAT_group_get_context(
-      group
-  );
+      ck_assert_ptr_nonnull(file);
+      break;
+    case GNUNET_CHAT_KIND_LOGOUT:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_null(filename);
+      break;
+    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+      ck_assert_ptr_null(context);
 
-  ck_assert_ptr_nonnull(group_context);
-  ck_assert_ptr_null(filename);
+      account = GNUNET_CHAT_message_get_account(message);
 
-  filename = GNUNET_DISK_mktemp("gnunet_chat_file_send_name");
+      ck_assert_ptr_nonnull(account);
 
-  ck_assert_ptr_nonnull(filename);
+      name = GNUNET_CHAT_account_get_name(account);
 
-  file = GNUNET_CHAT_context_send_file(
-      group_context,
-      filename,
-      on_gnunet_chat_file_send_upload,
-      handle
-  );
+      ck_assert_ptr_nonnull(name);
+      ck_assert_str_eq(name, TEST_SEND_ID);
 
-  ck_assert_ptr_nonnull(file);
+      GNUNET_CHAT_connect(handle, account);
+      break;
+    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
+      ck_assert_ptr_null(context);
 
-skip_file_upload:
-  if (GNUNET_CHAT_KIND_FILE != kind)
-    return GNUNET_YES;
+      account = GNUNET_CHAT_message_get_account(message);
 
-  ck_assert(kind == GNUNET_CHAT_KIND_FILE);
-  ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
 
-  file = GNUNET_CHAT_message_get_file(message);
+      name = GNUNET_CHAT_account_get_name(account);
 
-  ck_assert_ptr_nonnull(file);
+      ck_assert_ptr_nonnull(name);
+      ck_assert_str_eq(name, TEST_SEND_ID);
 
-  ck_assert_int_eq(GNUNET_CHAT_file_unindex(
-      file, 
-      on_gnunet_chat_file_send_unindex, 
-      context
-  ), GNUNET_OK);
+      GNUNET_CHAT_stop(handle);
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_null(context);
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
+    case GNUNET_CHAT_KIND_JOIN:
+    case GNUNET_CHAT_KIND_CONTACT:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(filename);
+      break;
+    case GNUNET_CHAT_KIND_TEXT:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(filename);
 
-  return GNUNET_YES;
+      remove(filename);
+      GNUNET_free(filename);
+      filename = NULL;
 
-exit_file_test:
-  ck_assert(kind == GNUNET_CHAT_KIND_TEXT);
-  ck_assert_ptr_nonnull(context);
-  ck_assert_ptr_nonnull(filename);
+      text = GNUNET_CHAT_message_get_text(message);
 
-  remove(filename);
-  GNUNET_free(filename);
-  filename = NULL;
+      ck_assert_ptr_nonnull(text);
+      ck_assert_str_eq(text, TEST_SEND_TEXT);
+      ck_assert_int_eq(GNUNET_CHAT_account_delete(
+          handle, TEST_SEND_ID
+      ), GNUNET_OK);
+      break;
+    case GNUNET_CHAT_KIND_FILE:
+      ck_assert_ptr_nonnull(context);
 
-  const char* text = GNUNET_CHAT_message_get_text(message);
+      file = GNUNET_CHAT_message_get_file(message);
 
-  ck_assert_str_eq(text, "gnunet_chat_file_deleted");
-  ck_assert_int_eq(GNUNET_CHAT_account_delete(
-      handle,
-      "gnunet_chat_file_send"
-  ), GNUNET_OK);
+      ck_assert_ptr_nonnull(file);
+      ck_assert_int_eq(GNUNET_CHAT_file_unindex(
+          file, 
+          on_gnunet_chat_file_send_unindex, 
+          context
+      ), GNUNET_OK);
+      break;
+    default:
+      ck_abort();
+      break;
+  }
 
-  GNUNET_CHAT_stop(handle);
   return GNUNET_YES;
 }
 
@@ -214,7 +213,7 @@ call_gnunet_chat_file_send(const struct GNUNET_CONFIGURATION_Handle *cfg)
   ck_assert_ptr_nonnull(handle);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
       handle,
-      "gnunet_chat_file_send"
+      TEST_SEND_ID
   ), GNUNET_OK);
 }
 
