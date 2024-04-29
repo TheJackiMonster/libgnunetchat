@@ -375,8 +375,6 @@ on_gnunet_chat_handle_rename_msg(void *cls,
   const char *name = GNUNET_CHAT_get_name(handle);
   char *dup = (char*) GNUNET_CHAT_get_user_pointer(handle);
 
-  printf("%d\n", (int) GNUNET_CHAT_message_get_kind(message));
-
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_REFRESH:
