@@ -1025,9 +1025,13 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   if (!record)
     return NULL;
 
+  /* Get a properly-aligned struct to pass to
+     GNUNET_CONTAINER_multihashmap_get() */
+  struct GNUNET_HashCode key;
+  GNUNET_memcpy (&key, &(record->key), sizeof(key));
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
     handle->contexts,
-    &(record->key)
+    &key
   );
 
   if (context)
@@ -1039,7 +1043,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
     handle->messenger,
     &(record->door),
-    &(record->key)
+    &key
   );
 
   if (!room)
@@ -1051,7 +1055,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   handle_send_room_name(handle, room);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      handle->contexts, &(record->key), context,
+      handle->contexts, &key, context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     context_destroy(context);
