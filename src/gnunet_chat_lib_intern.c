@@ -71,13 +71,31 @@ task_handle_destruction (void *cls)
 }
 
 void
+task_handle_connection (void *cls)
+{
+  GNUNET_assert(cls);
+
+  struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
+
+  handle->connection = NULL;
+
+  if (! handle->next)
+    return;
+
+  const struct GNUNET_CHAT_Account *account = handle->next;
+  handle->next = NULL;
+
+  handle_connect(handle, account);
+}
+
+void
 task_handle_disconnection (void *cls)
 {
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_Handle *handle = (struct GNUNET_CHAT_Handle*) cls;
 
-  handle->disconnection = NULL;
+  handle->connection = NULL;
   handle_disconnect(handle);
 
   if (! handle->next)

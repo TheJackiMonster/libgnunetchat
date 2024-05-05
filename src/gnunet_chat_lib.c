@@ -167,20 +167,29 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return;
 
+  if (handle->connection)
+    GNUNET_SCHEDULER_cancel(handle->connection);
+
   if (handle->current == account)
+  {
+    handle->next = NULL;
+    handle->connection = NULL;
     return;
+  }
 
   if (handle->current)
   {
     handle->next = account;
+    handle->connection = NULL;
     GNUNET_CHAT_disconnect(handle);
     return;
   }
 
-  if (!account)
-    return;
-
-  handle_connect(handle, account);
+  handle->next = account;
+  handle->connection = GNUNET_SCHEDULER_add_now(
+    task_handle_connection,
+    handle
+  );
 }
 
 
@@ -189,11 +198,20 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (handle->destruction) || 
-      (!(handle->current)) || (handle->disconnection))
+  if ((!handle) || (handle->destruction))
     return;
+  
+  if (handle->connection)
+    GNUNET_SCHEDULER_cancel(handle->connection);
 
-  handle->disconnection = GNUNET_SCHEDULER_add_now(
+  if (!(handle->current))
+  {
+    handle->next = NULL;
+    handle->connection = NULL;
+    return;
+  }
+
+  handle->connection = GNUNET_SCHEDULER_add_now(
     task_handle_disconnection,
     handle
   );

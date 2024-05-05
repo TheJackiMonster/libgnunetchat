@@ -187,15 +187,15 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     GNUNET_SCHEDULER_cancel(handle->shutdown_hook);
   if (handle->destruction)
     GNUNET_SCHEDULER_cancel(handle->destruction);
-  if (handle->disconnection)
-    GNUNET_SCHEDULER_cancel(handle->disconnection);
+  if (handle->connection)
+    GNUNET_SCHEDULER_cancel(handle->connection);
   if (handle->refresh)
     GNUNET_SCHEDULER_cancel(handle->refresh);
 
   if (handle->monitor)
     GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
 
-  handle->disconnection = NULL;
+  handle->connection = NULL;
 
   if (handle->current)
     handle_disconnect(handle);
@@ -479,11 +479,11 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   handle->contacts = NULL;
   handle->groups = NULL;
 
-  if (handle->disconnection)
-    GNUNET_SCHEDULER_cancel(handle->disconnection);
+  if (handle->connection)
+    GNUNET_SCHEDULER_cancel(handle->connection);
 
   handle->current = NULL;
-  handle->disconnection = NULL;
+  handle->connection = NULL;
 
   handle_update_key(handle);
 }

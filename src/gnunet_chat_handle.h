@@ -87,7 +87,7 @@ struct GNUNET_CHAT_Handle
   const struct GNUNET_CONFIGURATION_Handle* cfg;
   struct GNUNET_SCHEDULER_Task *shutdown_hook;
   struct GNUNET_SCHEDULER_Task *destruction;
-  struct GNUNET_SCHEDULER_Task *disconnection;
+  struct GNUNET_SCHEDULER_Task *connection;
   struct GNUNET_SCHEDULER_Task *refresh;
 
   struct GNUNET_CHAT_InternalServices *services_head;
