@@ -855,8 +855,9 @@ skip_msg_handing:
       struct GNUNET_CHAT_InternalTickets *tickets = contact->tickets_head;
       while (tickets)
       {
-        if (0 == GNUNET_memcmp(&(tickets->ticket->ticket.rnd), 
-                               &(message->msg->body.ticket.identifier)))
+        if (0 == strncmp(tickets->ticket->ticket.gns_name, 
+                         message->msg->body.ticket.identifier,
+                         sizeof(tickets->ticket->ticket.gns_name)))
           break;
 
         tickets = tickets->next;

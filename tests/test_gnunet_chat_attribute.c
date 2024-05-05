@@ -23,35 +23,15 @@
  */
 
 #include "test_gnunet_chat.h"
-#include <check.h>
-#include <gnunet/gnunet_chat_lib.h>
-#include <gnunet/gnunet_time_lib.h>
-#include <stdio.h>
 
-enum GNUNET_GenericReturnValue
-on_gnunet_chat_attribute_check_it(void *cls,
-                                  const struct GNUNET_CHAT_Handle *handle,
-                                  struct GNUNET_CHAT_Account *account)
-{
-  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
-
-  ck_assert_ptr_ne(chat, NULL);
-  ck_assert_ptr_eq(handle, chat);
-  ck_assert_ptr_ne(account, NULL);
-
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
-  ck_assert_ptr_ne(name, NULL);
-  ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
-
-  if (0 == strcmp(name, "gnunet_chat_attribute_check"))
-  {
-    GNUNET_CHAT_connect(chat, account);
-    return GNUNET_NO;
-  }
-
-  return GNUNET_YES;
-}
+#define TEST_CHECK_ID    "gnunet_chat_attribute_check"
+#define TEST_CHECK_NAME  "test_attribute_check_name"
+#define TEST_CHECK_VALUE "test_attribute_check_value"
+#define TEST_SHARE_ID_A  "gnunet_chat_attribute_share_a"
+#define TEST_SHARE_ID_B  "gnunet_chat_attribute_share_b"
+#define TEST_SHARE_GROUP "test_attribute_share_group"
+#define TEST_SHARE_NAME  "test_attribute_share_name"
+#define TEST_SHARE_VALUE "test_attribute_share_value"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_check_attr(void *cls,
@@ -59,16 +39,16 @@ on_gnunet_chat_attribute_check_attr(void *cls,
                                     const char *name,
                                     const char *value)
 {
-  ck_assert_ptr_eq(cls, NULL);
-  ck_assert_ptr_ne(handle, NULL);
-  ck_assert_ptr_ne(name, NULL);
+  ck_assert_ptr_null(cls);
+  ck_assert_ptr_nonnull(handle);
+  ck_assert_ptr_nonnull(name);
 
-  if (0 == strcmp(name, "test_attribute_name"))
+  if (0 == strcmp(name, TEST_CHECK_NAME))
   {
-    ck_assert_ptr_ne(value, NULL);
-    ck_assert_int_eq(strcmp(value, "test_attribute_value"), 0);
+    ck_assert_ptr_nonnull(value);
+    ck_assert_str_eq(value, TEST_CHECK_VALUE);
 
-    GNUNET_CHAT_delete_attribute(handle, "test_attribute_name");
+    GNUNET_CHAT_delete_attribute(handle, TEST_CHECK_NAME);
     return GNUNET_NO;
   }
 
@@ -84,52 +64,63 @@ on_gnunet_chat_attribute_check_msg(void *cls,
     (struct GNUNET_CHAT_Handle**) cls
   );
 
-  const char *text = NULL;
+  const struct GNUNET_CHAT_Account *account;
+  const char *text;
 
-  ck_assert_ptr_ne(handle, NULL);
-  ck_assert_ptr_ne(message, NULL);
+  ck_assert_ptr_nonnull(handle);
+  ck_assert_ptr_nonnull(message);
 
-  if (GNUNET_CHAT_get_connected(handle))
-    goto skip_search_account;
+  account = GNUNET_CHAT_message_get_account(message);
 
-  GNUNET_CHAT_iterate_accounts(
-    handle,
-    on_gnunet_chat_attribute_check_it,
-    handle
-  );
-
-  if (!GNUNET_CHAT_get_connected(handle))
-    return GNUNET_YES;
-
-skip_search_account:
   switch (GNUNET_CHAT_message_get_kind(message))
   {
+    case GNUNET_CHAT_KIND_WARNING:
+      ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
+      break;
+    case GNUNET_CHAT_KIND_REFRESH:
+      break;
     case GNUNET_CHAT_KIND_LOGIN:
-      ck_assert_ptr_eq(context, NULL);
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
 
       GNUNET_CHAT_set_attribute(
         handle,
-        "test_attribute_name",
-        "test_attribute_value",
+        TEST_CHECK_NAME,
+        TEST_CHECK_VALUE,
         GNUNET_TIME_relative_get_forever_()
       );
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
+
       ck_assert_int_eq(GNUNET_CHAT_account_delete(
 	      handle,
-	      "gnunet_chat_attribute_check"
+	      TEST_CHECK_ID
       ), GNUNET_OK);
+      break;
+    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
+
+      GNUNET_CHAT_connect(handle, account);
+      break;
+    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
 
       GNUNET_CHAT_stop(handle);
       break;
+    case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
+      break;
     case GNUNET_CHAT_KIND_ATTRIBUTES:
-      ck_assert_ptr_eq(context, NULL);
+      ck_assert_ptr_null(context);
 
       text = GNUNET_CHAT_message_get_text(message);
 
       if (text)
       {
-        ck_assert_int_eq(strcmp(text, "test_attribute_name"), 0);
+        ck_assert_str_eq(text, TEST_CHECK_NAME);
+
         GNUNET_CHAT_get_attributes(
           handle,
           on_gnunet_chat_attribute_check_attr,
@@ -141,6 +132,7 @@ skip_search_account:
 
       break;
     default:
+      ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));
       break;
   }
 
@@ -153,61 +145,11 @@ call_gnunet_chat_attribute_check(const struct GNUNET_CONFIGURATION_Handle *cfg)
   static struct GNUNET_CHAT_Handle *handle = NULL;
   handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_attribute_check_msg, &handle);
 
-  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_ptr_nonnull(handle);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
     handle,
-    "gnunet_chat_attribute_check"
+    TEST_CHECK_ID
   ), GNUNET_OK);
-}
-
-enum GNUNET_GenericReturnValue
-on_gnunet_chat_attribute_share_it1(void *cls,
-                                   const struct GNUNET_CHAT_Handle *handle,
-                                   struct GNUNET_CHAT_Account *account)
-{
-  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
-
-  ck_assert_ptr_ne(chat, NULL);
-  ck_assert_ptr_eq(handle, chat);
-  ck_assert_ptr_ne(account, NULL);
-
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
-  ck_assert_ptr_ne(name, NULL);
-  ck_assert_ptr_eq(GNUNET_CHAT_get_connected(handle), NULL);
-
-  if (0 == strcmp(name, "gnunet_chat_attribute_share_1"))
-  {
-    GNUNET_CHAT_connect(chat, account);
-    return GNUNET_NO;
-  }
-
-  return GNUNET_YES;
-}
-
-enum GNUNET_GenericReturnValue
-on_gnunet_chat_attribute_share_it2(void *cls,
-                                   const struct GNUNET_CHAT_Handle *handle,
-                                   struct GNUNET_CHAT_Account *account)
-{
-  struct GNUNET_CHAT_Handle *chat = (struct GNUNET_CHAT_Handle*) cls;
-
-  ck_assert_ptr_ne(chat, NULL);
-  ck_assert_ptr_eq(handle, chat);
-  ck_assert_ptr_ne(account, NULL);
-
-  const char *name = GNUNET_CHAT_account_get_name(account);
-
-  ck_assert_ptr_ne(name, NULL);
-  ck_assert_ptr_ne(GNUNET_CHAT_get_connected(handle), NULL);
-
-  if (0 == strcmp(name, "gnunet_chat_attribute_share_2"))
-  {
-    GNUNET_CHAT_connect(chat, account);
-    return GNUNET_NO;
-  }
-
-  return GNUNET_YES;
 }
 
 enum GNUNET_GenericReturnValue
@@ -216,24 +158,26 @@ on_gnunet_chat_attribute_share_attr(void *cls,
                                     const char *name,
                                     const char *value)
 {
-  ck_assert_ptr_ne(cls, NULL);
-  ck_assert_ptr_ne(contact, NULL);
-  ck_assert_ptr_ne(name, NULL);
+  ck_assert_ptr_nonnull(cls);
+  ck_assert_ptr_nonnull(contact);
+  ck_assert_ptr_nonnull(name);
+  ck_assert_ptr_nonnull(value);
 
   struct GNUNET_CHAT_Handle *handle = (
     (struct GNUNET_CHAT_Handle*) cls
   );
 
-  if (0 == strcmp(name, "test_attribute_name"))
-  {
-    ck_assert_ptr_ne(value, NULL);
-    ck_assert_int_eq(strcmp(value, "test_attribute_value"), 0);
+  const struct GNUNET_CHAT_Account *account;
+  account = GNUNET_CHAT_get_connected(handle);
 
-    GNUNET_CHAT_unshare_attribute_from(handle, contact, "test_attribute_name");
-    return GNUNET_NO;
-  }
+  ck_assert_ptr_nonnull(account);
+  ck_assert_str_eq(GNUNET_CHAT_account_get_name(account), TEST_SHARE_ID_B);
+  ck_assert_str_eq(GNUNET_CHAT_contact_get_name(contact), TEST_SHARE_ID_A);
+  ck_assert_str_eq(name, TEST_SHARE_NAME);
+  ck_assert_str_eq(value, TEST_SHARE_VALUE);
 
-  return GNUNET_YES;
+  GNUNET_CHAT_unshare_attribute_from(handle, contact, name);
+  return GNUNET_NO;
 }
 
 enum GNUNET_GenericReturnValue
@@ -245,101 +189,124 @@ on_gnunet_chat_attribute_share_msg(void *cls,
     (struct GNUNET_CHAT_Handle**) cls
   );
 
-  const struct GNUNET_CHAT_Account *account = NULL;
-  struct GNUNET_CHAT_Contact *sender = NULL;
+  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Contact *sender;
+  const char *name;
 
-  ck_assert_ptr_ne(handle, NULL);
-  ck_assert_ptr_ne(message, NULL);
+  ck_assert_ptr_nonnull(handle);
+  ck_assert_ptr_nonnull(message);
 
-  if (GNUNET_CHAT_get_connected(handle))
-    goto skip_search_account;
-
-  GNUNET_CHAT_iterate_accounts(
-    handle,
-    on_gnunet_chat_attribute_share_it1,
-    handle
-  );
-
-skip_search_account:
-  account = GNUNET_CHAT_get_connected(handle);
+  account = GNUNET_CHAT_message_get_account(message);
   sender = GNUNET_CHAT_message_get_sender(message);
 
-  if (!account)
-    return GNUNET_YES;
-
   switch (GNUNET_CHAT_message_get_kind(message))
   {
+    case GNUNET_CHAT_KIND_WARNING:
+      ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
+      break;
+    case GNUNET_CHAT_KIND_REFRESH:
+      break;
     case GNUNET_CHAT_KIND_LOGIN:
-      ck_assert_ptr_eq(context, NULL);
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
 
-      ck_assert_ptr_ne(GNUNET_CHAT_group_create(
-        handle, "test_attribute_group"
-      ), NULL);
-      break;
-    default:
-      break;
-  }
+      name = GNUNET_CHAT_account_get_name(account);
 
-  if (0 != strcmp(GNUNET_CHAT_account_get_name(account),
-      "gnunet_chat_attribute_share_2"))
-  {
-    switch (GNUNET_CHAT_message_get_kind(message)) {
-      case GNUNET_CHAT_KIND_JOIN:
-        ck_assert_ptr_ne(context, NULL);
+      ck_assert_ptr_nonnull(name);
 
-        GNUNET_CHAT_iterate_accounts(
+      if (0 == strcmp(name, TEST_SHARE_ID_B))
+        GNUNET_CHAT_set_attribute(
           handle,
-          on_gnunet_chat_attribute_share_it2,
-          handle
+          TEST_SHARE_NAME,
+          TEST_SHARE_VALUE,
+          GNUNET_TIME_relative_get_forever_()
         );
-        break;
-      default:
-        break;
-    }
 
-    return GNUNET_YES;
-  }
-
-  switch (GNUNET_CHAT_message_get_kind(message))
-  {
-    case GNUNET_CHAT_KIND_LOGIN:
-      ck_assert_ptr_eq(context, NULL);
-
-      GNUNET_CHAT_set_attribute(
-        handle,
-        "test_attribute_name",
-        "test_attribute_value",
-        GNUNET_TIME_relative_get_forever_()
-      );
-
+      ck_assert_ptr_nonnull(GNUNET_CHAT_group_create(
+        handle, TEST_SHARE_GROUP
+      ));
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
-      ck_assert_ptr_eq(context, NULL);
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
+
+      name = GNUNET_CHAT_account_get_name(account);
+
+      ck_assert_ptr_nonnull(name);
+
+      if (0 == strcmp(name, TEST_SHARE_ID_A))
+        break;
 
       ck_assert_int_eq(GNUNET_CHAT_account_delete(
-        handle,
-        "gnunet_chat_attribute_share_1"
+        handle, TEST_SHARE_ID_A
       ), GNUNET_OK);
-      ck_assert_int_eq(GNUNET_CHAT_account_delete(
-        handle,
-        "gnunet_chat_attribute_share_2"
-      ), GNUNET_OK);
+      break;
+    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_stop(handle);
+      GNUNET_CHAT_connect(handle, account);
+      break;
+    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
+
+      name = GNUNET_CHAT_account_get_name(account);
+
+      ck_assert_ptr_nonnull(name);
+
+      if (0 == strcmp(name, TEST_SHARE_ID_A))
+        ck_assert_int_eq(GNUNET_CHAT_account_delete(
+          handle, TEST_SHARE_ID_B
+        ), GNUNET_OK);
+      else
+        GNUNET_CHAT_stop(handle);
+
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
+      ck_assert_ptr_nonnull(context);
       break;
     case GNUNET_CHAT_KIND_JOIN:
-      ck_assert_ptr_ne(context, NULL);
-      ck_assert_ptr_ne(sender, NULL);
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_nonnull(sender);
 
-      if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
-        GNUNET_CHAT_share_attribute_with(handle, sender, "test_attribute_name");
+      name = GNUNET_CHAT_account_get_name(account);
+
+      ck_assert_ptr_nonnull(name);
+
+      if (0 == strcmp(name, TEST_SHARE_ID_A))
+        ck_assert_int_eq(GNUNET_CHAT_account_create(
+          handle,
+          TEST_SHARE_ID_B
+        ), GNUNET_OK);
+      else if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
+        GNUNET_CHAT_share_attribute_with(handle, sender, TEST_SHARE_NAME);
+
+      break;
+    case GNUNET_CHAT_KIND_CONTACT:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(sender);
+      break;
+    case GNUNET_CHAT_KIND_ATTRIBUTES:
+      ck_assert_ptr_null(context);
       break;
     case GNUNET_CHAT_KIND_SHARED_ATTRIBUTES:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(sender);
+
       if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
       {
+        printf("exit?\n");
+
         GNUNET_CHAT_disconnect(handle);
         break;
       }
+
+      printf("list attributes?\n");
 
       GNUNET_CHAT_get_shared_attributes(
         handle,
@@ -350,6 +317,7 @@ skip_search_account:
 
       break;
     default:
+      ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));
       break;
   }
 
@@ -362,14 +330,10 @@ call_gnunet_chat_attribute_share(const struct GNUNET_CONFIGURATION_Handle *cfg)
   static struct GNUNET_CHAT_Handle *handle = NULL;
   handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_attribute_share_msg, &handle);
 
-  ck_assert_ptr_ne(handle, NULL);
+  ck_assert_ptr_nonnull(handle);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
     handle,
-    "gnunet_chat_attribute_share_1"
-  ), GNUNET_OK);
-  ck_assert_int_eq(GNUNET_CHAT_account_create(
-    handle,
-    "gnunet_chat_attribute_share_2"
+    TEST_SHARE_ID_A
   ), GNUNET_OK);
 }
 

@@ -86,6 +86,7 @@ on_gnunet_chat_lobby_base_msg(void *cls,
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
       break;
     default:
       ck_abort();

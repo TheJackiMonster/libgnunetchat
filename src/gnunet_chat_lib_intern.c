@@ -270,27 +270,21 @@ task_group_destruction (void *cls)
   GNUNET_assert(cls);
 
   struct GNUNET_CHAT_Group *group = (struct GNUNET_CHAT_Group*) cls;
+  struct GNUNET_HashCode key;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+  GNUNET_memcpy(&key, GNUNET_MESSENGER_room_get_key(
     group->context->room
-  );
-
-  GNUNET_CONTAINER_multihashmap_remove(
-    group->handle->groups, key, group
-  );
-
-  GNUNET_CONTAINER_multihashmap_remove(
-    group->handle->contexts, key, group->context
-  );
+  ), sizeof(key));
 
   GNUNET_MESSENGER_close_room(group->context->room);
 
-  group->context->deleted = GNUNET_YES;
-  context_write_records(group->context);
+  GNUNET_CONTAINER_multihashmap_remove(
+    group->handle->groups, &key, group
+  );
 
+  context_write_records(group->context);
   group->destruction = NULL;
 
-  context_destroy(group->context);
   group_destroy(group);
 }
 
@@ -690,14 +684,35 @@ cb_issue_ticket (void *cls,
 
   attributes->op = NULL;
 
+  if ((!(attributes->contact)) || (!(attributes->contact->member)))
+    goto skip_sending;
+
   struct GNUNET_CHAT_Context *context = contact_find_context(
     attributes->contact,
     GNUNET_YES
   );
 
-  if ((context) && (ticket))
-    GNUNET_MESSENGER_send_ticket(context->room, ticket);
+  if ((!context) || (!ticket))
+    goto skip_sending;
 
+  char *identifier = GNUNET_strdup(ticket->gns_name);
+
+  if (!identifier)
+    goto skip_sending;
+
+  struct GNUNET_MESSENGER_Message message;
+  message.header.kind = GNUNET_MESSENGER_KIND_TICKET;
+  message.body.ticket.identifier = identifier;
+
+  GNUNET_MESSENGER_send_message(
+    context->room,
+    &message,
+    attributes->contact->member
+  );
+
+  GNUNET_free(identifier);
+
+skip_sending:
   internal_attributes_destroy(attributes);
 }
 
@@ -759,41 +774,52 @@ cb_share_attribute (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  if (0 == strcmp(attribute->name, attributes->name))
+  if (0 != strcmp(attribute->name, attributes->name))
   {
-    internal_attributes_stop_iter(attributes);
-
-    GNUNET_free(attributes->name);
-    attributes->name = NULL;
-
-    const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
-      handle
-    );
-
-    const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
-      attributes->contact
-    );
-
-    struct GNUNET_RECLAIM_AttributeList *attrs;
-    attrs = attribute_list_from_attribute(attribute);
-
-    if ((key) && (pubkey) && (attrs))
-      attributes->op = GNUNET_RECLAIM_ticket_issue(
-        handle->reclaim,
-        key,
-        pubkey,
-        attrs,
-        cb_issue_ticket,
-        attributes
-      );
-    
-    if (attrs)
-      GNUNET_RECLAIM_attribute_list_destroy(attrs);
-    
+    internal_attributes_next_iter(attributes);
     return;
   }
+  
+  internal_attributes_stop_iter(attributes);
 
-  internal_attributes_next_iter(attributes);
+  GNUNET_free(attributes->name);
+  attributes->name = NULL;
+
+  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    handle
+  );
+
+  if (!key)
+    return;
+
+  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+    attributes->contact
+  );
+
+  if (!pubkey)
+    return;
+
+  char *rp_uri = GNUNET_CRYPTO_public_key_to_string(pubkey);
+
+  struct GNUNET_RECLAIM_AttributeList *attrs;
+  attrs = attribute_list_from_attribute(attribute);
+
+  if (!attrs)
+    goto cleanup;
+
+  attributes->op = GNUNET_RECLAIM_ticket_issue(
+    handle->reclaim,
+    key,
+    rp_uri,
+    attrs,
+    cb_issue_ticket,
+    attributes
+  );
+  
+  GNUNET_RECLAIM_attribute_list_destroy(attrs);
+
+cleanup:
+  GNUNET_free(rp_uri);
 }
 
 void
@@ -925,9 +951,33 @@ cb_consume_ticket_check (void *cls,
   }
 }
 
+static enum GNUNET_GenericReturnValue
+is_contact_ticket_audience (const struct GNUNET_CHAT_Contact *contact,
+                            const char *rp_uri)
+{
+  GNUNET_assert((contact) && (rp_uri));
+
+  const struct GNUNET_CRYPTO_PublicKey *pubkey;
+  pubkey = contact_get_key(contact);
+
+  if (!pubkey)
+    return GNUNET_NO;
+
+  struct GNUNET_CRYPTO_PublicKey audience;
+  enum GNUNET_GenericReturnValue parsing;
+
+  parsing = GNUNET_CRYPTO_public_key_from_string(rp_uri, &audience);
+
+  if ((GNUNET_OK != parsing) || (0 != GNUNET_memcmp(pubkey, &audience)))
+    return GNUNET_NO;
+
+  return GNUNET_YES;
+}
+
 void
 cb_iterate_ticket_check (void *cls,
-                         const struct GNUNET_RECLAIM_Ticket *ticket)
+                         const struct GNUNET_RECLAIM_Ticket *ticket,
+                         const char *rp_uri)
 {
   GNUNET_assert(cls);
 
@@ -936,14 +986,9 @@ cb_iterate_ticket_check (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = tickets->handle;
-  const struct GNUNET_CRYPTO_PublicKey *pubkey;
 
-  if (tickets->contact)
-    pubkey = contact_get_key(tickets->contact);
-  else
-    pubkey = NULL;
-
-  if ((!pubkey) || (0 != GNUNET_memcmp(pubkey, &(ticket->audience))))
+  if ((!rp_uri) || (!(tickets->contact)) || 
+      (GNUNET_YES != is_contact_ticket_audience(tickets->contact, rp_uri)))
   {
     internal_tickets_next_iter(tickets);
     return;
@@ -970,8 +1015,8 @@ cb_iterate_ticket_check (void *cls,
 
   new_tickets->op = GNUNET_RECLAIM_ticket_consume(
     handle->reclaim,
-    key,
     ticket,
+    //rp_uri,
     cb_consume_ticket_check,
     new_tickets
   );
@@ -1017,7 +1062,8 @@ cb_consume_ticket (void *cls,
 
 void
 cb_iterate_ticket (void *cls,
-                   const struct GNUNET_RECLAIM_Ticket *ticket)
+                   const struct GNUNET_RECLAIM_Ticket *ticket,
+                   const char *rp_uri)
 {
   GNUNET_assert(cls);
 
@@ -1026,14 +1072,9 @@ cb_iterate_ticket (void *cls,
   );
 
   struct GNUNET_CHAT_Handle *handle = tickets->handle;
-  const struct GNUNET_CRYPTO_PublicKey *pubkey;
 
-  if (tickets->contact)
-    pubkey = contact_get_key(tickets->contact);
-  else
-    pubkey = NULL;
-
-  if ((!pubkey) || (0 != GNUNET_memcmp(pubkey, &(ticket->audience))))
+  if ((!rp_uri) || (!(tickets->contact)) || 
+      (GNUNET_YES != is_contact_ticket_audience(tickets->contact, rp_uri)))
   {
     internal_tickets_next_iter(tickets);
     return;
@@ -1060,8 +1101,8 @@ cb_iterate_ticket (void *cls,
 
   new_tickets->op = GNUNET_RECLAIM_ticket_consume(
     handle->reclaim,
-    key,
     ticket,
+    //rp_uri,
     cb_consume_ticket,
     new_tickets
   );

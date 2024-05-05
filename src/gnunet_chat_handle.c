@@ -864,11 +864,16 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
 
   struct GNUNET_CHAT_CheckHandleRoomMembers check;
 
-  if ((context) && (context->type == GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN))
-    goto check_type;
-  else if (context)
-    return GNUNET_OK;
+  if (!context)
+    goto new_context;
 
+  if ((GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN == context->type) &&
+      (GNUNET_YES != context->deleted))
+    goto check_type;
+  
+  return GNUNET_OK;
+
+new_context:
   context = context_create_from_room(handle, room);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(

@@ -236,7 +236,8 @@ context_update_nick (struct GNUNET_CHAT_Context *context,
   else
     context->nick = NULL;
 
-  if (!(context->handle))
+  if ((!(context->handle)) ||
+      (GNUNET_YES == context->deleted))
     return;
 
   handle_send_internal_message(

@@ -28,6 +28,7 @@
 #include "gnunet_chat_ticket_intern.c"
 #include "gnunet_chat_handle.h"
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <string.h>
@@ -58,9 +59,8 @@ ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
 
   ticket->op = NULL;
 
-  GNUNET_memcpy(&(ticket->ticket.identity), identity, sizeof(ticket->ticket.identity));
-  GNUNET_memcpy(&(ticket->ticket.audience), audience, sizeof(ticket->ticket.audience));
-  GNUNET_memcpy(&(ticket->ticket.rnd), &(message->identifier), sizeof(ticket->ticket.rnd));
+  strncpy(ticket->ticket.gns_name, message->identifier, sizeof(ticket->ticket.gns_name));
+  ticket->ticket.gns_name[sizeof(ticket->ticket.gns_name) - 1] = '\0';
 
   return ticket;
 }
@@ -79,6 +79,11 @@ ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
   if (!key)
     return;
 
+  struct GNUNET_CRYPTO_PublicKey pubkey;
+  GNUNET_CRYPTO_key_get_public(key, &pubkey);
+
+  char *rp_uri = GNUNET_CRYPTO_public_key_to_string(&pubkey);
+
   ticket->callback = callback;
   ticket->closure = cls;
 
@@ -87,11 +92,13 @@ ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
 
   ticket->op = GNUNET_RECLAIM_ticket_consume(
     ticket->handle->reclaim,
-    key,
     &(ticket->ticket),
+    //rp_uri,
     cb_ticket_consume_attribute,
     ticket
   );
+
+  GNUNET_free(rp_uri);
 }
 
 void

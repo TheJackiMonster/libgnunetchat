@@ -1315,6 +1315,7 @@ GNUNET_CHAT_group_leave (struct GNUNET_CHAT_Group *group)
   if ((!group) || (group->destruction))
     return GNUNET_SYSERR;
 
+  group->context->deleted = GNUNET_YES;
   group->destruction = GNUNET_SCHEDULER_add_now(
     task_group_destruction,
     group
