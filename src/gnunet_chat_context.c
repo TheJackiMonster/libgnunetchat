@@ -161,6 +161,9 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   if (context->topic)
     GNUNET_free(context->topic);
 
+  if (context->nick)
+    GNUNET_free(context->nick);
+
   GNUNET_free(context);
 }
 
