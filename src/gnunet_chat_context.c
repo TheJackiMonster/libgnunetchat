@@ -189,7 +189,8 @@ context_request_message (struct GNUNET_CHAT_Context* context,
 
 void
 context_update_room (struct GNUNET_CHAT_Context *context,
-		                 struct GNUNET_MESSENGER_Room *room)
+                     struct GNUNET_MESSENGER_Room *room,
+                     enum GNUNET_GenericReturnValue record)
 {
   GNUNET_assert(context);
 
@@ -217,9 +218,12 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   GNUNET_CONTAINER_multihashmap_clear(context->invites);
   GNUNET_CONTAINER_multihashmap_clear(context->files);
 
+  if (context->room)
+    context_delete(context, GNUNET_YES);
+
   context->room = room;
 
-  if (!(context->room))
+  if ((!(context->room)) || (GNUNET_YES != record))
     return;
 
   context_write_records(context);
@@ -227,7 +231,7 @@ context_update_room (struct GNUNET_CHAT_Context *context,
 
 void
 context_update_nick (struct GNUNET_CHAT_Context *context,
-		                 const char *nick)
+                     const char *nick)
 {
   GNUNET_assert(context);
 
@@ -483,4 +487,19 @@ skip_record_data:
   );
 
   GNUNET_free(label);
+}
+
+void
+context_delete (struct GNUNET_CHAT_Context *context,
+                enum GNUNET_GenericReturnValue exit)
+{
+  GNUNET_assert((context) && (context->room));
+
+  context->deleted = GNUNET_YES;
+  context_write_records(context);
+
+  if (GNUNET_YES != exit)
+    return;
+
+  GNUNET_MESSENGER_close_room(context->room);
 }

@@ -294,14 +294,12 @@ task_group_destruction (void *cls)
     group->context->room
   ), sizeof(key));
 
-  GNUNET_MESSENGER_close_room(group->context->room);
-  group->context->room = NULL;
-
   GNUNET_CONTAINER_multihashmap_remove(
     group->handle->groups, &key, group
   );
 
-  context_write_records(group->context);
+  context_delete(group->context, GNUNET_YES);
+
   group->destruction = NULL;
 
   group_destroy(group);

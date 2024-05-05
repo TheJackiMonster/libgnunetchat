@@ -115,10 +115,12 @@ context_request_message (struct GNUNET_CHAT_Context* context,
  *
  * @param[in,out] context Chat context
  * @param[in,out] room Messenger room
+ * @param[in] record Write changes to records
  */
 void
 context_update_room (struct GNUNET_CHAT_Context *context,
-		                 struct GNUNET_MESSENGER_Room *room);
+                     struct GNUNET_MESSENGER_Room *room,
+                     enum GNUNET_GenericReturnValue record);
 
 /**
  * Updates the <i>nick</i> of a selected chat <i>context</i>.
@@ -164,5 +166,16 @@ context_read_records (struct GNUNET_CHAT_Context *context,
  */
 void
 context_write_records (struct GNUNET_CHAT_Context *context);
+
+/**
+ * Removes the data from a selected chat <i>context</i> from
+ * the namestore and closes its room optionally.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] exit Closing its room
+ */
+void
+context_delete (struct GNUNET_CHAT_Context *context,
+                enum GNUNET_GenericReturnValue exit);
 
 #endif /* GNUNET_CHAT_CONTEXT_H_ */

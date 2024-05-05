@@ -1080,11 +1080,8 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
     contact->handle->contexts, key, contact->context
   );
 
-  GNUNET_MESSENGER_close_room(contact->context->room);
-
-  contact->context->deleted = GNUNET_YES;
-  context_write_records(contact->context);
-
+  context_delete(contact->context, GNUNET_YES);
+  
   context_destroy(contact->context);
   contact_destroy(contact);
   return GNUNET_OK;
@@ -1567,7 +1564,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (!room)
     goto cleanup_contact;
 
-  context_update_room(context, room);
+  context_update_room(context, room, GNUNET_YES);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, &key, context,

@@ -900,8 +900,7 @@ check_type:
 						      check.contact,
 						      context)))
   {
-    context->deleted = GNUNET_YES;
-    context_write_records(context);
+    context_delete(context, GNUNET_NO);
 
     context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
     context->deleted = GNUNET_NO;
@@ -910,8 +909,7 @@ check_type:
   }
   else if (checks >= minimum_amount_of_other_members_in_group)
   {
-    context->deleted = GNUNET_YES;
-    context_write_records(context);
+    context_delete(context, GNUNET_NO);
 
     context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
     context->deleted = GNUNET_NO;
@@ -1033,7 +1031,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
     &key
   );
 
-  if (context)
+  if ((context) && (context->room))
   {
     context_read_records(context, label, count, data);
     return NULL;
@@ -1047,6 +1045,12 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
 
   if (!room)
     return NULL;
+  else if (context)
+  {
+    context_update_room(context, room, GNUNET_NO);
+    context_read_records(context, label, count, data);
+    return NULL;
+  }
 
   context = context_create_from_room(handle, room);
   context_read_records(context, label, count, data);
