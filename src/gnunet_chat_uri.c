@@ -161,18 +161,18 @@ uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   {
     case GNUNET_CHAT_URI_TYPE_CHAT:
     {
-      char *tmp = GNUNET_CRYPTO_public_key_to_string(&(uri->chat.zone));
+      char *zone = GNUNET_CRYPTO_public_key_to_string(&(uri->chat.zone));
       char *result;
 
       GNUNET_asprintf (
         &result,
         "%s%s.%s",
         GNUNET_CHAT_URI_PREFIX,
-        tmp,
+        zone,
         uri->chat.label
       );
       
-      GNUNET_free(tmp);
+      GNUNET_free(zone);
       return result;
     }
     case GNUNET_CHAT_URI_TYPE_FS:
