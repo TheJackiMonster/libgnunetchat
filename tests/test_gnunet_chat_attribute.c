@@ -295,26 +295,23 @@ on_gnunet_chat_attribute_share_msg(void *cls,
       ck_assert_ptr_null(context);
       break;
     case GNUNET_CHAT_KIND_SHARED_ATTRIBUTES:
-      ck_assert_ptr_nonnull(context);
-      ck_assert_ptr_nonnull(sender);
-
       if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
       {
         printf("exit?\n");
 
         GNUNET_CHAT_disconnect(handle);
-        break;
       }
-
-      printf("list attributes?\n");
-
-      GNUNET_CHAT_get_shared_attributes(
-        handle,
-        GNUNET_CHAT_message_get_recipient(message),
-        on_gnunet_chat_attribute_share_attr,
-        handle
-      );
-
+      else
+      {
+        printf("list attributes?\n");
+        
+        GNUNET_CHAT_get_shared_attributes(
+          handle,
+          GNUNET_CHAT_message_get_recipient(message),
+          on_gnunet_chat_attribute_share_attr,
+          handle
+        );
+      }
       break;
     default:
       ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));

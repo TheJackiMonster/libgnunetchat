@@ -93,7 +93,7 @@ ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
   ticket->op = GNUNET_RECLAIM_ticket_consume(
     ticket->handle->reclaim,
     &(ticket->ticket),
-    //rp_uri,
+    rp_uri,
     cb_ticket_consume_attribute,
     ticket
   );

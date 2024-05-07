@@ -1033,7 +1033,7 @@ cb_iterate_ticket_check (void *cls,
   new_tickets->op = GNUNET_RECLAIM_ticket_consume(
     handle->reclaim,
     ticket,
-    //rp_uri,
+    rp_uri,
     cb_consume_ticket_check,
     new_tickets
   );
@@ -1119,7 +1119,7 @@ cb_iterate_ticket (void *cls,
   new_tickets->op = GNUNET_RECLAIM_ticket_consume(
     handle->reclaim,
     ticket,
-    //rp_uri,
+    rp_uri,
     cb_consume_ticket,
     new_tickets
   );
