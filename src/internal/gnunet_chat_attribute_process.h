@@ -57,30 +57,99 @@ struct GNUNET_CHAT_AttributeProcess
   struct GNUNET_CHAT_AttributeProcess *prev;
 };
 
+/**
+ * Creates a new attribute process resource to
+ * handle general attribute management using
+ * a given chat <i>handle</i>.
+ *
+ * The attribute process gets appended to the
+ * list of processes from the handle implicitly.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] name Attribute name or NULL
+ * @return New attribute process
+ */
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create(struct GNUNET_CHAT_Handle *handle,
                            const char *name);
 
+/**
+ * Creates a new attribute process resource to
+ * handle attribute storage of an attribute with
+ * a specific <i>name</i> using a given chat
+ * <i>handle</i> and a relative datetime it
+ * <i>expires</i>.
+ *
+ * @see internal_attributes_create()
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] Attribute name
+ * @param[in] expires Relative time for expiration
+ * @return New attribute storage process
+ */
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create_store(struct GNUNET_CHAT_Handle *handle,
                                  const char *name,
                                  struct GNUNET_TIME_Relative expires);
 
+/**
+ * Creates a new attribute process resource to
+ * handle attribute sharing of an attribute with
+ * a specific <i>name</i> for a certain chat 
+ * <i>contact</i> using a given chat <i>handle</i>.
+ *
+ * @see internal_attributes_create()
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] contact Chat contact
+ * @param[in] Attribute name
+ * @return New attribute sharing process
+ */
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create_share(struct GNUNET_CHAT_Handle *handle,
                                  struct GNUNET_CHAT_Contact *contact,
                                  const char *name);
 
+/**
+ * Creates a new attribute process resource to
+ * request attributes from a specific chat 
+ * <i>account</i> using a given chat <i>handle</i>.
+ *
+ * @see internal_attributes_create()
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in] account Chat account
+ * @return New attribute request process
+ */
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create_request(struct GNUNET_CHAT_Handle *handle,
                                    const struct GNUNET_CHAT_Account *account);
 
+/**
+ * Destroys and frees a given <i>attributes</i> 
+ * process resource. This will implicitly remove
+ * it from its chat handles list of processes.
+ *
+ * @param[out] attributes Attribute process
+ */
 void
 internal_attributes_destroy(struct GNUNET_CHAT_AttributeProcess *attributes);
 
+/**
+ * Continues the iteration of a given <i>attributes</i> 
+ * process resource to its next step.
+ *
+ * @param[in,out] attributes Attribute process
+ */
 void
 internal_attributes_next_iter(struct GNUNET_CHAT_AttributeProcess *attributes);
 
+/**
+ * Stops the iteration of a given <i>attributes</i> 
+ * process resource.
+ *
+ * @param[in,out] attributes Attribute process
+ */
 void
 internal_attributes_stop_iter(struct GNUNET_CHAT_AttributeProcess *attributes);
 

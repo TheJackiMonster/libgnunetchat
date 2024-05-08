@@ -50,21 +50,65 @@ struct GNUNET_CHAT_TicketProcess
   struct GNUNET_CHAT_TicketProcess *prev;
 };
 
+/**
+ * Creates a new ticket process resource to
+ * handle general ticket management from
+ * a specific char <i>contact</i> using
+ * a given chat <i>handle</i>.
+ *
+ * The ticket process gets appended to the
+ * list of processes from the handle implicitly.
+ *
+ * @param[in,out] handle Chat handle
+ * @param[in,out] contact Chat contact
+ * @param[in] name Attribute name or NULL
+ * @return New ticket process
+ */
 struct GNUNET_CHAT_TicketProcess*
 internal_tickets_create(struct GNUNET_CHAT_Handle *handle,
                         struct GNUNET_CHAT_Contact *contact,
                         const char *name);
 
+/**
+ * Creates a new copy of a given <i>tickets</i> 
+ * process with additional information about a 
+ * valid reclaim <i>ticket</i>.
+ *
+ * @see internal_tickets_create()
+ *
+ * @param[in] tickets Original ticket process
+ * @param[in] ticket Reclaim ticket or NULL
+ * @return New ticket process
+ */
 struct GNUNET_CHAT_TicketProcess*
 internal_tickets_copy(const struct GNUNET_CHAT_TicketProcess* tickets,
                       const struct GNUNET_RECLAIM_Ticket *ticket);
 
+/**
+ * Destroys and frees a given <i>tickets</i> 
+ * process resource. This will implicitly remove
+ * it from its chat handles list of processes.
+ *
+ * @param[out] tickets Ticket process
+ */
 void
 internal_tickets_destroy(struct GNUNET_CHAT_TicketProcess *tickets);
 
+/**
+ * Continues the iteration of a given <i>tickets</i> 
+ * process resource to its next step.
+ *
+ * @param[in,out] tickets Ticket process
+ */
 void
 internal_tickets_next_iter(struct GNUNET_CHAT_TicketProcess *tickets);
 
+/**
+ * Stops the iteration of a given <i>tickets</i> 
+ * process resource.
+ *
+ * @param[in,out] tickets Ticket process
+ */
 void
 internal_tickets_stop_iter(struct GNUNET_CHAT_TicketProcess *tickets);
 
