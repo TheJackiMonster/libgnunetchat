@@ -49,6 +49,13 @@
 #define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)
 #define GNUNET_CHAT_VERSION_PATCH ((GNUNET_CHAT_VERSION >>  0L) & 0xFFFFL)
 
+#define GNUNET_CHAT_ATTRIBUTE_AVATAR   "chat_avatar"
+#define GNUNET_CHAT_ATTRIBUTE_BIRTHDAY "chat_birthday"
+#define GNUNET_CHAT_ATTRIBUTE_EMAIL    "chat_email"
+#define GNUNET_CHAT_ATTRIBUTE_NAME     "chat_name"
+#define GNUNET_CHAT_ATTRIBUTE_PHONE    "chat_phone"
+#define GNUNET_CHAT_ATTRIBUTE_POSTAL   "chat_postal"
+
 #define GNUNET_CHAT_URI_PREFIX "gnunet://chat/"
 
 /**
