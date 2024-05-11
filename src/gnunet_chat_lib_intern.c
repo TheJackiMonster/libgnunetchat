@@ -718,6 +718,8 @@ cb_issue_ticket (void *cls,
     goto skip_sending;
 
   struct GNUNET_MESSENGER_Message message;
+  memset(&message, 0, sizeof(message));
+
   message.header.kind = GNUNET_MESSENGER_KIND_TICKET;
   message.body.ticket.identifier = identifier;
 

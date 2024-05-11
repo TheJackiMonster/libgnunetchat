@@ -346,13 +346,13 @@ file_update_upload (struct GNUNET_CHAT_File *file,
     return;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
 
   if (file->key)
     GNUNET_memcpy(&(msg.body.file.key), file->key,
                   sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
-  else
-    memset(&(msg.body.file.key), 0, sizeof(msg.body.file.key));
 
   GNUNET_memcpy(&(msg.body.file.hash), &(file->hash), sizeof(file->hash));
   GNUNET_strlcpy(msg.body.file.name, file->name, NAME_MAX);

@@ -1422,6 +1422,8 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
   ));
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
   GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &(msg.body.invite.door));
   GNUNET_memcpy(&(msg.body.invite.key), key, sizeof(msg.body.invite.key));
@@ -1574,6 +1576,8 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   handle_send_room_name(handle, room);
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
   GNUNET_CRYPTO_get_peer_identity(handle->cfg, &(msg.body.invite.door));
   GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
@@ -1669,6 +1673,8 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_TEXT;
   msg.body.text.text = GNUNET_strdup(text);
 
@@ -1690,6 +1696,8 @@ GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
 
   char zero = '\0';
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_TEXT;
   msg.body.text.text = &zero;
 
@@ -1839,6 +1847,8 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
     return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
 
   if (file->key)
@@ -1871,6 +1881,8 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
   char *tag_value = GNUNET_strdup(tag);
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
   GNUNET_memcpy(&(msg.body.tag.hash), &(message->hash),
     sizeof(struct GNUNET_HashCode));
@@ -2696,6 +2708,7 @@ GNUNET_CHAT_invitation_reject (struct GNUNET_CHAT_Invitation *invitation)
     return;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
   GNUNET_memcpy(&(msg.body.tag.hash), &(invitation->hash),

@@ -367,6 +367,8 @@ skip_tag_search:
   char *tag_value = tag? GNUNET_strdup(tag) : NULL;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
   msg.header.kind = GNUNET_MESSENGER_KIND_TAG;
   GNUNET_memcpy(&(msg.body.tag.hash), hash,
     sizeof(struct GNUNET_HashCode));

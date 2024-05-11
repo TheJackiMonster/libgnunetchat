@@ -837,6 +837,7 @@ handle_send_room_name (struct GNUNET_CHAT_Handle *handle,
     return;
 
   struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_NAME;
   msg.body.name.name = GNUNET_strdup(name);

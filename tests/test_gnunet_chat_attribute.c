@@ -170,9 +170,12 @@ on_gnunet_chat_attribute_share_attr(void *cls,
   const struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_get_connected(handle);
 
+  const char *account_name = GNUNET_CHAT_account_get_name(account);
+  const char *contact_name = GNUNET_CHAT_contact_get_name(contact);
+
   ck_assert_ptr_nonnull(account);
-  ck_assert_str_eq(GNUNET_CHAT_account_get_name(account), TEST_SHARE_ID_B);
-  ck_assert_str_eq(GNUNET_CHAT_contact_get_name(contact), TEST_SHARE_ID_A);
+  ck_assert_str_eq(account_name, TEST_SHARE_ID_B);
+  ck_assert_str_eq(contact_name, TEST_SHARE_ID_A);
   ck_assert_str_eq(name, TEST_SHARE_NAME);
   ck_assert_str_eq(value, TEST_SHARE_VALUE);
 
@@ -190,6 +193,7 @@ on_gnunet_chat_attribute_share_msg(void *cls,
   );
 
   const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Contact *recipient;
   struct GNUNET_CHAT_Contact *sender;
   const char *name;
 
@@ -197,6 +201,7 @@ on_gnunet_chat_attribute_share_msg(void *cls,
   ck_assert_ptr_nonnull(message);
 
   account = GNUNET_CHAT_message_get_account(message);
+  recipient = GNUNET_CHAT_message_get_recipient(message);
   sender = GNUNET_CHAT_message_get_sender(message);
 
   switch (GNUNET_CHAT_message_get_kind(message))
@@ -285,7 +290,6 @@ on_gnunet_chat_attribute_share_msg(void *cls,
         ), GNUNET_OK);
       else if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
         GNUNET_CHAT_share_attribute_with(handle, sender, TEST_SHARE_NAME);
-
       break;
     case GNUNET_CHAT_KIND_CONTACT:
       ck_assert_ptr_nonnull(context);
@@ -295,19 +299,24 @@ on_gnunet_chat_attribute_share_msg(void *cls,
       ck_assert_ptr_null(context);
       break;
     case GNUNET_CHAT_KIND_SHARED_ATTRIBUTES:
-      if (GNUNET_YES != GNUNET_CHAT_message_is_sent(message))
+      if (!context)
       {
-        printf("exit?\n");
+        ck_assert_ptr_null(account);
+        ck_assert_ptr_null(sender);
+        ck_assert_ptr_null(recipient);
 
         GNUNET_CHAT_disconnect(handle);
       }
-      else
+      else if (GNUNET_YES == GNUNET_CHAT_message_is_sent(message))
       {
-        printf("list attributes?\n");
-        
+        ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(sender);
+        ck_assert_ptr_nonnull(recipient);
+        ck_assert_ptr_ne(sender, recipient);
+
         GNUNET_CHAT_get_shared_attributes(
           handle,
-          GNUNET_CHAT_message_get_recipient(message),
+          recipient,
           on_gnunet_chat_attribute_share_attr,
           handle
         );
