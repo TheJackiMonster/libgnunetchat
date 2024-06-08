@@ -24,6 +24,7 @@ gnunetchat_sources = files([
     'gnunet_chat_account.c', 'gnunet_chat_account.h',
     'gnunet_chat_contact.c', 'gnunet_chat_contact.h',
     'gnunet_chat_context.c', 'gnunet_chat_context.h',
+    'gnunet_chat_discourse.c', 'gnunet_chat_discourse.h',
     'gnunet_chat_file.c', 'gnunet_chat_file.h',
     'gnunet_chat_group.c', 'gnunet_chat_group.h',
     'gnunet_chat_handle.c', 'gnunet_chat_handle.h',

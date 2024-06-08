@@ -24,6 +24,7 @@
 
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_discourse.h"
 #include "gnunet_chat_file.h"
 #include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
@@ -888,6 +889,42 @@ skip_msg_handing:
         contact->tickets_tail,
         tickets
       );
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_SUBSCRIBE:
+    {
+      const struct GNUNET_ShortHashCode *id = &(message->msg->body.subscribe.discourse);
+      struct GNUNET_CHAT_Discourse *discourse = GNUNET_CONTAINER_multishortmap_get(
+        context->discourses, id
+      );
+
+      if (! discourse)
+      {
+        discourse = discourse_create(context, id);
+
+        if (GNUNET_OK != GNUNET_CONTAINER_multishortmap_put(context->discourses,
+          id, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+        {
+          discourse_destroy(discourse);
+          break;
+        }
+      }
+
+      if (GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE & message->msg->body.subscribe.flags)
+        discourse_unsubscribe(
+          discourse,
+          contact,
+          GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp),
+          GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
+        );
+      else
+        discourse_subscribe(
+          discourse,
+          contact,
+          GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp),
+          GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
+        );
+
       break;
     }
     default:

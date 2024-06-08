@@ -68,8 +68,18 @@ test_gnunet_chat_attribute = executable(
     extra_files: 'test_gnunet_chat.h',
 )
 
+test_gnunet_chat_discourse = executable(
+    'test_gnunet_chat_discourse.test',
+    'test_gnunet_chat_discourse.c',
+    dependencies: test_deps,
+    link_with: gnunetchat_lib,
+    include_directories: tests_include,
+    extra_files: 'test_gnunet_chat.h',
+)
+
 test('test_gnunet_chat_handle', test_gnunet_chat_handle, depends: gnunetchat_lib)
 test('test_gnunet_chat_lobby', test_gnunet_chat_lobby, depends: gnunetchat_lib)
 test('test_gnunet_chat_file', test_gnunet_chat_file, depends: gnunetchat_lib)
 test('test_gnunet_chat_message', test_gnunet_chat_message, depends: gnunetchat_lib)
 test('test_gnunet_chat_attribute', test_gnunet_chat_attribute, depends: gnunetchat_lib)
+test('test_gnunet_chat_discourse', test_gnunet_chat_discourse, depends: gnunetchat_lib)

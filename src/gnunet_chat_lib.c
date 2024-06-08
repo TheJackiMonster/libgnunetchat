@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
+#include <gnunet/gnunet_util_lib.h>
 #include <libgen.h>
 #include <stdint.h>
 #include <string.h>
@@ -40,6 +41,7 @@
 
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_discourse.h"
 #include "gnunet_chat_file.h"
 #include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
@@ -1899,6 +1901,54 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
 }
 
 
+struct GNUNET_CHAT_Discourse*
+GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
+                                    const struct GNUNET_ShortHashCode *id)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!context) || (!(context->discourses)) || (!(context->room)) || (!id))
+    return NULL;
+
+  struct GNUNET_CHAT_Discourse *discourse = GNUNET_CONTAINER_multishortmap_get(
+    context->discourses, id
+  );
+
+  if (!discourse)
+  {
+    discourse = discourse_create(context, id);
+
+    if (GNUNET_OK != GNUNET_CONTAINER_multishortmap_put(context->discourses,
+        id, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    {
+      discourse_destroy(discourse);
+      return NULL;
+    }
+  }
+
+  struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
+  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
+  GNUNET_memcpy(&(msg.body.subscribe.discourse), id, sizeof(struct GNUNET_ShortHashCode));
+
+  const struct GNUNET_TIME_Relative subscribtion_time = GNUNET_TIME_relative_multiply(
+    GNUNET_TIME_relative_get_second_(), 10
+  );
+
+  msg.body.subscribe.time = GNUNET_TIME_relative_hton(subscribtion_time);
+  msg.body.subscribe.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_KEEP_ALIVE;
+
+  GNUNET_MESSENGER_send_message(
+    context->room,
+    &msg,
+    NULL
+  );
+
+  return discourse;
+}
+
+
 int
 GNUNET_CHAT_context_iterate_messages (struct GNUNET_CHAT_Context *context,
                                       GNUNET_CHAT_ContextMessageCallback callback,
@@ -2235,6 +2285,32 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 }
 
 
+struct GNUNET_CHAT_Discourse*
+GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
+      (!(message->context)))
+    return NULL;
+  
+  struct GNUNET_CHAT_Discourse *discourse;
+  
+  if (GNUNET_MESSENGER_KIND_SUBSCRIBE == message->msg->header.kind)
+    discourse = GNUNET_CONTAINER_multishortmap_get(
+      message->context->discourses,
+      &(message->msg->body.subscribe.discourse));
+  else if (GNUNET_MESSENGER_KIND_TALK == message->msg->header.kind)
+    discourse = GNUNET_CONTAINER_multishortmap_get(
+      message->context->discourses,
+      &(message->msg->body.talk.discourse));
+  else
+    discourse = NULL;
+
+  return discourse;
+}
+
+
 const struct GNUNET_CHAT_Message*
 GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 {
@@ -2291,6 +2367,49 @@ GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
     return 0;
 
   return tagging_iterate(tagging, GNUNET_YES, NULL, callback, cls);
+}
+
+
+uint64_t
+GNUNET_CHAT_message_available (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (GNUNET_YES != message_has_msg(message)))
+    return 0;
+
+  if (GNUNET_MESSENGER_KIND_TALK == message->msg->header.kind)
+    return message->msg->body.talk.length;
+  else
+    return 0;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_read (const struct GNUNET_CHAT_Message *message,
+                          char *data,
+                          uint64_t size)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (GNUNET_YES != message_has_msg(message)))
+    return GNUNET_SYSERR;
+
+  if (GNUNET_MESSENGER_KIND_TALK != message->msg->header.kind)
+    return GNUNET_SYSERR;
+
+  const uint64_t available = message->msg->body.talk.length;
+
+  if (available < size)
+    return GNUNET_NO;
+
+  GNUNET_memcpy(
+    data,
+    message->msg->body.talk.data,
+    size
+  );
+
+  return GNUNET_OK;
 }
 
 
@@ -2752,4 +2871,145 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
     return GNUNET_YES;
   else
     return GNUNET_NO;
+}
+
+
+const struct GNUNET_ShortHashCode*
+GNUNET_CHAT_discourse_get_id (const struct GNUNET_CHAT_Discourse *discourse)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!discourse)
+    return NULL;
+
+  return &(discourse->id);
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_discourse_is_open (const struct GNUNET_CHAT_Discourse *discourse)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!discourse)
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_DiscourseSubscription *sub;
+  for (sub = discourse->head; sub; sub = sub->next)
+  {
+    if (GNUNET_TIME_absolute_cmp(sub->end, <, GNUNET_TIME_absolute_get()))
+      continue;
+
+    if (GNUNET_YES == sub->contact->owned)
+      return GNUNET_YES;
+  }
+
+  return GNUNET_NO;
+}
+
+
+void
+GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!discourse) || (!(discourse->context)) || (!(discourse->context->room)))
+    return;
+  
+  struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
+  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
+
+  GNUNET_memcpy(
+    &(msg.body.subscribe.discourse),
+    &(discourse->id),
+    sizeof(struct GNUNET_ShortHashCode)
+  );
+
+  msg.body.subscribe.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
+  msg.body.subscribe.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE;
+
+  GNUNET_MESSENGER_send_message(
+    discourse->context->room,
+    &msg,
+    NULL
+  );
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
+                             const char *data,
+                             uint64_t size)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!discourse) || (!data) || (!(discourse->context)) || 
+      (!(discourse->context->room)))
+    return GNUNET_SYSERR;
+  
+  static const uint64_t max_size = (uint16_t) (
+    GNUNET_MAX_MESSAGE_SIZE - GNUNET_MIN_MESSAGE_SIZE -
+    sizeof (struct GNUNET_MESSENGER_Message)
+  );
+
+  struct GNUNET_MESSENGER_Message msg;
+  memset(&msg, 0, sizeof(msg));
+
+  msg.header.kind = GNUNET_MESSENGER_KIND_TALK;
+  msg.body.talk.data = GNUNET_malloc(size > max_size? max_size : size);
+
+  GNUNET_memcpy(
+    &(msg.body.talk.discourse),
+    &(discourse->id),
+    sizeof(struct GNUNET_ShortHashCode)
+  );
+
+  while (size > 0)
+  {
+    msg.body.talk.length = (uint16_t) (size > max_size? max_size : size);
+
+    GNUNET_memcpy(
+      msg.body.talk.data,
+      data,
+      msg.body.talk.length
+    );
+
+    size -= msg.body.talk.length;
+    data += msg.body.talk.length;
+
+    GNUNET_MESSENGER_send_message(discourse->context->room, &msg, NULL);
+  }
+
+  GNUNET_free(msg.body.talk.data);
+  return GNUNET_OK;
+}
+
+
+int
+GNUNET_CHAT_discourse_iterate_contacts (const struct GNUNET_CHAT_Discourse *discourse,
+                                        GNUNET_CHAT_DiscourseContactCallback callback,
+                                        void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (! discourse)
+    return GNUNET_SYSERR;
+
+  int result = 0;
+
+  struct GNUNET_CHAT_DiscourseSubscription *sub;
+  for (sub = discourse->head; sub; sub = sub->next)
+  {
+    if (GNUNET_TIME_absolute_cmp(sub->end, <, GNUNET_TIME_absolute_get()))
+      continue;
+
+    if (callback)
+      callback(cls, discourse, sub->contact);
+
+    result++;
+  }
+
+  return result;
 }

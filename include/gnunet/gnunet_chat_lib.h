@@ -37,13 +37,14 @@
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
+#include <stdint.h>
 
 /**
  * @def GNUNET_CHAT_VERSION The major and minor version should be identical to
  *                          the #GNUNET_MESSENGER_VERSION of the GNUnet Messenger
  *                          service while the patch version is independent.
  */
-#define GNUNET_CHAT_VERSION 0x000000040000L
+#define GNUNET_CHAT_VERSION 0x000000050000L
 
 #define GNUNET_CHAT_VERSION_MAJOR ((GNUNET_CHAT_VERSION >> 32L) & 0xFFFFL)
 #define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)
@@ -87,12 +88,12 @@ enum GNUNET_CHAT_MessageKind
   /**
    * The kind to inform that something went wrong.
    */
-  GNUNET_CHAT_KIND_WARNING = 1,    /**< GNUNET_CHAT_KIND_WARNING */
+  GNUNET_CHAT_KIND_WARNING = 1,            /**< GNUNET_CHAT_KIND_WARNING */
 
   /**
    * The kind to inform that the list of accounts was refreshed.
    */
-  GNUNET_CHAT_KIND_REFRESH = 2,    /**< GNUNET_CHAT_KIND_REFRESH */
+  GNUNET_CHAT_KIND_REFRESH = 2,            /**< GNUNET_CHAT_KIND_REFRESH */
 
   /**
    * The kind to inform that the application can be used.
@@ -176,6 +177,16 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_SHARED_ATTRIBUTES = 18, /**< GNUNET_CHAT_KIND_SHARED_ATTRIBUTES */
 
   /**
+   * The kind to inform that a discourse was updated.
+   */
+  GNUNET_CHAT_KIND_DISCOURSE = 19,         /**< GNUNET_CHAT_KIND_DISCOURSE */
+
+  /**
+   * The kind to describe a data message from a discourse.
+   */
+  GNUNET_CHAT_KIND_DATA = 20,              /**< GNUNET_CHAT_KIND_DATA */
+
+  /**
    * An unknown kind of message.
    */
   GNUNET_CHAT_KIND_UNKNOWN = 0             /**< GNUNET_CHAT_KIND_UNKNOWN */
@@ -230,6 +241,11 @@ struct GNUNET_CHAT_File;
  * Struct of a chat invitation.
  */
 struct GNUNET_CHAT_Invitation;
+
+/**
+ * Struct of a chat discourse.
+ */
+struct GNUNET_CHAT_Discourse;
 
 /**
  * Iterator over chat accounts of a specific chat handle.
@@ -342,7 +358,7 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over chat contacts in a specific chat group.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_group_iterate_contacts
- * @param[in,out] group Chat group
+ * @param[in] group Chat group
  * @param[in,out] contact Chat contact
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
@@ -447,6 +463,31 @@ typedef void
                                     struct GNUNET_CHAT_File *file,
                                     uint64_t completed,
                                     uint64_t size);
+
+/**
+ * Iterator over chat discourses in a specific chat context.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_context_iterate_discourses
+ * @param[in,out] context Chat context
+ * @param[in,out] discourse Chat discourse
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_DiscourseCallback) (void *cls,
+                                  struct GNUNET_CHAT_Context *context,
+                                  struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Iterator over chat contacts in a specific chat discourse.
+ *
+ * @param[in,out] cls Closure from #GNUNET_CHAT_discourse_iterate_contacts
+ * @param[in] discourse Chat discourse
+ * @param[in,out] contact Chat contact
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_DiscourseContactCallback) (void *cls,
+                                         const struct GNUNET_CHAT_Discourse *discourse,
+                                         struct GNUNET_CHAT_Contact *contact);
 
 /**
  * Start a chat handle with a certain configuration.
@@ -1276,6 +1317,18 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
                               const char *tag);
 
 /**
+ * Opens a chat discourse under a specific <i>id</i> in a given chat 
+ * <i>context</i> to send data live to other contacts.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] id Discourse id
+ * @return Chat discourse
+ */
+struct GNUNET_CHAT_Discourse*
+GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
+                                    const struct GNUNET_ShortHashCode *id);
+
+/**
  * Iterates through the contacts of a given chat <i>context</i> with a selected
  * callback and custom closure.
  *
@@ -1302,6 +1355,20 @@ int
 GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
                                    GNUNET_CHAT_ContextFileCallback callback,
                                    void *cls);
+
+/**
+ * Iterates through the discourses of a given chat <i>context</i> with a 
+ * selected callback and custom closure.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] callback Callback for file iteration (optional)
+ * @param[in,out] cls Closure for file iteration (optional)
+ * @return Amount of discourses iterated or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_context_iterate_discourses (struct GNUNET_CHAT_Context *context,
+                                        GNUNET_CHAT_DiscourseCallback callback,
+                                        void *cls);
 
 /**
  * Returns the kind of a given <i>message</i> to determine its content and
@@ -1464,6 +1531,17 @@ struct GNUNET_CHAT_Invitation*
 GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message);
 
 /**
+ * Returns the discourse of a given <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_DISCOURSE or #GNUNET_CHAT_KIND_DATA,
+ * otherwise it returns NULL.
+ *
+ * @param[in] message Message
+ * @return The discourse of message or NULL
+ */
+struct GNUNET_CHAT_Discourse*
+GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message);
+
+/**
  * Returns the target message of an operation represented by a given
  * <i>message</i> if its kind is #GNUNET_CHAT_KIND_DELETION, otherwise it
  * returns NULL.
@@ -1498,6 +1576,32 @@ int
 GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
                                   GNUNET_CHAT_MessageCallback callback,
                                   void *cls);
+
+/**
+ * Returns the amount of data from a given <i>message</i> if its kind 
+ * is #GNUNET_CHAT_KIND_DATA, otherwise it returns NULL.
+ *
+ * @param[in] message Message
+ * @return The amount of data or zero
+ */
+uint64_t
+GNUNET_CHAT_message_available (const struct GNUNET_CHAT_Message *message);
+
+/**
+ * Reads the data from a given <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_DATA into a specific <i>data</i> buffer
+ * up to a selected <i>size</i>.
+ *
+ * @param[in] message Message
+ * @param[out] data Data buffer
+ * @param[in] size Data size
+ * @return #GNUNET_OK on success, #GNUNET_NO if there's missing data 
+ *         to read, otherwise #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_read (const struct GNUNET_CHAT_Message *message,
+                          char *data,
+                          uint64_t size);
 
 /**
  * Returns the name of a given <i>file</i> handle.
@@ -1719,6 +1823,62 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation);
+
+/**
+ * Returns the discourse id of a given chat <i>discourse</i>.
+ *
+ * @param[in] discourse Chat discourse
+ * @return Discourse id
+ */
+const struct GNUNET_ShortHashCode*
+GNUNET_CHAT_discourse_get_id (const struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Returns whether a chat <i>discourse</i> is currently open.
+ *
+ * @param[in] discourse Chat discourse
+ * @return #GNUNET_YES if the discourse is open, #GNUNET_SYSERR on failure and 
+ *         #GNUNET_NO otherwise.
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_discourse_is_open (const struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Closes a given chat <i>discourse</i> to stop receiving any data messages
+ * from the specific discourse.
+ *
+ * @param[in,out] discourse Chat discourse
+ */
+void
+GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse);
+
+/**
+ * Sends messages to a given chat <i>discourse</i> containing the
+ * specified <i>data</i> of a custom <i>size</i> in bytes.
+ *
+ * @param[in,out] discourse Chat discourse
+ * @param[in] data Data buffer
+ * @param[in] size Data size
+ * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
+                             const char *data,
+                             uint64_t size);
+
+/**
+ * Iterates through the subscribed chat contacts of a given chat <i>discourse</i> 
+ * with a selected callback and custom closure.
+ *
+ * @param[in,out] discourse Chat discourse
+ * @param[in] callback Callback for contact iteration (optional)
+ * @param[in,out] cls Closure for contact iteration (optional)
+ * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_discourse_iterate_contacts (const struct GNUNET_CHAT_Discourse *discourse,
+                                        GNUNET_CHAT_DiscourseContactCallback callback,
+                                        void *cls);
 
 /**@}*/
 

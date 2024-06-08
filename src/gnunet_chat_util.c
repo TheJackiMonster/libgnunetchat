@@ -461,6 +461,10 @@ util_message_kind_from_kind (enum GNUNET_MESSENGER_MessageKind kind)
       return GNUNET_CHAT_KIND_SHARED_ATTRIBUTES;
     case GNUNET_MESSENGER_KIND_TAG:
       return GNUNET_CHAT_KIND_TAG;
+    case GNUNET_MESSENGER_KIND_SUBSCRIBE:
+      return GNUNET_CHAT_KIND_DISCOURSE;
+    case GNUNET_MESSENGER_KIND_TALK:
+      return GNUNET_CHAT_KIND_DATA;
     default:
       return GNUNET_CHAT_KIND_UNKNOWN;
   }
