@@ -1,6 +1,6 @@
 ## Version 0.5.0
 * This release requires the GNUnet Messenger Service 0.5!
-* Implements tickets to shate attributes with contacts.
+* Implements tickets to share attributes with contacts.
 * Implement functionality to get recipient of sent private messages.
 * Allow file sharing without additional encryption key.
 * Implements discourses to send data in live channels.
