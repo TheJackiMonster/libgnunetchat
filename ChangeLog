@@ -1,6 +1,14 @@
-## Version 0.4.0
-* This release requires the GNUnet Messenger Service 0.4!
-* ...
+## Version 0.5.0
+* This release requires the GNUnet Messenger Service 0.5!
+* Implements tickets to shate attributes with contacts.
+* Implement functionality to get recipient of sent private messages.
+* Allow file sharing without additional encryption key.
+* Implements discourses to send data in live channels.
+* Fix memory violations and duplicate storage entries.
+* Adjust callbacks regarding account states.
+* Fix deletions of accounts and lobbies.
+* Fix multiple synchronization bugs.
+* Add test cases for discourses and tickets.
 
 ## Version 0.3.1
 * Makes dependency to libcheck optional (only required for building test cases)
