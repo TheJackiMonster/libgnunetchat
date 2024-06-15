@@ -852,6 +852,29 @@ GNUNET_CHAT_iterate_files (struct GNUNET_CHAT_Handle *handle,
 }
 
 
+int
+GNUNET_CHAT_context_iterate_discourses (struct GNUNET_CHAT_Context *context,
+                                        GNUNET_CHAT_DiscourseCallback callback,
+                                        void *cls)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!context) || (!(context->discourses)))
+    return GNUNET_SYSERR;
+
+  struct GNUNET_CHAT_ContextIterateDiscourses it;
+  it.context = context;
+  it.cb = callback;
+  it.cls = cls;
+
+  return GNUNET_CONTAINER_multishortmap_iterate(
+    context->discourses,
+    it_context_iterate_discourses,
+    &it
+  );
+}
+
+
 void
 GNUNET_CHAT_set_user_pointer (struct GNUNET_CHAT_Handle *handle,
 			                        void *user_pointer)

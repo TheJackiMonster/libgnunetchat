@@ -389,6 +389,29 @@ it_context_iterate_files (void *cls,
   return it->cb(it->cls, it->context, file);
 }
 
+struct GNUNET_CHAT_ContextIterateDiscourses
+{
+  struct GNUNET_CHAT_Context *context;
+  GNUNET_CHAT_DiscourseCallback cb;
+  void *cls;
+};
+
+enum GNUNET_GenericReturnValue
+it_context_iterate_discourses (void *cls,
+                               GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
+                               void *value)
+{
+  GNUNET_assert((cls) && (value));
+
+  struct GNUNET_CHAT_ContextIterateDiscourses *it = cls;
+  struct GNUNET_CHAT_Discourse *discourse = value;
+
+  if (!(it->cb))
+    return GNUNET_YES;
+
+  return it->cb(it->cls, it->context, discourse);
+}
+
 struct GNUNET_CHAT_MessageIterateReadReceipts
 {
   const struct GNUNET_CHAT_Message *message;
