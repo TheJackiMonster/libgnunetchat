@@ -36,6 +36,11 @@ jobs:
       - name: Checkout the current branch
         uses: actions/checkout@v3
 
+      - name: Install dependencies (application)
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install ninja-build meson gcc
+
       - name: Build library
         run: |
           meson setup --prefix=/usr --libdir=lib build
