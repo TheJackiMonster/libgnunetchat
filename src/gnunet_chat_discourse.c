@@ -79,7 +79,12 @@ discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
 {
   GNUNET_assert((discourse) && (contact));
 
-  if (GNUNET_TIME_absolute_cmp(timestamp, <, GNUNET_TIME_absolute_get()))
+  const struct GNUNET_TIME_Absolute end = GNUNET_TIME_absolute_add(
+    timestamp,
+    time
+  );
+
+  if (GNUNET_TIME_absolute_cmp(end, <, GNUNET_TIME_absolute_get()))
     return;
 
   struct GNUNET_CHAT_DiscourseSubscription *sub;
@@ -107,10 +112,10 @@ discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
     GNUNET_SCHEDULER_cancel(sub->task);
 
   sub->start = timestamp;
-  sub->end = GNUNET_TIME_absolute_add(timestamp, time);
+  sub->end = end;
 
   sub->task = GNUNET_SCHEDULER_add_at(
-    sub->end,
+    end,
     discourse_remove_subscription,
     sub
   );
