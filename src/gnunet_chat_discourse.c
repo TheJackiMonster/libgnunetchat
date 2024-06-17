@@ -71,7 +71,7 @@ discourse_destroy (struct GNUNET_CHAT_Discourse *discourse)
   GNUNET_free(discourse);
 }
 
-void
+enum GNUNET_GenericReturnValue
 discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
                      struct GNUNET_CHAT_Contact *contact,
                      const struct GNUNET_TIME_Absolute timestamp,
@@ -85,12 +85,16 @@ discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
   );
 
   if (GNUNET_TIME_absolute_cmp(end, <, GNUNET_TIME_absolute_get()))
-    return;
+    return GNUNET_SYSERR;
 
   struct GNUNET_CHAT_DiscourseSubscription *sub;
   for (sub = discourse->head; sub; sub = sub->next)
     if (sub->contact == contact)
       break;
+  
+  const enum GNUNET_GenericReturnValue update = (
+    sub? GNUNET_YES : GNUNET_NO
+  );
 
   if (!sub)
   {
@@ -119,6 +123,8 @@ discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
     discourse_remove_subscription,
     sub
   );
+
+  return update;
 }
 
 void

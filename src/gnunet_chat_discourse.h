@@ -88,8 +88,10 @@ discourse_destroy (struct GNUNET_CHAT_Discourse *discourse);
  * @param[in,out] contact Chat contact
  * @param[in] timestamp Timestamp
  * @param[in] time Time window
+ * @return #GNUNET_YES on updating an existing subscription,
+ *         #GNUNET_SYSERR on failure, otherwise #GNUNET_NO
  */
-void
+enum GNUNET_GenericReturnValue
 discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
                      struct GNUNET_CHAT_Contact *contact,
                      const struct GNUNET_TIME_Absolute timestamp,

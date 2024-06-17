@@ -910,6 +910,8 @@ skip_msg_handing:
         }
       }
 
+      enum GNUNET_GenericReturnValue subscribtion_update = GNUNET_NO;
+
       if (GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE & message->msg->body.subscribe.flags)
         discourse_unsubscribe(
           discourse,
@@ -918,12 +920,15 @@ skip_msg_handing:
           GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
         );
       else
-        discourse_subscribe(
+        subscribtion_update = discourse_subscribe(
           discourse,
           contact,
           GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp),
           GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
         );
+      
+      if (GNUNET_YES == subscribtion_update)
+        message->flags |= GNUNET_MESSENGER_FLAG_UPDATE;
 
       break;
     }
