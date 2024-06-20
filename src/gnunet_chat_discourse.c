@@ -42,6 +42,8 @@ discourse_create (struct GNUNET_CHAT_Context *context,
   discourse->head = NULL;
   discourse->tail = NULL;
 
+  discourse->user_pointer = NULL;
+
   return discourse;
 }
 

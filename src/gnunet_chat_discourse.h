@@ -57,6 +57,8 @@ struct GNUNET_CHAT_Discourse
 
   struct GNUNET_CHAT_DiscourseSubscription *head;
   struct GNUNET_CHAT_DiscourseSubscription *tail;
+
+  void *user_pointer;
 };
 
 /**

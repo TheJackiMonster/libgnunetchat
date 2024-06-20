@@ -1844,6 +1844,27 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_discourse_is_open (const struct GNUNET_CHAT_Discourse *discourse);
 
 /**
+ * Sets a custom <i>user pointer</i> to a given chat <i>discourse</i> so it can
+ * be accessed in chat discourse related callbacks.
+ *
+ * @param[in,out] discourse Chat discourse
+ * @param[in] user_pointer Custom user pointer
+ */
+void
+GNUNET_CHAT_discourse_set_user_pointer (struct GNUNET_CHAT_Discourse *discourse,
+                                        void *user_pointer);
+
+/**
+ * Returns the custom user pointer of a given chat <i>discourse</i> or NULL if it
+ * was not set any.
+ *
+ * @param[in] discourse Chat discourse
+ * @return Custom user pointer or NULL
+ */
+void*
+GNUNET_CHAT_discourse_get_user_pointer (const struct GNUNET_CHAT_Discourse *discourse);
+
+/**
  * Closes a given chat <i>discourse</i> to stop receiving any data messages
  * from the specific discourse.
  *

@@ -2932,6 +2932,31 @@ GNUNET_CHAT_discourse_is_open (const struct GNUNET_CHAT_Discourse *discourse)
 
 
 void
+GNUNET_CHAT_discourse_set_user_pointer (struct GNUNET_CHAT_Discourse *discourse,
+                                        void *user_pointer)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!discourse)
+    return;
+
+  discourse->user_pointer = user_pointer;
+}
+
+
+void*
+GNUNET_CHAT_discourse_get_user_pointer (const struct GNUNET_CHAT_Discourse *discourse)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!discourse)
+    return NULL;
+
+  return discourse->user_pointer;
+}
+
+
+void
 GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
 {
   GNUNET_CHAT_VERSION_ASSERT();
