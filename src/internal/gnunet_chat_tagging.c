@@ -31,10 +31,10 @@
 
 static const unsigned int initial_map_size_of_tagging = 4;
 
-struct GNUNET_CHAT_Tagging*
-tagging_create ()
+struct GNUNET_CHAT_InternalTagging*
+internal_tagging_create ()
 {
-  struct GNUNET_CHAT_Tagging* tagging = GNUNET_new(struct GNUNET_CHAT_Tagging);
+  struct GNUNET_CHAT_InternalTagging* tagging = GNUNET_new(struct GNUNET_CHAT_InternalTagging);
 
   tagging->tags = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_tagging, GNUNET_NO);
@@ -43,7 +43,7 @@ tagging_create ()
 }
 
 void
-tagging_destroy (struct GNUNET_CHAT_Tagging *tagging)
+internal_tagging_destroy (struct GNUNET_CHAT_InternalTagging *tagging)
 {
   GNUNET_assert(
     (tagging) &&
@@ -56,8 +56,8 @@ tagging_destroy (struct GNUNET_CHAT_Tagging *tagging)
 }
 
 enum GNUNET_GenericReturnValue
-tagging_add (struct GNUNET_CHAT_Tagging *tagging,
-             struct GNUNET_CHAT_Message *message)
+internal_tagging_add (struct GNUNET_CHAT_InternalTagging *tagging,
+                      struct GNUNET_CHAT_Message *message)
 {
   GNUNET_assert((tagging) && (message));
 
@@ -82,8 +82,8 @@ tagging_add (struct GNUNET_CHAT_Tagging *tagging,
 }
 
 enum GNUNET_GenericReturnValue
-tagging_remove (struct GNUNET_CHAT_Tagging *tagging,
-                const struct GNUNET_CHAT_Message *message)
+internal_tagging_remove (struct GNUNET_CHAT_InternalTagging *tagging,
+                         const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_assert((tagging) && (message));
 
@@ -106,18 +106,18 @@ tagging_remove (struct GNUNET_CHAT_Tagging *tagging,
   );
 }
 
-struct GNUNET_CHAT_TaggingIterator
+struct GNUNET_CHAT_InternalTaggingIterator
 {
   GNUNET_CHAT_TaggingCallback cb;
   void *cls;
 };
 
 static enum GNUNET_GenericReturnValue
-tagging_iterate_message (void *cls,
-                         const struct GNUNET_HashCode *key,
-                         void *value)
+internal_tagging_iterate_message (void *cls,
+                                  const struct GNUNET_HashCode *key,
+                                  void *value)
 {
-  struct GNUNET_CHAT_TaggingIterator *it = cls;
+  struct GNUNET_CHAT_InternalTaggingIterator *it = cls;
   const struct GNUNET_CHAT_Message *message = value;
 
   if (!(it->cb))
@@ -127,22 +127,22 @@ tagging_iterate_message (void *cls,
 }
 
 int
-tagging_iterate (const struct GNUNET_CHAT_Tagging *tagging,
-                 enum GNUNET_GenericReturnValue ignore_tag,
-                 const char *tag,
-                 GNUNET_CHAT_TaggingCallback cb,
-                 void *cls)
+internal_tagging_iterate (const struct GNUNET_CHAT_InternalTagging *tagging,
+                          enum GNUNET_GenericReturnValue ignore_tag,
+                          const char *tag,
+                          GNUNET_CHAT_TaggingCallback cb,
+                          void *cls)
 {
   GNUNET_assert(tagging);
 
-  struct GNUNET_CHAT_TaggingIterator it;
+  struct GNUNET_CHAT_InternalTaggingIterator it;
   it.cb = cb;
   it.cls = cls;
 
   if (GNUNET_YES == ignore_tag)
     return GNUNET_CONTAINER_multihashmap_iterate(
       tagging->tags,
-      tagging_iterate_message,
+      internal_tagging_iterate_message,
       &it
     );
 
@@ -156,7 +156,7 @@ tagging_iterate (const struct GNUNET_CHAT_Tagging *tagging,
   return GNUNET_CONTAINER_multihashmap_get_multiple(
     tagging->tags,
     &hash,
-    tagging_iterate_message,
+    internal_tagging_iterate_message,
     &it
   );
 }

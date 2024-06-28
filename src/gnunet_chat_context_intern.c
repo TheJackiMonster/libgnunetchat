@@ -24,7 +24,8 @@
 
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
-#include "gnunet_chat_tagging.h"
+
+#include "internal/gnunet_chat_tagging.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_error_codes.h>
@@ -63,8 +64,8 @@ it_destroy_context_taggings (GNUNET_UNUSED void *cls,
 {
   GNUNET_assert(value);
 
-  struct GNUNET_CHAT_Tagging *tagging = value;
-  tagging_destroy(tagging);
+  struct GNUNET_CHAT_InternalTagging *tagging = value;
+  internal_tagging_destroy(tagging);
   return GNUNET_YES;
 }
 

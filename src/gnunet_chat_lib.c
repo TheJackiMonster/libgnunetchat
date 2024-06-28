@@ -48,9 +48,10 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
-#include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
+
+#include "internal/gnunet_chat_tagging.h"
 
 #include "gnunet_chat_lib_intern.c"
 
@@ -2163,13 +2164,13 @@ GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
   if ((!message) || (!(message->context)))
     return GNUNET_SYSERR;
 
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     message->context->taggings, &(message->hash));
   
   if (!tagging)
     return GNUNET_NO;
 
-  if (tagging_iterate(tagging, GNUNET_NO, tag, NULL, NULL) > 0)
+  if (internal_tagging_iterate(tagging, GNUNET_NO, tag, NULL, NULL) > 0)
     return GNUNET_YES;
   else
     return GNUNET_NO;
@@ -2353,13 +2354,13 @@ GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
   if ((!message) || (!(message->context)))
     return GNUNET_SYSERR;
 
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     message->context->taggings, &(message->hash));
   
   if (!tagging)
     return 0;
 
-  return tagging_iterate(tagging, GNUNET_YES, NULL, callback, cls);
+  return internal_tagging_iterate(tagging, GNUNET_YES, NULL, callback, cls);
 }
 
 
@@ -2854,13 +2855,13 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
   if (!invitation)
     return GNUNET_NO;
 
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     invitation->context->taggings, &(invitation->hash));
   
   if (!tagging)
     return GNUNET_NO;
   
-  if (tagging_iterate(tagging, GNUNET_NO, NULL, NULL, NULL) > 0)
+  if (internal_tagging_iterate(tagging, GNUNET_NO, NULL, NULL, NULL) > 0)
     return GNUNET_YES;
   else
     return GNUNET_NO;

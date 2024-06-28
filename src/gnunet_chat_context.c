@@ -362,7 +362,7 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
     }
     case GNUNET_MESSENGER_KIND_TAG:
     {
-      struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+      struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
         context->taggings,
         &(message->msg->body.tag.hash)
       );
@@ -370,7 +370,7 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
       if (!tagging)
         break;
 
-      tagging_remove(tagging, message);
+      internal_tagging_remove(tagging, message);
       break;
     }
     default:

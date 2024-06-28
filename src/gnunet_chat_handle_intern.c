@@ -31,10 +31,11 @@
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
-#include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
 #include "gnunet_chat_util.h"
+
 #include "internal/gnunet_chat_accounts.h"
+#include "internal/gnunet_chat_tagging.h"
 
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
@@ -792,12 +793,12 @@ on_handle_message_callback(void *cls)
     }
     case GNUNET_MESSENGER_KIND_TAG:
     {
-      struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+      struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
         context->taggings, &(message->msg->body.tag.hash));
       
       if (!tagging)
       {
-        tagging = tagging_create();
+        tagging = internal_tagging_create();
 
         if (!tagging)
           break;
@@ -806,12 +807,12 @@ on_handle_message_callback(void *cls)
             context->taggings, &(message->msg->body.tag.hash), tagging,
             GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
         {
-          tagging_destroy(tagging);
+          internal_tagging_destroy(tagging);
           break;
         }
       }
 
-      tagging_add(tagging, message);
+      internal_tagging_add(tagging, message);
       break;
     }
     default:

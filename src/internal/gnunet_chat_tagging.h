@@ -22,15 +22,15 @@
  * @file gnunet_chat_tagging.h
  */
 
-#ifndef GNUNET_CHAT_TAGGING_H_
-#define GNUNET_CHAT_TAGGING_H_
+#ifndef GNUNET_CHAT_INTERNAL_TAGGING_H_
+#define GNUNET_CHAT_INTERNAL_TAGGING_H_
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_util_lib.h>
 
 struct GNUNET_CHAT_Message;
 
-struct GNUNET_CHAT_Tagging
+struct GNUNET_CHAT_InternalTagging
 {
   struct GNUNET_CONTAINER_MultiHashMap *tags;
 };
@@ -45,8 +45,8 @@ typedef enum GNUNET_GenericReturnValue
  *
  * @return New chat tagging
  */
-struct GNUNET_CHAT_Tagging*
-tagging_create ();
+struct GNUNET_CHAT_InternalTagging*
+internal_tagging_create ();
 
 /**
  * Destroys a <i>tagging</i> structure to manage different tag 
@@ -55,7 +55,7 @@ tagging_create ();
  * @param[out] tagging Chat tagging
  */
 void
-tagging_destroy (struct GNUNET_CHAT_Tagging *tagging);
+internal_tagging_destroy (struct GNUNET_CHAT_InternalTagging *tagging);
 
 /**
  * Adds a tag <i>message</i> to a selected <i>tagging</i>
@@ -66,8 +66,8 @@ tagging_destroy (struct GNUNET_CHAT_Tagging *tagging);
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
 enum GNUNET_GenericReturnValue
-tagging_add (struct GNUNET_CHAT_Tagging *tagging,
-             struct GNUNET_CHAT_Message *message);
+internal_tagging_add (struct GNUNET_CHAT_InternalTagging *tagging,
+                      struct GNUNET_CHAT_Message *message);
 
 /**
  * Removes a tag <i>message</i> from a selected <i>tagging</i>
@@ -79,8 +79,8 @@ tagging_add (struct GNUNET_CHAT_Tagging *tagging,
  *   otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue
-tagging_remove (struct GNUNET_CHAT_Tagging *tagging,
-                const struct GNUNET_CHAT_Message *message);
+internal_tagging_remove (struct GNUNET_CHAT_InternalTagging *tagging,
+                         const struct GNUNET_CHAT_Message *message);
 
 /**
  * Iterates through a selected <i>tagging</i> structure forwarding
@@ -98,10 +98,10 @@ tagging_remove (struct GNUNET_CHAT_Tagging *tagging,
  * @param[in,out] cls Closure for iteration
  */
 int
-tagging_iterate (const struct GNUNET_CHAT_Tagging *tagging,
-                 enum GNUNET_GenericReturnValue ignore_tag,
-                 const char *tag,
-                 GNUNET_CHAT_TaggingCallback cb,
-                 void *cls);
+internal_tagging_iterate (const struct GNUNET_CHAT_InternalTagging *tagging,
+                         enum GNUNET_GenericReturnValue ignore_tag,
+                         const char *tag,
+                         GNUNET_CHAT_TaggingCallback cb,
+                         void *cls);
 
-#endif /* GNUNET_CHAT_TAGGING_H_ */
+#endif /* GNUNET_CHAT_INTERNAL_TAGGING_H_ */

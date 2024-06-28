@@ -25,8 +25,9 @@
 #include "gnunet_chat_contact.h"
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
-#include "gnunet_chat_tagging.h"
 #include "gnunet_chat_ticket.h"
+
+#include "internal/gnunet_chat_tagging.h"
 
 #include "gnunet_chat_contact_intern.c"
 #include <gnunet/gnunet_common.h>
@@ -252,7 +253,7 @@ skip_context_search:
       contact_is_tagged(contact, NULL, tag)
     );
   
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     context->taggings,
     hash
   );
@@ -263,7 +264,7 @@ skip_context_search:
   struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  tagging_iterate(
+  internal_tagging_iterate(
     tagging,
     GNUNET_NO,
     tag,
@@ -294,7 +295,7 @@ contact_untag (struct GNUNET_CHAT_Contact *contact,
   if (! hash)
     return;
 
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     context->taggings,
     hash
   );
@@ -305,7 +306,7 @@ contact_untag (struct GNUNET_CHAT_Contact *contact,
   struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  tagging_iterate(
+  internal_tagging_iterate(
     tagging,
     GNUNET_NO,
     tag,
@@ -340,7 +341,7 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
   if (! hash)
     return;
 
-  const struct GNUNET_CHAT_Tagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     context->taggings,
     hash
   );
@@ -351,7 +352,7 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
   struct GNUNET_CHAT_ContactFindTag find;
   find.hash = NULL;
 
-  tagging_iterate(
+  internal_tagging_iterate(
     tagging,
     GNUNET_NO,
     tag,
