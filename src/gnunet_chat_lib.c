@@ -89,8 +89,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle)
   if ((!handle) || (handle->destruction))
     return;
 
-  handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
-    GNUNET_TIME_absolute_get(),
+  handle->destruction = GNUNET_SCHEDULER_add_with_priority(
     GNUNET_SCHEDULER_PRIORITY_URGENT,
     task_handle_destruction,
     handle
@@ -1073,6 +1072,9 @@ GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
 
   if ((!contact) || (contact->destruction))
     return;
+
+  if (contact->context)
+    contact->context->deleted = GNUNET_YES;
 
   contact->destruction = GNUNET_SCHEDULER_add_now(
     task_contact_destruction,
