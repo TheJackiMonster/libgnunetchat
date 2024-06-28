@@ -53,11 +53,8 @@ task_handle_destruction (void *cls)
 
   if (accounts)
   {
-    handle->destruction = GNUNET_SCHEDULER_add_at_with_priority(
-      GNUNET_TIME_absolute_add(
-          GNUNET_TIME_absolute_get(),
-          GNUNET_TIME_relative_get_millisecond_()
-      ),
+    handle->destruction = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_millisecond_(),
       GNUNET_SCHEDULER_PRIORITY_IDLE,
       task_handle_destruction,
       handle

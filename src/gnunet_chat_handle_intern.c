@@ -371,8 +371,7 @@ send_refresh:
   if (handle->refresh)
     return;
   
-  handle->refresh = GNUNET_SCHEDULER_add_at_with_priority(
-    GNUNET_TIME_absolute_get(),
+  handle->refresh = GNUNET_SCHEDULER_add_with_priority(
     GNUNET_SCHEDULER_PRIORITY_IDLE,
     on_handle_refresh,
     handle
@@ -678,7 +677,8 @@ it_context_iterate_dependencies(void *cls,
 
   if ((message) && (!message->task))
     message->task = GNUNET_SCHEDULER_add_now(
-      on_handle_message_callback, message);
+      on_handle_message_callback, message
+    );
 
   return GNUNET_YES;
 }
