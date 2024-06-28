@@ -933,10 +933,9 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
  * Leaves the private chat with a specific <i>contact</i> and frees the
  * regarding memory of the contact if there remains no common chat with it.
  *
- * @param[in,out] contact Cntact
- * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ * @param[in,out] contact Contact
  */
-enum GNUNET_GenericReturnValue
+void
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact);
 
 /**

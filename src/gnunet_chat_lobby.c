@@ -35,6 +35,7 @@ lobby_create (struct GNUNET_CHAT_Handle *handle)
   struct GNUNET_CHAT_Lobby *lobby = GNUNET_new(struct GNUNET_CHAT_Lobby);
 
   lobby->handle = handle;
+  lobby->destruction = NULL;
   lobby->context = NULL;
   lobby->uri = NULL;
 
@@ -52,6 +53,9 @@ void
 lobby_destroy (struct GNUNET_CHAT_Lobby *lobby)
 {
   GNUNET_assert(lobby);
+
+  if (lobby->destruction)
+    GNUNET_SCHEDULER_cancel(lobby->destruction);
 
   if ((!(lobby->op)) && (!(lobby->query)))
     goto skip_deletion;

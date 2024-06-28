@@ -46,6 +46,8 @@ contact_create_from_member (struct GNUNET_CHAT_Handle *handle,
   contact->handle = handle;
   contact->context = NULL;
 
+  contact->destruction = NULL;
+
   contact->member = member;
   contact->joined = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_contact, GNUNET_NO);
@@ -388,6 +390,9 @@ void
 contact_destroy (struct GNUNET_CHAT_Contact* contact)
 {
   GNUNET_assert(contact);
+
+  if (contact->destruction)
+    GNUNET_SCHEDULER_cancel(contact->destruction);
 
   struct GNUNET_CHAT_InternalTickets *tickets;
   while (contact->tickets_head)

@@ -49,6 +49,8 @@ struct GNUNET_CHAT_Contact
   struct GNUNET_CHAT_Handle *handle;
   struct GNUNET_CHAT_Context *context;
 
+  struct GNUNET_SCHEDULER_Task *destruction;
+
   const struct GNUNET_MESSENGER_Contact *member;
   struct GNUNET_CONTAINER_MultiHashMap *joined;
 

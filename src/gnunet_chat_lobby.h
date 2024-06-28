@@ -38,6 +38,8 @@ struct GNUNET_CHAT_Lobby
 {
   struct GNUNET_CHAT_Handle *handle;
 
+  struct GNUNET_SCHEDULER_Task *destruction;
+
   struct GNUNET_CHAT_Context *context;
   struct GNUNET_CHAT_Uri *uri;
 

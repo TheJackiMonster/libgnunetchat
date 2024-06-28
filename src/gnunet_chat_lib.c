@@ -628,29 +628,13 @@ GNUNET_CHAT_lobby_close (struct GNUNET_CHAT_Lobby *lobby)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!lobby)
+  if ((!lobby) || (lobby->destruction))
     return;
 
-  struct GNUNET_CHAT_InternalLobbies *lobbies = lobby->handle->lobbies_head;
-
-  while (lobbies)
-  {
-    if (lobbies->lobby == lobby)
-    {
-      GNUNET_CONTAINER_DLL_remove(
-        lobby->handle->lobbies_head,
-        lobby->handle->lobbies_tail,
-        lobbies
-      );
-
-      GNUNET_free(lobbies);
-      break;
-    }
-
-    lobbies = lobbies->next;
-  }
-
-  lobby_destroy(lobby);
+  lobby->destruction = GNUNET_SCHEDULER_add_now(
+    task_lobby_destruction,
+    lobby
+  );
 }
 
 
@@ -1082,34 +1066,18 @@ GNUNET_CHAT_iterate_groups (struct GNUNET_CHAT_Handle *handle,
 }
 
 
-enum GNUNET_GenericReturnValue
+void
 GNUNET_CHAT_contact_delete (struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if (!contact)
-    return GNUNET_SYSERR;
+  if ((!contact) || (contact->destruction))
+    return;
 
-  struct GNUNET_ShortHashCode shorthash;
-  util_shorthash_from_member(contact->member, &shorthash);
-
-  GNUNET_CONTAINER_multishortmap_remove(
-    contact->handle->contacts, &shorthash, contact
+  contact->destruction = GNUNET_SCHEDULER_add_now(
+    task_contact_destruction,
+    contact
   );
-
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    contact->context->room
-  );
-
-  GNUNET_CONTAINER_multihashmap_remove(
-    contact->handle->contexts, key, contact->context
-  );
-
-  context_delete(contact->context, GNUNET_YES);
-  
-  context_destroy(contact->context);
-  contact_destroy(contact);
-  return GNUNET_OK;
 }
 
 
