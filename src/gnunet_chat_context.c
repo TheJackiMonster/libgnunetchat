@@ -184,7 +184,7 @@ context_request_message (struct GNUNET_CHAT_Context* context,
     return;
 
   context->request_task = GNUNET_SCHEDULER_add_with_priority(
-    GNUNET_SCHEDULER_PRIORITY_IDLE,
+    GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
     cb_context_request_messages,
     context
   );

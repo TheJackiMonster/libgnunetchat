@@ -107,7 +107,7 @@ cb_context_request_messages (void *cls)
   if (!(context->room))
   {
     context->request_task = GNUNET_SCHEDULER_add_with_priority(
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
       cb_context_request_messages,
       context
     );

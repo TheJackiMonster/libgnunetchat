@@ -373,7 +373,7 @@ send_refresh:
     return;
   
   handle->refresh = GNUNET_SCHEDULER_add_with_priority(
-    GNUNET_SCHEDULER_PRIORITY_IDLE,
+    GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
     on_handle_refresh,
     handle
   );

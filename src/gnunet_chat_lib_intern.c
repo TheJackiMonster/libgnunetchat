@@ -55,7 +55,7 @@ task_handle_destruction (void *cls)
   {
     handle->destruction = GNUNET_SCHEDULER_add_delayed_with_priority(
       GNUNET_TIME_relative_get_millisecond_(),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
       task_handle_destruction,
       handle
     );
