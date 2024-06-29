@@ -105,15 +105,7 @@ cb_context_request_messages (void *cls)
   context->request_task = NULL;
 
   if (!(context->room))
-  {
-    context->request_task = GNUNET_SCHEDULER_add_with_priority(
-      GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
-      cb_context_request_messages,
-      context
-    );
-
     return;
-  }
 
   GNUNET_CONTAINER_multihashmap_iterate(
     context->requests,
