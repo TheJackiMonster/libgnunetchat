@@ -2285,7 +2285,7 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
-      (!(message->context)))
+      (!(message->context)) || (!(message->context->discourses)))
     return NULL;
   
   struct GNUNET_CHAT_Discourse *discourse;
