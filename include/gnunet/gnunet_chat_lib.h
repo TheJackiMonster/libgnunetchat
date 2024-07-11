@@ -1887,6 +1887,16 @@ GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
                              uint64_t size);
 
 /**
+ * Returns a file descriptor of a pipe to write data via IPC
+ * into the given chat <i>discourse</i>.
+ *
+ * @param[in] discourse Chat discourse
+ * @return File descriptor of pipe end or #GNUNET_SYSERR on failure
+ */
+int
+GNUNET_CHAT_discourse_get_fd (const struct GNUNET_CHAT_Discourse *discourse);
+
+/**
  * Iterates through the subscribed chat contacts of a given chat <i>discourse</i> 
  * with a selected callback and custom closure.
  *

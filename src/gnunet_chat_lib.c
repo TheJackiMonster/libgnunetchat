@@ -3007,6 +3007,18 @@ GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
 
 
 int
+GNUNET_CHAT_discourse_get_fd (const struct GNUNET_CHAT_Discourse *discourse)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (! discourse)
+    return GNUNET_SYSERR;
+
+  return discourse->pipe[1];
+}
+
+
+int
 GNUNET_CHAT_discourse_iterate_contacts (const struct GNUNET_CHAT_Discourse *discourse,
                                         GNUNET_CHAT_DiscourseContactCallback callback,
                                         void *cls)

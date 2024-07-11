@@ -27,6 +27,10 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 
+#include <unistd.h>
+
+#include "gnunet_chat_discourse_intern.c"
+
 struct GNUNET_CHAT_Discourse*
 discourse_create (struct GNUNET_CHAT_Context *context,
                   const struct GNUNET_ShortHashCode *id)
@@ -39,8 +43,18 @@ discourse_create (struct GNUNET_CHAT_Context *context,
 
   GNUNET_memcpy(&(discourse->id), id, sizeof (struct GNUNET_ShortHashCode));
 
+  if (0 != pipe(discourse->pipe))
+  {
+    discourse->pipe[0] = -1;
+    discourse->pipe[1] = -1;
+  }
+
   discourse->head = NULL;
   discourse->tail = NULL;
+
+  discourse->pipe_task = GNUNET_SCHEDULER_add_now(
+    cb_reinit_discourse_pipe, discourse
+  );
 
   discourse->user_pointer = NULL;
 
@@ -68,7 +82,22 @@ discourse_destroy (struct GNUNET_CHAT_Discourse *discourse)
   GNUNET_assert(discourse);
 
   while (discourse->head)
-    discourse_remove_subscription (discourse->head);
+  {
+    struct GNUNET_CHAT_DiscourseSubscription *sub = discourse->head;
+
+    if (sub->task)
+      GNUNET_SCHEDULER_cancel(sub->task);
+
+    discourse_remove_subscription(sub);
+  }
+
+  if (discourse->pipe_task)
+    GNUNET_SCHEDULER_cancel(discourse->pipe_task);
+
+  if (-1 != discourse->pipe[0])
+    close(discourse->pipe[0]);
+  if (-1 != discourse->pipe[1])
+    close(discourse->pipe[1]);
 
   GNUNET_free(discourse);
 }

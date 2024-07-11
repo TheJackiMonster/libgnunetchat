@@ -54,9 +54,12 @@ struct GNUNET_CHAT_Discourse
   struct GNUNET_CHAT_Context *context;
 
   struct GNUNET_ShortHashCode id;
+  int pipe [2];
 
   struct GNUNET_CHAT_DiscourseSubscription *head;
   struct GNUNET_CHAT_DiscourseSubscription *tail;
+
+  struct GNUNET_SCHEDULER_Task *pipe_task;
 
   void *user_pointer;
 };
