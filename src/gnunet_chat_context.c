@@ -119,12 +119,13 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert(
     (context) &&
-		(context->timestamps) &&
+    (context->timestamps) &&
     (context->dependencies) &&
-		(context->messages) &&
+    (context->messages) &&
     (context->taggings) &&
-		(context->invites) &&
-		(context->files)
+    (context->invites) &&
+    (context->files) &&
+    (context->discourses)
   );
 
   if (context->request_task)
@@ -148,6 +149,10 @@ context_destroy (struct GNUNET_CHAT_Context *context)
 
   GNUNET_CONTAINER_multihashmap_iterate(
     context->invites, it_destroy_context_invites, NULL
+  );
+
+  GNUNET_CONTAINER_multishortmap_iterate(
+    context->discourses, it_destroy_context_discourses, NULL
   );
 
   GNUNET_CONTAINER_multishortmap_destroy(context->member_pointers);
@@ -200,6 +205,14 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   if (room == context->room)
     return;
 
+  GNUNET_assert(
+    (context->timestamps) &&
+    (context->messages) &&
+    (context->requests) &&
+    (context->invites) &&
+    (context->discourses)
+  );
+
   GNUNET_CONTAINER_multishortmap_iterate(
     context->timestamps, it_destroy_context_timestamps, NULL
   );
@@ -212,6 +225,10 @@ context_update_room (struct GNUNET_CHAT_Context *context,
     context->invites, it_destroy_context_invites, NULL
   );
 
+  GNUNET_CONTAINER_multishortmap_iterate(
+    context->discourses, it_destroy_context_discourses, NULL
+  );
+
   GNUNET_CONTAINER_multishortmap_destroy(context->timestamps);
   context->timestamps = GNUNET_CONTAINER_multishortmap_create(
     initial_map_size_of_room, GNUNET_NO);
@@ -220,6 +237,10 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   GNUNET_CONTAINER_multihashmap_clear(context->requests);
   GNUNET_CONTAINER_multihashmap_clear(context->invites);
   GNUNET_CONTAINER_multihashmap_clear(context->files);
+
+  GNUNET_CONTAINER_multishortmap_destroy(context->discourses);
+  context->discourses = GNUNET_CONTAINER_multishortmap_create(
+    initial_map_size_of_room, GNUNET_NO);
 
   if (context->room)
     context_delete(context, GNUNET_YES);

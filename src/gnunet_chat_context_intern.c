@@ -22,6 +22,7 @@
  * @file gnunet_chat_context_intern.c
  */
 
+#include "gnunet_chat_discourse.h"
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 
@@ -78,6 +79,18 @@ it_destroy_context_invites (GNUNET_UNUSED void *cls,
 
   struct GNUNET_CHAT_Invitation *invitation = value;
   invitation_destroy(invitation);
+  return GNUNET_YES;
+}
+
+enum GNUNET_GenericReturnValue
+it_destroy_context_discourses (GNUNET_UNUSED void *cls,
+                               GNUNET_UNUSED const struct GNUNET_ShortHashCode *key,
+                               void *value)
+{
+  GNUNET_assert(value);
+
+  struct GNUNET_CHAT_Discourse *discourse = value;
+  discourse_destroy(discourse);
   return GNUNET_YES;
 }
 
