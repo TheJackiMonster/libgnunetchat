@@ -32,10 +32,12 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
+
 #include <libgen.h>
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 #define _(String) ((const char*) String)
 
@@ -2404,6 +2406,37 @@ GNUNET_CHAT_message_read (const struct GNUNET_CHAT_Message *message,
   );
 
   return GNUNET_OK;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_feed (const struct GNUNET_CHAT_Message *message,
+                          int fd)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
+      (fd == -1))
+    return GNUNET_SYSERR;
+
+  if (GNUNET_MESSENGER_KIND_TALK != message->msg->header.kind)
+    return GNUNET_SYSERR;
+
+  if (!(message->msg->body.talk.length))
+    return GNUNET_NO;
+
+  const ssize_t written = write(
+    fd,
+    message->msg->body.talk.data,
+    message->msg->body.talk.length
+  );
+
+  if (-1 == written)
+    return GNUNET_SYSERR;
+  else if (written != message->msg->body.talk.length)
+    return GNUNET_NO;
+  else
+    return GNUNET_OK;
 }
 
 

@@ -1577,8 +1577,8 @@ GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
                                   void *cls);
 
 /**
- * Returns the amount of data from a given <i>message</i> if its kind 
- * is #GNUNET_CHAT_KIND_DATA, otherwise it returns NULL.
+ * Returns the amount of data from a given chat <i>message</i> if its 
+ * kind is #GNUNET_CHAT_KIND_DATA, otherwise it returns zero.
  *
  * @param[in] message Message
  * @return The amount of data or zero
@@ -1587,7 +1587,7 @@ uint64_t
 GNUNET_CHAT_message_available (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Reads the data from a given <i>message</i> if its kind is
+ * Reads the data from a given chat <i>message</i> if its kind is
  * #GNUNET_CHAT_KIND_DATA into a specific <i>data</i> buffer
  * up to a selected <i>size</i>.
  *
@@ -1601,6 +1601,20 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_read (const struct GNUNET_CHAT_Message *message,
                           char *data,
                           uint64_t size);
+
+/**
+ * Feeds the data from a given chat <i>message</i> if its kind is
+ * #GNUNET_CHAT_KIND_DATA into a specific file descriptor (of pipe for 
+ * example).
+ *
+ * @param[in] message Message
+ * @param[in] fd File descriptor
+ * @return #GNUNET_OK on success, #GNUNET_NO if there's not enough data 
+ *         to read, otherwise #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_message_feed (const struct GNUNET_CHAT_Message *message,
+                          int fd);
 
 /**
  * Returns the name of a given <i>file</i> handle.
