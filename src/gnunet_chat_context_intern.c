@@ -145,6 +145,7 @@ cont_context_write_records (void *cls,
       NULL,
       context,
       GNUNET_CHAT_FLAG_WARNING,
-      GNUNET_ErrorCode_get_hint(ec)
+      GNUNET_ErrorCode_get_hint(ec),
+      GNUNET_YES
     );
 }

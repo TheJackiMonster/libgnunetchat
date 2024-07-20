@@ -85,6 +85,9 @@ on_gnunet_chat_handle_accounts_msg(void *cls,
   const struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_message_get_account(message);
 
+  const char *name;
+  name = GNUNET_CHAT_account_get_name(account);
+
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
@@ -122,17 +125,17 @@ on_gnunet_chat_handle_accounts_msg(void *cls,
       break;
     case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
       ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_nonnull(name);
 
-      if (0 == strcmp(GNUNET_CHAT_account_get_name(account),
-                      TEST_ACCOUNTS_ID))
+      if (0 == strcmp(name, TEST_ACCOUNTS_ID))
         accounts_stage = 2;
       
       break;
     case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
       ck_assert_int_eq(accounts_stage, 4);
+      ck_assert_ptr_nonnull(name);
 
-      if (0 == strcmp(GNUNET_CHAT_account_get_name(account),
-                      TEST_ACCOUNTS_ID))
+      if (0 == strcmp(name, TEST_ACCOUNTS_ID))
         GNUNET_CHAT_stop(handle);
       
       break;

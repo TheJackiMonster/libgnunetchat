@@ -292,18 +292,24 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle);
  * <i>context</i>, a custom <i>flag</i> and an optional 
  * <i>warning</i> text.
  *
+ * You can select whether the callback for the internal 
+ * message should be scheduled dynamically or be called
+ * as instant feedback.
+ *
  * @param[in,out] handle Chat handle
  * @param[in] account Chat account or NULL
  * @param[in,out] context Chat context or NULL
  * @param[in] flag Chat message flag
  * @param[in] warning Warning text
+ * @param[in] feedback Instant feedback
  */
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
                               const struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
-                              const char *warning);
+                              const char *warning,
+                              enum GNUNET_GenericReturnValue feedback);
 
 /**
  * Sends a name message to a messenger <i>room</i> with

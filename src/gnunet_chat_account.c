@@ -137,7 +137,8 @@ account_update_ego (struct GNUNET_CHAT_Account *account,
     account,
     NULL,
     flag,
-    NULL
+    NULL,
+    GNUNET_YES
   );
 }
 

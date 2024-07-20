@@ -302,7 +302,8 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
     handle->current,
     NULL,
     GNUNET_CHAT_FLAG_LOGIN,
-    NULL
+    NULL,
+    GNUNET_NO
   );
 
   const struct GNUNET_CRYPTO_PrivateKey *zone = handle_get_key(handle);
@@ -382,7 +383,8 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     handle->current,
     NULL,
     GNUNET_CHAT_FLAG_LOGOUT,
-    NULL
+    NULL,
+    GNUNET_YES
   );
 
   while (handle->attributes_head)
@@ -791,7 +793,8 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
                               const struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
-                              const char *warning)
+                              const char *warning,
+                              enum GNUNET_GenericReturnValue feedback)
 {
   GNUNET_assert((handle) && (GNUNET_CHAT_FLAG_NONE != flag));
 
@@ -813,9 +816,17 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
     return;
   }
 
-  internal->task = GNUNET_SCHEDULER_add_now(
-    on_handle_internal_message_callback, internal
-  );
+  if (GNUNET_YES != feedback)
+    internal->task = GNUNET_SCHEDULER_add_now(
+      on_handle_internal_message_callback,
+      internal
+    );
+  else
+  {
+    internal->task = NULL;
+    if (handle->msg_cb)
+      handle->msg_cb(handle->msg_cls, context, internal->msg);
+  }
 
   if (context)
     GNUNET_CONTAINER_DLL_insert(
@@ -960,7 +971,8 @@ setup_group:
       NULL,
       context,
       GNUNET_CHAT_FLAG_UPDATE_CONTEXT,
-      NULL
+      NULL,
+      GNUNET_NO
     );
 
     context_write_records(context);

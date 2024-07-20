@@ -47,7 +47,8 @@ cont_lobby_write_records (void *cls,
     NULL,
     lobby->context,
     GNUNET_CHAT_FLAG_WARNING,
-    GNUNET_ErrorCode_get_hint(ec)
+    GNUNET_ErrorCode_get_hint(ec),
+    GNUNET_YES
   );
 
   if (lobby->uri)
@@ -78,7 +79,8 @@ cont_lobby_identity_create (void *cls,
       NULL,
     	lobby->context,
     	GNUNET_CHAT_FLAG_WARNING,
-	    GNUNET_ErrorCode_get_hint(ec)
+	    GNUNET_ErrorCode_get_hint(ec),
+      GNUNET_YES
     );
 
     return;

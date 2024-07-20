@@ -90,6 +90,7 @@ int main (void)                                            \
   SRunner *runner;                                         \
                                                            \
   runner = srunner_create(suite_name ());                  \
+  srunner_set_fork_status(runner, CK_NOFORK);              \
   srunner_run_all(runner, suite_check);                    \
                                                            \
   tests_failed = srunner_ntests_failed(runner);            \

@@ -292,7 +292,8 @@ on_handle_refresh (void *cls)
     NULL,
     NULL,
     GNUNET_CHAT_FLAG_REFRESH,
-    NULL
+    NULL,
+    GNUNET_YES
   );
 }
 
@@ -331,7 +332,8 @@ on_handle_gnunet_identity (void *cls,
         accounts->account,
         NULL,
         GNUNET_CHAT_FLAG_UPDATE_ACCOUNT,
-        NULL
+        NULL,
+        GNUNET_YES
       );
     }
     else if (!(accounts->op))
@@ -407,7 +409,8 @@ cb_account_creation (void *cls,
     accounts->account,
     NULL,
     GNUNET_CHAT_FLAG_WARNING,
-    GNUNET_ErrorCode_get_hint(ec)
+    GNUNET_ErrorCode_get_hint(ec),
+    GNUNET_YES
   );
 }
 
@@ -434,7 +437,8 @@ cb_account_deletion (void *cls,
       accounts->account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
-      GNUNET_ErrorCode_get_hint(ec)
+      GNUNET_ErrorCode_get_hint(ec),
+      GNUNET_YES
     );
   else
   {
@@ -443,7 +447,8 @@ cb_account_deletion (void *cls,
       accounts->account,
       NULL,
       GNUNET_CHAT_FLAG_DELETE_ACCOUNT,
-      NULL
+      NULL,
+      GNUNET_YES
     );
 
     account_delete(accounts->account);
@@ -475,7 +480,8 @@ cb_account_rename (void *cls,
     accounts->account,
     NULL,
     GNUNET_CHAT_FLAG_WARNING,
-    GNUNET_ErrorCode_get_hint(ec)
+    GNUNET_ErrorCode_get_hint(ec),
+    GNUNET_YES
   );
 }
 
@@ -499,7 +505,8 @@ cb_lobby_deletion (void *cls,
       accounts->account,
       NULL,
       GNUNET_CHAT_FLAG_WARNING,
-      GNUNET_ErrorCode_get_hint(ec)
+      GNUNET_ErrorCode_get_hint(ec),
+      GNUNET_YES
     );
 
   internal_accounts_destroy(accounts);
