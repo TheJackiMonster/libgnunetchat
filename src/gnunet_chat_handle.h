@@ -59,7 +59,9 @@ struct GNUNET_CHAT_InternalServices
 
 struct GNUNET_CHAT_InternalMessages
 {
+  struct GNUNET_CHAT_Handle *chat;
   struct GNUNET_CHAT_Message *msg;
+  struct GNUNET_SCHEDULER_Task *task;
   struct GNUNET_CHAT_InternalMessages *next;
   struct GNUNET_CHAT_InternalMessages *prev;
 };

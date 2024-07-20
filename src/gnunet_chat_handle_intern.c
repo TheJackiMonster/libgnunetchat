@@ -685,6 +685,29 @@ it_context_iterate_dependencies(void *cls,
 }
 
 void
+on_handle_internal_message_callback(void *cls)
+{
+  struct GNUNET_CHAT_InternalMessages *internal = cls;
+
+  GNUNET_assert(
+    (internal) &&
+    (internal->chat) &&
+    (internal->msg) &&
+    (internal->task)
+  );
+
+  internal->task = NULL;
+
+  struct GNUNET_CHAT_Handle *handle = internal->chat;
+  struct GNUNET_CHAT_Context *context = internal->msg->context;
+
+  if (!(handle->msg_cb))
+    return;
+
+  handle->msg_cb(handle->msg_cls, context, internal->msg);
+}
+
+void
 on_handle_message_callback(void *cls)
 {
   struct GNUNET_CHAT_Message *message = (struct GNUNET_CHAT_Message*) cls;

@@ -262,6 +262,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     if (internal->msg)
       message_destroy(internal->msg);
 
+    if (internal->task)
+      GNUNET_SCHEDULER_cancel(internal->task);
+
     GNUNET_CONTAINER_DLL_remove(
       handle->internal_head,
       handle->internal_tail,
@@ -410,6 +413,9 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 
     if (internal->msg)
       message_destroy(internal->msg);
+
+    if (internal->task)
+      GNUNET_SCHEDULER_cancel(internal->task);
 
     GNUNET_CONTAINER_DLL_remove(
       handle->internal_head,
@@ -796,6 +802,7 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
     struct GNUNET_CHAT_InternalMessages
   );
 
+  internal->chat = handle;
   internal->msg = message_create_internally(
     account, context, flag, warning
   );
@@ -806,7 +813,9 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
     return;
   }
 
-  handle->msg_cb(handle->msg_cls, context, internal->msg);
+  internal->task = GNUNET_SCHEDULER_add_now(
+    on_handle_internal_message_callback, internal
+  );
 
   if (context)
     GNUNET_CONTAINER_DLL_insert(
