@@ -23,63 +23,30 @@ test_deps = [
     dependency('gnunetutil'),
 ]
 
-test_gnunet_chat_handle = executable(
-    'test_gnunet_chat_handle.test',
-    'test_gnunet_chat_handle.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+test_header = '../test_gnunet_chat.h'
 
-test_gnunet_chat_lobby = executable(
-    'test_gnunet_chat_lobby.test',
-    'test_gnunet_chat_lobby.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+subdir('attribute')
+subdir('discourse')
+subdir('file')
+subdir('handle')
+subdir('lobby')
+subdir('message')
 
-test_gnunet_chat_file = executable(
-    'test_gnunet_chat_file.test',
-    'test_gnunet_chat_file.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+test('test_gnunet_chat_handle_init', test_gnunet_chat_handle_init, depends: gnunetchat_lib)
+test('test_gnunet_chat_handle_accounts', test_gnunet_chat_handle_accounts, depends: gnunetchat_lib)
+test('test_gnunet_chat_handle_connection', test_gnunet_chat_handle_connection, depends: gnunetchat_lib)
+test('test_gnunet_chat_handle_update', test_gnunet_chat_handle_update, depends: gnunetchat_lib)
+test('test_gnunet_chat_handle_rename', test_gnunet_chat_handle_rename, depends: gnunetchat_lib)
 
-test_gnunet_chat_message = executable(
-    'test_gnunet_chat_message.test',
-    'test_gnunet_chat_message.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+test('test_gnunet_chat_message_text', test_gnunet_chat_message_text, depends: gnunetchat_lib)
 
-test_gnunet_chat_attribute = executable(
-    'test_gnunet_chat_attribute.test',
-    'test_gnunet_chat_attribute.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+test('test_gnunet_chat_file_send', test_gnunet_chat_file_send, depends: gnunetchat_lib)
 
-test_gnunet_chat_discourse = executable(
-    'test_gnunet_chat_discourse.test',
-    'test_gnunet_chat_discourse.c',
-    dependencies: test_deps,
-    link_with: gnunetchat_lib,
-    include_directories: tests_include,
-    extra_files: 'test_gnunet_chat.h',
-)
+test('test_gnunet_chat_lobby_open', test_gnunet_chat_lobby_open, depends: gnunetchat_lib)
+test('test_gnunet_chat_lobby_join', test_gnunet_chat_lobby_join, depends: gnunetchat_lib)
 
-test('test_gnunet_chat_handle', test_gnunet_chat_handle, depends: gnunetchat_lib)
-test('test_gnunet_chat_lobby', test_gnunet_chat_lobby, depends: gnunetchat_lib)
-test('test_gnunet_chat_file', test_gnunet_chat_file, depends: gnunetchat_lib)
-test('test_gnunet_chat_message', test_gnunet_chat_message, depends: gnunetchat_lib)
-test('test_gnunet_chat_attribute', test_gnunet_chat_attribute, depends: gnunetchat_lib)
-test('test_gnunet_chat_discourse', test_gnunet_chat_discourse, depends: gnunetchat_lib)
+test('test_gnunet_chat_attribute_check', test_gnunet_chat_attribute_check, depends: gnunetchat_lib)
+test('test_gnunet_chat_attribute_share', test_gnunet_chat_attribute_check, depends: gnunetchat_lib)
+
+test('test_gnunet_chat_discourse_open', test_gnunet_chat_discourse_open, depends: gnunetchat_lib)
+test('test_gnunet_chat_discourse_write', test_gnunet_chat_discourse_write, depends: gnunetchat_lib)

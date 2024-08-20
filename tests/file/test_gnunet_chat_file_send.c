@@ -19,7 +19,7 @@
  */
 /*
  * @author Tobias Frisch
- * @file test_gnunet_chat_file.c
+ * @file test_gnunet_chat_file_send.c
  */
 
 #include "test_gnunet_chat.h"

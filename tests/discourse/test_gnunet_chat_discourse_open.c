@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2023--2024 GNUnet e.V.
+   Copyright (C) 2024 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -19,32 +19,35 @@
  */
 /*
  * @author Tobias Frisch
- * @file test_gnunet_chat_message.c
+ * @file test_gnunet_chat_discourse_open.c
  */
 
 #include "test_gnunet_chat.h"
 
-#define TEST_TEXT_ID    "gnunet_chat_message_text"
-#define TEST_TEXT_GROUP "gnunet_chat_message_text_group"
-#define TEST_TEXT_MSG   "test_text_message"
+#define TEST_OPEN_ID         "gnunet_chat_discourse_open"
+#define TEST_OPEN_GROUP      "gnunet_chat_discourse_open_group"
+#define TEST_OPEN_DISCOURSE  "gnunet_chat_discourse_open_discourse"
 
 enum GNUNET_GenericReturnValue
-on_gnunet_chat_message_text_msg(void *cls,
-                                struct GNUNET_CHAT_Context *context,
-                                const struct GNUNET_CHAT_Message *message)
+on_gnunet_chat_discourse_open_msg(void *cls,
+                                  struct GNUNET_CHAT_Context *context,
+                                  const struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
-    (struct GNUNET_CHAT_Handle**) cls
+      (struct GNUNET_CHAT_Handle**) cls
   );
-
-  const struct GNUNET_CHAT_Account *account;
-  struct GNUNET_CHAT_Group *group;
-  const char *text;
 
   ck_assert_ptr_nonnull(handle);
   ck_assert_ptr_nonnull(message);
 
+  const struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_message_get_account(message);
+
+  const char *name = GNUNET_CHAT_get_name(handle);
+  struct GNUNET_ShortHashCode discourse_id;
+
+  struct GNUNET_CHAT_Discourse *discourse;
+  discourse = GNUNET_CHAT_message_get_discourse(message);
 
   switch (GNUNET_CHAT_message_get_kind(message))
   {
@@ -56,64 +59,67 @@ on_gnunet_chat_message_text_msg(void *cls,
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_nonnull(name);
+      ck_assert_str_eq(name, TEST_OPEN_ID);
 
-      group = GNUNET_CHAT_group_create(handle, TEST_TEXT_GROUP);
-
-      ck_assert_ptr_nonnull(group);
+      GNUNET_CHAT_group_create(handle, TEST_OPEN_GROUP);
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
-
       ck_assert_int_eq(GNUNET_CHAT_account_delete(
-	      handle, TEST_TEXT_ID
+        handle,
+        TEST_OPEN_ID
       ), GNUNET_OK);
       break;
     case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
+      ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
 
       GNUNET_CHAT_connect(handle, account);
       break;
     case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
+      ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
 
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
-      ck_assert_ptr_nonnull(account);
       break;
     case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
-      ck_assert_ptr_nonnull(context);
       break;
     case GNUNET_CHAT_KIND_JOIN:
       ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_null(discourse);
 
-      ck_assert_int_eq(GNUNET_CHAT_context_send_text(
-	      context, TEST_TEXT_MSG
-      ), GNUNET_OK);
-      break;
-    case GNUNET_CHAT_KIND_LEAVE:
-      ck_assert_ptr_nonnull(context);
-      
-      GNUNET_CHAT_disconnect(handle);
+      GNUNET_memcpy(
+        &discourse_id,
+        TEST_OPEN_DISCOURSE,
+        sizeof(discourse_id)
+      );
+
+      discourse = GNUNET_CHAT_context_open_discourse(
+        context,
+        &discourse_id
+      );
+
+      ck_assert_ptr_nonnull(discourse);
+      ck_assert_int_eq(GNUNET_CHAT_discourse_is_open(discourse), GNUNET_NO);
       break;
     case GNUNET_CHAT_KIND_CONTACT:
-      ck_assert_ptr_nonnull(context);
       break;
-    case GNUNET_CHAT_KIND_TEXT:
+    case GNUNET_CHAT_KIND_DISCOURSE:
       ck_assert_ptr_nonnull(context);
-
-      group = GNUNET_CHAT_context_get_group(context);
-
-      ck_assert_ptr_nonnull(group);
-
-      text = GNUNET_CHAT_message_get_text(message);
-
-      ck_assert_str_eq(text, TEST_TEXT_MSG);
-      ck_assert_int_eq(GNUNET_CHAT_group_leave(group), GNUNET_OK);
+      ck_assert_ptr_nonnull(discourse);
+      
+      if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
+        GNUNET_CHAT_discourse_close(discourse);
+      else
+        GNUNET_CHAT_disconnect(handle);
       break;
     default:
       ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));
+      ck_abort();
       break;
   }
 
@@ -121,21 +127,21 @@ on_gnunet_chat_message_text_msg(void *cls,
 }
 
 void
-call_gnunet_chat_message_text(const struct GNUNET_CONFIGURATION_Handle *cfg)
+call_gnunet_chat_discourse_open(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   static struct GNUNET_CHAT_Handle *handle = NULL;
-  handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_message_text_msg, &handle);
+  handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_discourse_open_msg, &handle);
 
   ck_assert_ptr_nonnull(handle);
   ck_assert_int_eq(GNUNET_CHAT_account_create(
-    handle, TEST_TEXT_ID
+    handle, TEST_OPEN_ID
   ), GNUNET_OK);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_message_text, call_gnunet_chat_message_text)
+CREATE_GNUNET_TEST(test_gnunet_chat_discourse_open, call_gnunet_chat_discourse_open)
 
-START_SUITE(handle_suite, "Message")
-ADD_TEST_TO_SUITE(test_gnunet_chat_message_text, "Text")
+START_SUITE(handle_suite, "Handle")
+ADD_TEST_TO_SUITE(test_gnunet_chat_discourse_open, "Open/Close")
 END_SUITE
 
 MAIN_SUITE(handle_suite, CK_NORMAL)
