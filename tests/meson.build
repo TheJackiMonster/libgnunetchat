@@ -46,7 +46,7 @@ test('test_gnunet_chat_lobby_open', test_gnunet_chat_lobby_open, depends: gnunet
 test('test_gnunet_chat_lobby_join', test_gnunet_chat_lobby_join, depends: gnunetchat_lib)
 
 test('test_gnunet_chat_attribute_check', test_gnunet_chat_attribute_check, depends: gnunetchat_lib)
-test('test_gnunet_chat_attribute_share', test_gnunet_chat_attribute_check, depends: gnunetchat_lib)
+test('test_gnunet_chat_attribute_share', test_gnunet_chat_attribute_share, depends: gnunetchat_lib)
 
 test('test_gnunet_chat_discourse_open', test_gnunet_chat_discourse_open, depends: gnunetchat_lib)
 test('test_gnunet_chat_discourse_write', test_gnunet_chat_discourse_write, depends: gnunetchat_lib)
