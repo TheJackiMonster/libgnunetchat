@@ -527,7 +527,7 @@ GNUNET_CHAT_stop (struct GNUNET_CHAT_Handle *handle);
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
-                            const char* name);
+                            const char *name);
 
 /**
  * Deletes an existing chat account of a given chat <i>handle</i> under a
@@ -539,7 +539,7 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
-                           const char* name);
+                           const char *name);
 
 /**
  * Iterates through the accounts of a given chat <i>handle</i> with a selected
@@ -554,6 +554,18 @@ int
 GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
                               GNUNET_CHAT_AccountCallback callback,
                               void *cls);
+
+/*
+ * Searches for an existing chat account of a given chat <i>handle</i> with
+ * a unique <i>name</i>.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] name Account name
+ * @return Found account by the handle or NULL
+ */
+struct GNUNET_CHAT_Account*
+GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
+                          const char *name);
 
 /**
  * Connects a chat <i>handle</i> to a selected chat <i>account</i>.

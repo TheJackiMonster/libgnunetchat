@@ -162,6 +162,32 @@ GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
 }
 
 
+struct GNUNET_CHAT_Account*
+GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
+                          const char *name)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!handle) || (handle->destruction))
+    return NULL;
+
+  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  while (accounts)
+  {
+    if ((!(accounts->account)) || (accounts->op))
+      goto skip_account;
+
+    if (0 == strcmp(accounts->account->name, name))
+      return accounts->account;
+
+  skip_account:
+    accounts = accounts->next;
+  }
+
+  return NULL;
+}
+
+
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
                      const struct GNUNET_CHAT_Account *account)
