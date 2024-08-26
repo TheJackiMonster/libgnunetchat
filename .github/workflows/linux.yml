@@ -50,8 +50,7 @@ jobs:
 
       - name: Rebuild library
         run: |
-          rm -r build
-          meson setup --prefix=/usr --libdir=lib build
+          meson setup --reconfigure --prefix=/usr --libdir=lib build
           meson compile -C build
 
       - name: Test library
