@@ -31,3 +31,6 @@ tests/*.test
 
 # Tar files
 libgnunetchat-*.tar.gz
+
+# Valgrind
+vgcore.*
