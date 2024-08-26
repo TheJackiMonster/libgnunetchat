@@ -38,6 +38,8 @@ account_create (const char *name)
   struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
 
   account->ego = NULL;
+  account->created = GNUNET_NO;
+
   account->directory = NULL;
   account->name = NULL;
 
@@ -57,6 +59,7 @@ account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
   struct GNUNET_CHAT_Account *account = account_create(name);
   
   account->ego = ego;
+  account->created = GNUNET_YES;
 
   return account;
 }
@@ -109,15 +112,18 @@ account_update_ego (struct GNUNET_CHAT_Account *account,
                     struct GNUNET_CHAT_Handle *handle,
                     struct GNUNET_IDENTITY_Ego *ego)
 {
-  GNUNET_assert((account) && (handle) && (ego) && (account->ego != ego));
+  GNUNET_assert((account) && (handle));
 
   enum GNUNET_CHAT_MessageFlag flag;
-  if ((!(account->ego)) && (handle->current != account))
+  if (GNUNET_NO == account->created)
     flag = GNUNET_CHAT_FLAG_CREATE_ACCOUNT;
   else
     flag = GNUNET_CHAT_FLAG_UPDATE_ACCOUNT;
 
   account->ego = ego;
+
+  if (!(account->ego))
+    return;
 
   if (handle->directory)
     account_update_directory(account, handle->directory);

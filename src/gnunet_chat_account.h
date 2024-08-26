@@ -34,6 +34,8 @@ struct GNUNET_CHAT_Handle;
 struct GNUNET_CHAT_Account
 {
   struct GNUNET_IDENTITY_Ego *ego;
+  enum GNUNET_GenericReturnValue created;
+
   char *directory;
   char *name;
 

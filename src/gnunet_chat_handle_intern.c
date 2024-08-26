@@ -323,7 +323,8 @@ on_handle_gnunet_identity (void *cls,
     if (ego != accounts->account->ego)
       goto check_matching_name;
 
-    if (name)
+    if ((name) && ((!(accounts->account->name)) ||
+        (0 != strcmp(accounts->account->name, name))))
     {
       util_set_name_field(name, &(accounts->account->name));
 
@@ -336,7 +337,7 @@ on_handle_gnunet_identity (void *cls,
         GNUNET_YES
       );
     }
-    else if (!(accounts->op))
+    else if ((!name) && (!(accounts->op)))
     {
       if (handle->current == accounts->account)
 	      handle_disconnect(handle);
@@ -344,6 +345,8 @@ on_handle_gnunet_identity (void *cls,
       account_destroy(accounts->account);
       internal_accounts_destroy(accounts);
     }
+    else if (!name)
+      account_update_ego(accounts->account, handle, NULL);
 
     goto send_refresh;
 
