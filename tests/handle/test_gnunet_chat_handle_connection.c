@@ -52,6 +52,14 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
       break;
     case GNUNET_CHAT_KIND_REFRESH:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_null(account);
+
+      account = GNUNET_CHAT_find_account(handle, TEST_CONNECTION_ID);
+
+      ck_assert_ptr_nonnull(account);
+
+      GNUNET_CHAT_connect(handle, account);
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_nonnull(connected);
@@ -75,30 +83,6 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_ptr_nonnull(name);
       ck_assert_str_eq(name, TEST_CONNECTION_ID);
 
-      ck_assert_int_eq(GNUNET_CHAT_account_delete(
-        handle, TEST_CONNECTION_ID
-      ), GNUNET_OK);
-      break;
-    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
-      ck_assert_ptr_null(connected);
-      ck_assert_ptr_nonnull(account);
-
-      name = GNUNET_CHAT_account_get_name(account);
-
-      ck_assert_ptr_nonnull(name);
-      ck_assert_str_eq(name, TEST_CONNECTION_ID);
-
-      GNUNET_CHAT_connect(handle, account);
-      break;
-    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
-      ck_assert_ptr_null(connected);
-      ck_assert_ptr_nonnull(account);
-
-      name = GNUNET_CHAT_account_get_name(account);
-
-      ck_assert_ptr_nonnull(name);
-      ck_assert_str_eq(name, TEST_CONNECTION_ID);
-
       GNUNET_CHAT_stop(handle);
       break;
     default:
@@ -109,6 +93,8 @@ on_gnunet_chat_handle_connection_msg(void *cls,
   return GNUNET_YES;
 }
 
+REQUIRE_GNUNET_CHAT_ACCOUNT(gnunet_chat_handle_connection, TEST_CONNECTION_ID)
+
 void
 call_gnunet_chat_handle_connection(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
@@ -116,12 +102,9 @@ call_gnunet_chat_handle_connection(const struct GNUNET_CONFIGURATION_Handle *cfg
   handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_handle_connection_msg, &handle);
 
   ck_assert_ptr_nonnull(handle);
-  ck_assert_int_eq(GNUNET_CHAT_account_create(
-    handle, TEST_CONNECTION_ID
-  ), GNUNET_OK);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_handle_connection, call_gnunet_chat_handle_connection)
+CREATE_GNUNET_TEST(test_gnunet_chat_handle_connection, gnunet_chat_handle_connection)
 
 START_SUITE(handle_suite, "Handle")
 ADD_TEST_TO_SUITE(test_gnunet_chat_handle_connection, "Connect/Disconnect")

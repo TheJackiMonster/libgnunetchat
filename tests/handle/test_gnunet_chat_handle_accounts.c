@@ -130,6 +130,11 @@ on_gnunet_chat_handle_accounts_msg(void *cls,
 }
 
 void
+setup_gnunet_chat_handle_accounts(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+void
 call_gnunet_chat_handle_accounts(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   static struct GNUNET_CHAT_Handle *handle = NULL;
@@ -138,7 +143,12 @@ call_gnunet_chat_handle_accounts(const struct GNUNET_CONFIGURATION_Handle *cfg)
   ck_assert_ptr_nonnull(handle);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_handle_accounts, call_gnunet_chat_handle_accounts)
+void
+cleanup_gnunet_chat_handle_accounts(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+CREATE_GNUNET_TEST(test_gnunet_chat_handle_accounts, gnunet_chat_handle_accounts)
 
 START_SUITE(handle_suite, "Handle")
 ADD_TEST_TO_SUITE(test_gnunet_chat_handle_accounts, "Accounts")

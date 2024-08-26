@@ -55,6 +55,14 @@ on_gnunet_chat_discourse_open_msg(void *cls,
       ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
       break;
     case GNUNET_CHAT_KIND_REFRESH:
+      ck_assert_ptr_null(context);
+      ck_assert_ptr_null(account);
+
+      account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
+
+      ck_assert_ptr_nonnull(account);
+
+      GNUNET_CHAT_connect(handle, account);
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
@@ -67,21 +75,7 @@ on_gnunet_chat_discourse_open_msg(void *cls,
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
-      ck_assert_int_eq(GNUNET_CHAT_account_delete(
-        handle,
-        TEST_OPEN_ID
-      ), GNUNET_OK);
-      break;
-    case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
-      ck_assert_ptr_null(context);
-      ck_assert_ptr_nonnull(account);
-
-      GNUNET_CHAT_connect(handle, account);
-      break;
-    case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
-      ck_assert_ptr_null(context);
-      ck_assert_ptr_nonnull(account);
-
+      
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
@@ -126,6 +120,8 @@ on_gnunet_chat_discourse_open_msg(void *cls,
   return GNUNET_YES;
 }
 
+REQUIRE_GNUNET_CHAT_ACCOUNT(gnunet_chat_discourse_open, TEST_OPEN_ID)
+
 void
 call_gnunet_chat_discourse_open(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
@@ -133,12 +129,9 @@ call_gnunet_chat_discourse_open(const struct GNUNET_CONFIGURATION_Handle *cfg)
   handle = GNUNET_CHAT_start(cfg, on_gnunet_chat_discourse_open_msg, &handle);
 
   ck_assert_ptr_nonnull(handle);
-  ck_assert_int_eq(GNUNET_CHAT_account_create(
-    handle, TEST_OPEN_ID
-  ), GNUNET_OK);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_discourse_open, call_gnunet_chat_discourse_open)
+CREATE_GNUNET_TEST(test_gnunet_chat_discourse_open, gnunet_chat_discourse_open)
 
 START_SUITE(handle_suite, "Handle")
 ADD_TEST_TO_SUITE(test_gnunet_chat_discourse_open, "Open/Close")

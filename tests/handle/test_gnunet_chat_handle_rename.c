@@ -109,6 +109,11 @@ on_gnunet_chat_handle_rename_msg(void *cls,
 }
 
 void
+setup_gnunet_chat_handle_rename(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+void
 call_gnunet_chat_handle_rename(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   static struct GNUNET_CHAT_Handle *handle = NULL;
@@ -120,7 +125,12 @@ call_gnunet_chat_handle_rename(const struct GNUNET_CONFIGURATION_Handle *cfg)
   ), GNUNET_OK);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_handle_rename, call_gnunet_chat_handle_rename)
+void
+cleanup_gnunet_chat_handle_rename(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+CREATE_GNUNET_TEST(test_gnunet_chat_handle_rename, gnunet_chat_handle_rename)
 
 START_SUITE(handle_suite, "Handle")
 ADD_TEST_TO_SUITE(test_gnunet_chat_handle_rename, "Rename")

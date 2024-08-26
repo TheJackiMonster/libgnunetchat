@@ -25,6 +25,11 @@
 #include "test_gnunet_chat.h"
 
 void
+setup_gnunet_chat_handle_init(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+void
 call_gnunet_chat_handle_init(const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   struct GNUNET_CHAT_Handle *handle;
@@ -36,7 +41,12 @@ call_gnunet_chat_handle_init(const struct GNUNET_CONFIGURATION_Handle *cfg)
   GNUNET_CHAT_stop(handle);
 }
 
-CREATE_GNUNET_TEST(test_gnunet_chat_handle_init, call_gnunet_chat_handle_init)
+void
+cleanup_gnunet_chat_handle_init(const struct GNUNET_CONFIGURATION_Handle *cfg)
+{
+}
+
+CREATE_GNUNET_TEST(test_gnunet_chat_handle_init, gnunet_chat_handle_init)
 
 START_SUITE(handle_suite, "Handle")
 ADD_TEST_TO_SUITE(test_gnunet_chat_handle_init, "Start/Stop")
