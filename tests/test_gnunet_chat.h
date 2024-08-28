@@ -25,6 +25,7 @@
 #ifndef TEST_GNUNET_CHAT_H_
 #define TEST_GNUNET_CHAT_H_
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <check.h>
 
@@ -170,8 +171,8 @@ task_##test_call (void *cls,                                     \
 {                                                                \
   ck_assert_ptr_nonnull(cls);                                    \
   ck_assert_ptr_nonnull(cfg);                                    \
-  GNUNET_log(                                                    \
-    GNUNET_ERROR_TYPE_INFO,                                      \
+  fprintf(                                                       \
+    stdout,                                                      \
     "Stage: %s\n",                                               \
     (const char*) cls                                            \
   );                                                             \
@@ -188,6 +189,7 @@ task_##test_call (void *cls,                                     \
   char *binary = #test_call;                           \
   char *const args [] = { binary };                    \
                                                        \
+  fprintf(stdout, "Running: %s\n", binary);            \
   result = GNUNET_PROGRAM_run(                         \
     1,                                                 \
     args,                                              \

@@ -28,6 +28,7 @@ test_header = '../test_gnunet_chat.h'
 subdir('attribute')
 subdir('discourse')
 subdir('file')
+subdir('group')
 subdir('handle')
 subdir('lobby')
 subdir('message')
@@ -37,6 +38,8 @@ test('test_gnunet_chat_handle_accounts', test_gnunet_chat_handle_accounts, depen
 test('test_gnunet_chat_handle_connection', test_gnunet_chat_handle_connection, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_update', test_gnunet_chat_handle_update, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_rename', test_gnunet_chat_handle_rename, depends: gnunetchat_lib, is_parallel : false)
+
+test('test_gnunet_chat_group_open', test_gnunet_chat_group_open, depends: gnunetchat_lib, is_parallel : false)
 
 test('test_gnunet_chat_message_text', test_gnunet_chat_message_text, depends: gnunetchat_lib, is_parallel : false)
 
