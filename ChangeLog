@@ -1,3 +1,12 @@
+## Version 0.5.1
+* Fixes discourses stalling application on exit of its process.
+* Fixes comparison of egos for proper account management.
+* Implements automatic Github workflow for builds and testing.
+* Fixes destruction of contacts and lobbies.
+* Adjust internal message handling.
+* Adjust all test cases to run independent of each other.
+* Add test case for group opening and leaving.
+
 ## Version 0.5.0
 * This release requires the GNUnet Messenger Service 0.5!
 * Implements tickets to share attributes with contacts.
