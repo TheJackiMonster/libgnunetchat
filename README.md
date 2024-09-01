@@ -2,6 +2,8 @@
 
 A client-side library for applications to utilize the Messenger service of GNUnet.
 
+[![Linux Build](https://github.com/TheJackiMonster/libgnunetchat/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/TheJackiMonster/libgnunetchat/actions/workflows/linux.yml)
+
 ## Features
 
 This library is an abstraction layer using the client API from different [GNUnet](https://www.gnunet.org) services to provide the functionality of a typical messenger application. The goal is to make developing such applications easier and independent of the GUI toolkit. So people can develop different interfaces being compatible with eachother despite visual differences, a few missing features or differences in overall design.
