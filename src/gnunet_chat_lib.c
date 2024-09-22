@@ -1321,7 +1321,7 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
 
 
 void
-GNUNET_CHAT_contact_get_tags (struct GNUNET_CHAT_Contact *contact,
+GNUNET_CHAT_contact_get_tags (const struct GNUNET_CHAT_Contact *contact,
                               GNUNET_CHAT_ContactTagCallback callback,
                               void *cls)
 {
