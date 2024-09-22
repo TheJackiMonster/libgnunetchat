@@ -27,6 +27,7 @@
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_util_lib.h>
 #include <stdlib.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -82,6 +83,68 @@ it_contact_find_tag (void *cls,
   }
 
   return GNUNET_YES;
+}
+
+struct GNUNET_CHAT_ContactIterateUniqueTag
+{
+  struct GNUNET_CONTAINER_MultiHashMap *tags;
+  GNUNET_CHAT_ContactTagCallback callback;
+  void *cls;
+};
+
+enum GNUNET_GenericReturnValue
+it_contact_iterate_unique_tag (void *cls,
+                               struct GNUNET_CHAT_Contact *contact,
+                               const char *tag)
+{
+  GNUNET_assert((cls) && (contact) && (tag));
+
+  struct GNUNET_CHAT_ContactIterateUniqueTag *it = cls;
+
+  struct GNUNET_HashCode hash;
+  GNUNET_CRYPTO_hash_from_string(tag, &hash);
+
+  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(it->tags, &hash))
+    return GNUNET_YES;
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(it->tags, 
+      &hash, NULL, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    return GNUNET_YES;
+  
+  if (it->callback)
+    return it->callback(it->cls, contact, tag);
+  else
+    return GNUNET_YES;
+}
+
+struct GNUNET_CHAT_ContactIterateTag
+{
+  struct GNUNET_CHAT_Contact *contact;
+  GNUNET_CHAT_ContactTagCallback callback;
+  void *cls;
+};
+
+enum GNUNET_GenericReturnValue
+it_contact_iterate_tag (void *cls,
+                        const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_assert((cls) && (message));
+
+  struct GNUNET_CHAT_ContactIterateTag *it = cls;
+
+  if ((GNUNET_YES != message_has_msg(message)) ||
+      (message->flags & GNUNET_MESSENGER_FLAG_DELETE))
+    return GNUNET_YES;
+  
+  if ((message->flags & GNUNET_MESSENGER_FLAG_SENT) &&
+      (it->callback))
+    return it->callback(
+      it->cls,
+      it->contact,
+      message->msg->body.tag.tag
+    );
+  else
+    return GNUNET_YES;
 }
 
 enum GNUNET_GenericReturnValue

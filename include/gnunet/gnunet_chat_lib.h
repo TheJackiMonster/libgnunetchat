@@ -327,6 +327,19 @@ typedef enum GNUNET_GenericReturnValue
                                 struct GNUNET_CHAT_Contact *contact);
 
 /**
+ * Iterator over tags of a specific chat contact.
+ *
+ * @param[in,out] cls Closure
+ * @param[in,out] contact Chat contact
+ * @param[in] tag Tag
+ * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
+ */
+typedef enum GNUNET_GenericReturnValue
+(*GNUNET_CHAT_ContactTagCallback) (void *cls,
+                                   struct GNUNET_CHAT_Contact *contact,
+                                   const char *tag);
+
+/**
  * Iterator over accessible attributes of a specific chat contact.
  *
  * @param[in,out] cls Closure
@@ -1070,12 +1083,26 @@ GNUNET_CHAT_contact_untag (struct GNUNET_CHAT_Contact *contact,
  * a specific <i>tag</i>.
  *
  * @param[in] contact Contact
+ * @param[in] tag Tag
  * @return #GNUNET_YES if the contact is tagged, #GNUNET_SYSERR on failure and 
  *         #GNUNET_NO otherwise
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
                                const char *tag);
+
+/**
+ * Calls an optional <i>callback</i> for each tag of a given chat 
+ * <i>contact</i>.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in] callback Callback for tag iteration (optional)
+ * @param[in,out] cls Closure for tag iteration (optional)
+ */
+void
+GNUNET_CHAT_contact_get_tags (struct GNUNET_CHAT_Contact *contact,
+                              GNUNET_CHAT_ContactTagCallback callback,
+                              void *cls);
 
 /**
  * Calls an optional <i>callback</i> for each attribute of a given chat 

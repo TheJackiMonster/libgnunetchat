@@ -33,6 +33,7 @@
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_time_lib.h>
+#include <gnunet/gnunet_util_lib.h>
 
 static const unsigned int initial_map_size_of_contact = 8;
 
@@ -219,7 +220,7 @@ contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
 
   struct GNUNET_CONTAINER_MultiHashMapIterator *iter;
   iter = GNUNET_CONTAINER_multihashmap_iterator_create(
-    contact->handle->contexts
+    contact->joined
   );
 
   if (iter)
@@ -385,6 +386,89 @@ skip_tag_search:
 
   if (tag_value)
     GNUNET_free(tag_value);
+}
+
+void
+contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
+                      struct GNUNET_CHAT_Context *context,
+                      GNUNET_CHAT_ContactTagCallback callback,
+                      void *cls)
+{
+  GNUNET_assert((contact) && (contact->joined));
+
+  if (! context)
+  {
+    struct GNUNET_CHAT_ContactIterateUniqueTag it;
+    it.tags = GNUNET_CONTAINER_multihashmap_create(
+      initial_map_size_of_contact, GNUNET_NO);
+    it.callback = callback;
+    it.cls = cls;
+
+    if (! (it.tags))
+      return;
+
+    struct GNUNET_CONTAINER_MultiHashMapIterator *iter;
+    iter = GNUNET_CONTAINER_multihashmap_iterator_create(
+      contact->joined
+    );
+
+    if (! iter)
+      goto free_tags_iteration;
+
+    struct GNUNET_HashCode key;
+    const void *value;
+
+    while (! context)
+    {
+      if (GNUNET_YES != GNUNET_CONTAINER_multihashmap_iterator_next(
+          iter, &key, &value))
+        break;
+
+      context = GNUNET_CONTAINER_multihashmap_get(
+        contact->handle->contexts, &key);
+      
+      if (context)
+        contact_iterate_tags(
+          contact,
+          context,
+          it_contact_iterate_unique_tag,
+          &it
+        );
+    }
+
+    GNUNET_CONTAINER_multihashmap_iterator_destroy(iter);
+
+free_tags_iteration:
+    GNUNET_CONTAINER_multihashmap_destroy(it.tags);
+    return;
+  }
+
+  const struct GNUNET_HashCode *hash = get_contact_join_hash(
+    contact, context);
+
+  if (! hash)
+    return;
+
+  const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
+    context->taggings,
+    hash
+  );
+
+  if (! tagging)
+    return;
+
+  struct GNUNET_CHAT_ContactIterateTag it;
+  it.contact = contact;
+  it.callback = callback;
+  it.cls = cls;
+
+  internal_tagging_iterate(
+    tagging,
+    GNUNET_YES,
+    NULL,
+    it_contact_iterate_tag,
+    &it
+  );
 }
 
 void

@@ -159,6 +159,22 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
              const char *tag);
 
 /**
+ * Iterate through all tags of a given chat <i>contact</i>
+ * in a specific chat <i>context</i> (or all of them) using
+ * an optional <i>callback</i> with its closure.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in,out] context Chat context or NULL
+ * @param[in] callback Callback for tag iteration or NULL
+ * @param[in,out] cls Closure for tag iteration or NULL
+ */
+void
+contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
+                      struct GNUNET_CHAT_Context *context,
+                      GNUNET_CHAT_ContactTagCallback callback,
+                      void *cls);
+
+/**
  * Destroys a chat <i>contact</i> and frees its memory.
  *
  * @param[in,out] contact Chat contact
