@@ -31,13 +31,13 @@
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_message_text_msg(void *cls,
                                 struct GNUNET_CHAT_Context *context,
-                                const struct GNUNET_CHAT_Message *message)
+                                struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
     (struct GNUNET_CHAT_Handle**) cls
   );
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_Group *group;
   const char *text;
 

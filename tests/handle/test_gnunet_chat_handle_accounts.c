@@ -28,7 +28,7 @@
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_accounts_it(void *cls,
-                                  const struct GNUNET_CHAT_Handle *handle,
+                                  struct GNUNET_CHAT_Handle *handle,
                                   struct GNUNET_CHAT_Account *account)
 {
   unsigned int *accounts_stage = cls;
@@ -53,7 +53,7 @@ on_gnunet_chat_handle_accounts_it(void *cls,
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_accounts_msg(void *cls,
                                    struct GNUNET_CHAT_Context *context,
-                                   const struct GNUNET_CHAT_Message *message)
+                                   struct GNUNET_CHAT_Message *message)
 {
   static unsigned int accounts_stage = 0;
 

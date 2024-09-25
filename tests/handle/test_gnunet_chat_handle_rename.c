@@ -30,7 +30,7 @@
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_rename_msg(void *cls,
                                  struct GNUNET_CHAT_Context *context,
-                                 const struct GNUNET_CHAT_Message *message)
+                                 struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
@@ -40,7 +40,7 @@ on_gnunet_chat_handle_rename_msg(void *cls,
   ck_assert_ptr_null(context);
   ck_assert_ptr_nonnull(message);
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_message_get_account(message);
 
   const char *name = GNUNET_CHAT_get_name(handle);

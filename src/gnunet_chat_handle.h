@@ -106,8 +106,8 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_head;
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
-  const struct GNUNET_CHAT_Account *next;
-  const struct GNUNET_CHAT_Account *current;
+  struct GNUNET_CHAT_Account *next;
+  struct GNUNET_CHAT_Account *current;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 
   struct GNUNET_CHAT_InternalLobbies *lobbies_head;
@@ -180,7 +180,7 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle);
  */
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		            const struct GNUNET_CHAT_Account *account);
+		            struct GNUNET_CHAT_Account *account);
 
 /**
  * Disconnects a given chat <i>handle</i> from its current
@@ -297,7 +297,7 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle);
  * as instant feedback.
  *
  * @param[in,out] handle Chat handle
- * @param[in] account Chat account or NULL
+ * @param[in,out] account Chat account or NULL
  * @param[in,out] context Chat context or NULL
  * @param[in] flag Chat message flag
  * @param[in] warning Warning text
@@ -305,7 +305,7 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle);
  */
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
-                              const struct GNUNET_CHAT_Account *account,
+                              struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
                               const char *warning,

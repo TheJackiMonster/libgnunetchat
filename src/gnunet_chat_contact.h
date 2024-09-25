@@ -169,8 +169,8 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
  * @param[in,out] cls Closure for tag iteration or NULL
  */
 void
-contact_iterate_tags (const struct GNUNET_CHAT_Contact *contact,
-                      const struct GNUNET_CHAT_Context *context,
+contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
+                      struct GNUNET_CHAT_Context *context,
                       GNUNET_CHAT_ContactTagCallback callback,
                       void *cls);
 

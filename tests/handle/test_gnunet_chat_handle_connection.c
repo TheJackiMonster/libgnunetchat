@@ -29,7 +29,7 @@
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_connection_msg(void *cls,
                                      struct GNUNET_CHAT_Context *context,
-                                     const struct GNUNET_CHAT_Message *message)
+                                     struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
@@ -39,8 +39,8 @@ on_gnunet_chat_handle_connection_msg(void *cls,
   ck_assert_ptr_null(context);
   ck_assert_ptr_nonnull(message);
 
-  const struct GNUNET_CHAT_Account *connected;
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *connected;
+  struct GNUNET_CHAT_Account *account;
   const char *name;
 
   connected = GNUNET_CHAT_get_connected(handle);

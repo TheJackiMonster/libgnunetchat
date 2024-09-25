@@ -120,7 +120,7 @@ internal_attributes_create_share(struct GNUNET_CHAT_Handle *handle,
 
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create_request(struct GNUNET_CHAT_Handle *handle,
-                                   const struct GNUNET_CHAT_Account *account)
+                                   struct GNUNET_CHAT_Account *account)
 {
   GNUNET_assert((handle) && (account));
 

@@ -132,7 +132,7 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
 
 
 int
-GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
+GNUNET_CHAT_iterate_accounts (struct GNUNET_CHAT_Handle *handle,
                               GNUNET_CHAT_AccountCallback callback,
                               void *cls)
 {
@@ -190,7 +190,7 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
 
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-                     const struct GNUNET_CHAT_Account *account)
+                     struct GNUNET_CHAT_Account *account)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -248,7 +248,7 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 }
 
 
-const struct GNUNET_CHAT_Account*
+struct GNUNET_CHAT_Account*
 GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -947,7 +947,7 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
 
 void
 GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
-                                    const struct GNUNET_CHAT_Account *account,
+                                    struct GNUNET_CHAT_Account *account,
                                     GNUNET_CHAT_AccountAttributeCallback callback,
                                     void *cls)
 {
@@ -1321,7 +1321,7 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
 
 
 void
-GNUNET_CHAT_contact_get_tags (const struct GNUNET_CHAT_Contact *contact,
+GNUNET_CHAT_contact_get_tags (struct GNUNET_CHAT_Contact *contact,
                               GNUNET_CHAT_ContactTagCallback callback,
                               void *cls)
 {
@@ -1440,7 +1440,7 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group)
 
 
 void
-GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
 				                          struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -1476,7 +1476,7 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
 
 
 int
-GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
                                     GNUNET_CHAT_GroupContactCallback callback,
                                     void *cls)
 {
@@ -1730,7 +1730,7 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
-				                               const struct GNUNET_CHAT_Message *message)
+				                               struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1880,7 +1880,7 @@ file_binding:
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
-				                        const struct GNUNET_CHAT_File *file)
+				                        struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -1913,7 +1913,7 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
-                              const struct GNUNET_CHAT_Message *message,
+                              struct GNUNET_CHAT_Message *message,
                               const char *tag)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2225,7 +2225,7 @@ GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
 
 
 int
-GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_get_read_receipt (struct GNUNET_CHAT_Message *message,
                                       GNUNET_CHAT_MessageReadReceiptCallback callback,
                                       void *cls)
 {
@@ -2273,7 +2273,7 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 }
 
 
-const struct GNUNET_CHAT_Account*
+struct GNUNET_CHAT_Account*
 GNUNET_CHAT_message_get_account (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2352,7 +2352,7 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
 }
 
 
-const struct GNUNET_CHAT_Message*
+struct GNUNET_CHAT_Message*
 GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2377,7 +2377,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 
 
 enum GNUNET_GenericReturnValue
-GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
 			                      struct GNUNET_TIME_Relative delay)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2392,7 +2392,7 @@ GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
 
 
 int
-GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_iterate_tags (struct GNUNET_CHAT_Message *message,
                                   GNUNET_CHAT_MessageCallback callback,
                                   void *cls)
 {
@@ -3097,7 +3097,7 @@ GNUNET_CHAT_discourse_get_fd (const struct GNUNET_CHAT_Discourse *discourse)
 
 
 int
-GNUNET_CHAT_discourse_iterate_contacts (const struct GNUNET_CHAT_Discourse *discourse,
+GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
                                         GNUNET_CHAT_DiscourseContactCallback callback,
                                         void *cls)
 {

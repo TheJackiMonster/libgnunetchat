@@ -64,7 +64,7 @@ on_gnunet_chat_attribute_share_attr(void *cls,
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_share_msg(void *cls,
                                    struct GNUNET_CHAT_Context *context,
-                                   const struct GNUNET_CHAT_Message *message)
+                                   struct GNUNET_CHAT_Message *message)
 {
   static unsigned int share_stage = 0;
 
@@ -72,7 +72,7 @@ on_gnunet_chat_attribute_share_msg(void *cls,
     (struct GNUNET_CHAT_Handle**) cls
   );
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_Contact *recipient;
   struct GNUNET_CHAT_Contact *sender;
   const char *name;

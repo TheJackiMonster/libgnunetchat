@@ -326,7 +326,7 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
 
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		            const struct GNUNET_CHAT_Account *account)
+		            struct GNUNET_CHAT_Account *account)
 {
   GNUNET_assert(
     (handle) && (account) &&
@@ -790,7 +790,7 @@ handle_get_key (const struct GNUNET_CHAT_Handle *handle)
 
 void
 handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
-                              const struct GNUNET_CHAT_Account *account,
+                              struct GNUNET_CHAT_Account *account,
                               struct GNUNET_CHAT_Context *context,
                               enum GNUNET_CHAT_MessageFlag flag,
                               const char *warning,

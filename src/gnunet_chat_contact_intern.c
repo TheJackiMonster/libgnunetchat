@@ -66,7 +66,7 @@ struct GNUNET_CHAT_ContactFindTag
 
 enum GNUNET_GenericReturnValue
 it_contact_find_tag (void *cls,
-                     const struct GNUNET_CHAT_Message *message)
+                     struct GNUNET_CHAT_Message *message)
 {
   GNUNET_assert((cls) && (message));
 
@@ -94,7 +94,7 @@ struct GNUNET_CHAT_ContactIterateUniqueTag
 
 enum GNUNET_GenericReturnValue
 it_contact_iterate_unique_tag (void *cls,
-                               const struct GNUNET_CHAT_Contact *contact,
+                               struct GNUNET_CHAT_Contact *contact,
                                const char *tag)
 {
   GNUNET_assert((cls) && (contact) && (tag));
@@ -119,14 +119,14 @@ it_contact_iterate_unique_tag (void *cls,
 
 struct GNUNET_CHAT_ContactIterateTag
 {
-  const struct GNUNET_CHAT_Contact *contact;
+  struct GNUNET_CHAT_Contact *contact;
   GNUNET_CHAT_ContactTagCallback callback;
   void *cls;
 };
 
 enum GNUNET_GenericReturnValue
 it_contact_iterate_tag (void *cls,
-                        const struct GNUNET_CHAT_Message *message)
+                        struct GNUNET_CHAT_Message *message)
 {
   GNUNET_assert((cls) && (message));
 

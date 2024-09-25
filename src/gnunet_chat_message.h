@@ -57,7 +57,7 @@ enum GNUNET_CHAT_MessageFlag
 
 struct GNUNET_CHAT_Message
 {
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
 
   struct GNUNET_CHAT_Context *context;
   struct GNUNET_SCHEDULER_Task *task;
@@ -95,14 +95,14 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
  * <i>account</i> or <i>context</i>, a custom <i>flag</i> 
  * and an optional <i>warning</i> text.
  *
- * @param[in] account Chat account or NULL
+ * @param[in,out] account Chat account or NULL
  * @param[in,out] context Chat context or NULL
  * @param[in] flag Chat message flag
  * @param[in] warning Warning text
  * @return New internal chat message
  */
 struct GNUNET_CHAT_Message*
-message_create_internally (const struct GNUNET_CHAT_Account *account,
+message_create_internally (struct GNUNET_CHAT_Account *account,
                            struct GNUNET_CHAT_Context *context,
                            enum GNUNET_CHAT_MessageFlag flag,
                            const char *warning);

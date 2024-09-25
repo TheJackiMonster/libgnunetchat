@@ -37,7 +37,7 @@ struct GNUNET_CHAT_AttributeProcess
 {
   struct GNUNET_CHAT_Handle *handle;
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_Contact *contact;
 
   struct GNUNET_RECLAIM_Attribute *attribute;
@@ -118,12 +118,12 @@ internal_attributes_create_share(struct GNUNET_CHAT_Handle *handle,
  * @see internal_attributes_create()
  *
  * @param[in,out] handle Chat handle
- * @param[in] account Chat account
+ * @param[in,out] account Chat account
  * @return New attribute request process
  */
 struct GNUNET_CHAT_AttributeProcess*
 internal_attributes_create_request(struct GNUNET_CHAT_Handle *handle,
-                                   const struct GNUNET_CHAT_Account *account);
+                                   struct GNUNET_CHAT_Account *account);
 
 /**
  * Destroys and frees a given <i>attributes</i> 

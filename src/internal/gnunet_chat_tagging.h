@@ -37,7 +37,7 @@ struct GNUNET_CHAT_InternalTagging
 
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_TaggingCallback) (void *cls,
-                                const struct GNUNET_CHAT_Message *message);
+                                struct GNUNET_CHAT_Message *message);
 
 /**
  * Creates a tagging structure to manage different tag messages

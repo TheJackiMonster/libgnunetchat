@@ -74,7 +74,7 @@ on_gnunet_chat_file_send_unindex(void *cls,
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_file_send_msg(void *cls,
                              struct GNUNET_CHAT_Context *context,
-                             const struct GNUNET_CHAT_Message *message)
+                             struct GNUNET_CHAT_Message *message)
 {
   static char *filename = NULL;
 
@@ -85,7 +85,7 @@ on_gnunet_chat_file_send_msg(void *cls,
   ck_assert_ptr_nonnull(handle);
   ck_assert_ptr_nonnull(message);
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   struct GNUNET_CHAT_Group *group;
   struct GNUNET_CHAT_File *file;
 

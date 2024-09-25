@@ -79,7 +79,7 @@ task_handle_connection (void *cls)
   if (! handle->next)
     return;
 
-  const struct GNUNET_CHAT_Account *account = handle->next;
+  struct GNUNET_CHAT_Account *account = handle->next;
   handle->next = NULL;
 
   handle_connect(handle, account);
@@ -98,7 +98,7 @@ task_handle_disconnection (void *cls)
   if (! handle->next)
     return;
 
-  const struct GNUNET_CHAT_Account *account = handle->next;
+  struct GNUNET_CHAT_Account *account = handle->next;
   handle->next = NULL;
 
   handle_connect(handle, account);
@@ -364,7 +364,7 @@ task_group_destruction (void *cls)
 
 struct GNUNET_CHAT_GroupIterateContacts
 {
-  const struct GNUNET_CHAT_Group *group;
+  struct GNUNET_CHAT_Group *group;
   GNUNET_CHAT_GroupContactCallback cb;
   void *cls;
 };
@@ -471,7 +471,7 @@ it_context_iterate_discourses (void *cls,
 
 struct GNUNET_CHAT_MessageIterateReadReceipts
 {
-  const struct GNUNET_CHAT_Message *message;
+  struct GNUNET_CHAT_Message *message;
   GNUNET_CHAT_MessageReadReceiptCallback cb;
   void *cls;
 };
@@ -535,7 +535,7 @@ cont_update_attribute_with_status (void *cls,
 
   attributes->op = NULL;
 
-  const struct GNUNET_CHAT_Account *account = attributes->account;
+  struct GNUNET_CHAT_Account *account = attributes->account;
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
   const char *attribute_name = NULL;

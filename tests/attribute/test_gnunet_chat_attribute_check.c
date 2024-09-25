@@ -53,13 +53,13 @@ on_gnunet_chat_attribute_check_attr(void *cls,
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_check_msg(void *cls,
                                    struct GNUNET_CHAT_Context *context,
-                                   const struct GNUNET_CHAT_Message *message)
+                                   struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Handle *handle = *(
     (struct GNUNET_CHAT_Handle**) cls
   );
 
-  const struct GNUNET_CHAT_Account *account;
+  struct GNUNET_CHAT_Account *account;
   const char *text;
 
   ck_assert_ptr_nonnull(handle);

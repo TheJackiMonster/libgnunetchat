@@ -40,7 +40,7 @@ struct GNUNET_CHAT_Tool
 
 static enum GNUNET_GenericReturnValue
 accounts_iterate (void *cls,
-                  const struct GNUNET_CHAT_Handle *handle,
+                  struct GNUNET_CHAT_Handle *handle,
                   struct GNUNET_CHAT_Account *account)
 {
   struct GNUNET_CHAT_Tool *tool = cls;
@@ -70,7 +70,7 @@ idle (void *cls)
 static enum GNUNET_GenericReturnValue
 chat_message (void *cls,
               struct GNUNET_CHAT_Context *context,
-              const struct GNUNET_CHAT_Message *message)
+              struct GNUNET_CHAT_Message *message)
 {
   struct GNUNET_CHAT_Tool *tool = cls;
 

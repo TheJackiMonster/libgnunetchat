@@ -37,7 +37,7 @@
 enum GNUNET_GenericReturnValue                                    \
 on_setup_##test_call (void *cls,                                  \
                       struct GNUNET_CHAT_Context *context,        \
-                      const struct GNUNET_CHAT_Message *message)  \
+                      struct GNUNET_CHAT_Message *message)        \
 {                                                                 \
   static enum GNUNET_GenericReturnValue done = GNUNET_NO;         \
   static size_t counter = 0;                                      \
@@ -98,7 +98,7 @@ setup_##test_call (const struct GNUNET_CONFIGURATION_Handle *cfg) \
 enum GNUNET_GenericReturnValue                                      \
 on_cleanup_##test_call (void *cls,                                  \
                         struct GNUNET_CHAT_Context *context,        \
-                        const struct GNUNET_CHAT_Message *message)  \
+                        struct GNUNET_CHAT_Message *message)        \
 {                                                                   \
   static enum GNUNET_GenericReturnValue done = GNUNET_NO;           \
   static size_t counter = 0;                                        \

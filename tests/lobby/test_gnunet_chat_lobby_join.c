@@ -41,7 +41,7 @@ on_gnunet_chat_lobby_join_open(void *cls,
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_lobby_join_msg(void *cls,
                               struct GNUNET_CHAT_Context *context,
-                              const struct GNUNET_CHAT_Message *message)
+                              struct GNUNET_CHAT_Message *message)
 {
   static struct GNUNET_CHAT_Lobby *lobby = NULL;
 
@@ -52,8 +52,7 @@ on_gnunet_chat_lobby_join_msg(void *cls,
   ck_assert_ptr_nonnull(handle);
   ck_assert_ptr_nonnull(message);
 
-  const struct GNUNET_CHAT_Account *account;
-
+  struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_message_get_account(message);
 
   switch (GNUNET_CHAT_message_get_kind(message))

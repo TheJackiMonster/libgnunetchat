@@ -51,7 +51,7 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
 }
 
 struct GNUNET_CHAT_Message*
-message_create_internally (const struct GNUNET_CHAT_Account *account,
+message_create_internally (struct GNUNET_CHAT_Account *account,
                            struct GNUNET_CHAT_Context *context,
                            enum GNUNET_CHAT_MessageFlag flag,
                            const char *warning)

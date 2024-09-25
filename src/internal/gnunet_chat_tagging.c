@@ -118,7 +118,7 @@ internal_tagging_iterate_message (void *cls,
                                   void *value)
 {
   struct GNUNET_CHAT_InternalTaggingIterator *it = cls;
-  const struct GNUNET_CHAT_Message *message = value;
+  struct GNUNET_CHAT_Message *message = value;
 
   if (!(it->cb))
     return GNUNET_YES;

@@ -251,27 +251,27 @@ struct GNUNET_CHAT_Discourse;
  * Iterator over chat accounts of a specific chat handle.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_iterate_accounts
- * @param[in] handle Chat handle
+ * @param[in,out] handle Chat handle
  * @param[in,out] account Chat account
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_AccountCallback) (void *cls,
-                                const struct GNUNET_CHAT_Handle *handle,
+                                struct GNUNET_CHAT_Handle *handle,
                                 struct GNUNET_CHAT_Account *account);
 
 /**
  * Iterator over attributes of a specific chat account.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_get_attributes
- * @param[in] account Chat account
+ * @param[in,out] account Chat account
  * @param[in] name Attribute name
  * @param[in] value Attribute value
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_AccountAttributeCallback) (void *cls,
-                                         const struct GNUNET_CHAT_Account *account,
+                                         struct GNUNET_CHAT_Account *account,
                                          const char *name,
                                          const char *value);
 
@@ -330,13 +330,13 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over tags of a specific chat contact.
  *
  * @param[in,out] cls Closure
- * @param[in] contact Chat contact
+ * @param[in,out] contact Chat contact
  * @param[in] tag Tag
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContactTagCallback) (void *cls,
-                                   const struct GNUNET_CHAT_Contact *contact,
+                                   struct GNUNET_CHAT_Contact *contact,
                                    const char *tag);
 
 /**
@@ -371,13 +371,13 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over chat contacts in a specific chat group.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_group_iterate_contacts
- * @param[in] group Chat group
+ * @param[in,out] group Chat group
  * @param[in,out] contact Chat contact
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_GroupContactCallback) (void *cls,
-                                     const struct GNUNET_CHAT_Group *group,
+                                     struct GNUNET_CHAT_Group *group,
                                      struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -385,13 +385,13 @@ typedef enum GNUNET_GenericReturnValue
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_context_iterate_messages
  * @param[in,out] context Chat context or NULL
- * @param[in] message Chat message
+ * @param[in,out] message Chat message
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_ContextMessageCallback) (void *cls,
                                        struct GNUNET_CHAT_Context *context,
-                                       const struct GNUNET_CHAT_Message *message);
+                                       struct GNUNET_CHAT_Message *message);
 
 /**
  * Iterator over chat files in a specific chat context.
@@ -411,28 +411,28 @@ typedef enum GNUNET_GenericReturnValue
  * specific message or not.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_message_get_read_receipt
- * @param[in] message Chat message
- * @param[in] contact Chat contact
+ * @param[in,out] message Chat message
+ * @param[in,out] contact Chat contact
  * @param[in] read_receipt #GNUNET_YES if the message was received by the contact,
  * 			   #GNUNET_NO otherwise
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_MessageReadReceiptCallback) (void *cls,
-                                           const struct GNUNET_CHAT_Message *message,
-                                           const struct GNUNET_CHAT_Contact *contact,
+                                           struct GNUNET_CHAT_Message *message,
+                                           struct GNUNET_CHAT_Contact *contact,
                                            int read_receipt);
 
 /**
- * Iterator over chat messages.
+ * Iterator over chat tag messages with a specific target message.
  *
- * @param[in,out] cls Closure from #GNUNET_CHAT_context_iterate_messages
- * @param[in] message Chat message
+ * @param[in,out] cls Closure from #GNUNET_CHAT_message_iterate_tags
+ * @param[in,out] message Chat message
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_MessageCallback) (void *cls,
-                                const struct GNUNET_CHAT_Message *message);
+                                struct GNUNET_CHAT_Message *message);
 
 /**
  * Method called during an upload of a specific file in a chat to share it.
@@ -493,13 +493,13 @@ typedef enum GNUNET_GenericReturnValue
  * Iterator over chat contacts in a specific chat discourse.
  *
  * @param[in,out] cls Closure from #GNUNET_CHAT_discourse_iterate_contacts
- * @param[in] discourse Chat discourse
+ * @param[in,out] discourse Chat discourse
  * @param[in,out] contact Chat contact
  * @return #GNUNET_YES if we should continue to iterate, #GNUNET_NO otherwise.
  */
 typedef enum GNUNET_GenericReturnValue
 (*GNUNET_CHAT_DiscourseContactCallback) (void *cls,
-                                         const struct GNUNET_CHAT_Discourse *discourse,
+                                         struct GNUNET_CHAT_Discourse *discourse,
                                          struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -558,17 +558,17 @@ GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
  * Iterates through the accounts of a given chat <i>handle</i> with a selected
  * callback and custom closure.
  *
- * @param[in] handle Chat handle
+ * @param[in,out] handle Chat handle
  * @param[in] callback Callback for account iteration (optional)
  * @param[in,out] cls Closure for account iteration (optional)
  * @return Amount of accounts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_iterate_accounts (const struct GNUNET_CHAT_Handle *handle,
+GNUNET_CHAT_iterate_accounts (struct GNUNET_CHAT_Handle *handle,
                               GNUNET_CHAT_AccountCallback callback,
                               void *cls);
 
-/*
+/**
  * Searches for an existing chat account of a given chat <i>handle</i> with
  * a unique <i>name</i>.
  *
@@ -583,11 +583,12 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
 /**
  * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
  *
- * @param[in] account Chat account
+ * @param[in,out] handle Chat handle
+ * @param[in,out] account Chat account
  */
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-                     const struct GNUNET_CHAT_Account *account);
+                     struct GNUNET_CHAT_Account *account);
 
 /**
  * Disconnects a chat <i>handle</i> from the current chat account.
@@ -601,10 +602,10 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle);
  * Returns the connected account of a chat <i>handle</i> for related
  * communication or NULL if no account is set yet.
  *
- * @param handle Chat handle
+ * @param[in] handle Chat handle
  * @return Account used by the handle or NULL
  */
-const struct GNUNET_CHAT_Account*
+struct GNUNET_CHAT_Account*
 GNUNET_CHAT_get_connected (const struct GNUNET_CHAT_Handle *handle);
 
 /**
@@ -898,7 +899,7 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account);
  */
 void
 GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
-                                    const struct GNUNET_CHAT_Account *account,
+                                    struct GNUNET_CHAT_Account *account,
                                     GNUNET_CHAT_AccountAttributeCallback callback,
                                     void *cls);
 
@@ -1100,7 +1101,7 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
  * @param[in,out] cls Closure for tag iteration (optional)
  */
 void
-GNUNET_CHAT_contact_get_tags (const struct GNUNET_CHAT_Contact *contact,
+GNUNET_CHAT_contact_get_tags (struct GNUNET_CHAT_Contact *contact,
                               GNUNET_CHAT_ContactTagCallback callback,
                               void *cls);
 
@@ -1176,7 +1177,7 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group);
  * @param[in,out] contact Contact
  */
 void
-GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
                                   struct GNUNET_CHAT_Contact *contact);
 
 /**
@@ -1189,7 +1190,7 @@ GNUNET_CHAT_group_invite_contact (const struct GNUNET_CHAT_Group *group,
  * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_group_iterate_contacts (const struct GNUNET_CHAT_Group *group,
+GNUNET_CHAT_group_iterate_contacts (struct GNUNET_CHAT_Group *group,
                                     GNUNET_CHAT_GroupContactCallback callback,
                                     void *cls);
 
@@ -1304,12 +1305,12 @@ GNUNET_CHAT_context_send_text (struct GNUNET_CHAT_Context *context,
  * chat <i>context</i>.
  *
  * @param[in,out] context Chat context
- * @param[in] message Message (optional)
+ * @param[in,out] message Message (optional)
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
-                                       const struct GNUNET_CHAT_Message *message);
+                                       struct GNUNET_CHAT_Message *message);
 
 /**
  * Uploads a local file specified via its <i>path</i> using symmetric encryption
@@ -1333,25 +1334,25 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
  * another chat in a given chat <i>context</i>.
  *
  * @param[in,out] context Chat context
- * @param[in] file File handle
+ * @param[in,out] file File handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
-                                const struct GNUNET_CHAT_File *file);
+                                struct GNUNET_CHAT_File *file);
 
 /**
  * Sends a tag message targeting a selected <i>message</i> into a given
  * chat <i>context</i> with a given <i>tag</i> value.
  *
  * @param[in,out] context Chat context
- * @param[in] message Message
+ * @param[in,out] message Message
  * @param[in] tag Tag value
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
-                              const struct GNUNET_CHAT_Message *message,
+                              struct GNUNET_CHAT_Message *message,
                               const char *tag);
 
 /**
@@ -1516,13 +1517,13 @@ GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
  * Iterates through the contacts of the context related to a given chat
  * <i>message</i> to check whether it was received by each of the contacts.
  *
- * @param[in] message Message
+ * @param[in,out] message Message
  * @param[in] callback Callback for contact iteration (optional)
  * @param[in,out] cls Closure for contact iteration (optional)
  * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_message_get_read_receipt (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_get_read_receipt (struct GNUNET_CHAT_Message *message,
                                       GNUNET_CHAT_MessageReadReceiptCallback callback,
                                       void *cls);
 
@@ -1545,7 +1546,7 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @return The account of message or NULL
  */
-const struct GNUNET_CHAT_Account*
+struct GNUNET_CHAT_Account*
 GNUNET_CHAT_message_get_account (const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -1587,31 +1588,31 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @return The target of message or NULL
  */
-const struct GNUNET_CHAT_Message*
+struct GNUNET_CHAT_Message*
 GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
 
 /**
  * Deletes a given <i>message</i> with a specific relative <i>delay</i>.
  *
- * @param[in] message Message
+ * @param[in,out] message Message
  * @param[in] delay Relative delay
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
-GNUNET_CHAT_message_delete (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
                             struct GNUNET_TIME_Relative delay);
 
 /**
  * Iterates through the tag messages in the context of a given 
  * <i>message</i>.
  *
- * @param[in] message Message
+ * @param[in,out] message Message
  * @param[in] callback Callback for tag message iteration (optional)
  * @param[in,out] cls Closure for tag message iteration (optional)
  * @return Amount of tag messages iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_message_iterate_tags (const struct GNUNET_CHAT_Message *message,
+GNUNET_CHAT_message_iterate_tags (struct GNUNET_CHAT_Message *message,
                                   GNUNET_CHAT_MessageCallback callback,
                                   void *cls);
 
@@ -1959,7 +1960,7 @@ GNUNET_CHAT_discourse_get_fd (const struct GNUNET_CHAT_Discourse *discourse);
  * @return Amount of contacts iterated or #GNUNET_SYSERR on failure
  */
 int
-GNUNET_CHAT_discourse_iterate_contacts (const struct GNUNET_CHAT_Discourse *discourse,
+GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
                                         GNUNET_CHAT_DiscourseContactCallback callback,
                                         void *cls);
 
