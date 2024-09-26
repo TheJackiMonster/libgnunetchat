@@ -121,8 +121,7 @@ on_gnunet_chat_attribute_share_msg(void *cls,
         GNUNET_CHAT_set_attribute(
           handle,
           TEST_SHARE_NAME,
-          TEST_SHARE_VALUE,
-          time(NULL) + 60
+          TEST_SHARE_VALUE
         );
 
         share_stage = 5;

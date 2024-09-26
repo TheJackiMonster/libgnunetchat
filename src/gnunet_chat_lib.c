@@ -329,8 +329,7 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle)
 void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
-                           const char *value,
-                           time_t expires)
+                           const char *value)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -344,11 +343,8 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!name))
     return;
 
-  const double delay = difftime(expires, time(NULL));
-
-  struct GNUNET_TIME_Relative rel = GNUNET_TIME_relative_multiply_double(
-    GNUNET_TIME_relative_get_second_(), delay
-  );
+  struct GNUNET_TIME_Relative rel;
+  rel = GNUNET_TIME_relative_get_forever_();
 
   struct GNUNET_CHAT_AttributeProcess *attributes;
   attributes = internal_attributes_create_store(handle, name, rel);

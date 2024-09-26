@@ -658,13 +658,11 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
  * @param[in,out] handle Chat handle
  * @param[in] name Attribute name
  * @param[in] value Attribute value
- * @param[in] expires Expiration time
  */
 void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
-                           const char *value,
-                           time_t expires);
+                           const char *value);
 
 /**
  * Deletes an attribute of a chat <i>handle</i> for related communication 
