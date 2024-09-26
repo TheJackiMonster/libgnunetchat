@@ -34,7 +34,18 @@
  */
 /**@{*/
 
+#ifndef __cplusplus
 #include <gnunet/gnunet_util_lib.h>
+#else
+enum GNUNET_GenericReturnValue {
+  GNUNET_SYSERR = -1,
+  GNUNET_NO = 0,
+  GNUNET_OK = 1,
+  GNUNET_YES = 1,
+};
+
+struct GNUNET_CONFIGURATION_Handle;
+#endif
 
 #include <stdint.h>
 #include <time.h>
