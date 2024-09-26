@@ -25,12 +25,12 @@
 #ifndef GNUNET_CHAT_DISCOURSE_H_
 #define GNUNET_CHAT_DISCOURSE_H_
 
+#include "gnunet_chat_util.h"
+
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
-
-#include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_Contact;
 struct GNUNET_CHAT_Context;

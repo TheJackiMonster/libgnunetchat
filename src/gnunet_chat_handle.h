@@ -25,6 +25,16 @@
 #ifndef GNUNET_CHAT_HANDLE_H_
 #define GNUNET_CHAT_HANDLE_H_
 
+#include "gnunet_chat_lib.h"
+#include "gnunet_chat_account.h"
+#include "gnunet_chat_lobby.h"
+#include "gnunet_chat_message.h"
+#include "gnunet_chat_uri.h"
+
+#include "internal/gnunet_chat_accounts.h"
+#include "internal/gnunet_chat_attribute_process.h"
+#include "internal/gnunet_chat_ticket_process.h"
+
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_fs_service.h>
@@ -36,16 +46,6 @@
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
-
-#include "gnunet_chat_lib.h"
-#include "gnunet_chat_account.h"
-#include "gnunet_chat_lobby.h"
-#include "gnunet_chat_message.h"
-#include "gnunet_chat_uri.h"
-
-#include "internal/gnunet_chat_accounts.h"
-#include "internal/gnunet_chat_attribute_process.h"
-#include "internal/gnunet_chat_ticket_process.h"
 
 struct GNUNET_CHAT_Handle;
 
