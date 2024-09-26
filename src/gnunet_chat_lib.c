@@ -330,7 +330,7 @@ void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
                            const char *value,
-                           time_t expires)
+                           struct GNUNET_TIME_Relative expires)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -344,14 +344,8 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!key) || (!name))
     return;
 
-  const double delay = difftime(expires, time(NULL));
-
-  struct GNUNET_TIME_Relative rel = GNUNET_TIME_relative_multiply_double(
-    GNUNET_TIME_relative_get_second_(), delay
-  );
-
   struct GNUNET_CHAT_AttributeProcess *attributes;
-  attributes = internal_attributes_create_store(handle, name, rel);
+  attributes = internal_attributes_create_store(handle, name, expires);
 
   if (!attributes)
     return;
@@ -630,7 +624,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
 
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
-                        unsigned int delay,
+                        struct GNUNET_TIME_Relative delay,
                         GNUNET_CHAT_LobbyCallback callback,
                         void *cls)
 {
@@ -638,10 +632,6 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
 
   if ((!handle) || (handle->destruction))
     return NULL;
-
-  struct GNUNET_TIME_Relative rel = GNUNET_TIME_relative_multiply(
-    GNUNET_TIME_relative_get_second_(), delay
-  );
 
   struct GNUNET_CHAT_InternalLobbies *lobbies = GNUNET_new(
     struct GNUNET_CHAT_InternalLobbies
@@ -655,7 +645,7 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
     lobbies
   );
 
-  lobby_open(lobbies->lobby, rel, callback, cls);
+  lobby_open(lobbies->lobby, delay, callback, cls);
 
   return lobbies->lobby;
 }
@@ -2083,23 +2073,15 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message)
 }
 
 
-time_t
+struct GNUNET_TIME_Absolute
 GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!message) || (GNUNET_YES != message_has_msg(message)))
-    return ((time_t) -1);
+    return GNUNET_TIME_absolute_get_zero_();
 
-  struct GNUNET_TIME_Absolute abs = GNUNET_TIME_absolute_ntoh(
-    message->msg->header.timestamp
-  );
-
-  struct GNUNET_TIME_Timestamp ts = GNUNET_TIME_absolute_to_timestamp(
-    abs
-  );
-
-  return (time_t) GNUNET_TIME_timestamp_to_s(ts);
+  return GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp);
 }
 
 
@@ -2396,24 +2378,15 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
-			                      unsigned int delay)
+			                      struct GNUNET_TIME_Relative delay)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
       (!(message->context)))
     return GNUNET_SYSERR;
-  
-  struct GNUNET_TIME_Relative rel = GNUNET_TIME_relative_multiply(
-    GNUNET_TIME_relative_get_second_(), delay
-  );
 
-  GNUNET_MESSENGER_delete_message(
-    message->context->room,
-    &(message->hash),
-    rel
-  );
-
+  GNUNET_MESSENGER_delete_message(message->context->room, &(message->hash), delay);
   return GNUNET_OK;
 }
 

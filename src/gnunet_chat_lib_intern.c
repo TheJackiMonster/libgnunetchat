@@ -30,7 +30,6 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
-#include <gnunet/gnunet_time_lib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -507,12 +506,8 @@ it_message_iterate_read_receipts (void *cls,
   if (!timestamp)
     return GNUNET_YES;
 
-  struct GNUNET_TIME_Absolute abs = GNUNET_TIME_absolute_ntoh(
-    it->message->msg->header.timestamp
-  );
-
   struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
-    *timestamp, abs
+    *timestamp, GNUNET_CHAT_message_get_timestamp(it->message)
   );
 
   int read_receipt;

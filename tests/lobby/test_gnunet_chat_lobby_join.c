@@ -77,7 +77,7 @@ on_gnunet_chat_lobby_join_msg(void *cls,
 
       lobby = GNUNET_CHAT_lobby_open(
         handle,
-        1,
+        GNUNET_TIME_relative_get_second_(),
         on_gnunet_chat_lobby_join_open,
         handle
       );

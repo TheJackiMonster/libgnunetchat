@@ -29,12 +29,11 @@
 
 #include "internal/gnunet_chat_tagging.h"
 
+#include "gnunet_chat_contact_intern.c"
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
-
-#include "gnunet_chat_contact_intern.c"
 
 static const unsigned int initial_map_size_of_contact = 8;
 

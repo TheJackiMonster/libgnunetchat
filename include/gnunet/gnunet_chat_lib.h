@@ -34,10 +34,10 @@
  */
 /**@{*/
 
+#include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
-
 #include <stdint.h>
-#include <time.h>
 
 /**
  * @def GNUNET_CHAT_VERSION The major and minor version should be identical to
@@ -658,13 +658,13 @@ GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
  * @param[in,out] handle Chat handle
  * @param[in] name Attribute name
  * @param[in] value Attribute value
- * @param[in] expires Expiration time
+ * @param[in] expires Expiration time or NULL
  */
 void
 GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *name,
                            const char *value,
-                           time_t expires);
+                           struct GNUNET_TIME_Relative expires);
 
 /**
  * Deletes an attribute of a chat <i>handle</i> for related communication 
@@ -779,7 +779,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri);
  */
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
-                        unsigned int delay,
+                        struct GNUNET_TIME_Relative delay,
                         GNUNET_CHAT_LobbyCallback callback,
                         void *cls);
 
@@ -1425,7 +1425,7 @@ GNUNET_CHAT_message_get_kind (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @return The timestamp of message
  */
-time_t
+struct GNUNET_TIME_Absolute
 GNUNET_CHAT_message_get_timestamp (const struct GNUNET_CHAT_Message *message);
 
 /**
@@ -1592,8 +1592,7 @@ struct GNUNET_CHAT_Message*
 GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Deletes a given <i>message</i> with a specific relative <i>delay</i>
- * in seconds.
+ * Deletes a given <i>message</i> with a specific relative <i>delay</i>.
  *
  * @param[in,out] message Message
  * @param[in] delay Relative delay
@@ -1601,7 +1600,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message);
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
-                            unsigned int delay);
+                            struct GNUNET_TIME_Relative delay);
 
 /**
  * Iterates through the tag messages in the context of a given 

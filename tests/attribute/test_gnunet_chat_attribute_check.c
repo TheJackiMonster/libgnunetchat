@@ -90,7 +90,7 @@ on_gnunet_chat_attribute_check_msg(void *cls,
         handle,
         TEST_CHECK_NAME,
         TEST_CHECK_VALUE,
-        time(NULL) + 60
+        GNUNET_TIME_relative_get_forever_()
       );
       break;
     case GNUNET_CHAT_KIND_LOGOUT:

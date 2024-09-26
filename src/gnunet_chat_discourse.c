@@ -23,7 +23,6 @@
  */
 
 #include "gnunet_chat_discourse.h"
-
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>

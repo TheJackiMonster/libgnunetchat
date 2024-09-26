@@ -45,7 +45,6 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
-
 #include <stdio.h>
 #include <string.h>
 
