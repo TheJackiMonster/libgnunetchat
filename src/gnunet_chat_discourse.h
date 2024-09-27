@@ -53,7 +53,7 @@ struct GNUNET_CHAT_Discourse
 {
   struct GNUNET_CHAT_Context *context;
 
-  struct GNUNET_ShortHashCode id;
+  struct GNUNET_CHAT_DiscourseId id;
   int pipe [2];
 
   struct GNUNET_CHAT_DiscourseSubscription *head;
@@ -74,7 +74,7 @@ struct GNUNET_CHAT_Discourse
  */
 struct GNUNET_CHAT_Discourse*
 discourse_create (struct GNUNET_CHAT_Context *context,
-                  const struct GNUNET_ShortHashCode *id);
+                  const struct GNUNET_CHAT_DiscourseId *id);
 
 /**
  * Destroys a chat <i>discourse</i> and frees its memory.

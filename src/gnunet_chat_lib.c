@@ -1950,15 +1950,18 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
 
 struct GNUNET_CHAT_Discourse*
 GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
-                                    const struct GNUNET_ShortHashCode *id)
+                                    const struct GNUNET_CHAT_DiscourseId *id)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!context) || (!(context->discourses)) || (!(context->room)) || (!id))
     return NULL;
 
+  struct GNUNET_ShortHashCode sid;
+  util_shorthash_from_discourse_id(id, &sid);
+
   struct GNUNET_CHAT_Discourse *discourse = GNUNET_CONTAINER_multishortmap_get(
-    context->discourses, id
+    context->discourses, &sid
   );
 
   if (!discourse)
@@ -1966,7 +1969,7 @@ GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
     discourse = discourse_create(context, id);
 
     if (GNUNET_OK != GNUNET_CONTAINER_multishortmap_put(context->discourses,
-        id, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+        &sid, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     {
       discourse_destroy(discourse);
       return NULL;
@@ -1977,7 +1980,11 @@ GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
   memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
-  GNUNET_memcpy(&(msg.body.subscribe.discourse), id, sizeof(struct GNUNET_ShortHashCode));
+  GNUNET_memcpy(
+    &(msg.body.subscribe.discourse),
+    &sid,
+    sizeof(struct GNUNET_ShortHashCode)
+  );
 
   const struct GNUNET_TIME_Relative subscribtion_time = GNUNET_TIME_relative_multiply(
     GNUNET_TIME_relative_get_second_(), 10
@@ -2520,7 +2527,7 @@ GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file)
 }
 
 
-const struct GNUNET_HashCode*
+const char*
 GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2528,7 +2535,7 @@ GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file)
   if (!file)
     return NULL;
 
-  return &(file->hash);
+  return GNUNET_h2s_full(&(file->hash));
 }
 
 
@@ -2969,7 +2976,7 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
 }
 
 
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 GNUNET_CHAT_discourse_get_id (const struct GNUNET_CHAT_Discourse *discourse)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -3041,10 +3048,9 @@ GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
 
   msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
 
-  GNUNET_memcpy(
-    &(msg.body.subscribe.discourse),
+  util_shorthash_from_discourse_id(
     &(discourse->id),
-    sizeof(struct GNUNET_ShortHashCode)
+    &(msg.body.subscribe.discourse)
   );
 
   msg.body.subscribe.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
@@ -3080,10 +3086,9 @@ GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
   msg.header.kind = GNUNET_MESSENGER_KIND_TALK;
   msg.body.talk.data = GNUNET_malloc(size > max_size? max_size : size);
 
-  GNUNET_memcpy(
-    &(msg.body.talk.discourse),
+  util_shorthash_from_discourse_id(
     &(discourse->id),
-    sizeof(struct GNUNET_ShortHashCode)
+    &(msg.body.talk.discourse)
   );
 
   while (size > 0)

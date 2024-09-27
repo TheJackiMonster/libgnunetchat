@@ -75,11 +75,10 @@ cb_read_discourse_pipe (void *cls)
   memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_TALK;
-  
-  memcpy(
-    &(msg.body.talk.discourse),
+
+  util_shorthash_from_discourse_id(
     &(discourse->id),
-    sizeof(discourse->id)
+    &(msg.body.talk.discourse)
   );
 
   char data [MAX_WRITE_SIZE];

@@ -34,7 +34,7 @@
 
 struct GNUNET_CHAT_Discourse*
 discourse_create (struct GNUNET_CHAT_Context *context,
-                  const struct GNUNET_ShortHashCode *id)
+                  const struct GNUNET_CHAT_DiscourseId *id)
 {
   GNUNET_assert((context) && (id));
 
@@ -42,7 +42,7 @@ discourse_create (struct GNUNET_CHAT_Context *context,
 
   discourse->context = context;
 
-  GNUNET_memcpy(&(discourse->id), id, sizeof (struct GNUNET_ShortHashCode));
+  GNUNET_memcpy(&(discourse->id), id, sizeof(struct GNUNET_CHAT_DiscourseId));
 
   if (0 != pipe(discourse->pipe))
   {

@@ -44,7 +44,7 @@ on_gnunet_chat_discourse_open_msg(void *cls,
   account = GNUNET_CHAT_message_get_account(message);
 
   const char *name = GNUNET_CHAT_get_name(handle);
-  struct GNUNET_ShortHashCode discourse_id;
+  struct GNUNET_CHAT_DiscourseId discourse_id;
 
   struct GNUNET_CHAT_Discourse *discourse;
   discourse = GNUNET_CHAT_message_get_discourse(message);

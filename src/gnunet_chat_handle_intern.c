@@ -928,17 +928,20 @@ skip_msg_handing:
     }
     case GNUNET_MESSENGER_KIND_SUBSCRIBE:
     {
-      const struct GNUNET_ShortHashCode *id = &(message->msg->body.subscribe.discourse);
+      const struct GNUNET_ShortHashCode *sid = &(message->msg->body.subscribe.discourse);
       struct GNUNET_CHAT_Discourse *discourse = GNUNET_CONTAINER_multishortmap_get(
-        context->discourses, id
+        context->discourses, sid
       );
 
       if (! discourse)
       {
-        discourse = discourse_create(context, id);
+        struct GNUNET_CHAT_DiscourseId id;
+        util_discourse_id_from_shorthash(sid, &id);
+
+        discourse = discourse_create(context, &id);
 
         if (GNUNET_OK != GNUNET_CONTAINER_multishortmap_put(context->discourses,
-          id, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+          sid, discourse, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
         {
           discourse_destroy(discourse);
           break;

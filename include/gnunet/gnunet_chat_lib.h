@@ -204,6 +204,14 @@ enum GNUNET_CHAT_MessageKind
 };
 
 /**
+ * Struct to identify discourses
+ */
+struct GNUNET_CHAT_DiscourseId
+{
+  char identifier [32];
+};
+
+/**
  * Struct of a chat handle.
  */
 struct GNUNET_CHAT_Handle;
@@ -1374,7 +1382,7 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
  */
 struct GNUNET_CHAT_Discourse*
 GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
-                                    const struct GNUNET_ShortHashCode *id);
+                                    const struct GNUNET_CHAT_DiscourseId *id);
 
 /**
  * Iterates through the contacts of a given chat <i>context</i> with a selected
@@ -1681,7 +1689,7 @@ GNUNET_CHAT_file_get_name (const struct GNUNET_CHAT_File *file);
  * @param[in] file File handle
  * @return The hash of file
  */
-const struct GNUNET_HashCode*
+const char*
 GNUNET_CHAT_file_get_hash (const struct GNUNET_CHAT_File *file);
 
 /**
@@ -1893,7 +1901,7 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
  * @param[in] discourse Chat discourse
  * @return Discourse id
  */
-const struct GNUNET_ShortHashCode*
+const struct GNUNET_CHAT_DiscourseId*
 GNUNET_CHAT_discourse_get_id (const struct GNUNET_CHAT_Discourse *discourse);
 
 /**

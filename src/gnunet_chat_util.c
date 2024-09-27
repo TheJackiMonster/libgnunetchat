@@ -49,6 +49,34 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
 }
 
 void
+util_shorthash_from_discourse_id (const struct GNUNET_CHAT_DiscourseId *id,
+                                  struct GNUNET_ShortHashCode *shorthash)
+{
+  GNUNET_assert(shorthash);
+
+  memset(shorthash, 0, sizeof(*shorthash));
+  GNUNET_memcpy(
+    shorthash,
+    id,
+    sizeof(*id) < sizeof(*shorthash) ? sizeof(*id) : sizeof(*shorthash)
+  );
+}
+
+void
+util_discourse_id_from_shorthash (const struct GNUNET_ShortHashCode *shorthash,
+                                  struct GNUNET_CHAT_DiscourseId *id)
+{
+  GNUNET_assert(id);
+
+  memset(id, 0, sizeof(*id));
+  GNUNET_memcpy(
+    id,
+    shorthash,
+    sizeof(*id) < sizeof(*shorthash) ? sizeof(*id) : sizeof(*shorthash)
+  );
+}
+
+void
 util_set_name_field (const char *name,
                      char **field)
 {

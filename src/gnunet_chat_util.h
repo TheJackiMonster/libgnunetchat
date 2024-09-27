@@ -61,7 +61,28 @@ enum GNUNET_CHAT_ContextType
  */
 void
 util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
-			                      struct GNUNET_ShortHashCode *shorthash);
+                            struct GNUNET_ShortHashCode *shorthash);
+
+/**
+ * Converts a discourse id into a short hash variant for map access 
+ * as key.
+ *
+ * @param[in] id Discourse id
+ * @param[out] shorthash Short hash
+ */
+void
+util_shorthash_from_discourse_id (const struct GNUNET_CHAT_DiscourseId *id,
+                                  struct GNUNET_ShortHashCode *shorthash);
+
+/**
+ * Converts a short hash variant into a discourse id.
+ *
+ * @param[in] shorthash Short hash
+ * @param[out] id Discourse id
+ */
+void
+util_discourse_id_from_shorthash (const struct GNUNET_ShortHashCode *shorthash,
+                                  struct GNUNET_CHAT_DiscourseId *id);
 
 /**
  * Updates the stored content of a <i>field</i> with
