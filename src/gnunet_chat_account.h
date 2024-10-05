@@ -36,7 +36,6 @@ struct GNUNET_CHAT_Account
   struct GNUNET_IDENTITY_Ego *ego;
   enum GNUNET_GenericReturnValue created;
 
-  char *directory;
   char *name;
 
   void *user_pointer;
@@ -64,17 +63,6 @@ account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
 			                   const char *name);
 
 /**
- * Updates the stored directory path by a chat <i>account</i>
- * using its current ego and key information.
- *
- * @param[in,out] account Chat account
- * @param[in] base_directory The base directory for the accounts
- */
-void
-account_update_directory (struct GNUNET_CHAT_Account *account,
-			                    const char *base_directory);
-
-/**
  * Returns the private key from a given chat
  * <i>account</i>.
  *
@@ -83,6 +71,15 @@ account_update_directory (struct GNUNET_CHAT_Account *account,
  */
 const struct GNUNET_CRYPTO_PrivateKey*
 account_get_key (const struct GNUNET_CHAT_Account *account);
+
+/**
+ * Returns the name from a given chat <i>account</i>.
+ *
+ * @param[in] account Chat account
+ * @return Name or NULL
+ */
+const char*
+account_get_name (const struct GNUNET_CHAT_Account *account);
 
 /**
  * Updates the key from a given chat <i>account</i> using
@@ -99,8 +96,7 @@ account_update_ego (struct GNUNET_CHAT_Account *account,
                     struct GNUNET_IDENTITY_Ego *ego);
 
 /**
- * Deletes all local files and data remaining a given 
- * chat <i>account</i>.
+ * Deletes all data remaining a given chat <i>account</i>.
  *
  * @param[in,out] account Chat account
  */

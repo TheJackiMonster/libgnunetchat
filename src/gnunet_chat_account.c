@@ -40,7 +40,6 @@ account_create (const char *name)
   account->ego = NULL;
   account->created = GNUNET_NO;
 
-  account->directory = NULL;
   account->name = NULL;
 
   util_set_name_field(name, &(account->name));
@@ -64,36 +63,6 @@ account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
   return account;
 }
 
-void
-account_update_directory (struct GNUNET_CHAT_Account *account,
-			                    const char *base_directory)
-{
-  GNUNET_assert((account) && (base_directory));
-
-  if (account->directory)
-    GNUNET_free(account->directory);
-
-  if (!(account->ego))
-  {
-    account->directory = NULL;
-    return;
-  }
-
-  struct GNUNET_CRYPTO_PublicKey key;
-  GNUNET_IDENTITY_ego_get_public_key(account->ego, &key);
-
-  char *key_string = GNUNET_CRYPTO_public_key_to_string(&key);
-
-  if (!key_string)
-  {
-    account->directory = NULL;
-    return;
-  }
-
-  util_get_dirname(base_directory, key_string, &(account->directory));
-  GNUNET_free(key_string);
-}
-
 const struct GNUNET_CRYPTO_PrivateKey*
 account_get_key (const struct GNUNET_CHAT_Account *account)
 {
@@ -105,6 +74,14 @@ account_get_key (const struct GNUNET_CHAT_Account *account)
   return GNUNET_IDENTITY_ego_get_private_key(
     account->ego
   );
+}
+
+const char*
+account_get_name (const struct GNUNET_CHAT_Account *account)
+{
+  GNUNET_assert(account);
+
+  return account->name;
 }
 
 void
@@ -124,9 +101,6 @@ account_update_ego (struct GNUNET_CHAT_Account *account,
 
   if (!(account->ego))
     return;
-
-  if (handle->directory)
-    account_update_directory(account, handle->directory);
 
   if ((handle->current == account) && (handle->messenger))
   {
@@ -153,18 +127,7 @@ account_delete (struct GNUNET_CHAT_Account *account)
 {
   GNUNET_assert(account);
 
-  if (!(account->directory))
-    return;
-
-  if (GNUNET_YES != GNUNET_DISK_directory_test(account->directory,
-                                               GNUNET_NO))
-    return;
-
-  if (GNUNET_OK != GNUNET_DISK_directory_remove(account->directory))
-    return;
-
-  GNUNET_free(account->directory);
-  account->directory = NULL;
+  // TODO: clear namestore entries
 }
 
 void
@@ -174,9 +137,6 @@ account_destroy (struct GNUNET_CHAT_Account *account)
 
   if (account->name)
     GNUNET_free(account->name);
-
-  if (account->directory)
-    GNUNET_free(account->directory);
 
   GNUNET_free(account);
 }

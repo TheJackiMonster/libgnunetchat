@@ -371,9 +371,6 @@ skip_account:
     account_create_from_ego(ego, name)
   );
 
-  if (handle->directory)
-    account_update_directory(accounts->account, handle->directory);
-
 send_refresh:
   if (handle->refresh)
     return;

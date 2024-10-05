@@ -24,6 +24,7 @@
 
 #include "gnunet_chat_handle.h"
 
+#include "gnunet_chat_account.h"
 #include "gnunet_chat_handle_intern.c"
 #include "gnunet_chat_message.h"
 #include <gnunet/gnunet_arm_service.h>
@@ -349,8 +350,10 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   const struct GNUNET_CRYPTO_PrivateKey *key;
   key = account_get_key(account);
 
+  const char *name = account_get_name(account);
+
   handle->messenger = GNUNET_MESSENGER_connect(
-    handle->cfg, account->name, key,
+    handle->cfg, name, key,
     on_handle_message,
     handle
   );
@@ -502,8 +505,11 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
     if (!(accounts->account))
       goto skip_account;
 
-    if ((accounts->account->name) &&
-        (0 == strcmp(accounts->account->name, name)))
+    const char *account_name = account_get_name(
+      accounts->account
+    );
+
+    if ((account_name) && (0 == strcmp(account_name, name)))
       break;
 
   skip_account:
@@ -706,13 +712,7 @@ handle_get_directory (const struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert(handle);
 
-  if (!(handle->directory))
-    return NULL;
-
-  if (!(handle->current))
-    return handle->directory;
-  else
-    return handle->current->directory;
+  return handle->directory;
 }
 
 char*

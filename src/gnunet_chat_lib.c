@@ -177,7 +177,11 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
     if ((!(accounts->account)) || (accounts->op))
       goto skip_account;
 
-    if (0 == strcmp(accounts->account->name, name))
+    const char *account_name = account_get_name(
+      accounts->account
+    );
+
+    if (0 == strcmp(account_name, name))
       return accounts->account;
 
   skip_account:
@@ -947,7 +951,7 @@ GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
   if (!account)
     return NULL;
 
-  return account->name;
+  return account_get_name(account);
 }
 
 
