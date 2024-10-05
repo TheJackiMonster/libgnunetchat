@@ -627,6 +627,9 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (old_name) && (new_name));
 
+  if (0 == strcmp(old_name, new_name))
+    return GNUNET_OK;
+
   struct GNUNET_CHAT_InternalAccounts *accounts;
   accounts = find_accounts_by_name(handle, old_name);
 
