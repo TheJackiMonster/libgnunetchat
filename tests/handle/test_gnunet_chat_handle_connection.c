@@ -48,8 +48,6 @@ on_gnunet_chat_handle_connection_msg(void *cls,
   connected = GNUNET_CHAT_get_connected(handle);
   account = GNUNET_CHAT_message_get_account(message);
 
-  printf("MSG: %d\n", (int) GNUNET_CHAT_message_get_kind(message));
-
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
@@ -74,7 +72,7 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_ptr_nonnull(connected);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_eq(connected, account);
-      ck_assert_int_eq(connection_stage, 1);
+      ck_assert_uint_eq(connection_stage, 1);
 
       name = GNUNET_CHAT_account_get_name(account);
 
@@ -88,7 +86,7 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_ptr_nonnull(connected);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_eq(connected, account);
-      ck_assert_int_eq(connection_stage, 2);
+      ck_assert_uint_eq(connection_stage, 2);
 
       name = GNUNET_CHAT_account_get_name(account);
 

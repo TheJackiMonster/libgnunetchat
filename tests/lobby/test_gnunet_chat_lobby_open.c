@@ -31,6 +31,8 @@ on_gnunet_chat_lobby_open_msg(void *cls,
                               struct GNUNET_CHAT_Context *context,
                               struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int lobby_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
@@ -53,14 +55,21 @@ on_gnunet_chat_lobby_open_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
+      if (lobby_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        lobby_stage = 1;
+      }
+      
       break;
     case GNUNET_CHAT_KIND_LOGIN:
+      ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(lobby_stage, 1);
 
       lobby = GNUNET_CHAT_lobby_open(
           handle,
@@ -73,13 +82,17 @@ on_gnunet_chat_lobby_open_msg(void *cls,
 
       GNUNET_CHAT_lobby_close(lobby);
       GNUNET_CHAT_disconnect(handle);
+      lobby_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
+      ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(lobby_stage, 2);
 
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
       break;
     default:
