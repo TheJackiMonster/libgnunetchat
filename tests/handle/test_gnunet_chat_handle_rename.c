@@ -32,6 +32,8 @@ on_gnunet_chat_handle_rename_msg(void *cls,
                                  struct GNUNET_CHAT_Context *context,
                                  struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int rename_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
@@ -52,12 +54,14 @@ on_gnunet_chat_handle_rename_msg(void *cls,
       ck_abort_msg("%s\n", GNUNET_CHAT_message_get_text(message));
       break;
     case GNUNET_CHAT_KIND_REFRESH:
+      ck_assert_ptr_null(account);
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_nonnull(name);
       ck_assert_ptr_null(dup);
       ck_assert_str_eq(name, TEST_RENAME_ID_A);
+      ck_assert_uint_eq(rename_stage, 1);
 
       dup = GNUNET_strdup(name);
 
@@ -70,21 +74,30 @@ on_gnunet_chat_handle_rename_msg(void *cls,
         handle,
         TEST_RENAME_ID_B
       ), GNUNET_YES);
+
+      rename_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(rename_stage, 3);
+
       ck_assert_int_eq(GNUNET_CHAT_account_delete(
         handle,
         TEST_RENAME_ID_B
       ), GNUNET_OK);
+
+      rename_stage = 4;
       break;
     case GNUNET_CHAT_KIND_CREATED_ACCOUNT:
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(rename_stage, 0);
 
       GNUNET_CHAT_connect(handle, account);
+      rename_stage = 1;
       break;
     case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(rename_stage, 4);
 
       GNUNET_CHAT_stop(handle);
       break;
@@ -95,10 +108,12 @@ on_gnunet_chat_handle_rename_msg(void *cls,
       ck_assert_str_ne(name, dup);
       ck_assert_str_eq(name, TEST_RENAME_ID_B);
       ck_assert_str_eq(dup, TEST_RENAME_ID_A);
+      ck_assert_uint_eq(rename_stage, 2);
 
       GNUNET_free(dup);
 
       GNUNET_CHAT_disconnect(handle);
+      rename_stage = 3;
       break;
     default:
       ck_abort();

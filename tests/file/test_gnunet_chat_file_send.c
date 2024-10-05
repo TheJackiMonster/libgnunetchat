@@ -76,6 +76,7 @@ on_gnunet_chat_file_send_msg(void *cls,
                              struct GNUNET_CHAT_Context *context,
                              struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int file_stage = 0;
   static char *filename = NULL;
 
   struct GNUNET_CHAT_Handle *handle = *(
@@ -100,14 +101,20 @@ on_gnunet_chat_file_send_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_SEND_ID);
+      if (file_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_SEND_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        file_stage = 1;
+      }
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
+      ck_assert_uint_eq(file_stage, 1);
 
       group = GNUNET_CHAT_group_create(
           handle, TEST_SEND_GROUP
@@ -132,10 +139,15 @@ on_gnunet_chat_file_send_msg(void *cls,
       );
 
       ck_assert_ptr_nonnull(file);
+
+      file_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(filename);
+      ck_assert_uint_eq(file_stage, 4);
+
+      GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
       ck_assert_ptr_null(context);
@@ -149,6 +161,7 @@ on_gnunet_chat_file_send_msg(void *cls,
     case GNUNET_CHAT_KIND_TEXT:
       ck_assert_ptr_nonnull(context);
       ck_assert_ptr_nonnull(filename);
+      ck_assert_uint_eq(file_stage, 3);
 
       remove(filename);
       GNUNET_free(filename);
@@ -158,11 +171,13 @@ on_gnunet_chat_file_send_msg(void *cls,
 
       ck_assert_ptr_nonnull(text);
       ck_assert_str_eq(text, TEST_SEND_TEXT);
-      
-      GNUNET_CHAT_stop(handle);
+
+      GNUNET_CHAT_disconnect(handle);
+      file_stage = 4;
       break;
     case GNUNET_CHAT_KIND_FILE:
       ck_assert_ptr_nonnull(context);
+      ck_assert_uint_eq(file_stage, 2);
 
       file = GNUNET_CHAT_message_get_file(message);
 
@@ -172,6 +187,8 @@ on_gnunet_chat_file_send_msg(void *cls,
           on_gnunet_chat_file_send_unindex, 
           context
       ), GNUNET_OK);
+
+      file_stage = 3;
       break;
     default:
       ck_abort();

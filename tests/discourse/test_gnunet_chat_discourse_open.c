@@ -33,6 +33,8 @@ on_gnunet_chat_discourse_open_msg(void *cls,
                                   struct GNUNET_CHAT_Context *context,
                                   struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int discourse_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
@@ -58,23 +60,31 @@ on_gnunet_chat_discourse_open_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
+      if (discourse_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        discourse_stage = 1;
+      }
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_nonnull(name);
       ck_assert_str_eq(name, TEST_OPEN_ID);
+      ck_assert_uint_eq(discourse_stage, 1);
 
       GNUNET_CHAT_group_create(handle, TEST_OPEN_GROUP);
+      discourse_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(discourse_stage, 5);
       
       GNUNET_CHAT_stop(handle);
       break;
@@ -85,6 +95,7 @@ on_gnunet_chat_discourse_open_msg(void *cls,
     case GNUNET_CHAT_KIND_JOIN:
       ck_assert_ptr_nonnull(context);
       ck_assert_ptr_null(discourse);
+      ck_assert_uint_eq(discourse_stage, 2);
 
       GNUNET_memcpy(
         &discourse_id,
@@ -99,6 +110,8 @@ on_gnunet_chat_discourse_open_msg(void *cls,
 
       ck_assert_ptr_nonnull(discourse);
       ck_assert_int_eq(GNUNET_CHAT_discourse_is_open(discourse), GNUNET_NO);
+
+      discourse_stage = 3;
       break;
     case GNUNET_CHAT_KIND_CONTACT:
       break;
@@ -107,9 +120,20 @@ on_gnunet_chat_discourse_open_msg(void *cls,
       ck_assert_ptr_nonnull(discourse);
       
       if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
+      {
+        ck_assert_uint_eq(discourse_stage, 3);
+
         GNUNET_CHAT_discourse_close(discourse);
+        discourse_stage = 4;
+      }
       else
+      {
+        ck_assert_uint_eq(discourse_stage, 4);
+
         GNUNET_CHAT_disconnect(handle);
+        discourse_stage = 5;
+      }
+
       break;
     default:
       ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));

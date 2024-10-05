@@ -93,17 +93,16 @@ on_gnunet_chat_attribute_share_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      if (GNUNET_CHAT_get_connected(handle))
-        break;
+      if (share_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_SHARE_ID_A);
 
-      ck_assert_uint_eq(share_stage, 0);
+        ck_assert_ptr_nonnull(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_SHARE_ID_A);
+        GNUNET_CHAT_connect(handle, account);
+        share_stage = 1;
+      }
 
-      ck_assert_ptr_nonnull(account);
-
-      GNUNET_CHAT_connect(handle, account);
-      share_stage = 1;
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
@@ -126,13 +125,16 @@ on_gnunet_chat_attribute_share_msg(void *cls,
 
         share_stage = 5;
       }
+      else
+      {
+        ck_assert_uint_eq(share_stage, 1);
+
+        share_stage = 2;
+      }
 
       ck_assert_ptr_nonnull(GNUNET_CHAT_group_create(
         handle, TEST_SHARE_GROUP
       ));
-
-      if (share_stage < 2)
-        share_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);

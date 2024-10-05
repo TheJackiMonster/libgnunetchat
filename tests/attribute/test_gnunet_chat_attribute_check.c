@@ -55,6 +55,8 @@ on_gnunet_chat_attribute_check_msg(void *cls,
                                    struct GNUNET_CHAT_Context *context,
                                    struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int attribute_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
     (struct GNUNET_CHAT_Handle**) cls
   );
@@ -76,25 +78,34 @@ on_gnunet_chat_attribute_check_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_CHECK_ID);
+      if (attribute_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_CHECK_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        attribute_stage = 1;
+      }
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(attribute_stage, 1);
 
       GNUNET_CHAT_set_attribute(
         handle,
         TEST_CHECK_NAME,
         TEST_CHECK_VALUE
       );
+
+      attribute_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(attribute_stage, 4);
 
       GNUNET_CHAT_stop(handle);
       break;
@@ -109,15 +120,24 @@ on_gnunet_chat_attribute_check_msg(void *cls,
       if (text)
       {
         ck_assert_str_eq(text, TEST_CHECK_NAME);
+        ck_assert_uint_eq(attribute_stage, 2);
 
         GNUNET_CHAT_get_attributes(
           handle,
           on_gnunet_chat_attribute_check_attr,
           NULL
         );
+
+        attribute_stage = 3;
       }
       else
+      {
+        ck_assert_uint_eq(attribute_stage, 3);
+
         GNUNET_CHAT_disconnect(handle);
+
+        attribute_stage = 4;
+      }
 
       break;
     default:

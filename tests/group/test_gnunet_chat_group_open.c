@@ -32,6 +32,8 @@ on_gnunet_chat_group_open_msg(void *cls,
                               struct GNUNET_CHAT_Context *context,
                               struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int group_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
@@ -56,11 +58,16 @@ on_gnunet_chat_group_open_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
+      if (group_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_OPEN_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        group_stage = 1;
+      }
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
@@ -68,33 +75,47 @@ on_gnunet_chat_group_open_msg(void *cls,
       ck_assert_ptr_nonnull(name);
       ck_assert_str_eq(name, TEST_OPEN_ID);
       ck_assert_ptr_null(group);
+      ck_assert_uint_eq(group_stage, 1);
 
       group = GNUNET_CHAT_group_create(handle, TEST_OPEN_GROUP);
 
       ck_assert_ptr_nonnull(group);
+
+      group_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_null(group);
+      ck_assert_uint_eq(group_stage, 4);
       
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
+      ck_assert_ptr_nonnull(account);
       break;
     case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
+      ck_assert_ptr_nonnull(context);
       break;
     case GNUNET_CHAT_KIND_JOIN:
       ck_assert_ptr_nonnull(context);
       ck_assert_ptr_nonnull(group);
+      ck_assert_uint_eq(group_stage, 2);
 
-      ck_assert_int_eq(GNUNET_CHAT_group_leave(group), GNUNET_OK);
+      ck_assert_int_eq(
+        GNUNET_CHAT_group_leave(group),
+        GNUNET_OK
+      );
+
+      group_stage = 3;
       break;
     case GNUNET_CHAT_KIND_LEAVE:
       ck_assert_ptr_nonnull(context);
       ck_assert_ptr_null(group);
+      ck_assert_uint_eq(group_stage, 3);
       
       GNUNET_CHAT_disconnect(handle);
+      group_stage = 4;
       break;
     case GNUNET_CHAT_KIND_CONTACT:
       break;

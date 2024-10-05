@@ -33,6 +33,8 @@ on_gnunet_chat_message_text_msg(void *cls,
                                 struct GNUNET_CHAT_Context *context,
                                 struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int text_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
     (struct GNUNET_CHAT_Handle**) cls
   );
@@ -55,23 +57,32 @@ on_gnunet_chat_message_text_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_TEXT_ID);
+      if (text_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_TEXT_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        text_stage = 1;
+      }
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(text_stage, 1);
 
       group = GNUNET_CHAT_group_create(handle, TEST_TEXT_GROUP);
 
       ck_assert_ptr_nonnull(group);
+
+      text_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(text_stage, 5);
 
       GNUNET_CHAT_stop(handle);
       break;
@@ -83,21 +94,27 @@ on_gnunet_chat_message_text_msg(void *cls,
       break;
     case GNUNET_CHAT_KIND_JOIN:
       ck_assert_ptr_nonnull(context);
+      ck_assert_uint_eq(text_stage, 2);
 
       ck_assert_int_eq(GNUNET_CHAT_context_send_text(
 	      context, TEST_TEXT_MSG
       ), GNUNET_OK);
+
+      text_stage = 3;
       break;
     case GNUNET_CHAT_KIND_LEAVE:
       ck_assert_ptr_nonnull(context);
+      ck_assert_uint_eq(text_stage, 4);
       
       GNUNET_CHAT_disconnect(handle);
+      text_stage = 5;
       break;
     case GNUNET_CHAT_KIND_CONTACT:
       ck_assert_ptr_nonnull(context);
       break;
     case GNUNET_CHAT_KIND_TEXT:
       ck_assert_ptr_nonnull(context);
+      ck_assert_uint_eq(text_stage, 3);
 
       group = GNUNET_CHAT_context_get_group(context);
 
@@ -107,6 +124,8 @@ on_gnunet_chat_message_text_msg(void *cls,
 
       ck_assert_str_eq(text, TEST_TEXT_MSG);
       ck_assert_int_eq(GNUNET_CHAT_group_leave(group), GNUNET_OK);
+
+      text_stage = 4;
       break;
     default:
       ck_abort_msg("%d\n", GNUNET_CHAT_message_get_kind(message));
