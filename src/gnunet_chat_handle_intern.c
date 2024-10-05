@@ -312,7 +312,10 @@ on_handle_gnunet_identity (void *cls,
   struct GNUNET_CHAT_Handle* handle = cls;
 
   if ((!ctx) || (!ego))
+  {
+    handle->refreshing = GNUNET_YES;
     goto send_refresh;
+  }
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
 
@@ -372,11 +375,12 @@ skip_account:
   );
 
 send_refresh:
-  if (handle->refresh)
+  if ((GNUNET_YES != handle->refreshing) ||
+      (handle->refresh))
     return;
   
   handle->refresh = GNUNET_SCHEDULER_add_with_priority(
-    GNUNET_SCHEDULER_PRIORITY_BACKGROUND,
+    GNUNET_SCHEDULER_PRIORITY_IDLE,
     on_handle_refresh,
     handle
   );

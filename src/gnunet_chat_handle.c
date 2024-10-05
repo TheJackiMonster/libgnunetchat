@@ -92,6 +92,8 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->accounts_head = NULL;
   handle->accounts_tail = NULL;
 
+  handle->refreshing = GNUNET_NO;
+
   handle->next = NULL;
   handle->current = NULL;
   handle->monitor = NULL;

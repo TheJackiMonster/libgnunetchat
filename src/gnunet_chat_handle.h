@@ -106,6 +106,8 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_head;
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
+  enum GNUNET_GenericReturnValue refreshing;
+
   struct GNUNET_CHAT_Account *next;
   struct GNUNET_CHAT_Account *current;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;

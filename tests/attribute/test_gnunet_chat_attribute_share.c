@@ -145,15 +145,19 @@ on_gnunet_chat_attribute_share_msg(void *cls,
 
       ck_assert_ptr_nonnull(name);
 
-      if (share_stage < 4)
-        share_stage = 4;
-
       if (0 == strcmp(name, TEST_SHARE_ID_A))
-        break;
+      {
+        ck_assert_uint_eq(share_stage, 3);
 
-      ck_assert_uint_eq(share_stage, 7);
+        share_stage = 4;
+      }
+      else if (0 == strcmp(name, TEST_SHARE_ID_B))
+      {
+        ck_assert_uint_eq(share_stage, 7);
 
-      GNUNET_CHAT_stop(handle);
+        GNUNET_CHAT_stop(handle);
+      }
+
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
       ck_assert_ptr_nonnull(account);

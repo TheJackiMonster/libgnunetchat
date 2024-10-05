@@ -55,6 +55,9 @@ on_setup_##test_call (void *cls,                                  \
     account = GNUNET_CHAT_message_get_account(message);           \
     ck_assert_ptr_nonnull(account);                               \
                                                                   \
+    fprintf(stdout, " - Setup account: %s\n",                     \
+      GNUNET_CHAT_account_get_name(account));                     \
+                                                                  \
     const char **accounts;                                        \
     for (accounts = test_accounts; *accounts; accounts++)         \
       if (0 == strcmp(GNUNET_CHAT_account_get_name(account),      \
@@ -115,6 +118,9 @@ on_cleanup_##test_call (void *cls,                                  \
     const struct GNUNET_CHAT_Account *account;                      \
     account = GNUNET_CHAT_message_get_account(message);             \
     ck_assert_ptr_nonnull(account);                                 \
+                                                                    \
+    fprintf(stdout, " - Cleanup account: %s\n",                     \
+      GNUNET_CHAT_account_get_name(account));                       \
                                                                     \
     const char **accounts;                                          \
     for (accounts = test_accounts; *accounts; accounts++)           \
