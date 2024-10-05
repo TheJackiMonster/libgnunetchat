@@ -500,12 +500,14 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
   GNUNET_assert((handle) && (name));
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
+  const char *account_name;
+
   while (accounts)
   {
     if (!(accounts->account))
       goto skip_account;
 
-    const char *account_name = account_get_name(
+    account_name = account_get_name(
       accounts->account
     );
 

@@ -31,6 +31,8 @@ on_gnunet_chat_handle_connection_msg(void *cls,
                                      struct GNUNET_CHAT_Context *context,
                                      struct GNUNET_CHAT_Message *message)
 {
+  static unsigned int connection_stage = 0;
+
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
@@ -46,6 +48,8 @@ on_gnunet_chat_handle_connection_msg(void *cls,
   connected = GNUNET_CHAT_get_connected(handle);
   account = GNUNET_CHAT_message_get_account(message);
 
+  printf("MSG: %d\n", (int) GNUNET_CHAT_message_get_kind(message));
+
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
@@ -55,16 +59,22 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(account);
 
-      account = GNUNET_CHAT_find_account(handle, TEST_CONNECTION_ID);
+      if (connection_stage == 0)
+      {
+        account = GNUNET_CHAT_find_account(handle, TEST_CONNECTION_ID);
 
-      ck_assert_ptr_nonnull(account);
+        ck_assert_ptr_nonnull(account);
 
-      GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(handle, account);
+        connection_stage = 1;
+      }
+      
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_nonnull(connected);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_eq(connected, account);
+      ck_assert_int_eq(connection_stage, 1);
 
       name = GNUNET_CHAT_account_get_name(account);
 
@@ -72,11 +82,13 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_str_eq(name, TEST_CONNECTION_ID);
       
       GNUNET_CHAT_disconnect(handle);
+      connection_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_nonnull(connected);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_eq(connected, account);
+      ck_assert_int_eq(connection_stage, 2);
 
       name = GNUNET_CHAT_account_get_name(account);
 
@@ -84,6 +96,7 @@ on_gnunet_chat_handle_connection_msg(void *cls,
       ck_assert_str_eq(name, TEST_CONNECTION_ID);
 
       GNUNET_CHAT_stop(handle);
+      connection_stage = 3;
       break;
     default:
       ck_abort();
