@@ -36,10 +36,11 @@ Here is a list of some useful build commands using Meson and [Ninja](https://nin
 
  - `meson compile -C build` to just compile everything with configured parameters
  - `rm -r build` to cleanup build files in case you want to recompile
- - `meson install -C build` to install the compiled files (you might need sudo permissions to install)
+ - `meson install -C build` to install the compiled files (you might need sudo privileges)
  - `meson dist -C build` to create a tar file for distribution
  - `ninja -C build docs` to build Doxygen documentation ([Doxygen](https://www.doxygen.nl/index.html) is required to do that)
  - `meson test -C build` to test the library with automated unit tests ([Check](https://libcheck.github.io/check/) is required to do that)
+ - `ninja -C build uninstall` to uninstall a previous installation (you might need sudo privileges)
 
 If you want to change the installation location, use the `--prefix=` parameter in the initial meson command. Also you can enable optimized release builds by adding `--buildtype=release` as parameter. In case you installed GNUnet to a custom prefix which is not part of the directories pkg-config is looking at, you can adjust `PKG_CONFIG_PATH` with your selected prefix to build properly.
 
