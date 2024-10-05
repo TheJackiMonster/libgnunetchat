@@ -58,37 +58,31 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->directory = NULL;
 
+  char *dir_path = NULL;
   if (GNUNET_OK != GNUNET_CONFIGURATION_get_value_filename(cfg,
 		     GNUNET_MESSENGER_SERVICE_NAME,
 		     "MESSENGER_DIR",
-		     &(handle->directory)))
+		     &dir_path))
   {
-    if (handle->directory)
-      GNUNET_free(handle->directory);
-
-    handle->directory = NULL;
+    if (dir_path)
+      GNUNET_free(dir_path);
   }
-  else if ((GNUNET_YES != GNUNET_DISK_directory_test(handle->directory, GNUNET_YES)) &&
-	         (GNUNET_OK != GNUNET_DISK_directory_create(handle->directory)))
+  else if ((GNUNET_YES != GNUNET_DISK_directory_test(dir_path, GNUNET_YES)) &&
+	         (GNUNET_OK != GNUNET_DISK_directory_create(dir_path)))
   {
-    GNUNET_free(handle->directory);
-
-    handle->directory = NULL;
+    GNUNET_free(dir_path);
   }
-
-  if (handle->directory)
+  else
   {
     char *chat_directory = NULL;
-    util_get_dirname(handle->directory, "chat", &chat_directory);
+    util_get_dirname(dir_path, "chat", &chat_directory);
+    GNUNET_free(dir_path);
 
     if ((GNUNET_YES != GNUNET_DISK_directory_test(chat_directory, GNUNET_YES)) &&
     	  (GNUNET_OK != GNUNET_DISK_directory_create(chat_directory)))
       GNUNET_free(chat_directory);
     else
-    {
-      GNUNET_free(handle->directory);
       handle->directory = chat_directory;
-    }
   }
 
   handle->msg_cb = msg_cb;
