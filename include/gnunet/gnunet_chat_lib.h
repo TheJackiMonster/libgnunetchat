@@ -1116,11 +1116,12 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
  * @param[in] contact Chat contact
  * @param[in] callback Callback for tag iteration (optional)
  * @param[in,out] cls Closure for tag iteration (optional)
+ * @return Amount of tags iterated or #GNUNET_SYSERR on failure
  */
-void
-GNUNET_CHAT_contact_get_tags (struct GNUNET_CHAT_Contact *contact,
-                              GNUNET_CHAT_ContactTagCallback callback,
-                              void *cls);
+int
+GNUNET_CHAT_contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
+                                  GNUNET_CHAT_ContactTagCallback callback,
+                                  void *cls);
 
 /**
  * Calls an optional <i>callback</i> for each attribute of a given chat 
@@ -1192,8 +1193,9 @@ GNUNET_CHAT_group_get_user_pointer (const struct GNUNET_CHAT_Group *group);
  *
  * @param[in,out] group Group
  * @param[in,out] contact Contact
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-void
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
                                   struct GNUNET_CHAT_Contact *contact);
 
@@ -1263,8 +1265,9 @@ GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context);
  * receivement of new messages.
  *
  * @param[in,out] context Context
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
-void
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context);
 
 /**

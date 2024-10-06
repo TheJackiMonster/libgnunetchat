@@ -167,8 +167,9 @@ contact_tag (struct GNUNET_CHAT_Contact *contact,
  * @param[in,out] context Chat context or NULL
  * @param[in] callback Callback for tag iteration or NULL
  * @param[in,out] cls Closure for tag iteration or NULL
+ * @return Amount of tags iterated or #GNUNET_SYSERR on error
  */
-void
+int
 contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
                       struct GNUNET_CHAT_Context *context,
                       GNUNET_CHAT_ContactTagCallback callback,

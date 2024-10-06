@@ -389,7 +389,7 @@ skip_tag_search:
     GNUNET_free(tag_value);
 }
 
-void
+int
 contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
                       struct GNUNET_CHAT_Context *context,
                       GNUNET_CHAT_ContactTagCallback callback,
@@ -406,7 +406,9 @@ contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
     it.cls = cls;
 
     if (! (it.tags))
-      return;
+      return GNUNET_SYSERR;
+
+    int result = GNUNET_SYSERR;
 
     struct GNUNET_CONTAINER_MultiHashMapIterator *iter;
     iter = GNUNET_CONTAINER_multihashmap_iterator_create(
@@ -429,7 +431,7 @@ contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
         contact->handle->contexts, &key);
       
       if (context)
-        contact_iterate_tags(
+        result = contact_iterate_tags(
           contact,
           context,
           it_contact_iterate_unique_tag,
@@ -441,14 +443,14 @@ contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
 
 free_tags_iteration:
     GNUNET_CONTAINER_multihashmap_destroy(it.tags);
-    return;
+    return result;
   }
 
   const struct GNUNET_HashCode *hash = get_contact_join_hash(
     contact, context);
 
   if (! hash)
-    return;
+    return GNUNET_SYSERR;
 
   const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     context->taggings,
@@ -456,14 +458,14 @@ free_tags_iteration:
   );
 
   if (! tagging)
-    return;
+    return 0;
 
   struct GNUNET_CHAT_ContactIterateTag it;
   it.contact = contact;
   it.callback = callback;
   it.cls = cls;
 
-  internal_tagging_iterate(
+  return internal_tagging_iterate(
     tagging,
     GNUNET_YES,
     NULL,

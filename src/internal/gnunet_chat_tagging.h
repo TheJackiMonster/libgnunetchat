@@ -96,6 +96,7 @@ internal_tagging_remove (struct GNUNET_CHAT_InternalTagging *tagging,
  * @param[in] tag Tag value for filtering the iteration
  * @param[in] cb Callback for iteration
  * @param[in,out] cls Closure for iteration
+ * @return Amount of tags iterated or #GNUNET_SYSERR on error
  */
 int
 internal_tagging_iterate (const struct GNUNET_CHAT_InternalTagging *tagging,
