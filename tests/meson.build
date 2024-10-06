@@ -32,6 +32,7 @@ subdir('group')
 subdir('handle')
 subdir('lobby')
 subdir('message')
+subdir('tag')
 
 test('test_gnunet_chat_handle_init', test_gnunet_chat_handle_init, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_accounts', test_gnunet_chat_handle_accounts, depends: gnunetchat_lib, is_parallel : false)
@@ -53,3 +54,6 @@ test('test_gnunet_chat_attribute_share', test_gnunet_chat_attribute_share, depen
 
 test('test_gnunet_chat_discourse_open', test_gnunet_chat_discourse_open, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_discourse_write', test_gnunet_chat_discourse_write, depends: gnunetchat_lib, is_parallel : false)
+
+test('test_gnunet_chat_tag_contact', test_gnunet_chat_tag_contact, depends: gnunetchat_lib, is_parallel : false)
+test('test_gnunet_chat_tag_message', test_gnunet_chat_tag_message, depends: gnunetchat_lib, is_parallel : false)

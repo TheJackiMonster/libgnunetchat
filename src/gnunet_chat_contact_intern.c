@@ -102,7 +102,7 @@ it_contact_iterate_unique_tag (void *cls,
   struct GNUNET_CHAT_ContactIterateUniqueTag *it = cls;
 
   struct GNUNET_HashCode hash;
-  GNUNET_CRYPTO_hash_from_string(tag, &hash);
+  GNUNET_CRYPTO_hash(tag, strlen(tag), &hash);
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(it->tags, &hash))
     return GNUNET_YES;

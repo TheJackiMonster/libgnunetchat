@@ -27,6 +27,7 @@
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_util_lib.h>
 #include <string.h>
 
 static const unsigned int initial_map_size_of_tagging = 4;
@@ -55,6 +56,17 @@ internal_tagging_destroy (struct GNUNET_CHAT_InternalTagging *tagging)
   GNUNET_free(tagging);
 }
 
+static void
+convert_tag_to_hash (const char *tag, struct GNUNET_HashCode *hash)
+{
+  GNUNET_assert(hash);
+
+  if (tag)
+    GNUNET_CRYPTO_hash(tag, strlen(tag), hash);
+  else
+    memset(hash, 0, sizeof(*hash));
+}
+
 enum GNUNET_GenericReturnValue
 internal_tagging_add (struct GNUNET_CHAT_InternalTagging *tagging,
                       struct GNUNET_CHAT_Message *message)
@@ -66,12 +78,9 @@ internal_tagging_add (struct GNUNET_CHAT_InternalTagging *tagging,
     return GNUNET_SYSERR;
   
   const char *tag = message->msg->body.tag.tag;
+
   struct GNUNET_HashCode hash;
-  
-  if (tag)
-    GNUNET_CRYPTO_hash_from_string(tag, &hash);
-  else
-    memset(&hash, 0, sizeof(hash));
+  convert_tag_to_hash(tag, &hash);
 
   return GNUNET_CONTAINER_multihashmap_put(
     tagging->tags,
@@ -92,12 +101,9 @@ internal_tagging_remove (struct GNUNET_CHAT_InternalTagging *tagging,
     return GNUNET_SYSERR;
   
   const char *tag = message->msg->body.tag.tag;
+
   struct GNUNET_HashCode hash;
-  
-  if (tag)
-    GNUNET_CRYPTO_hash_from_string(tag, &hash);
-  else
-    memset(&hash, 0, sizeof(hash));
+  convert_tag_to_hash(tag, &hash);
 
   return GNUNET_CONTAINER_multihashmap_remove(
     tagging->tags,
@@ -147,11 +153,7 @@ internal_tagging_iterate (const struct GNUNET_CHAT_InternalTagging *tagging,
     );
 
   struct GNUNET_HashCode hash;
-  
-  if (tag)
-    GNUNET_CRYPTO_hash_from_string(tag, &hash);
-  else
-    memset(&hash, 0, sizeof(hash));
+  convert_tag_to_hash(tag, &hash);
 
   return GNUNET_CONTAINER_multihashmap_get_multiple(
     tagging->tags,
