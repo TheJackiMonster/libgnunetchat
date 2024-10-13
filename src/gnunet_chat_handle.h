@@ -194,6 +194,20 @@ void
 handle_disconnect (struct GNUNET_CHAT_Handle *handle);
 
 /**
+ * Searches for an existing chat account by <i>name</i> as
+ * identifier for a given chat <i>handle</i>.
+ *
+ * @param[in] handle Chat handle
+ * @param[in] name Chat account name
+ * @param[in] skip_op Whether to skip accounts with active operation
+ * @return Chat account
+ */
+struct GNUNET_CHAT_Account*
+handle_get_account_by_name (const struct GNUNET_CHAT_Handle *handle,
+		                        const char *name,
+                            enum GNUNET_GenericReturnValue skip_op);
+
+/**
  * Enqueues a creation for a chat account with a specific
  * <i>name</i> as identifier for a given chat <i>handle</i>.
  *
@@ -206,30 +220,29 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
 		                   const char *name);
 
 /**
- * Enqueues a deletion for a chat account with a specific
- * <i>name</i> as identifier for a given chat <i>handle</i>.
+ * Enqueues a deletion for a chat <i>account</i> of a 
+ * given chat <i>handle</i>.
  *
  * @param[in,out] handle Chat handle
- * @param[in] name Chat account name
+ * @param[in] account Chat account
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
 enum GNUNET_GenericReturnValue
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
-		                   const char *name);
+		                   const struct GNUNET_CHAT_Account *account);
 
 /**
- * Renames a chat account with a specific <i>old_name</i>
- * as identifier for a given chat <i>handle</i> to another
- * specific <i>new_name</i>.
+ * Renames a chat <i>account</i> of a given chat 
+ * <i>handle</i> to another specific <i>new_name</i>.
  *
  * @param[in,out] handle Chat handle
- * @param[in] old_name Old chat account name
+ * @param[in] account Chat account
  * @param[in] new_name New chat account name
  * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
  */
 enum GNUNET_GenericReturnValue
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
-                       const char *old_name,
+                       const struct GNUNET_CHAT_Account *account,
                        const char *new_name);
 
 /**

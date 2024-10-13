@@ -111,7 +111,8 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 
   char *low = util_get_lower(name);
 
-  int result = handle_create_account(handle, low);
+  enum GNUNET_GenericReturnValue result;
+  result = handle_create_account(handle, low);
 
   GNUNET_free(low);
   return result;
@@ -120,14 +121,20 @@ GNUNET_CHAT_account_create (struct GNUNET_CHAT_Handle *handle,
 
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_account_delete(struct GNUNET_CHAT_Handle *handle,
-			                     const char* name)
+			                     const char *name)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!handle) || (handle->destruction) || (!name))
     return GNUNET_SYSERR;
 
-  return handle_delete_account(handle, name);
+  const struct GNUNET_CHAT_Account *account;
+  account = handle_get_account_by_name(handle, name, GNUNET_NO);
+
+  if (!account)
+    return GNUNET_SYSERR;
+
+  return handle_delete_account(handle, account);
 }
 
 
@@ -141,7 +148,7 @@ GNUNET_CHAT_iterate_accounts (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return GNUNET_SYSERR;
 
-  int result = 0;
+  int iterations = 0;
 
   struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
   while (accounts)
@@ -149,7 +156,7 @@ GNUNET_CHAT_iterate_accounts (struct GNUNET_CHAT_Handle *handle,
     if ((!(accounts->account)) || (accounts->op))
       goto skip_account;
 
-    result++;
+    iterations++;
 
     if ((callback) && (GNUNET_YES != callback(cls, handle, accounts->account)))
       break;
@@ -158,7 +165,7 @@ GNUNET_CHAT_iterate_accounts (struct GNUNET_CHAT_Handle *handle,
     accounts = accounts->next;
   }
 
-  return result;
+  return iterations;
 }
 
 
@@ -171,26 +178,7 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return NULL;
 
-  struct GNUNET_CHAT_InternalAccounts *accounts = handle->accounts_head;
-  const char *account_name;
-
-  while (accounts)
-  {
-    if ((!(accounts->account)) || (accounts->op))
-      goto skip_account;
-
-    account_name = account_get_name(
-      accounts->account
-    );
-
-    if (0 == strcmp(account_name, name))
-      return accounts->account;
-
-  skip_account:
-    accounts = accounts->next;
-  }
-
-  return NULL;
+  return handle_get_account_by_name(handle, name, GNUNET_YES);
 }
 
 
@@ -291,10 +279,10 @@ GNUNET_CHAT_set_name (struct GNUNET_CHAT_Handle *handle,
     return GNUNET_NO;
 
   char *low = util_get_lower(name);
-  int result;
+  enum GNUNET_GenericReturnValue result;
 
   if (handle->current)
-    result = handle_rename_account(handle, handle->current->name, low);
+    result = handle_rename_account(handle, handle->current, low);
   else
     result = GNUNET_OK;
 
@@ -3144,7 +3132,7 @@ GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
   if (! discourse)
     return GNUNET_SYSERR;
 
-  int result = 0;
+  int iterations = 0;
 
   struct GNUNET_CHAT_DiscourseSubscription *sub;
   for (sub = discourse->head; sub; sub = sub->next)
@@ -3155,8 +3143,8 @@ GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
     if (callback)
       callback(cls, discourse, sub->contact);
 
-    result++;
+    iterations++;
   }
 
-  return result;
+  return iterations;
 }

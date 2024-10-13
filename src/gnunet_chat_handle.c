@@ -201,6 +201,9 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
     handle->files, it_destroy_handle_files, NULL
   );
 
+  while (handle->attributes_head)
+    internal_attributes_destroy(handle->attributes_head);
+
   if (handle->reclaim)
     GNUNET_RECLAIM_disconnect(handle->reclaim);
 
@@ -496,8 +499,9 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 }
 
 static struct GNUNET_CHAT_InternalAccounts*
-find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
-		                   const char *name)
+find_accounts_by_name (const struct GNUNET_CHAT_Handle *handle,
+		                   const char *name,
+                       enum GNUNET_GenericReturnValue skip_op)
 {
   GNUNET_assert((handle) && (name));
 
@@ -506,7 +510,8 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
 
   while (accounts)
   {
-    if (!(accounts->account))
+    if ((!(accounts->account)) || ((GNUNET_YES == skip_op) &&
+        (accounts->op)))
       goto skip_account;
 
     account_name = account_get_name(
@@ -521,6 +526,22 @@ find_accounts_by_name (struct GNUNET_CHAT_Handle *handle,
   }
 
   return accounts;
+}
+
+struct GNUNET_CHAT_Account*
+handle_get_account_by_name (const struct GNUNET_CHAT_Handle *handle,
+		                        const char *name,
+                            enum GNUNET_GenericReturnValue skip_op)
+{
+  GNUNET_assert((handle) && (name));
+
+  struct GNUNET_CHAT_InternalAccounts *accounts;
+  accounts = find_accounts_by_name(handle, name, skip_op);
+
+  if (!accounts)
+    return NULL;
+
+  return accounts->account;
 }
 
 static enum GNUNET_GenericReturnValue
@@ -557,7 +578,7 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
   GNUNET_assert((handle) && (name));
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
-  accounts = find_accounts_by_name(handle, name);
+  accounts = find_accounts_by_name(handle, name, GNUNET_NO);
 
   if (accounts)
     return GNUNET_SYSERR;
@@ -590,12 +611,18 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
 
 enum GNUNET_GenericReturnValue
 handle_delete_account (struct GNUNET_CHAT_Handle *handle,
-		                   const char *name)
+		                   const struct GNUNET_CHAT_Account *account)
 {
-  GNUNET_assert((handle) && (name));
+  GNUNET_assert((handle) && (account));
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
-  accounts = find_accounts_by_name(handle, name);
+  accounts = handle->accounts_head;
+
+  while (accounts)
+    if (account == accounts->account)
+      break;
+    else
+      accounts = accounts->next;
 
   if (!accounts)
     return GNUNET_SYSERR;
@@ -610,6 +637,8 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 
   if (GNUNET_OK != result)
     return result;
+
+  const char *name = account_get_name(account);
 
   accounts->op = GNUNET_IDENTITY_delete(
     handle->identity,
@@ -626,19 +655,30 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 
 enum GNUNET_GenericReturnValue
 handle_rename_account (struct GNUNET_CHAT_Handle *handle,
-                       const char *old_name,
+                       const struct GNUNET_CHAT_Account *account,
                        const char *new_name)
 {
-  GNUNET_assert((handle) && (old_name) && (new_name));
-
-  if (0 == strcmp(old_name, new_name))
-    return GNUNET_OK;
+  GNUNET_assert((handle) && (account) && (new_name));
 
   struct GNUNET_CHAT_InternalAccounts *accounts;
-  accounts = find_accounts_by_name(handle, old_name);
+  accounts = handle->accounts_head;
+
+  while (accounts)
+    if (account == accounts->account)
+      break;
+    else
+      accounts = accounts->next;
 
   if (!accounts)
     return GNUNET_SYSERR;
+
+  if (find_accounts_by_name(handle, new_name, GNUNET_NO))
+    return GNUNET_SYSERR;
+
+  const char *old_name = account_get_name(account);
+
+  if (0 == strcmp(old_name, new_name))
+    return GNUNET_OK;
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
@@ -743,16 +783,19 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
 {
   GNUNET_assert((handle) && (handle->current));
 
-  const char *name = handle->current->name;
-
-  if (!name)
-    return GNUNET_SYSERR;
-
   struct GNUNET_CHAT_InternalAccounts *accounts;
-  accounts = find_accounts_by_name(handle, name);
+  accounts = handle->accounts_head;
+
+  while (accounts)
+    if (handle->current == accounts->account)
+      break;
+    else
+      accounts = accounts->next;
 
   if (!accounts)
     return GNUNET_SYSERR;
+
+  const char *name = account_get_name(handle->current);
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
