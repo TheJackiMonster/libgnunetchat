@@ -137,7 +137,7 @@ it_contact_iterate_tag (void *cls,
     return GNUNET_YES;
   
   if ((message->flags & GNUNET_MESSENGER_FLAG_SENT) &&
-      (it->callback))
+      (it->callback) && (message->msg->body.tag.tag))
     return it->callback(
       it->cls,
       it->contact,
