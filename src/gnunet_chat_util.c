@@ -193,7 +193,7 @@ util_encrypt_file (const char *filename,
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
     else
-      memcpy(&iv, hash, sizeof(iv));
+      GNUNET_CRYPTO_symmetric_derive_iv(&iv, key, hash, sizeof(hash), NULL);
 
     result = GNUNET_CRYPTO_symmetric_encrypt(
     	location,
@@ -274,7 +274,7 @@ util_decrypt_file (const char *filename,
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
     else
-      memcpy(&iv, hash, sizeof(iv));
+      GNUNET_CRYPTO_symmetric_derive_iv(&iv, key, hash, sizeof(hash), NULL);
 
     result = GNUNET_CRYPTO_symmetric_decrypt(
       location,
