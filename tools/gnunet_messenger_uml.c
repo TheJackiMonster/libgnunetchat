@@ -30,6 +30,13 @@
 #include <gnunet/gnunet_util_lib.h>
 #include <string.h>
 
+enum GNUNET_MESSENGER_LinkType
+{
+  GNUNET_MESSENGER_LINK_DEFAULT = 0,
+  GNUNET_MESSENGER_LINK_DOTTED = 1,
+  GNUNET_MESSENGER_LINK_COMPOSITION = 2,
+};
+
 struct GNUNET_MESSENGER_Link
 {
   struct GNUNET_MESSENGER_Link *prev;
@@ -38,7 +45,7 @@ struct GNUNET_MESSENGER_Link
   struct GNUNET_HashCode hash;
   struct GNUNET_HashCode previous;
 
-  bool dotted;
+  enum GNUNET_MESSENGER_LinkType type;
 };
 
 struct GNUNET_MESSENGER_Tool
@@ -56,6 +63,7 @@ struct GNUNET_MESSENGER_Tool
   char *ego_name;
   char *room_name;
   int ignore_targets;
+  int ignore_epochs;
 
   bool quit;
 };
@@ -81,11 +89,20 @@ idle (void *cls)
     const struct GNUNET_HashCode *hash = &(link->hash);
     const struct GNUNET_HashCode *previous = &(link->previous);
 
-    printf(
-      "X%s %s> ",
-      GNUNET_h2s(hash),
-      link->dotted? ".." : "--"
-    );
+    printf("X%s ", GNUNET_h2s(hash));
+
+    switch (link->type)
+    {
+      case GNUNET_MESSENGER_LINK_DOTTED:
+        printf("..> ");
+        break;
+      case GNUNET_MESSENGER_LINK_COMPOSITION:
+        printf("*-- ");
+        break;
+      default:
+        printf("--> ");
+        break;
+    }
     
     printf(
       "X%s\n",
@@ -101,7 +118,7 @@ static void
 add_link (struct GNUNET_MESSENGER_Tool *tool,
           const struct GNUNET_HashCode *hash,
           const struct GNUNET_HashCode *previous,
-          bool dotted)
+          enum GNUNET_MESSENGER_LinkType type)
 {
   size_t i;
   for (i = 0; i < sizeof(*previous); i++)
@@ -118,7 +135,7 @@ add_link (struct GNUNET_MESSENGER_Tool *tool,
   GNUNET_memcpy(&(link->hash), hash, sizeof(*hash));
   GNUNET_memcpy(&(link->previous), previous, sizeof(*previous));
 
-  link->dotted = dotted;
+  link->type = type;
 
   GNUNET_CONTAINER_DLL_insert(tool->head, tool->tail, link);
 }
@@ -246,6 +263,48 @@ message_callback (void *cls,
         message->body.tag.tag
       );
       break;
+    case GNUNET_MESSENGER_KIND_ANNOUNCEMENT:
+      printf(
+        ",\n  \"announcement\":\"%s\"",
+        GNUNET_sh2s(&(message->body.announcement.announcement))
+      );
+
+      if (!GNUNET_is_zero(&(message->body.announcement.group)))
+        printf(
+          ",\n  \"group\":\"%s\"",
+          GNUNET_sh2s(&(message->body.announcement.group))
+        );
+      break;
+    case GNUNET_MESSENGER_KIND_SECRET:
+      printf(
+        ",\n  \"announcement\":\"%s\"",
+        GNUNET_sh2s(&(message->body.secret.announcement))
+      );
+      break;
+    case GNUNET_MESSENGER_KIND_REVOLUTION:
+      printf(
+        ",\n  \"announcement\":\"%s\"",
+        GNUNET_sh2s(&(message->body.revolution.announcement))
+      );
+
+      if (!GNUNET_is_zero(&(message->body.revolution.group)))
+        printf(
+          ",\n  \"group\":\"%s\"",
+          GNUNET_sh2s(&(message->body.revolution.group))
+        );
+      break;
+    case GNUNET_MESSENGER_KIND_GROUP:
+      printf(
+        ",\n  \"announcement\":\"%s\"",
+        GNUNET_sh2s(&(message->body.group.announcement))
+      );
+
+      if (!GNUNET_is_zero(&(message->body.group.group)))
+        printf(
+          ",\n  \"group\":\"%s\"",
+          GNUNET_sh2s(&(message->body.group.group))
+        );
+      break;
     default:
       break;
   }
@@ -254,7 +313,7 @@ message_callback (void *cls,
 
   if (GNUNET_MESSENGER_KIND_MERGE == message->header.kind)
   {
-    add_link(tool, hash, &(message->body.merge.previous), false);
+    add_link(tool, hash, &(message->body.merge.previous), GNUNET_MESSENGER_LINK_DEFAULT);
 
     GNUNET_MESSENGER_get_message(
       room,
@@ -265,31 +324,47 @@ message_callback (void *cls,
   if (0 == tool->ignore_targets)
   {
     if (GNUNET_MESSENGER_KIND_REQUEST == message->header.kind)
-      add_link(tool, hash, &(message->body.request.hash), true);
+      add_link(tool, hash, &(message->body.request.hash), GNUNET_MESSENGER_LINK_DOTTED);
 
     if (GNUNET_MESSENGER_KIND_DELETION == message->header.kind)
-      add_link(tool, hash, &(message->body.deletion.hash), true);
+      add_link(tool, hash, &(message->body.deletion.hash), GNUNET_MESSENGER_LINK_DOTTED);
 
     if (GNUNET_MESSENGER_KIND_TAG == message->header.kind)
-      add_link(tool, hash, &(message->body.tag.hash), true);
+      add_link(tool, hash, &(message->body.tag.hash), GNUNET_MESSENGER_LINK_DOTTED);
 
     if (GNUNET_MESSENGER_KIND_APPEAL == message->header.kind)
-      add_link(tool, hash, &(message->body.appeal.event), true);
+      add_link(tool, hash, &(message->body.appeal.event), GNUNET_MESSENGER_LINK_DOTTED);
 
     if (GNUNET_MESSENGER_KIND_ACCESS == message->header.kind)
-      add_link(tool, hash, &(message->body.access.event), true);
+      add_link(tool, hash, &(message->body.access.event), GNUNET_MESSENGER_LINK_DOTTED);
 
     if (GNUNET_MESSENGER_KIND_GROUP == message->header.kind)
     {
-      add_link(tool, hash, &(message->body.group.initiator), true);
-      add_link(tool, hash, &(message->body.group.partner), true);
+      add_link(tool, hash, &(message->body.group.initiator), GNUNET_MESSENGER_LINK_DOTTED);
+      add_link(tool, hash, &(message->body.group.partner), GNUNET_MESSENGER_LINK_DOTTED);
     }
 
     if (GNUNET_MESSENGER_KIND_AUTHORIZATION == message->header.kind)
-      add_link(tool, hash, &(message->body.authorization.event), true);
+      add_link(tool, hash, &(message->body.authorization.event), GNUNET_MESSENGER_LINK_DOTTED);
   }
 
-  add_link(tool, hash, &(message->header.previous), false);
+  if (0 == tool->ignore_epochs)
+  {
+    if (GNUNET_MESSENGER_KIND_JOIN == message->header.kind)
+      add_link(tool, hash, &(message->body.join.epoch), GNUNET_MESSENGER_LINK_COMPOSITION);
+
+    if (GNUNET_MESSENGER_KIND_LEAVE == message->header.kind)
+      add_link(tool, hash, &(message->body.leave.epoch), GNUNET_MESSENGER_LINK_COMPOSITION);
+
+    if ((GNUNET_MESSENGER_KIND_MERGE == message->header.kind) &&
+        (0 != GNUNET_memcmp(&(message->body.merge.epochs[0]), &(message->body.merge.epochs[1]))))
+    {
+      add_link(tool, hash, &(message->body.merge.epochs[0]), GNUNET_MESSENGER_LINK_COMPOSITION);
+      add_link(tool, hash, &(message->body.merge.epochs[1]), GNUNET_MESSENGER_LINK_COMPOSITION);
+    }
+  }
+
+  add_link(tool, hash, &(message->header.previous), GNUNET_MESSENGER_LINK_DEFAULT);
 
   GNUNET_MESSENGER_get_message(
     room,
@@ -406,6 +481,12 @@ main (int argc,
       "ignore-targets",
       "ignore indirect connections between messages and their targets",
       &(tool.ignore_targets)
+    ),
+    GNUNET_GETOPT_option_flag(
+      'e',
+      "ignore-epochs",
+      "ignore indirect connections between epoch messages and their previous epoch",
+      &(tool.ignore_epochs)
     ),
     GNUNET_GETOPT_OPTION_END
   };
