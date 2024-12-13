@@ -55,7 +55,7 @@ struct GNUNET_CONFIGURATION_Handle;
  *                          the #GNUNET_MESSENGER_VERSION of the GNUnet Messenger
  *                          service while the patch version is independent.
  */
-#define GNUNET_CHAT_VERSION 0x000000050001L
+#define GNUNET_CHAT_VERSION 0x000000060000L
 
 #define GNUNET_CHAT_VERSION_MAJOR ((GNUNET_CHAT_VERSION >> 32L) & 0xFFFFL)
 #define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)

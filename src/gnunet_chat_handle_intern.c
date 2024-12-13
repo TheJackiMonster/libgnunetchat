@@ -742,7 +742,7 @@ on_handle_message_callback(void *cls)
   struct GNUNET_TIME_Relative task_delay;
   switch (message->msg->header.kind)
   {
-    case GNUNET_MESSENGER_KIND_DELETE:
+    case GNUNET_MESSENGER_KIND_DELETION:
     {
       const struct GNUNET_TIME_Relative delay = GNUNET_TIME_relative_ntoh(
 	      message->msg->body.deletion.delay
@@ -927,9 +927,9 @@ skip_msg_handing:
       );
       break;
     }
-    case GNUNET_MESSENGER_KIND_SUBSCRIBE:
+    case GNUNET_MESSENGER_KIND_SUBSCRIBTION:
     {
-      const struct GNUNET_ShortHashCode *sid = &(message->msg->body.subscribe.discourse);
+      const struct GNUNET_ShortHashCode *sid = &(message->msg->body.subscribtion.discourse);
       struct GNUNET_CHAT_Discourse *discourse = GNUNET_CONTAINER_multishortmap_get(
         context->discourses, sid
       );
@@ -951,19 +951,19 @@ skip_msg_handing:
 
       enum GNUNET_GenericReturnValue subscribtion_update = GNUNET_NO;
 
-      if (GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE & message->msg->body.subscribe.flags)
+      if (GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE & message->msg->body.subscribtion.flags)
         discourse_unsubscribe(
           discourse,
           contact,
           GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp),
-          GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
+          GNUNET_TIME_relative_ntoh(message->msg->body.subscribtion.time)
         );
       else
         subscribtion_update = discourse_subscribe(
           discourse,
           contact,
           GNUNET_TIME_absolute_ntoh(message->msg->header.timestamp),
-          GNUNET_TIME_relative_ntoh(message->msg->body.subscribe.time)
+          GNUNET_TIME_relative_ntoh(message->msg->body.subscribtion.time)
         );
       
       if (GNUNET_YES == subscribtion_update)
@@ -1095,7 +1095,7 @@ on_handle_message (void *cls,
 handle_callback:
   switch (msg->header.kind)
   {
-    case GNUNET_MESSENGER_KIND_DELETE:
+    case GNUNET_MESSENGER_KIND_DELETION:
     {
       dependency = &(msg->body.deletion.hash);
       break;

@@ -1977,9 +1977,9 @@ GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
   struct GNUNET_MESSENGER_Message msg;
   memset(&msg, 0, sizeof(msg));
 
-  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
+  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBTION;
   GNUNET_memcpy(
-    &(msg.body.subscribe.discourse),
+    &(msg.body.subscribtion.discourse),
     &sid,
     sizeof(struct GNUNET_ShortHashCode)
   );
@@ -1988,8 +1988,8 @@ GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
     GNUNET_TIME_relative_get_second_(), 10
   );
 
-  msg.body.subscribe.time = GNUNET_TIME_relative_hton(subscribtion_time);
-  msg.body.subscribe.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_KEEP_ALIVE;
+  msg.body.subscribtion.time = GNUNET_TIME_relative_hton(subscribtion_time);
+  msg.body.subscribtion.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_KEEP_ALIVE;
 
   GNUNET_MESSENGER_send_message(
     context->room,
@@ -2356,10 +2356,10 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
   
   struct GNUNET_CHAT_Discourse *discourse;
   
-  if (GNUNET_MESSENGER_KIND_SUBSCRIBE == message->msg->header.kind)
+  if (GNUNET_MESSENGER_KIND_SUBSCRIBTION == message->msg->header.kind)
     discourse = GNUNET_CONTAINER_multishortmap_get(
       message->context->discourses,
-      &(message->msg->body.subscribe.discourse));
+      &(message->msg->body.subscribtion.discourse));
   else if (GNUNET_MESSENGER_KIND_TALK == message->msg->header.kind)
     discourse = GNUNET_CONTAINER_multishortmap_get(
       message->context->discourses,
@@ -2382,7 +2382,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 
   struct GNUNET_CHAT_Message *target;
 
-  if (GNUNET_MESSENGER_KIND_DELETE == message->msg->header.kind)
+  if (GNUNET_MESSENGER_KIND_DELETION == message->msg->header.kind)
     target = GNUNET_CONTAINER_multihashmap_get(
 	message->context->messages, &(message->msg->body.deletion.hash));
   else if (GNUNET_MESSENGER_KIND_TAG == message->msg->header.kind)
@@ -3044,15 +3044,15 @@ GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
   struct GNUNET_MESSENGER_Message msg;
   memset(&msg, 0, sizeof(msg));
 
-  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBE;
+  msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBTION;
 
   util_shorthash_from_discourse_id(
     &(discourse->id),
-    &(msg.body.subscribe.discourse)
+    &(msg.body.subscribtion.discourse)
   );
 
-  msg.body.subscribe.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
-  msg.body.subscribe.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE;
+  msg.body.subscribtion.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
+  msg.body.subscribtion.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE;
 
   GNUNET_MESSENGER_send_message(
     discourse->context->room,

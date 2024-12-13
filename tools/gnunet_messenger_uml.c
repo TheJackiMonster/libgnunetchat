@@ -267,11 +267,26 @@ message_callback (void *cls,
     if (GNUNET_MESSENGER_KIND_REQUEST == message->header.kind)
       add_link(tool, hash, &(message->body.request.hash), true);
 
-    if (GNUNET_MESSENGER_KIND_DELETE == message->header.kind)
+    if (GNUNET_MESSENGER_KIND_DELETION == message->header.kind)
       add_link(tool, hash, &(message->body.deletion.hash), true);
 
     if (GNUNET_MESSENGER_KIND_TAG == message->header.kind)
       add_link(tool, hash, &(message->body.tag.hash), true);
+
+    if (GNUNET_MESSENGER_KIND_APPEAL == message->header.kind)
+      add_link(tool, hash, &(message->body.appeal.event), true);
+
+    if (GNUNET_MESSENGER_KIND_ACCESS == message->header.kind)
+      add_link(tool, hash, &(message->body.access.event), true);
+
+    if (GNUNET_MESSENGER_KIND_GROUP == message->header.kind)
+    {
+      add_link(tool, hash, &(message->body.group.initiator), true);
+      add_link(tool, hash, &(message->body.group.partner), true);
+    }
+
+    if (GNUNET_MESSENGER_KIND_AUTHORIZATION == message->header.kind)
+      add_link(tool, hash, &(message->body.authorization.event), true);
   }
 
   add_link(tool, hash, &(message->header.previous), false);
