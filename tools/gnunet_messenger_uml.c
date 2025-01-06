@@ -265,46 +265,39 @@ message_callback (void *cls,
       break;
     case GNUNET_MESSENGER_KIND_ANNOUNCEMENT:
       printf(
-        ",\n  \"announcement\":\"%s\"",
-        GNUNET_sh2s(&(message->body.announcement.announcement))
+        ",\n  \"identifier\":\"%s\"",
+        GNUNET_sh2s(&(message->body.announcement.identifier.hash))
       );
 
-      if (!GNUNET_is_zero(&(message->body.announcement.group)))
-        printf(
-          ",\n  \"group\":\"%s\"",
-          GNUNET_sh2s(&(message->body.announcement.group))
-        );
+      printf(
+        ",\n  \"group\":\"%s\"",
+        (message->body.announcement.identifier.code.group_bit? "Y" : "N")
+      );
       break;
     case GNUNET_MESSENGER_KIND_SECRET:
       printf(
-        ",\n  \"announcement\":\"%s\"",
-        GNUNET_sh2s(&(message->body.secret.announcement))
+        ",\n  \"identifier\":\"%s\"",
+        GNUNET_sh2s(&(message->body.secret.identifier.hash))
       );
       break;
     case GNUNET_MESSENGER_KIND_REVOLUTION:
       printf(
-        ",\n  \"announcement\":\"%s\"",
-        GNUNET_sh2s(&(message->body.revolution.announcement))
+        ",\n  \"identifier\":\"%s\"",
+        GNUNET_sh2s(&(message->body.revolution.identifier.hash))
       );
-
-      if (!GNUNET_is_zero(&(message->body.revolution.group)))
-        printf(
-          ",\n  \"group\":\"%s\"",
-          GNUNET_sh2s(&(message->body.revolution.group))
-        );
       break;
     case GNUNET_MESSENGER_KIND_GROUP:
       printf(
-        ",\n  \"announcement\":\"%s\"",
-        GNUNET_sh2s(&(message->body.group.announcement))
+        ",\n  \"identifier\":\"%s\"",
+        GNUNET_sh2s(&(message->body.group.identifier.hash))
       );
-
-      if (!GNUNET_is_zero(&(message->body.group.group)))
-        printf(
-          ",\n  \"group\":\"%s\"",
-          GNUNET_sh2s(&(message->body.group.group))
-        );
       break;
+	case GNUNET_MESSENGER_KIND_AUTHORIZATION:
+      printf(
+        ",\n  \"identifier\":\"%s\"",
+        GNUNET_sh2s(&(message->body.authorization.identifier.hash))
+      );
+	  break;
     default:
       break;
   }
