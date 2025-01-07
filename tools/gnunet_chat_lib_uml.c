@@ -233,6 +233,9 @@ main (int argc,
   struct GNUNET_CHAT_Tool tool;
   memset(&tool, 0, sizeof(tool));
 
+  const struct GNUNET_OS_ProjectData *data;
+  data = GNUNET_OS_project_data_gnunet ();
+
   struct GNUNET_GETOPT_CommandLineOption options[] = {
     GNUNET_GETOPT_option_string(
       'a',
@@ -261,6 +264,7 @@ main (int argc,
   printf("@startuml\n");
 
   enum GNUNET_GenericReturnValue result = GNUNET_PROGRAM_run(
+    data,
     argc,
     argv,
     "libgnunetchat_uml",

@@ -188,15 +188,19 @@ task_##test_call (void *cls,                                     \
 #define __CALL_GNUNET_TEST_TASK(test_call)             \
 {                                                      \
   enum GNUNET_GenericReturnValue result;               \
+  const struct GNUNET_OS_ProjectData *data;            \
   struct GNUNET_GETOPT_CommandLineOption options[] = { \
     GNUNET_GETOPT_OPTION_END                           \
   };                                                   \
                                                        \
+  data = GNUNET_OS_project_data_gnunet ();             \
+                                                       \
   char *binary = #test_call;                           \
-  char *const args [] = { binary };                    \
+  char *const args [] = { binary };                \
                                                        \
   fprintf(stdout, "Running: %s\n", binary);            \
   result = GNUNET_PROGRAM_run(                         \
+    data,                                              \
     1,                                                 \
     args,                                              \
     binary,                                            \
