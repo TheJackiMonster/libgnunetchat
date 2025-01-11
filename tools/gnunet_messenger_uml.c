@@ -416,11 +416,15 @@ ego_lookup (void *cls,
   else
     memset(&hash, 0, sizeof(hash));
   
-  GNUNET_MESSENGER_enter_room(
+  struct GNUNET_MESSENGER_Room *room;
+  room = GNUNET_MESSENGER_enter_room(
     tool->handle,
     &peer,
     &hash
   );
+
+  if (room)
+    GNUNET_MESSENGER_use_room_keys(room, GNUNET_NO);
 }
 
 static void
