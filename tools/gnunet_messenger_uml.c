@@ -64,6 +64,7 @@ struct GNUNET_MESSENGER_Tool
   char *room_name;
   int ignore_targets;
   int ignore_epochs;
+  int simplify_merges;
 
   bool quit;
 };
@@ -158,6 +159,13 @@ message_callback (void *cls,
   {
     GNUNET_SCHEDULER_cancel(tool->task);
     tool->task = NULL;
+  }
+
+  if ((tool->simplify_merges) &&
+      (GNUNET_MESSENGER_KIND_MERGE == message->header.kind))
+  {
+    printf("<> X%s\n", GNUNET_h2s(hash));
+    goto print_links;
   }
 
   printf(
@@ -304,6 +312,7 @@ message_callback (void *cls,
 
   printf("\n}\n");
 
+print_links:
   if (GNUNET_MESSENGER_KIND_MERGE == message->header.kind)
   {
     add_link(tool, hash, &(message->body.merge.previous), GNUNET_MESSENGER_LINK_DEFAULT);
@@ -485,6 +494,12 @@ main (int argc,
       "ignore indirect connections between epoch messages and their previous epoch",
       &(tool.ignore_epochs)
     ),
+	GNUNET_GETOPT_option_flag(
+      'm',
+      "simplify-merges",
+      "simplify merge messages in the message graph",
+      &(tool.simplify_merges)
+	),
     GNUNET_GETOPT_OPTION_END
   };
 
