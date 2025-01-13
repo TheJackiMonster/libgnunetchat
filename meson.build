@@ -37,7 +37,7 @@ gnunetchat_deps = [
     dependency('gnunetarm'),
     dependency('gnunetfs'),
     dependency('gnunetgns'),
-#   dependency('gnunetgnsrecord'),
+    dependency('gnunetgnsrecord'),
     dependency('gnunetidentity'),
     dependency('gnunetmessenger'),
     dependency('gnunetnamestore'),
