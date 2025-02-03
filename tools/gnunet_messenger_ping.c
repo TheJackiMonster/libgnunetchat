@@ -505,7 +505,7 @@ ego_lookup (void *cls,
 
   if (room)
     GNUNET_MESSENGER_use_room_keys(
-      room, tool->public_room? GNUNET_YES : GNUNET_NO);
+      room, tool->public_room? GNUNET_NO : GNUNET_YES);
 }
 
 static void
