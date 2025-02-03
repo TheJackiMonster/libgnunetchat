@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -494,12 +494,12 @@ main (int argc,
       "ignore indirect connections between epoch messages and their previous epoch",
       &(tool.ignore_epochs)
     ),
-	GNUNET_GETOPT_option_flag(
+    GNUNET_GETOPT_option_flag(
       'm',
       "simplify-merges",
       "simplify merge messages in the message graph",
       &(tool.simplify_merges)
-	),
+    ),
     GNUNET_GETOPT_OPTION_END
   };
 
