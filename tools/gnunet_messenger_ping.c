@@ -404,7 +404,7 @@ message_callback (void *cls,
       if (!sender)
         continue;
 
-      if (NULL != GNUNET_CONTAINER_multishortmap_get(ping->pong_map, hash_contact (sender)))
+      if (GNUNET_YES != GNUNET_CONTAINER_multishortmap_contains_value(ping->pong_map, hash_contact (sender), NULL))
         continue;
 
       if (!is_hash_following (tool, hash, &key))
