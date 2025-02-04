@@ -28,6 +28,7 @@
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
+#include <stdint.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -207,11 +208,14 @@ send_pong (struct GNUNET_MESSENGER_PingTool *tool,
   GNUNET_MESSENGER_send_message(room, &message, NULL);
   tool->counter++;
 
-  if (tool->count)
+  if ((tool->count) && (tool->count < UINT_MAX))
     tool->count--;
   
   if (!(tool->count))
     tool->quit = true;
+
+  if (tool->quit)
+    GNUNET_SCHEDULER_shutdown();
 }
 
 static void
@@ -301,6 +305,9 @@ finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
     else
       tool->quit = true;
   }
+
+  if (tool->quit)
+    GNUNET_SCHEDULER_shutdown();
 }
 
 static void
@@ -501,8 +508,13 @@ ego_lookup (void *cls,
   else
     memset(&hash, 0, sizeof(hash));
 
-  printf(" (%s): %u times\n",
-    GNUNET_h2s(&hash), tool->count);
+  printf(" (%s): ",
+    GNUNET_h2s(&hash));
+  
+  if (UINT_MAX == tool->count)
+    printf("infinite\n");
+  else
+    printf("%u times\n", tool->count);
   
   struct GNUNET_MESSENGER_Room *room;
   room = GNUNET_MESSENGER_enter_room(
@@ -523,6 +535,12 @@ run (void *cls,
      const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   struct GNUNET_MESSENGER_PingTool *tool = cls;
+
+  if (!(tool->count))
+    tool->count = UINT_MAX;
+
+  if (!(tool->timeout))
+    tool->timeout = UINT_MAX;
 
   tool->cfg = cfg;
   tool->hook = GNUNET_SCHEDULER_add_shutdown(shutdown_hook, tool);
