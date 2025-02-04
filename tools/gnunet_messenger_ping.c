@@ -45,6 +45,7 @@ struct GNUNET_MESSENGER_PingTool
   char *ego_name;
   char *room_name;
   uint count;
+  uint timeout;
   int public_room;
   int auto_pong;
   int require_pong;
@@ -83,7 +84,8 @@ idle (void *cls)
   if ((tool->auto_pong) && (!(tool->quit)))
   {
     tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_get_second_(),
+      GNUNET_TIME_relative_multiply(
+        GNUNET_TIME_relative_get_second_(), tool->timeout),
       GNUNET_SCHEDULER_PRIORITY_IDLE,
       idle,
       tool
@@ -409,7 +411,8 @@ skip_ping:
       GNUNET_SCHEDULER_cancel(tool->task);
 
     tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_get_second_(),
+      GNUNET_TIME_relative_multiply(
+        GNUNET_TIME_relative_get_second_(), tool->timeout),
       GNUNET_SCHEDULER_PRIORITY_IDLE,
       idle,
       tool
@@ -576,6 +579,13 @@ main (int argc,
       "<count>",
       "stop after a count of iterations",
       &(tool.count)
+    ),
+    GNUNET_GETOPT_option_uint(
+      't',
+      "timeout",
+      "<timeout>",
+      "stop after a timeout in seconds",
+      &(tool.timeout)
     ),
     GNUNET_GETOPT_option_flag(
       'p',
