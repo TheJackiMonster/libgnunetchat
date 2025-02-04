@@ -47,6 +47,7 @@ struct GNUNET_MESSENGER_PingTool
   uint count;
   int public_room;
   int auto_pong;
+  int require_pong;
 
   bool quit;
 };
@@ -119,50 +120,26 @@ member_callback (void *cls,
 static bool
 is_hash_following (struct GNUNET_MESSENGER_PingTool *tool,
                    const struct GNUNET_HashCode *hash,
-                   const struct GNUNET_HashCode *prev);
-
-struct GNUNET_MESSENGER_HashCheck
-{
-  struct GNUNET_MESSENGER_PingTool *tool;
-  const struct GNUNET_HashCode *hash;
-  bool result;
-};
-
-static enum GNUNET_GenericReturnValue
-multiple_iterator_callback (void *cls,
-                            const struct GNUNET_HashCode *hash,
-                            void *value)
-{
-  struct GNUNET_MESSENGER_HashCheck *check = cls;
-  const struct GNUNET_HashCode *prev = value;
-
-  if (is_hash_following (check->tool, prev, check->hash))
-  {
-    check->result = true;
-    return GNUNET_NO;
-  }
-
-  return GNUNET_YES;
-}
-
-static bool
-is_hash_following (struct GNUNET_MESSENGER_PingTool *tool,
-                   const struct GNUNET_HashCode *hash,
                    const struct GNUNET_HashCode *prev)
 {
-  if (0 == GNUNET_CRYPTO_hash_cmp(hash, prev))
-    return true;
+  if (!prev)
+    return false;
 
-  struct GNUNET_MESSENGER_HashCheck check;
-  check.tool = tool;
-  check.hash = prev;
-  check.result = false;
+  bool first = true;
+  while (hash)
+  {
+    if (0 == GNUNET_CRYPTO_hash_cmp(hash, prev))
+      return true;
 
-  GNUNET_CONTAINER_multihashmap_get_multiple(tool->map, hash,
-                                             multiple_iterator_callback,
-                                             &check);
+    if (first)
+      first = false;
+    else if (0 == GNUNET_CRYPTO_hash_cmp(hash + 1, prev))
+      return true;
 
-  return check.result;
+    hash = GNUNET_CONTAINER_multihashmap_get(tool->map, hash);
+  }
+
+  return false;
 }
 
 static void
@@ -321,21 +298,18 @@ message_callback (void *cls,
     goto skip_ping;
   }
 
+  if (GNUNET_YES != GNUNET_CONTAINER_multihashmap_contains(tool->map, hash))
   {
-    struct GNUNET_HashCode *copy = GNUNET_new(struct GNUNET_HashCode);
+    struct GNUNET_HashCode *copy = GNUNET_malloc(sizeof(struct GNUNET_HashCode) * 2);
     GNUNET_memcpy(copy, &(message->header.previous), sizeof (*copy));
 
-    GNUNET_CONTAINER_multihashmap_put(tool->map, hash, copy,
-                                      GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
-  }
-
-  if (GNUNET_MESSENGER_KIND_MERGE == message->header.kind)
-  {
-    struct GNUNET_HashCode *copy = GNUNET_new(struct GNUNET_HashCode);
-    GNUNET_memcpy(copy, &(message->body.merge.previous), sizeof (*copy));
+    if (GNUNET_MESSENGER_KIND_MERGE == message->header.kind)
+      GNUNET_memcpy(copy + 1, &(message->body.merge.previous), sizeof (*copy));
+    else
+      GNUNET_memcpy(copy + 1, &(message->header.previous), sizeof (*copy));
 
     GNUNET_CONTAINER_multihashmap_put(tool->map, hash, copy,
-                                      GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
+                                      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST);
   }
 
   if (GNUNET_MESSENGER_FLAG_SENT & flags)
@@ -389,6 +363,11 @@ message_callback (void *cls,
         continue;
 
       ping->traffic++;
+
+      if ((tool->require_pong) && 
+          ((GNUNET_MESSENGER_KIND_TAG != message->header.kind) || 
+           (0 != GNUNET_CRYPTO_hash_cmp(&(message->body.tag.hash), &key))))
+        continue;
 
       if (NULL != GNUNET_CONTAINER_multishortmap_get(ping->pong_map, hash_contact (sender)))
         continue;
@@ -532,6 +511,43 @@ run (void *cls,
   );
 }
 
+enum GNUNET_GenericReturnValue
+free_map_time (void *cls,
+               const struct GNUNET_ShortHashCode *key,
+               void *value)
+{
+  struct GNUNET_TIME_Absolute *time = value;
+
+  if (time)
+    GNUNET_free(time);
+
+  return GNUNET_YES;
+}
+
+enum GNUNET_GenericReturnValue
+free_map_ping (void *cls,
+               const struct GNUNET_HashCode *key,
+               void *value)
+{
+  struct GNUNET_MESSENGER_Ping *ping = value;
+
+  GNUNET_CONTAINER_multishortmap_iterate(ping->pong_map, free_map_time, NULL);
+  GNUNET_CONTAINER_multishortmap_destroy(ping->pong_map);
+
+  GNUNET_free(ping);
+  return GNUNET_YES;
+}
+
+enum GNUNET_GenericReturnValue
+free_map_hashes (void *cls,
+                 const struct GNUNET_HashCode *key,
+                 void *value)
+{
+  struct GNUNET_HashCode *hashes = value;
+  GNUNET_free(hashes);
+  return GNUNET_YES;
+}
+
 int
 main (int argc,
       char* const* argv)
@@ -570,8 +586,14 @@ main (int argc,
     GNUNET_GETOPT_option_flag(
       'P',
       "pong",
-      "only send back messages after a ping",
+      "only send back pong messages after a ping",
       &(tool.auto_pong)
+    ),
+    GNUNET_GETOPT_option_flag(
+      'R',
+      "require-pong",
+      "only react to pong messages after a ping",
+      &(tool.require_pong)
     ),
     GNUNET_GETOPT_OPTION_END
   };
@@ -588,6 +610,9 @@ main (int argc,
     &run,
     &tool
   );
+
+  GNUNET_CONTAINER_multihashmap_iterate(tool.ping_map, free_map_ping, NULL);
+  GNUNET_CONTAINER_multihashmap_iterate(tool.map, free_map_hashes, NULL);
 
   GNUNET_CONTAINER_multihashmap_destroy(tool.ping_map);
   GNUNET_CONTAINER_multihashmap_destroy(tool.map);
