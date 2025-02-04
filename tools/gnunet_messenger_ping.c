@@ -37,6 +37,7 @@ struct GNUNET_MESSENGER_PingTool
   const struct GNUNET_CONFIGURATION_Handle *cfg;
   struct GNUNET_IDENTITY_EgoLookup *lookup;
   struct GNUNET_MESSENGER_Handle *handle;
+  struct GNUNET_SCHEDULER_Task *hook;
   struct GNUNET_SCHEDULER_Task *task;
 
   struct GNUNET_CONTAINER_MultiHashMap *map;
@@ -51,6 +52,7 @@ struct GNUNET_MESSENGER_PingTool
   int require_pong;
 
   bool quit;
+  size_t counter;
 };
 
 struct GNUNET_MESSENGER_Ping
@@ -96,11 +98,34 @@ idle (void *cls)
   tool->task = NULL;
   tool->quit = true;
 
+  if (tool->hook)
+  {
+    GNUNET_SCHEDULER_cancel (tool->hook);
+    tool->hook = NULL;
+  }
+
   if (tool->handle)
     GNUNET_MESSENGER_disconnect(tool->handle);
 
   if (tool->lookup)
     GNUNET_IDENTITY_ego_lookup_cancel(tool->lookup);
+}
+
+static void
+shutdown_hook (void *cls)
+{
+  struct GNUNET_MESSENGER_PingTool *tool = cls;
+
+  tool->hook = NULL;
+  tool->quit = true;
+
+  if (tool->task)
+  {
+    GNUNET_SCHEDULER_cancel(tool->task);
+    tool->task = NULL;
+  }
+
+  idle(cls);
 }
 
 static enum GNUNET_GenericReturnValue
@@ -114,7 +139,7 @@ member_callback (void *cls,
     return GNUNET_YES;
 
   GNUNET_CONTAINER_multishortmap_put(ping->pong_map, hash_contact (contact), NULL,
-                                     GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_ONLY);
+                                     GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST);
   
   return GNUNET_YES;
 }
@@ -153,6 +178,7 @@ send_ping (struct GNUNET_MESSENGER_PingTool *tool,
   message.body.text.text = NULL;
 
   GNUNET_MESSENGER_send_message(room, &message, NULL);
+  tool->counter++;
   
   if (tool->count)
     tool->count--;
@@ -179,6 +205,7 @@ send_pong (struct GNUNET_MESSENGER_PingTool *tool,
     ((float) difference.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us);
 
   GNUNET_MESSENGER_send_message(room, &message, NULL);
+  tool->counter++;
 
   if (tool->count)
     tool->count--;
@@ -261,7 +288,7 @@ finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
     ping->traffic, recipients, loss_rate, ((float) delta.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us);
   
   if (recipients > 0)
-    printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n",
+    printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n\n",
       ((float) min.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us,
       ((float) avg.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us,
       ((float) max.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us,
@@ -270,11 +297,7 @@ finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
   if (!(tool->quit))
   {
     if (tool->count)
-    {
-      printf("\n");
-
       send_ping(tool, room);
-    }
     else
       tool->quit = true;
   }
@@ -369,6 +392,9 @@ message_callback (void *cls,
       if ((tool->require_pong) && 
           ((GNUNET_MESSENGER_KIND_TAG != message->header.kind) || 
            (0 != GNUNET_CRYPTO_hash_cmp(&(message->body.tag.hash), &key))))
+        continue;
+      
+      if (!sender)
         continue;
 
       if (NULL != GNUNET_CONTAINER_multishortmap_get(ping->pong_map, hash_contact (sender)))
@@ -499,6 +525,7 @@ run (void *cls,
   struct GNUNET_MESSENGER_PingTool *tool = cls;
 
   tool->cfg = cfg;
+  tool->hook = GNUNET_SCHEDULER_add_shutdown(shutdown_hook, tool);
 
   if (!(tool->ego_name))
   {
@@ -620,6 +647,8 @@ main (int argc,
     &run,
     &tool
   );
+
+  printf("--- %lu iteration%s done ---\n", tool.counter, tool.counter == 1? "" : "s");
 
   GNUNET_CONTAINER_multihashmap_iterate(tool.ping_map, free_map_ping, NULL);
   GNUNET_CONTAINER_multihashmap_iterate(tool.map, free_map_hashes, NULL);
