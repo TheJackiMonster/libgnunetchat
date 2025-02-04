@@ -407,7 +407,7 @@ message_callback (void *cls,
       if (GNUNET_YES != GNUNET_CONTAINER_multishortmap_contains_value(ping->pong_map, hash_contact (sender), NULL))
         continue;
 
-      if (!is_hash_following (tool, hash, &key))
+      if ((!(tool->require_pong)) && (!is_hash_following (tool, hash, &key)))
         continue;
 
       struct GNUNET_TIME_Absolute *time = GNUNET_new(struct GNUNET_TIME_Absolute);
