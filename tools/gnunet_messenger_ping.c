@@ -33,31 +33,10 @@
 #include <stdio.h>
 #include <string.h>
 
-struct GNUNET_MESSENGER_PingTool
-{
-  const struct GNUNET_CONFIGURATION_Handle *cfg;
-  struct GNUNET_IDENTITY_EgoLookup *lookup;
-  struct GNUNET_MESSENGER_Handle *handle;
-  struct GNUNET_SCHEDULER_Task *hook;
-  struct GNUNET_SCHEDULER_Task *task;
-
-  struct GNUNET_CONTAINER_MultiHashMap *map;
-  struct GNUNET_CONTAINER_MultiHashMap *ping_map;
-
-  char *ego_name;
-  char *room_name;
-  uint count;
-  uint timeout;
-  int public_room;
-  int auto_pong;
-  int require_pong;
-
-  bool quit;
-  size_t counter;
-};
-
 struct GNUNET_MESSENGER_Ping
 {
+  struct GNUNET_HashCode hash;
+
   struct GNUNET_TIME_Absolute ping_time;
   const struct GNUNET_MESSENGER_Contact *sender;
 
@@ -65,6 +44,30 @@ struct GNUNET_MESSENGER_Ping
 
   size_t pong_missing;
   size_t traffic;
+};
+
+struct GNUNET_MESSENGER_PingTool
+{
+  const struct GNUNET_CONFIGURATION_Handle *cfg;
+  struct GNUNET_IDENTITY_EgoLookup *lookup;
+  struct GNUNET_MESSENGER_Handle *handle;
+  struct GNUNET_MESSENGER_Room *room;
+  struct GNUNET_SCHEDULER_Task *hook;
+  struct GNUNET_SCHEDULER_Task *task;
+
+  struct GNUNET_CONTAINER_MultiHashMap *map;
+  struct GNUNET_CONTAINER_MultiHashMap *ping_map;
+  struct GNUNET_MESSENGER_Ping *last_ping;
+
+  char *ego_name;
+  char *room_name;
+  uint count;
+  uint timeout;
+  int public_room;
+  int auto_pong;
+
+  bool permanent;
+  size_t counter;
 };
 
 static const struct GNUNET_ShortHashCode*
@@ -80,24 +83,19 @@ hash_contact (const struct GNUNET_MESSENGER_Contact *contact)
 }
 
 static void
-idle (void *cls)
+finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
+             struct GNUNET_MESSENGER_Ping *ping,
+             struct GNUNET_MESSENGER_Room *room);
+
+static void
+cleanup (void *cls)
 {
   struct GNUNET_MESSENGER_PingTool *tool = cls;
 
-  if ((tool->auto_pong) && (!(tool->quit)))
-  {
-    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_multiply(
-        GNUNET_TIME_relative_get_second_(), tool->timeout),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
-      idle,
-      tool
-    );
-    return;
-  }
-
   tool->task = NULL;
-  tool->quit = true;
+
+  if (tool->last_ping)
+    finish_ping(tool, tool->last_ping, tool->room);
 
   if (tool->hook)
   {
@@ -105,11 +103,23 @@ idle (void *cls)
     tool->hook = NULL;
   }
 
+  if (tool->room)
+  {
+    GNUNET_MESSENGER_close_room(tool->room);
+    tool->room = NULL;
+  }
+
   if (tool->handle)
+  {
     GNUNET_MESSENGER_disconnect(tool->handle);
+    tool->handle = NULL;
+  }
 
   if (tool->lookup)
+  {
     GNUNET_IDENTITY_ego_lookup_cancel(tool->lookup);
+    tool->lookup = NULL;
+  }
 }
 
 static void
@@ -118,7 +128,7 @@ shutdown_hook (void *cls)
   struct GNUNET_MESSENGER_PingTool *tool = cls;
 
   tool->hook = NULL;
-  tool->quit = true;
+  tool->permanent = false;
 
   if (tool->task)
   {
@@ -126,7 +136,21 @@ shutdown_hook (void *cls)
     tool->task = NULL;
   }
 
-  idle(cls);
+  cleanup(cls);
+}
+
+static void
+finish (void *cls)
+{
+  struct GNUNET_MESSENGER_PingTool *tool = cls;
+
+  tool->task = NULL;
+
+  if (tool->room)
+  {
+    GNUNET_MESSENGER_close_room(tool->room);
+    tool->room = NULL;
+  }
 }
 
 static enum GNUNET_GenericReturnValue
@@ -145,31 +169,6 @@ member_callback (void *cls,
   return GNUNET_YES;
 }
 
-static bool
-is_hash_following (struct GNUNET_MESSENGER_PingTool *tool,
-                   const struct GNUNET_HashCode *hash,
-                   const struct GNUNET_HashCode *prev)
-{
-  if (!prev)
-    return false;
-
-  bool first = true;
-  while (hash)
-  {
-    if (0 == GNUNET_CRYPTO_hash_cmp(hash, prev))
-      return true;
-
-    if (first)
-      first = false;
-    else if (0 == GNUNET_CRYPTO_hash_cmp(hash + 1, prev))
-      return true;
-
-    hash = GNUNET_CONTAINER_multihashmap_get(tool->map, hash);
-  }
-
-  return false;
-}
-
 static void
 send_ping (struct GNUNET_MESSENGER_PingTool *tool,
            struct GNUNET_MESSENGER_Room *room)
@@ -180,9 +179,6 @@ send_ping (struct GNUNET_MESSENGER_PingTool *tool,
 
   GNUNET_MESSENGER_send_message(room, &message, NULL);
   tool->counter++;
-  
-  if (tool->count)
-    tool->count--;
 }
 
 static void
@@ -208,28 +204,30 @@ send_pong (struct GNUNET_MESSENGER_PingTool *tool,
   GNUNET_MESSENGER_send_message(room, &message, NULL);
   tool->counter++;
 
-  if ((tool->count) && (tool->count < UINT_MAX))
-    tool->count--;
-  
-  if (!(tool->count))
-    tool->quit = true;
+  if ((!(tool->permanent)) && (tool->counter >= tool->count))
+  {
+    if (tool->task)
+      GNUNET_SCHEDULER_cancel(tool->task);
 
-  if (tool->quit)
-    GNUNET_SCHEDULER_shutdown();
+    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_second_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      finish,
+      tool);
+  }
 }
 
 static void
 finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
              struct GNUNET_MESSENGER_Ping *ping,
-             struct GNUNET_MESSENGER_Room *room,
-             const struct GNUNET_HashCode *hash)
+             struct GNUNET_MESSENGER_Room *room)
 {
   const size_t recipients = GNUNET_CONTAINER_multishortmap_size(ping->pong_map);
   const size_t loss_rate = recipients? 100 * ping->pong_missing / recipients : 100;
   const struct GNUNET_TIME_Relative delta = GNUNET_TIME_absolute_get_difference(
     ping->ping_time, GNUNET_TIME_absolute_get());
   
-  printf("--- %s ping statistics ---\n", GNUNET_h2s(hash));
+  printf("--- %s ping statistics ---\n", GNUNET_h2s(&(ping->hash)));
 
   struct GNUNET_TIME_Relative min = GNUNET_TIME_relative_get_forever_();
   struct GNUNET_TIME_Relative avg = GNUNET_TIME_relative_get_zero_();
@@ -298,16 +296,22 @@ finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
       ((float) max.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us,
       ((float) mdev.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us);
   
-  if (!(tool->quit))
+  if (ping == tool->last_ping)
+    tool->last_ping = NULL;
+  
+  if ((tool->permanent) || (tool->counter < tool->count))
+    send_ping(tool, room);
+  else
   {
-    if (tool->count)
-      send_ping(tool, room);
-    else
-      tool->quit = true;
-  }
+    if (tool->task)
+      GNUNET_SCHEDULER_cancel(tool->task);
 
-  if (tool->quit)
-    GNUNET_SCHEDULER_shutdown();
+    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_get_second_(),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      finish,
+      tool);
+  }
 }
 
 static void
@@ -320,15 +324,6 @@ message_callback (void *cls,
                   enum GNUNET_MESSENGER_MessageFlags flags)
 {
   struct GNUNET_MESSENGER_PingTool *tool = cls;
-
-  if (tool->auto_pong)
-  {
-    if ((!(GNUNET_MESSENGER_FLAG_SENT & flags)) &&
-        (GNUNET_MESSENGER_KIND_TEXT == message->header.kind))
-      send_pong(tool, room, hash, GNUNET_TIME_absolute_ntoh(message->header.timestamp));
-
-    goto skip_ping;
-  }
 
   if (GNUNET_YES != GNUNET_CONTAINER_multihashmap_contains(tool->map, hash))
   {
@@ -350,12 +345,21 @@ message_callback (void *cls,
     {
       case GNUNET_MESSENGER_KIND_JOIN:
       {
-        send_ping(tool, room);
+        if (!(tool->auto_pong))
+          send_ping(tool, room);
+
+        break;
+      }
+      case GNUNET_MESSENGER_KIND_LEAVE:
+      {
+        GNUNET_SCHEDULER_shutdown();
         break;
       }
       case GNUNET_MESSENGER_KIND_TEXT:
       {
         struct GNUNET_MESSENGER_Ping *ping = GNUNET_new(struct GNUNET_MESSENGER_Ping);
+
+        GNUNET_memcpy(&(ping->hash), hash, sizeof(ping->hash));
 
         ping->ping_time = GNUNET_TIME_absolute_ntoh(message->header.timestamp);
         ping->sender = sender;
@@ -370,8 +374,10 @@ message_callback (void *cls,
         GNUNET_CONTAINER_multihashmap_put(tool->ping_map, hash, ping,
                                           GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_ONLY);
         
+        tool->last_ping = ping;
+        
         if (0 >= ping->pong_missing)
-          finish_ping (tool, ping, room, hash);
+          finish_ping (tool, ping, room);
 
         break;
       }
@@ -381,13 +387,14 @@ message_callback (void *cls,
   }
   else
   {
+    if ((tool->auto_pong) && (GNUNET_MESSENGER_KIND_TEXT == message->header.kind))
+      send_pong(tool, room, hash, GNUNET_TIME_absolute_ntoh(message->header.timestamp));
+
     struct GNUNET_CONTAINER_MultiHashMapIterator *iter =
       GNUNET_CONTAINER_multihashmap_iterator_create(tool->ping_map);
     
-    struct GNUNET_HashCode key;
     const void *value;
-
-    while (GNUNET_NO != GNUNET_CONTAINER_multihashmap_iterator_next(iter, &key, &value))
+    while (GNUNET_NO != GNUNET_CONTAINER_multihashmap_iterator_next(iter, NULL, &value))
     {
       struct GNUNET_MESSENGER_Ping *ping = (struct GNUNET_MESSENGER_Ping*) value;
 
@@ -396,18 +403,14 @@ message_callback (void *cls,
 
       ping->traffic++;
 
-      if ((tool->require_pong) && 
-          ((GNUNET_MESSENGER_KIND_TAG != message->header.kind) || 
-           (0 != GNUNET_CRYPTO_hash_cmp(&(message->body.tag.hash), &key))))
+      if (((GNUNET_MESSENGER_KIND_TAG != message->header.kind) || 
+           (0 != GNUNET_CRYPTO_hash_cmp(&(message->body.tag.hash), &(ping->hash)))))
         continue;
       
       if (!sender)
         continue;
 
       if (GNUNET_YES != GNUNET_CONTAINER_multishortmap_contains_value(ping->pong_map, hash_contact (sender), NULL))
-        continue;
-
-      if ((!(tool->require_pong)) && (!is_hash_following (tool, hash, &key)))
         continue;
 
       struct GNUNET_TIME_Absolute *time = GNUNET_new(struct GNUNET_TIME_Absolute);
@@ -419,7 +422,7 @@ message_callback (void *cls,
 
         printf("%s as response to %s from: sender=%lu time=%.3f ms\n",
           GNUNET_MESSENGER_name_of_kind(message->header.kind),
-          GNUNET_h2s(&key),
+          GNUNET_h2s(&(ping->hash)),
           GNUNET_MESSENGER_contact_get_id(sender),
           ((float) difference.rel_value_us) / GNUNET_TIME_relative_get_millisecond_().rel_value_us);
       }
@@ -431,35 +434,11 @@ message_callback (void *cls,
       if (0 < ping->pong_missing)
         continue;
 
-      finish_ping (tool, ping, room, &key);
+      finish_ping (tool, ping, room);
     }
     
     GNUNET_CONTAINER_multihashmap_iterator_destroy(iter);
   }
-
-skip_ping:
-  if (!(tool->quit))
-  {
-    if (tool->task)
-      GNUNET_SCHEDULER_cancel(tool->task);
-
-    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
-      GNUNET_TIME_relative_multiply(
-        GNUNET_TIME_relative_get_second_(), tool->timeout),
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
-      idle,
-      tool
-    );
-  }
-  else if (!(tool->task))
-    tool->task = GNUNET_SCHEDULER_add_with_priority(
-      GNUNET_SCHEDULER_PRIORITY_IDLE,
-      idle,
-      tool
-    );
-  
-  if (tool->quit)
-    GNUNET_MESSENGER_close_room(room);
 }
 
 static void
@@ -511,21 +490,32 @@ ego_lookup (void *cls,
   printf(" (%s): ",
     GNUNET_h2s(&hash));
   
-  if (UINT_MAX == tool->count)
+  if (0 == tool->count)
+  {
     printf("infinite\n");
+    tool->permanent = true;
+  }
   else
     printf("%u times\n", tool->count);
   
-  struct GNUNET_MESSENGER_Room *room;
-  room = GNUNET_MESSENGER_enter_room(
+  tool->room = GNUNET_MESSENGER_enter_room(
     tool->handle,
     &peer,
     &hash
   );
 
-  if (room)
+  if (tool->room)
     GNUNET_MESSENGER_use_room_keys(
-      room, tool->public_room? GNUNET_NO : GNUNET_YES);
+      tool->room, tool->public_room? GNUNET_NO : GNUNET_YES);
+  
+  if (tool->timeout)
+    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_multiply(
+        GNUNET_TIME_relative_get_second_(), tool->timeout),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      finish,
+      tool
+    );
 }
 
 static void
@@ -535,12 +525,6 @@ run (void *cls,
      const struct GNUNET_CONFIGURATION_Handle *cfg)
 {
   struct GNUNET_MESSENGER_PingTool *tool = cls;
-
-  if (!(tool->count))
-    tool->count = UINT_MAX;
-
-  if (!(tool->timeout))
-    tool->timeout = UINT_MAX;
 
   tool->cfg = cfg;
   tool->hook = GNUNET_SCHEDULER_add_shutdown(shutdown_hook, tool);
@@ -643,12 +627,6 @@ main (int argc,
       "pong",
       "only send back pong messages after a ping",
       &(tool.auto_pong)
-    ),
-    GNUNET_GETOPT_option_flag(
-      'R',
-      "require-pong",
-      "only react to pong messages after a ping",
-      &(tool.require_pong)
     ),
     GNUNET_GETOPT_OPTION_END
   };

@@ -34,3 +34,6 @@ libgnunetchat-*.tar.gz
 
 # Valgrind
 vgcore.*
+
+# Benchmark
+.build_benchmark/
