@@ -63,6 +63,7 @@ struct GNUNET_MESSENGER_PingTool
   char *room_name;
   uint count;
   uint timeout;
+  uint delay;
   int public_room;
   int auto_pong;
 
@@ -153,22 +154,6 @@ finish (void *cls)
   }
 }
 
-static enum GNUNET_GenericReturnValue
-member_callback (void *cls,
-                 struct GNUNET_MESSENGER_Room *room,
-                 const struct GNUNET_MESSENGER_Contact *contact)
-{
-  struct GNUNET_MESSENGER_Ping *ping = cls;
-
-  if (contact == ping->sender)
-    return GNUNET_YES;
-
-  GNUNET_CONTAINER_multishortmap_put(ping->pong_map, hash_contact (contact), NULL,
-                                     GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST);
-  
-  return GNUNET_YES;
-}
-
 static void
 send_ping (struct GNUNET_MESSENGER_PingTool *tool,
            struct GNUNET_MESSENGER_Room *room)
@@ -215,6 +200,16 @@ send_pong (struct GNUNET_MESSENGER_PingTool *tool,
       finish,
       tool);
   }
+}
+
+static void
+delay_ping (void *cls)
+{
+  struct GNUNET_MESSENGER_PingTool *tool = cls;
+
+  tool->task = NULL;
+
+  send_ping(tool, tool->room);
 }
 
 static void
@@ -298,20 +293,38 @@ finish_ping (struct GNUNET_MESSENGER_PingTool *tool,
   
   if (ping == tool->last_ping)
     tool->last_ping = NULL;
+
+  if (tool->task)
+    GNUNET_SCHEDULER_cancel(tool->task);
   
   if ((tool->permanent) || (tool->counter < tool->count))
-    send_ping(tool, room);
+    tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
+      GNUNET_TIME_relative_multiply(GNUNET_TIME_relative_get_second_(), tool->delay),
+      GNUNET_SCHEDULER_PRIORITY_IDLE,
+      delay_ping,
+      tool);
   else
-  {
-    if (tool->task)
-      GNUNET_SCHEDULER_cancel(tool->task);
-
     tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(
       GNUNET_TIME_relative_get_second_(),
       GNUNET_SCHEDULER_PRIORITY_IDLE,
       finish,
       tool);
-  }
+}
+
+static enum GNUNET_GenericReturnValue
+member_callback (void *cls,
+                 struct GNUNET_MESSENGER_Room *room,
+                 const struct GNUNET_MESSENGER_Contact *contact)
+{
+  struct GNUNET_MESSENGER_Ping *ping = cls;
+
+  if (contact == ping->sender)
+    return GNUNET_YES;
+
+  GNUNET_CONTAINER_multishortmap_put(ping->pong_map, hash_contact (contact), NULL,
+                                     GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST);
+  
+  return GNUNET_YES;
 }
 
 static void
@@ -615,6 +628,13 @@ main (int argc,
       "<timeout>",
       "stop after a timeout in seconds",
       &(tool.timeout)
+    ),
+    GNUNET_GETOPT_option_uint(
+      'd',
+      "delay",
+      "<delay>",
+      "delay next iteration in seconds",
+      &(tool.delay)
     ),
     GNUNET_GETOPT_option_flag(
       'p',
