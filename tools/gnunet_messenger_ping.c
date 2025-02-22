@@ -66,6 +66,7 @@ struct GNUNET_MESSENGER_PingTool
   uint delay;
   int public_room;
   int auto_pong;
+  int join_trigger;
 
   bool permanent;
   size_t counter;
@@ -208,6 +209,9 @@ delay_ping (void *cls)
   struct GNUNET_MESSENGER_PingTool *tool = cls;
 
   tool->task = NULL;
+
+  if (tool->join_trigger)
+    return;
 
   send_ping(tool, tool->room);
 }
@@ -358,7 +362,7 @@ message_callback (void *cls,
     {
       case GNUNET_MESSENGER_KIND_JOIN:
       {
-        if (!(tool->auto_pong))
+        if ((!(tool->auto_pong)) && (!(tool->join_trigger)))
           send_ping(tool, room);
 
         break;
@@ -398,10 +402,18 @@ message_callback (void *cls,
         break;
     }
   }
+  else if (tool->auto_pong)
+  {
+    if (GNUNET_MESSENGER_KIND_TEXT == message->header.kind)
+      send_pong(tool, room, hash, GNUNET_TIME_absolute_ntoh(message->header.timestamp));
+  }
   else
   {
-    if ((tool->auto_pong) && (GNUNET_MESSENGER_KIND_TEXT == message->header.kind))
-      send_pong(tool, room, hash, GNUNET_TIME_absolute_ntoh(message->header.timestamp));
+    if ((tool->join_trigger) && (GNUNET_MESSENGER_KIND_JOIN == message->header.kind))
+      send_ping(tool, room);
+
+    if (0 == GNUNET_CONTAINER_multihashmap_size (tool->ping_map))
+      return;
 
     struct GNUNET_CONTAINER_MultiHashMapIterator *iter =
       GNUNET_CONTAINER_multihashmap_iterator_create(tool->ping_map);
@@ -647,6 +659,12 @@ main (int argc,
       "pong",
       "only send back pong messages after a ping",
       &(tool.auto_pong)
+    ),
+    GNUNET_GETOPT_option_flag(
+      'J',
+      "join-trigger",
+      "only send a ping message after join events",
+      &(tool.join_trigger)
     ),
     GNUNET_GETOPT_OPTION_END
   };
