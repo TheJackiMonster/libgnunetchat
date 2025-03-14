@@ -1,3 +1,6 @@
+## Version 0.5.3
+* Fix build incompatibility with meson build from GNUnet
+
 ## Version 0.5.2
 * Implement iteration of tags by chat contact
 * Adjust types and API to improve consistency
