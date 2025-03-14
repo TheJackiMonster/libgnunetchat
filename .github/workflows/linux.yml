@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies (framework)
         run: |
-          sudo apt-get -qq install automake autoconf autopoint gcc gettext recutils uncrustify yapf3
+          sudo apt-get -qq install meson ninja-build gcc gettext recutils uncrustify yapf3
           sudo apt-get -qq install python3-sphinx python3-sphinx-multiversion python3-sphinx-rtd-theme
           sudo apt-get -qq install libgcrypt20-dev libjansson-dev libsodium-dev libcurl4-gnutls-dev libidn2-dev libunistring-dev libsqlite3-dev libmicrohttpd-dev libltdl-dev
 
