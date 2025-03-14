@@ -27,9 +27,9 @@ jobs:
         run: |
           cd gnunet
           ./bootstrap
-          ./configure --prefix=/usr --disable-documentation
-          make -j $(nproc)
-          sudo make install
+          meson setup --prefix=/usr --libdir=lib build
+          meson compile -C build
+          sudo meson install -C build
           cd ..
 
       - name: Checkout the current branch
