@@ -612,6 +612,9 @@ main (int argc,
   struct GNUNET_MESSENGER_PingTool tool;
   memset(&tool, 0, sizeof(tool));
 
+  const struct GNUNET_OS_ProjectData *data;
+  data = GNUNET_OS_project_data_gnunet ();
+
   struct GNUNET_GETOPT_CommandLineOption options[] = {
     GNUNET_GETOPT_option_string(
       'e',
@@ -673,6 +676,7 @@ main (int argc,
   tool.ping_map = GNUNET_CONTAINER_multihashmap_create(8, GNUNET_NO);
 
   enum GNUNET_GenericReturnValue result = GNUNET_PROGRAM_run(
+    data,
     argc,
     argv,
     "gnunet_messenger_ping",
