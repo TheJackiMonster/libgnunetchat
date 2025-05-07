@@ -1,3 +1,12 @@
+## Version 0.5.3
+* Fix build incompatibility with meson build from GNUnet
+
+## Version 0.5.2
+* Implement iteration of tags by chat contact
+* Adjust types and API to improve consistency
+* Add more test cases and fix some older test cases
+* Adjust IV derivation for file encryption/decryption key
+
 ## Version 0.5.1
 * Fixes discourses stalling application on exit of its process.
 * Fixes comparison of egos for proper account management.
