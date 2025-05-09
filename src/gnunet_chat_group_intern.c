@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,6 +24,8 @@
 
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
+
+#include <gnunet/gnunet_messenger_service.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 
@@ -69,5 +71,5 @@ search_group_by_topic(void *cls,
     key
   );
 
-  handle_send_room_name(group->handle, room);
+  GNUNET_MESSENGER_use_room_keys(room, GNUNET_NO);
 }

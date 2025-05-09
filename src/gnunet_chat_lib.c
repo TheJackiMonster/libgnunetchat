@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -1038,12 +1038,12 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
     return NULL;
 
   struct GNUNET_CHAT_Context *context = context_create_from_room(handle, room);
-
-  handle_send_room_name(handle, room);
-
   context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
 
   util_set_name_field(topic, &(context->topic));
+
+  // TODO: wrong key usage!
+  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES); // GNUNET_NO);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, &key, context,
@@ -1619,7 +1619,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     goto cleanup_room;
 
-  handle_send_room_name(handle, room);
+  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
 
   struct GNUNET_MESSENGER_Message msg;
   memset(&msg, 0, sizeof(msg));
@@ -2907,7 +2907,8 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
     &door, &(invitation->key)
   );
 
-  handle_send_room_name(invitation->context->handle, room);
+  // TODO: guessing forward-secrecy is expected after invite?
+  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
 }
 
 

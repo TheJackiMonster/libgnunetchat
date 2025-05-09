@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -1121,7 +1121,8 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   context = context_create_from_room(handle, room);
   context_read_records(context, label, count, data);
 
-  handle_send_room_name(handle, room);
+  GNUNET_MESSENGER_use_room_keys(
+    room, context->topic? GNUNET_NO : GNUNET_YES);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, &key, context,

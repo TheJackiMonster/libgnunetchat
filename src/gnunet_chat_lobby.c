@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -108,7 +108,8 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
 
   lobby->context = context_create_from_room(lobby->handle, room);
 
-  handle_send_room_name(lobby->handle, room);
+  // TODO: would be better to include key usage into lobby somehow!
+  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       lobby->handle->contexts, &key, lobby->context,
