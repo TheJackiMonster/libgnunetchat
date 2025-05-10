@@ -498,22 +498,28 @@ ego_lookup (void *cls,
 
   printf("%s", GNUNET_i2s(&peer));
 
-  struct GNUNET_HashCode hash;
+  union GNUNET_MESSENGER_RoomKey rkey;
   if (tool->room_name)
   {
     printf(":%s", tool->room_name);
 
-    GNUNET_CRYPTO_hash(
+    GNUNET_MESSENGER_create_room_key(
+      &rkey,
       tool->room_name,
-      strlen(tool->room_name),
-      &hash
+      tool->public_room? GNUNET_YES : GNUNET_NO,
+      GNUNET_YES
     );
   }
   else
-    memset(&hash, 0, sizeof(hash));
+  {
+    memset(&(rkey.hash), 0, sizeof(rkey.hash));
+
+    rkey.code.public_bit = tool->public_room? 1 : 0;
+    rkey.code.group_bit = 1;
+  }
 
   printf(" (%s): ",
-    GNUNET_h2s(&hash));
+    GNUNET_h2s(&(rkey.hash)));
   
   if (0 == tool->count)
   {
@@ -526,12 +532,8 @@ ego_lookup (void *cls,
   tool->room = GNUNET_MESSENGER_enter_room(
     tool->handle,
     &peer,
-    &hash
+    &rkey
   );
-
-  if (tool->room)
-    GNUNET_MESSENGER_use_room_keys(
-      tool->room, tool->public_room? GNUNET_NO : GNUNET_YES);
   
   if (tool->timeout)
     tool->task = GNUNET_SCHEDULER_add_delayed_with_priority(

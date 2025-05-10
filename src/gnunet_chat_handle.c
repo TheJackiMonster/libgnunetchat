@@ -29,6 +29,7 @@
 #include "gnunet_chat_message.h"
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 
@@ -1089,12 +1090,12 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   if (!record)
     return NULL;
 
-  struct GNUNET_HashCode key;
-  GNUNET_memcpy (&key, &(record->key), sizeof(key));
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_memcpy (&(key.hash), &(record->key), sizeof(key));
 
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
     handle->contexts,
-    &key
+    &(key.hash)
   );
 
   if ((context) && (context->room))
@@ -1121,11 +1122,8 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
   context = context_create_from_room(handle, room);
   context_read_records(context, label, count, data);
 
-  GNUNET_MESSENGER_use_room_keys(
-    room, context->topic? GNUNET_NO : GNUNET_YES);
-
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      handle->contexts, &key, context,
+      handle->contexts, &(key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     context_destroy(context);
@@ -1142,7 +1140,7 @@ handle_process_records (struct GNUNET_CHAT_Handle *handle,
     group_publish(group);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      handle->groups, &key, group,
+      handle->groups, &(key.hash), group,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     group_destroy(group);
 

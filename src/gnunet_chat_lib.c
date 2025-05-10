@@ -1020,14 +1020,10 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
       (!(handle->groups)) || (!(handle->contexts)))
     return NULL;
 
-  struct GNUNET_HashCode key;
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_MESSENGER_create_room_key(&key, topic, topic? GNUNET_YES : GNUNET_NO, GNUNET_YES);
 
-  if (topic)
-    GNUNET_CRYPTO_hash(topic, strlen(topic), &key);
-  else
-    GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
-
-  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(handle->contexts, &key))
+  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(handle->contexts, &(key.hash)))
     return NULL;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
@@ -1042,11 +1038,8 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 
   util_set_name_field(topic, &(context->topic));
 
-  // TODO: wrong key usage!
-  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES); // GNUNET_NO);
-
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      handle->contexts, &key, context,
+      handle->contexts, &(key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     goto destroy_context;
 
@@ -1056,7 +1049,7 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
     group_publish(group);
 
   if (GNUNET_OK == GNUNET_CONTAINER_multihashmap_put(
-      handle->groups, &key, group,
+      handle->groups, &(key.hash), group,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     context_write_records(context);
@@ -1065,7 +1058,7 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
 
   group_destroy(group);
 
-  GNUNET_CONTAINER_multihashmap_remove(handle->contexts, &key, context);
+  GNUNET_CONTAINER_multihashmap_remove(handle->contexts, &(key.hash), context);
 
 destroy_context:
   context_destroy(context);
@@ -1456,12 +1449,15 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
   if (!context)
     return GNUNET_SYSERR;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    group->context->room
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_memcpy(
+    &(key.hash),
+    GNUNET_MESSENGER_room_get_key(group->context->room),
+    sizeof(key.hash)
   );
 
   handle_send_room_name(group->handle, GNUNET_MESSENGER_open_room(
-    group->handle->messenger, key
+    group->handle->messenger, &key
   ));
 
   struct GNUNET_MESSENGER_Message msg;
@@ -1469,7 +1465,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
 
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
   GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &(msg.body.invite.door));
-  GNUNET_memcpy(&(msg.body.invite.key), key, sizeof(msg.body.invite.key));
+  GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
   GNUNET_MESSENGER_send_message(context->room, &msg, contact->member);
   return GNUNET_OK;
@@ -1598,11 +1594,11 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (!other)
     goto cleanup_contact;
 
-  struct GNUNET_HashCode key;
-  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_MESSENGER_create_room_key(&key, NULL, GNUNET_NO, GNUNET_NO);
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
-      handle->contexts, &key))
+      handle->contexts, &(key.hash)))
     goto cleanup_contact;
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
@@ -1615,11 +1611,9 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   context_update_room(context, room, GNUNET_YES);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      handle->contexts, &key, context,
+      handle->contexts, &(key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     goto cleanup_room;
-
-  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
 
   struct GNUNET_MESSENGER_Message msg;
   memset(&msg, 0, sizeof(msg));
@@ -2902,13 +2896,10 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
   struct GNUNET_PeerIdentity door;
   GNUNET_PEER_resolve(invitation->door, &door);
 
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
+  GNUNET_MESSENGER_enter_room(
     invitation->context->handle->messenger,
     &door, &(invitation->key)
   );
-
-  // TODO: guessing forward-secrecy is expected after invite?
-  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
 }
 
 
@@ -2949,7 +2940,7 @@ GNUNET_CHAT_invitation_is_accepted (const struct GNUNET_CHAT_Invitation *invitat
 
   return GNUNET_CONTAINER_multihashmap_contains(
     invitation->context->handle->contexts,
-    &(invitation->key)
+    &(invitation->key.hash)
   );
 }
 

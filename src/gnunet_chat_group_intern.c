@@ -54,8 +54,11 @@ search_group_by_topic(void *cls,
   if (0 == GNUNET_memcmp(&peer, door))
     return;
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    group->context->room
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_memcpy(
+    &(key.hash),
+    GNUNET_MESSENGER_room_get_key(group->context->room),
+    sizeof(key.hash)
   );
 
   if ((GNUNET_YES == GNUNET_CONTAINER_multipeermap_contains(
@@ -65,11 +68,9 @@ search_group_by_topic(void *cls,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST)))
     return;
 
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_enter_room(
+  GNUNET_MESSENGER_enter_room(
     group->handle->messenger,
     door,
-    key
+    &key
   );
-
-  GNUNET_MESSENGER_use_room_keys(room, GNUNET_NO);
 }

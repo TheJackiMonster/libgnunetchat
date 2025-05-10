@@ -62,6 +62,7 @@ struct GNUNET_MESSENGER_Tool
 
   char *ego_name;
   char *room_name;
+  int public_room;
   int ignore_targets;
   int ignore_epochs;
   int simplify_merges;
@@ -424,16 +425,20 @@ ego_lookup (void *cls,
     );
   else
     memset(&hash, 0, sizeof(hash));
+
+  union GNUNET_MESSENGER_RoomKey rkey;
+  GNUNET_MESSENGER_create_room_key(
+    &rkey,
+    tool->room_name,
+    tool->public_room? GNUNET_YES : GNUNET_NO,
+    GNUNET_YES
+  );
   
-  struct GNUNET_MESSENGER_Room *room;
-  room = GNUNET_MESSENGER_enter_room(
+  GNUNET_MESSENGER_enter_room(
     tool->handle,
     &peer,
-    &hash
+    &rkey
   );
-
-  if (room)
-    GNUNET_MESSENGER_use_room_keys(room, GNUNET_NO);
 }
 
 static void
@@ -484,6 +489,12 @@ main (int argc,
       "ROOM_NAME",
       "name of room to read messages from",
       &(tool.room_name)
+    ),
+    GNUNET_GETOPT_option_flag(
+      'P',
+      "public",
+      "disable forward secrecy in public rooms",
+      &(tool.public_room)
     ),
     GNUNET_GETOPT_option_flag(
       'i',

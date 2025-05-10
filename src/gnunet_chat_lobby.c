@@ -26,6 +26,7 @@
 
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_lobby_intern.c"
+#include <gnunet/gnunet_messenger_service.h>
 
 struct GNUNET_CHAT_Lobby*
 lobby_create (struct GNUNET_CHAT_Handle *handle)
@@ -95,8 +96,8 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
     goto open_zone;
   }
 
-  struct GNUNET_HashCode key;
-  GNUNET_CRYPTO_random_block(GNUNET_CRYPTO_QUALITY_WEAK, &key, sizeof(key));
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_MESSENGER_create_room_key(&key, NULL, GNUNET_NO, GNUNET_NO);
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
     lobby->handle->messenger,
@@ -108,11 +109,8 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
 
   lobby->context = context_create_from_room(lobby->handle, room);
 
-  // TODO: would be better to include key usage into lobby somehow!
-  GNUNET_MESSENGER_use_room_keys(room, GNUNET_YES);
-
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
-      lobby->handle->contexts, &key, lobby->context,
+      lobby->handle->contexts, &(key.hash), lobby->context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     context_destroy(lobby->context);
@@ -123,7 +121,7 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
   }
 
 open_zone:
-  util_lobby_name(&key, &name);
+  util_lobby_name(&(key.hash), &name);
 
   lobby->op = GNUNET_IDENTITY_create(
     lobby->handle->identity,
