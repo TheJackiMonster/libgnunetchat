@@ -1012,7 +1012,7 @@ GNUNET_CHAT_account_get_user_pointer (const struct GNUNET_CHAT_Account *account)
 
 struct GNUNET_CHAT_Group *
 GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
-			                    const char* topic)
+                          const char* topic)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 

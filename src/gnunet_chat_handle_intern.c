@@ -880,7 +880,8 @@ skip_msg_handing:
       contact_update_join(contact, context, 
         &(message->hash), message->flags);
       
-      if (GNUNET_MESSENGER_FLAG_SENT & message->flags)
+      if ((GNUNET_MESSENGER_FLAG_SENT & message->flags) &&
+          (GNUNET_MESSENGER_FLAG_RECENT & message->flags))
         handle_send_room_name(handle, context->room);
       
       break;
