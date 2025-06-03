@@ -1020,10 +1020,25 @@ on_handle_message (void *cls,
     handle->contexts, GNUNET_MESSENGER_room_get_key(room)
   );
 
-  context_request_message(context, &(msg->header.previous));
+  switch (msg->header.kind)
+  {
+    case GNUNET_MESSENGER_KIND_JOIN:
+      context_request_message(context, &(msg->body.join.epoch));
+      break;
+    case GNUNET_MESSENGER_KIND_LEAVE:
+      context_request_message(context, &(msg->body.leave.epoch));
+      break;
+    case GNUNET_MESSENGER_KIND_MERGE:
+      context_request_message(context, &(msg->body.merge.epochs[0]));
+      context_request_message(context, &(msg->body.merge.epochs[1]));
 
-  if (GNUNET_MESSENGER_KIND_MERGE == msg->header.kind)
-    context_request_message(context, &(msg->body.merge.previous));
+      context_request_message(context, &(msg->body.merge.previous));
+      break;
+    default:
+      break;
+  }
+
+  context_request_message(context, &(msg->header.previous));
 
   if ((GNUNET_CHAT_KIND_UNKNOWN == util_message_kind_from_kind(msg->header.kind)) ||
       (GNUNET_OK != intern_provide_contact_for_member(handle, sender, NULL)))
