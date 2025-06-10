@@ -97,7 +97,13 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
   }
 
   union GNUNET_MESSENGER_RoomKey key;
-  GNUNET_MESSENGER_create_room_key(&key, NULL, GNUNET_NO, GNUNET_NO);
+  GNUNET_MESSENGER_create_room_key(
+    &key,
+    NULL,
+    GNUNET_NO,
+    GNUNET_NO,
+    GNUNET_NO
+  );
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
     lobby->handle->messenger,

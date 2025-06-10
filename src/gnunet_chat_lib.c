@@ -1021,7 +1021,13 @@ GNUNET_CHAT_group_create (struct GNUNET_CHAT_Handle *handle,
     return NULL;
 
   union GNUNET_MESSENGER_RoomKey key;
-  GNUNET_MESSENGER_create_room_key(&key, topic, topic? GNUNET_YES : GNUNET_NO, GNUNET_YES);
+  GNUNET_MESSENGER_create_room_key(
+    &key,
+    topic,
+    topic? GNUNET_YES : GNUNET_NO,
+    GNUNET_YES,
+    GNUNET_NO
+  );
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(handle->contexts, &(key.hash)))
     return NULL;
@@ -1595,15 +1601,34 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
     goto cleanup_contact;
 
   union GNUNET_MESSENGER_RoomKey key;
-  GNUNET_MESSENGER_create_room_key(&key, NULL, GNUNET_NO, GNUNET_NO);
+  GNUNET_MESSENGER_create_room_key(
+    &key,
+    NULL,
+    GNUNET_NO,
+    GNUNET_NO,
+    GNUNET_YES == contact->owned? GNUNET_YES : GNUNET_NO
+  );
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
       handle->contexts, &(key.hash)))
     goto cleanup_contact;
 
-  struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
-    handle->messenger, &key
-  );
+  struct GNUNET_MESSENGER_Room *room;
+  if (GNUNET_YES == contact->owned)
+  {
+    struct GNUNET_PeerIdentity door;
+    if (GNUNET_OK == GNUNET_CRYPTO_get_peer_identity(
+          handle->cfg, &door))
+      room = GNUNET_MESSENGER_enter_room(
+        handle->messenger, &door, &key
+      );
+    else
+      room = NULL;
+  }
+  else
+    room = GNUNET_MESSENGER_open_room(
+      handle->messenger, &key
+    );
 
   if (!room)
     goto cleanup_contact;
@@ -1615,14 +1640,18 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     goto cleanup_room;
 
-  struct GNUNET_MESSENGER_Message msg;
-  memset(&msg, 0, sizeof(msg));
+  if (GNUNET_YES != contact->owned)
+  {
+    struct GNUNET_MESSENGER_Message msg;
+    memset(&msg, 0, sizeof(msg));
 
-  msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
-  GNUNET_CRYPTO_get_peer_identity(handle->cfg, &(msg.body.invite.door));
-  GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
+    msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
+    GNUNET_CRYPTO_get_peer_identity(handle->cfg, &(msg.body.invite.door));
+    GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
-  GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);
+    GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);
+  }
+
   return GNUNET_OK;
 
 cleanup_room:
@@ -1647,8 +1676,18 @@ GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
 
   struct GNUNET_MESSENGER_Room *room = context->room;
   struct GNUNET_CHAT_RoomFindContact find;
+  union GNUNET_MESSENGER_RoomKey key;
 
-  find.ignore_key = GNUNET_MESSENGER_get_key(context->handle->messenger);
+  GNUNET_memcpy(&(key.hash), GNUNET_MESSENGER_room_get_key(room), sizeof(key.hash));
+
+  if (key.code.group_bit)
+    return NULL;
+
+  if (! key.code.feed_bit)
+    find.ignore_key = GNUNET_MESSENGER_get_key(context->handle->messenger);
+  else
+    find.ignore_key = NULL;
+  
   find.contact = NULL;
 
   int member_count = GNUNET_MESSENGER_iterate_members(

@@ -507,7 +507,8 @@ ego_lookup (void *cls,
       &rkey,
       tool->room_name,
       tool->public_room? GNUNET_YES : GNUNET_NO,
-      GNUNET_YES
+      GNUNET_YES,
+      GNUNET_NO
     );
   }
   else
