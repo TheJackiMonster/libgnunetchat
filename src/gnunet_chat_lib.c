@@ -1565,18 +1565,27 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group)
 
 
 enum GNUNET_GenericReturnValue
-GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context)
+GNUNET_CHAT_context_get_status (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
   if ((!context) || (!(context->room)))
     return GNUNET_SYSERR;
 
-  if ((GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN == context->type) ||
-      (1 >= GNUNET_MESSENGER_iterate_members(context->room, NULL, NULL)))
-    return GNUNET_NO;
+  switch (context->type) {
+    case GNUNET_CHAT_CONTEXT_TYPE_CONTACT:
+    {
+      const struct GNUNET_CHAT_Contact *contact = GNUNET_CHAT_context_get_contact(
+        context
+      );
 
-  return GNUNET_OK;
+      return contact? GNUNET_OK : GNUNET_NO;
+    }
+    case GNUNET_CHAT_CONTEXT_TYPE_GROUP:
+      return GNUNET_OK;
+    default:
+      return GNUNET_NO;
+  }
 }
 
 
@@ -1595,44 +1604,49 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if ((!handle) || (!(context->contact)))
     return GNUNET_SYSERR;
 
-  struct GNUNET_CHAT_Contact *contact = contact_create_from_member(
+  struct GNUNET_CHAT_Contact *contact = handle_get_contact_from_messenger(
     handle, context->contact
   );
 
   if (!contact)
     return GNUNET_SYSERR;
 
+  enum GNUNET_GenericReturnValue owned = GNUNET_CHAT_contact_is_owned(
+    contact
+  );
+
   context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
 
   struct GNUNET_CHAT_Context *other = contact_find_context(
-    contact,
-    GNUNET_YES
+    contact, GNUNET_YES
   );
 
   if (!other)
-    goto cleanup_contact;
+    return GNUNET_SYSERR;
 
   union GNUNET_MESSENGER_RoomKey key;
   GNUNET_MESSENGER_create_room_key(
     &key,
     NULL,
+    GNUNET_YES == owned? GNUNET_YES : GNUNET_NO,
     GNUNET_NO,
-    GNUNET_NO,
-    GNUNET_YES == contact->owned? GNUNET_YES : GNUNET_NO
+    GNUNET_YES == owned? GNUNET_YES : GNUNET_NO
   );
 
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
       handle->contexts, &(key.hash)))
-    goto cleanup_contact;
+    return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Room *room;
-  if (GNUNET_YES == contact->owned)
+  if (GNUNET_YES == owned)
   {
     struct GNUNET_PeerIdentity door;
     if (GNUNET_OK == GNUNET_CRYPTO_get_peer_identity(
           handle->cfg, &door))
       room = GNUNET_MESSENGER_enter_room(
-        handle->messenger, &door, &key
+        handle->messenger,
+        &door,
+        &key
       );
     else
       room = NULL;
@@ -1643,16 +1657,19 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
     );
 
   if (!room)
-    goto cleanup_contact;
+    return GNUNET_SYSERR;
 
   context_update_room(context, room, GNUNET_YES);
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, &(key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
-    goto cleanup_room;
+  {
+    GNUNET_MESSENGER_close_room(room);
+    return GNUNET_SYSERR;
+  }
 
-  if (GNUNET_YES != contact->owned)
+  if (GNUNET_YES != owned)
   {
     struct GNUNET_MESSENGER_Message msg;
     memset(&msg, 0, sizeof(msg));
@@ -1665,13 +1682,6 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   }
 
   return GNUNET_OK;
-
-cleanup_room:
-  GNUNET_MESSENGER_close_room(room);
-
-cleanup_contact:
-  contact_destroy(contact);
-  return GNUNET_SYSERR;
 }
 
 

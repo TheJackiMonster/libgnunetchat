@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -91,6 +91,18 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 
   context->room = room;
   context->contact = NULL;
+
+  union GNUNET_MESSENGER_RoomKey key;
+  GNUNET_memcpy(
+    &(key.hash),
+    GNUNET_MESSENGER_room_get_key(room),
+    sizeof (key.hash)
+  );
+
+  if (key.code.group_bit)
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_GROUP;
+  else
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
 
   return context;
 }

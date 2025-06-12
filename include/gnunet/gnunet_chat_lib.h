@@ -1266,7 +1266,7 @@ GNUNET_CHAT_group_get_context (struct GNUNET_CHAT_Group *group);
  *         #GNUNET_SYSERR otherwise.
  */
 enum GNUNET_GenericReturnValue
-GNUNET_CHAT_context_get_status (const struct GNUNET_CHAT_Context *context);
+GNUNET_CHAT_context_get_status (struct GNUNET_CHAT_Context *context);
 
 /**
  * Requests a <i>context</i> to get established between all required contacts.
