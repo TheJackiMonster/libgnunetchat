@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,7 @@
 
 #include "gnunet_chat_lib.h"
 #include "gnunet_chat_account.h"
+#include "gnunet_chat_contact.h"
 #include "gnunet_chat_lobby.h"
 #include "gnunet_chat_message.h"
 #include "gnunet_chat_uri.h"
@@ -107,6 +108,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_InternalAccounts *accounts_tail;
 
   enum GNUNET_GenericReturnValue refreshing;
+  struct GNUNET_CHAT_Contact *own_contact;
 
   struct GNUNET_CHAT_Account *next;
   struct GNUNET_CHAT_Account *current;

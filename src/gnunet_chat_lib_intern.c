@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -191,6 +191,27 @@ it_handle_iterate_contacts (void *cls,
   struct GNUNET_CHAT_Contact *contact = value;
 
   return it->cb(it->cls, it->handle, contact);
+}
+
+enum GNUNET_GenericReturnValue
+it_handle_find_own_contact (GNUNET_UNUSED void *cls,
+                            struct GNUNET_CHAT_Handle *handle,
+                            struct GNUNET_CHAT_Contact *contact)
+{
+  GNUNET_assert((handle) && (contact));
+
+  if (GNUNET_YES != GNUNET_CHAT_contact_is_owned(contact))
+    return GNUNET_YES;
+
+  const char *contact_key = GNUNET_CHAT_contact_get_key(contact);
+  const char *handle_key = GNUNET_CHAT_get_key(handle);
+
+  if ((!contact_key) || (!handle_key) ||
+      (0 != strcmp(contact_key, handle_key)))
+    return GNUNET_YES;
+
+  handle->own_contact = contact;
+  return GNUNET_NO;
 }
 
 struct GNUNET_CHAT_HandleIterateGroups

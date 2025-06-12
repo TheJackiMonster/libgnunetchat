@@ -94,6 +94,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->accounts_tail = NULL;
 
   handle->refreshing = GNUNET_NO;
+  handle->own_contact = NULL;
 
   handle->next = NULL;
   handle->current = NULL;
@@ -165,6 +166,7 @@ handle_update_key (struct GNUNET_CHAT_Handle *handle)
     GNUNET_free(handle->public_key);
 
   handle->public_key = NULL;
+  handle->own_contact = NULL;
 
   if (!(handle->messenger))
     return;
@@ -390,6 +392,8 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
     GNUNET_YES
   );
 
+  handle->own_contact = NULL;
+
   while (handle->attributes_head)
     internal_attributes_destroy(handle->attributes_head);
 
@@ -480,6 +484,8 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 
     GNUNET_free(lobbies);
   }
+
+  handle->own_contact = NULL;
 
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);
   GNUNET_CONTAINER_multishortmap_destroy(handle->contacts);

@@ -933,6 +933,18 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
 }
 
 
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_get_own_contact (struct GNUNET_CHAT_Handle *handle)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!(handle->own_contact))
+    GNUNET_CHAT_iterate_contacts (handle, it_handle_find_own_contact, NULL);
+
+  return handle->own_contact;
+}
+
+
 const char*
 GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account)
 {

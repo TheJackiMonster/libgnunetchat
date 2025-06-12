@@ -897,6 +897,16 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
                               void *cls);
 
 /**
+ * Returns the chat contact matching a given chat <i>handle</i>'s current 
+ * account.
+ *
+ * @param[in,out] handle Chat handle
+ * @return Chat contact or NULL
+ */
+struct GNUNET_CHAT_Contact*
+GNUNET_CHAT_get_own_contact (struct GNUNET_CHAT_Handle *handle);
+
+/**
  * Returns the provided name of a given <i>account</i> or NULL on failure.
  *
  * @param[in] account Chat account
