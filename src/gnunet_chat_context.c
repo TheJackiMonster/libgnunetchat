@@ -193,6 +193,10 @@ context_request_message (struct GNUNET_CHAT_Context* context,
 {
   GNUNET_assert((context) && (hash));
 
+  if ((GNUNET_is_zero(hash)) || 
+      (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(context->messages, hash)))
+    return;
+
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(context->requests,
       hash, NULL, GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE))
     return;
