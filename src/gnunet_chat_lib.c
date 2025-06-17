@@ -2954,13 +2954,41 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
   if (!invitation)
     return;
 
+  struct GNUNET_CHAT_Handle *handle;
+  handle = invitation->context->handle;
+
+  if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
+      handle->contexts, &(invitation->key.hash)))
+    return;
+
   struct GNUNET_PeerIdentity door;
   GNUNET_PEER_resolve(invitation->door, &door);
 
-  GNUNET_MESSENGER_enter_room(
+  struct GNUNET_MESSENGER_Room *room;
+  room = GNUNET_MESSENGER_enter_room(
     invitation->context->handle->messenger,
     &door, &(invitation->key)
   );
+
+  if (!room)
+    return;
+
+  struct GNUNET_CHAT_Context *context;
+  context = context_create_from_room(handle, room);
+
+  if (!context)
+    return;
+
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+      handle->contexts, &(invitation->key.hash), context,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_destroy(context);
+    GNUNET_MESSENGER_close_room(room);
+    return;
+  }
+
+  context_write_records(context);
 }
 
 
