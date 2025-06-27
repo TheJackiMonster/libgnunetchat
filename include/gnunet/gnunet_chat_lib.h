@@ -1909,6 +1909,17 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation);
 
 /**
+ * Returns whether the intend from a given 
+ * <i>invitation</i>. is to open a direct chat or
+ * a group chat.
+ *
+ * @param[in] invitation Chat invitation
+ * @return #GNUNET_YES if it is a direct chat request, #GNUNET_NO otherwise
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_direct (const struct GNUNET_CHAT_Invitation *invitation);
+
+/**
  * Returns the discourse id of a given chat <i>discourse</i>.
  *
  * @param[in] discourse Chat discourse

@@ -2982,13 +2982,32 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
       handle->contexts, &(invitation->key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    goto destroy_context;
+  
+  if (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type)
   {
-    context_destroy(context);
-    GNUNET_MESSENGER_close_room(room);
+    context_write_records(context);
     return;
   }
 
-  context_write_records(context);
+  struct GNUNET_CHAT_Group *group;
+  group = group_create_from_context(handle, context);
+
+  if (GNUNET_OK == GNUNET_CONTAINER_multihashmap_put(
+      handle->groups, &(invitation->key.hash), group,
+      GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+  {
+    context_write_records(context);
+    return;
+  }
+
+  group_destroy(group);
+
+  GNUNET_CONTAINER_multihashmap_remove(
+    handle->contexts, &(invitation->key.hash), context);
+
+destroy_context:
+  context_destroy(context);
 }
 
 
@@ -3052,6 +3071,20 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
     return GNUNET_YES;
   else
     return GNUNET_NO;
+}
+
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_invitation_is_direct (const struct GNUNET_CHAT_Invitation *invitation)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((invitation->key.code.public_bit) ||
+      (invitation->key.code.group_bit) ||
+      (invitation->key.code.feed_bit))
+    return GNUNET_NO;
+  else
+    return GNUNET_YES;
 }
 
 
