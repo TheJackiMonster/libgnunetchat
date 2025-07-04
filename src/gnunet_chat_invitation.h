@@ -26,6 +26,7 @@
 #define GNUNET_CHAT_INVITATION_H_
 
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
 
 struct GNUNET_CHAT_Context;
@@ -33,6 +34,7 @@ struct GNUNET_CHAT_Context;
 struct GNUNET_CHAT_Invitation
 {
   struct GNUNET_CHAT_Context *context;
+  struct GNUNET_SCHEDULER_Task *task;
 
   struct GNUNET_HashCode hash;
 
@@ -60,5 +62,14 @@ invitation_create_from_message (struct GNUNET_CHAT_Context *context,
  */
 void
 invitation_destroy (struct GNUNET_CHAT_Invitation *invitation);
+
+/**
+ * Updates a chat <i>invitation</i> for applications to
+ * notice any status changes.
+ *
+ * @param[in,out] invitation Chat invitation
+ */
+void
+invitation_update (struct GNUNET_CHAT_Invitation *invitation);
 
 #endif /* GNUNET_CHAT_INVITATION_H_ */

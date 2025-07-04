@@ -71,6 +71,8 @@ struct GNUNET_CHAT_Message
   struct GNUNET_HashCode hash;
   enum GNUNET_MESSENGER_MessageFlags flags;
   enum GNUNET_CHAT_MessageFlag flag;
+
+  void *user_pointer;
 };
 
 /**

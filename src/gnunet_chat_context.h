@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -40,6 +40,7 @@ struct GNUNET_CHAT_Context
 {
   struct GNUNET_CHAT_Handle *handle;
 
+  union GNUNET_MESSENGER_RoomKey key;
   enum GNUNET_CHAT_ContextType type;
   uint32_t flags;
   char *nick;
@@ -109,6 +110,17 @@ context_destroy (struct GNUNET_CHAT_Context* context);
 void
 context_request_message (struct GNUNET_CHAT_Context* context,
                          const struct GNUNET_HashCode *hash);
+
+/**
+ * Updates a message with a given <i>hash</i> inside a
+ * given chat <i>context</i>.
+ *
+ * @param[in,out] context Chat context
+ * @param[in] hash Message hash
+ */
+void
+context_update_message (struct GNUNET_CHAT_Context* context,
+                        const struct GNUNET_HashCode *hash);
 
 /**
  * Updates the connected messenger <i>room</i> of a

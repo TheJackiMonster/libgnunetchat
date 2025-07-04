@@ -1569,6 +1569,27 @@ const char*
 GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message);
 
 /**
+ * Sets a custom <i>user pointer</i> to a given <i>message</i> so it can
+ * be accessed in message related callbacks.
+ *
+ * @param[in,out] message Message
+ * @param[in] user_pointer Custom user pointer
+ */
+void
+GNUNET_CHAT_message_set_user_pointer (struct GNUNET_CHAT_Message *message,
+                                      void *user_pointer);
+
+/**
+ * Returns the custom user pointer of a given <i>message</i> or NULL if it
+ * was not set any.
+ *
+ * @param[in] message Message
+ * @return Custom user pointer
+ */
+void*
+GNUNET_CHAT_message_get_user_pointer (const struct GNUNET_CHAT_Message *message);
+
+/**
  * Returns the account of a given <i>message</i> which is either 
  * its sender or target of the message depending on the kind of
  * the message, otherwise it returns NULL.

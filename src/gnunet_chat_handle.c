@@ -32,6 +32,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
+#include <gnunet/gnunet_util_lib.h>
 
 static const unsigned int initial_map_size_of_handle = 8;
 static const unsigned int minimum_amount_of_other_members_in_group = 2;
@@ -118,6 +119,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->contexts = NULL;
   handle->contacts = NULL;
   handle->groups = NULL;
+  handle->invitations = NULL;
 
   handle->arm = GNUNET_ARM_connect(
     handle->cfg,
@@ -334,9 +336,10 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   GNUNET_assert(
     (handle) && (account) &&
 		(!(handle->current)) &&
-		(!(handle->groups)) &&
-		(!(handle->contacts)) &&
 		(!(handle->contexts)) &&
+    (!(handle->contacts)) &&
+    (!(handle->groups)) &&
+    (!(handle->invitations)) &&
 		(handle->files)
   );
 
@@ -351,6 +354,8 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   handle->contacts = GNUNET_CONTAINER_multishortmap_create(
     initial_map_size_of_handle, GNUNET_NO);
   handle->groups = GNUNET_CONTAINER_multihashmap_create(
+    initial_map_size_of_handle, GNUNET_NO);
+  handle->invitations = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_handle, GNUNET_NO);
 
   handle->gns = GNUNET_GNS_connect(handle->cfg);
@@ -487,6 +492,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
 
   handle->own_contact = NULL;
 
+  GNUNET_CONTAINER_multihashmap_destroy(handle->invitations);
   GNUNET_CONTAINER_multihashmap_destroy(handle->groups);
   GNUNET_CONTAINER_multishortmap_destroy(handle->contacts);
   GNUNET_CONTAINER_multihashmap_destroy(handle->contexts);
@@ -495,6 +501,7 @@ handle_disconnect (struct GNUNET_CHAT_Handle *handle)
   handle->contexts = NULL;
   handle->contacts = NULL;
   handle->groups = NULL;
+  handle->invitations = NULL;
 
   if (handle->connection)
     GNUNET_SCHEDULER_cancel(handle->connection);

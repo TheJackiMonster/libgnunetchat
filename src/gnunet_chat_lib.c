@@ -2347,6 +2347,31 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 }
 
 
+void
+GNUNET_CHAT_message_set_user_pointer (struct GNUNET_CHAT_Message *message,
+                                      void *user_pointer)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return;
+
+  message->user_pointer = user_pointer;
+}
+
+
+void*
+GNUNET_CHAT_message_get_user_pointer (const struct GNUNET_CHAT_Message *message)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!message)
+    return NULL;
+
+  return message->user_pointer;
+}
+
+
 struct GNUNET_CHAT_Account*
 GNUNET_CHAT_message_get_account (const struct GNUNET_CHAT_Message *message)
 {

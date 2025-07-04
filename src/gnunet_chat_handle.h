@@ -130,6 +130,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_CONTAINER_MultiShortmap *contacts;
   struct GNUNET_CONTAINER_MultiHashMap *groups;
+  struct GNUNET_CONTAINER_MultiHashMap *invitations;
 
   struct GNUNET_ARM_Handle *arm;
   struct GNUNET_FS_Handle *fs;
@@ -287,7 +288,7 @@ handle_create_file_path (const struct GNUNET_CHAT_Handle *handle,
  * using the same identifier as currently in use, replacing
  * the old identity.
  *
- * @param[in] handle Chat handle
+ * @param[in,out] handle Chat handle
  * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue

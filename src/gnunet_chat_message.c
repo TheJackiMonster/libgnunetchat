@@ -46,6 +46,7 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
   message->flag = GNUNET_CHAT_FLAG_NONE;
 
   message->msg = msg;
+  message->user_pointer = NULL;
 
   return message;
 }
@@ -67,6 +68,7 @@ message_create_internally (struct GNUNET_CHAT_Account *account,
   message->flag = flag;
 
   message->warning = warning;
+  message->user_pointer = NULL;
 
   return message;
 }

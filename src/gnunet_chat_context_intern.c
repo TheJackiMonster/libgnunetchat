@@ -71,13 +71,20 @@ it_destroy_context_taggings (GNUNET_UNUSED void *cls,
 }
 
 enum GNUNET_GenericReturnValue
-it_destroy_context_invites (GNUNET_UNUSED void *cls,
+it_destroy_context_invites (void *cls,
                             GNUNET_UNUSED const struct GNUNET_HashCode *key,
                             void *value)
 {
-  GNUNET_assert(value);
+  GNUNET_assert((cls) && (value));
 
+  struct GNUNET_CHAT_Context *context = cls;
   struct GNUNET_CHAT_Invitation *invitation = value;
+  
+  struct GNUNET_CHAT_Handle *handle = context->handle;
+
+  GNUNET_CONTAINER_multihashmap_remove(
+    handle->invitations, &(invitation->key.hash), invitation);
+
   invitation_destroy(invitation);
   return GNUNET_YES;
 }

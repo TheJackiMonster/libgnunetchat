@@ -160,7 +160,7 @@ context_destroy (struct GNUNET_CHAT_Context *context)
   );
 
   GNUNET_CONTAINER_multihashmap_iterate(
-    context->invites, it_destroy_context_invites, NULL
+    context->invites, it_destroy_context_invites, context
   );
 
   GNUNET_CONTAINER_multishortmap_iterate(
@@ -212,6 +212,28 @@ context_request_message (struct GNUNET_CHAT_Context* context,
 }
 
 void
+context_update_message (struct GNUNET_CHAT_Context* context,
+                        const struct GNUNET_HashCode *hash)
+{
+  GNUNET_assert((context) && (hash));
+
+  struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
+    context->messages, hash);
+  
+  if (!message)
+    return;
+
+  message->flags |= GNUNET_MESSENGER_FLAG_UPDATE;
+
+  struct GNUNET_CHAT_Handle *handle = context->handle;
+
+  if (!(handle->msg_cb))
+    return;
+
+  handle->msg_cb(handle->msg_cls, context, message);
+}
+
+void
 context_update_room (struct GNUNET_CHAT_Context *context,
                      struct GNUNET_MESSENGER_Room *room,
                      enum GNUNET_GenericReturnValue record)
@@ -238,7 +260,7 @@ context_update_room (struct GNUNET_CHAT_Context *context,
   );
 
   GNUNET_CONTAINER_multihashmap_iterate(
-    context->invites, it_destroy_context_invites, NULL
+    context->invites, it_destroy_context_invites, context
   );
 
   GNUNET_CONTAINER_multishortmap_iterate(
@@ -373,6 +395,8 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
   if (GNUNET_YES != message_has_msg(message))
     return;
 
+  struct GNUNET_CHAT_Handle *handle = context->handle;
+
   switch (message->msg->header.kind)
   {
     case GNUNET_MESSENGER_KIND_INVITE:
@@ -383,6 +407,9 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
 
       if (! invite)
         break;
+
+      GNUNET_CONTAINER_multihashmap_remove(
+        handle->invitations, &(invite->key.hash), invite);
 
       if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
         context->invites, &(message->hash), invite))

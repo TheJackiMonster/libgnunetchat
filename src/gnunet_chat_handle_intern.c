@@ -719,6 +719,19 @@ on_handle_internal_message_callback(void *cls)
   handle->msg_cb(handle->msg_cls, context, internal->msg);
 }
 
+static enum GNUNET_GenericReturnValue
+it_invitation_update (GNUNET_UNUSED void *cls,
+                      GNUNET_UNUSED const struct GNUNET_HashCode *key,
+                      void *value)
+{
+  struct GNUNET_CHAT_Invitation *invitation = (struct GNUNET_CHAT_Invitation*) value;
+
+  if (invitation)
+    invitation_update(invitation);
+
+  return GNUNET_YES;
+}
+
 void
 on_handle_message_callback(void *cls)
 {
@@ -796,6 +809,10 @@ on_handle_message_callback(void *cls)
         context->invites, &(message->hash), invitation,
         GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
 	      invitation_destroy(invitation);
+      else
+        GNUNET_CONTAINER_multihashmap_put(
+          handle->invitations, &(invitation->key.hash), invitation,
+          GNUNET_CONTAINER_MULTIHASHMAPOPTION_MULTIPLE);
       break;
     }
     case GNUNET_MESSENGER_KIND_FILE:
@@ -880,9 +897,23 @@ skip_msg_handing:
       contact_update_join(contact, context, 
         &(message->hash), message->flags);
       
+      GNUNET_CONTAINER_multihashmap_get_multiple(
+        handle->invitations,
+        GNUNET_MESSENGER_room_get_key(context->room),
+        it_invitation_update, handle);
+      
       if ((GNUNET_MESSENGER_FLAG_SENT & message->flags) &&
           (GNUNET_MESSENGER_FLAG_RECENT & message->flags))
         handle_send_room_name(handle, context->room);
+      
+      break;
+    }
+    case GNUNET_MESSENGER_KIND_LEAVE:
+    {
+      GNUNET_CONTAINER_multihashmap_get_multiple(
+        handle->invitations,
+        GNUNET_MESSENGER_room_get_key(context->room),
+        it_invitation_update, handle);
       
       break;
     }
