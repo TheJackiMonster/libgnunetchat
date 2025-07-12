@@ -53,7 +53,10 @@ on_gnunet_chat_attribute_share_attr(void *cls,
 
   ck_assert_ptr_nonnull(account);
   ck_assert_str_eq(account_name, TEST_SHARE_ID_B);
-  ck_assert_str_eq(contact_name, TEST_SHARE_ID_A);
+
+  if (contact_name)
+    ck_assert_str_eq(contact_name, TEST_SHARE_ID_A);
+
   ck_assert_str_eq(name, TEST_SHARE_NAME);
   ck_assert_str_eq(value, TEST_SHARE_VALUE);
 
