@@ -124,7 +124,7 @@ cb_context_request_messages (void *cls)
 
   context->request_task = NULL;
 
-  if (!(context->room))
+  if ((!(context->room)) || (GNUNET_YES == context->deleted))
     return;
 
   GNUNET_CONTAINER_multihashmap_iterate(

@@ -193,6 +193,9 @@ context_request_message (struct GNUNET_CHAT_Context* context,
 {
   GNUNET_assert((context) && (hash));
 
+  if ((!(context->room)) || (GNUNET_YES == context->deleted))
+    return;
+
   if ((GNUNET_is_zero(hash)) || 
       (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(context->messages, hash)))
     return;
@@ -568,6 +571,12 @@ context_delete (struct GNUNET_CHAT_Context *context,
 
   if (GNUNET_YES != exit)
     return;
+
+  if (context->request_task)
+  {
+    GNUNET_SCHEDULER_cancel(context->request_task);
+    context->request_task = NULL;
+  }
 
   GNUNET_MESSENGER_close_room(context->room);
 }

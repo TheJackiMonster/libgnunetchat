@@ -1665,7 +1665,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
       handle->contexts, &(key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
-    GNUNET_MESSENGER_close_room(room);
+    context_update_room(context, NULL, GNUNET_YES);
     return GNUNET_SYSERR;
   }
 
