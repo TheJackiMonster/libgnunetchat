@@ -31,6 +31,7 @@
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_time_lib.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -341,24 +342,23 @@ task_contact_destruction (void *cls)
 
   util_shorthash_from_member(contact->member, &shorthash);
 
-  GNUNET_CONTAINER_multishortmap_remove(
-    contact->handle->contacts, &shorthash, contact
+  contact_leave (contact, contact->context);
+
+  const uint32_t other_contexts = GNUNET_CONTAINER_multihashmap_size(
+    contact->joined
   );
 
-  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
-    contact->context->room
-  );
-
-  GNUNET_CONTAINER_multihashmap_remove(
-    contact->handle->contexts, key, contact->context
-  );
+  if (0 >= other_contexts)
+    GNUNET_CONTAINER_multishortmap_remove(
+      contact->handle->contacts, &shorthash, contact
+    );
 
   context_delete(contact->context, GNUNET_YES);
-  context_destroy(contact->context);
 
   contact->destruction = NULL;
 
-  contact_destroy(contact);
+  if (0 >= other_contexts)
+    contact_destroy(contact);
 }
 
 void

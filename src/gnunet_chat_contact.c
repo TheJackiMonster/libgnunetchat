@@ -125,6 +125,35 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
 }
 
 void
+contact_leave (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context)
+{
+  GNUNET_assert(
+    (contact) &&
+    (contact->joined) &&
+    (context)
+  );
+
+  if (!(context->room))
+    return;
+
+  const struct GNUNET_HashCode *key = GNUNET_MESSENGER_room_get_key(
+    context->room
+  );
+
+  struct GNUNET_HashCode *current = GNUNET_CONTAINER_multihashmap_get(
+    contact->joined,
+    key
+  );
+
+  if ((! current) ||
+      (GNUNET_YES != GNUNET_CONTAINER_multihashmap_remove(contact->joined, key, current)))
+    return;
+
+  GNUNET_free(current);
+}
+
+void
 contact_update_key (struct GNUNET_CHAT_Contact *contact)
 {
   GNUNET_assert(contact);

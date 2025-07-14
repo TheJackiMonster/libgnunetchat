@@ -91,6 +91,17 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
                      enum GNUNET_MESSENGER_MessageFlags flags);
 
 /**
+ * Removes local chat <i>contact</i> from a given chat
+ * <i>context</i>.
+ *
+ * @param[in,out] contact Chat contact
+ * @param[in,out] context Chat context
+ */
+void
+contact_leave (struct GNUNET_CHAT_Contact *contact,
+               struct GNUNET_CHAT_Context *context);
+
+/**
  * Updates the string representation of the public key from
  * a given chat <i>contact</i>.
  *
