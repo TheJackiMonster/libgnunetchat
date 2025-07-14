@@ -1051,9 +1051,6 @@ on_handle_message (void *cls,
     handle->contexts, GNUNET_MESSENGER_room_get_key(room)
   );
 
-  if ((! context) || (GNUNET_YES == context->deleted))
-    return;
-
   if (GNUNET_MESSENGER_KIND_MERGE == msg->header.kind)
     context_request_message(context, &(msg->body.merge.previous));
 
