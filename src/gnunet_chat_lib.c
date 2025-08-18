@@ -2034,17 +2034,17 @@ GNUNET_CHAT_context_open_discourse (struct GNUNET_CHAT_Context *context,
 
   msg.header.kind = GNUNET_MESSENGER_KIND_SUBSCRIBTION;
   GNUNET_memcpy(
-    &(msg.body.subscribtion.discourse),
+    &(msg.body.subscription.discourse),
     &sid,
     sizeof(struct GNUNET_ShortHashCode)
   );
 
-  const struct GNUNET_TIME_Relative subscribtion_time = GNUNET_TIME_relative_multiply(
+  const struct GNUNET_TIME_Relative subscription_time = GNUNET_TIME_relative_multiply(
     GNUNET_TIME_relative_get_second_(), 10
   );
 
-  msg.body.subscribtion.time = GNUNET_TIME_relative_hton(subscribtion_time);
-  msg.body.subscribtion.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_KEEP_ALIVE;
+  msg.body.subscription.time = GNUNET_TIME_relative_hton(subscription_time);
+  msg.body.subscription.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_KEEP_ALIVE;
 
   GNUNET_MESSENGER_send_message(
     context->room,
@@ -2439,7 +2439,7 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
   if (GNUNET_MESSENGER_KIND_SUBSCRIBTION == message->msg->header.kind)
     discourse = GNUNET_CONTAINER_multishortmap_get(
       message->context->discourses,
-      &(message->msg->body.subscribtion.discourse));
+      &(message->msg->body.subscription.discourse));
   else if (GNUNET_MESSENGER_KIND_TALK == message->msg->header.kind)
     discourse = GNUNET_CONTAINER_multishortmap_get(
       message->context->discourses,
@@ -3187,11 +3187,11 @@ GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
 
   util_shorthash_from_discourse_id(
     &(discourse->id),
-    &(msg.body.subscribtion.discourse)
+    &(msg.body.subscription.discourse)
   );
 
-  msg.body.subscribtion.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
-  msg.body.subscribtion.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE;
+  msg.body.subscription.time = GNUNET_TIME_relative_hton(GNUNET_TIME_relative_get_zero_());
+  msg.body.subscription.flags = GNUNET_MESSENGER_FLAG_SUBSCRIPTION_UNSUBSCRIBE;
 
   GNUNET_MESSENGER_send_message(
     discourse->context->room,
