@@ -23,6 +23,7 @@ project(
     'c',
     license: 'AGPL3.0-or-later',
     version: run_command('contrib/get_version.sh').stdout().strip(),
+    meson_version: '>= 1.1.0',
 )
 
 meson.add_dist_script('contrib/distribute_version.sh', meson.project_version())
