@@ -388,7 +388,7 @@ send_refresh:
 
 void
 cb_account_creation (void *cls,
-                     const struct GNUNET_CRYPTO_PrivateKey *key,
+                     const struct GNUNET_CRYPTO_BlindablePrivateKey *key,
                      enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
@@ -519,7 +519,7 @@ cb_lobby_deletion (void *cls,
 
 static void
 cb_account_update_completion (void *cls,
-                              const struct GNUNET_CRYPTO_PrivateKey *key,
+                              const struct GNUNET_CRYPTO_BlindablePrivateKey *key,
                               enum GNUNET_ErrorCode ec)
 {
   GNUNET_assert(cls);
@@ -611,7 +611,7 @@ intern_provide_contact_for_member(struct GNUNET_CHAT_Handle *handle,
 
 struct GNUNET_CHAT_CheckHandleRoomMembers
 {
-  const struct GNUNET_CRYPTO_PublicKey *ignore_key;
+  const struct GNUNET_CRYPTO_BlindablePublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
@@ -624,7 +624,7 @@ check_handle_room_members (void* cls,
 
   GNUNET_assert((check) && (member));
 
-  const struct GNUNET_CRYPTO_PublicKey *member_key = (
+  const struct GNUNET_CRYPTO_BlindablePublicKey *member_key = (
     GNUNET_MESSENGER_contact_get_key(member)
   );
 
@@ -658,7 +658,7 @@ scan_handle_room_members (void* cls,
 void
 on_monitor_namestore_record(void *cls,
                             GNUNET_UNUSED const
-                            struct GNUNET_CRYPTO_PrivateKey *zone,
+                            struct GNUNET_CRYPTO_BlindablePrivateKey *zone,
                             const char *label,
                             unsigned int count,
                             const struct GNUNET_GNSRECORD_Data *data)

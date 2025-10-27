@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@
 
 void
 cb_ticket_consume_attribute (void *cls, 
-                             const struct GNUNET_CRYPTO_PublicKey *identity, 
+                             const struct GNUNET_CRYPTO_BlindablePublicKey *identity, 
                              const struct GNUNET_RECLAIM_Attribute *attribute, 
                              const struct GNUNET_RECLAIM_Presentation *presentation)
 {

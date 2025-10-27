@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -40,8 +40,8 @@ ticket_create_from_message (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (issuer) && (message));
 
-  const struct GNUNET_CRYPTO_PublicKey *identity;
-  const struct GNUNET_CRYPTO_PublicKey *audience;
+  const struct GNUNET_CRYPTO_BlindablePublicKey *identity;
+  const struct GNUNET_CRYPTO_BlindablePublicKey *audience;
 
   identity = contact_get_key(issuer);
   audience = GNUNET_MESSENGER_get_key(handle->messenger);
@@ -72,17 +72,17 @@ ticket_consume(struct GNUNET_CHAT_Ticket *ticket,
 {
   GNUNET_assert(ticket);
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     ticket->handle
   );
 
   if (!key)
     return;
 
-  struct GNUNET_CRYPTO_PublicKey pubkey;
-  GNUNET_CRYPTO_key_get_public(key, &pubkey);
+  struct GNUNET_CRYPTO_BlindablePublicKey pubkey;
+  GNUNET_CRYPTO_blindable_key_get_public(key, &pubkey);
 
-  char *rp_uri = GNUNET_CRYPTO_public_key_to_string(&pubkey);
+  char *rp_uri = GNUNET_CRYPTO_blindable_public_key_to_string(&pubkey);
 
   ticket->callback = callback;
   ticket->closure = cls;

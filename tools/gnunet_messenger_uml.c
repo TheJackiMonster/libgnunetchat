@@ -398,7 +398,7 @@ ego_lookup (void *cls,
 
   tool->lookup = NULL;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key;
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key;
   key = ego? GNUNET_IDENTITY_ego_get_private_key(ego) : NULL;
 
   tool->handle = GNUNET_MESSENGER_connect(

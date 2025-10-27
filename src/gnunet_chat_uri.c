@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@
 #define _(String) ((const char*) String)
 
 struct GNUNET_CHAT_Uri*
-uri_create_chat (const struct GNUNET_CRYPTO_PublicKey *zone,
+uri_create_chat (const struct GNUNET_CRYPTO_BlindablePublicKey *zone,
 	               const char *label)
 {
   GNUNET_assert((zone) && (label));
@@ -103,7 +103,7 @@ uri_parse_from_string (const char *string,
 
   if (GNUNET_YES == string_starts_with(string, GNUNET_CHAT_URI_PREFIX, &prefix_len))
   {
-    struct GNUNET_CRYPTO_PublicKey zone;
+    struct GNUNET_CRYPTO_BlindablePublicKey zone;
 
     const char *data = string + prefix_len;
     char *end = strchr(data, '.');
@@ -118,7 +118,7 @@ uri_parse_from_string (const char *string,
 
     char *zone_data = GNUNET_strndup(data, (size_t) (end - data));
 
-    if (GNUNET_OK != GNUNET_CRYPTO_public_key_from_string(zone_data, &zone))
+    if (GNUNET_OK != GNUNET_CRYPTO_blindable_public_key_from_string(zone_data, &zone))
     {
       GNUNET_free(zone_data);
 
@@ -161,7 +161,7 @@ uri_to_string (const struct GNUNET_CHAT_Uri *uri)
   {
     case GNUNET_CHAT_URI_TYPE_CHAT:
     {
-      char *zone = GNUNET_CRYPTO_public_key_to_string(&(uri->chat.zone));
+      char *zone = GNUNET_CRYPTO_blindable_public_key_to_string(&(uri->chat.zone));
       char *result;
 
       GNUNET_asprintf (

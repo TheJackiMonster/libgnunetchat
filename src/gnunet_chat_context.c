@@ -451,7 +451,7 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 {
   GNUNET_assert((context) && (context->handle) && (context->room));
 
-  const struct GNUNET_CRYPTO_PrivateKey *zone = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *zone = handle_get_key(
     context->handle
   );
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2025 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -115,7 +115,7 @@ contact_update_key (struct GNUNET_CHAT_Contact *contact);
  *
  * @param[in] contact Chat contact
  */
-const struct GNUNET_CRYPTO_PublicKey*
+const struct GNUNET_CRYPTO_BlindablePublicKey*
 contact_get_key (const struct GNUNET_CHAT_Contact *contact);
 
 /**

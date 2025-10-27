@@ -330,7 +330,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -388,7 +388,7 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -424,7 +424,7 @@ GNUNET_CHAT_get_attributes (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -463,11 +463,11 @@ GNUNET_CHAT_share_attribute_with (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!contact))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
-  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+  const struct GNUNET_CRYPTO_BlindablePublicKey *pubkey = contact_get_key(
     contact
   );
 
@@ -503,7 +503,7 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!contact))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -540,7 +540,7 @@ GNUNET_CHAT_get_shared_attributes (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!contact))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -968,7 +968,7 @@ GNUNET_CHAT_account_get_attributes (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) || (!account))
     return;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = account_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = account_get_key(
     account
   );
 

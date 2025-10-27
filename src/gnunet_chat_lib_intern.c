@@ -277,7 +277,7 @@ it_contact_iterate_contexts (void *cls,
 
 struct GNUNET_CHAT_RoomFindContact
 {
-  const struct GNUNET_CRYPTO_PublicKey *ignore_key;
+  const struct GNUNET_CRYPTO_BlindablePublicKey *ignore_key;
   const struct GNUNET_MESSENGER_Contact *contact;
 };
 
@@ -288,7 +288,7 @@ it_room_find_contact (void *cls,
 {
   GNUNET_assert((cls) && (member));
 
-  const struct GNUNET_CRYPTO_PublicKey *key = GNUNET_MESSENGER_contact_get_key(
+  const struct GNUNET_CRYPTO_BlindablePublicKey *key = GNUNET_MESSENGER_contact_get_key(
       member
   );
 
@@ -604,7 +604,7 @@ cb_task_finish_iterate_attribute (void *cls)
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key;
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key;
 
   if (attributes->account)
     key = account_get_key(attributes->account);
@@ -661,7 +661,7 @@ cb_task_error_iterate_attribute (void *cls)
 
 void
 cb_store_attribute (void *cls,
-                    const struct GNUNET_CRYPTO_PublicKey *identity,
+                    const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                     const struct GNUNET_RECLAIM_Attribute *attribute)
 {
   GNUNET_assert(cls);
@@ -672,7 +672,7 @@ cb_store_attribute (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -717,7 +717,7 @@ cb_store_attribute (void *cls,
 
 void
 cb_delete_attribute (void *cls,
-                     const struct GNUNET_CRYPTO_PublicKey *identity,
+                     const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                      const struct GNUNET_RECLAIM_Attribute *attribute)
 {
   GNUNET_assert(cls);
@@ -734,7 +734,7 @@ cb_delete_attribute (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = attributes->handle;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -760,7 +760,7 @@ cb_delete_attribute (void *cls,
 
 void
 cb_iterate_attribute (void *cls,
-                      const struct GNUNET_CRYPTO_PublicKey *identity,
+                      const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                       const struct GNUNET_RECLAIM_Attribute *attribute)
 {
   GNUNET_assert(cls);
@@ -885,7 +885,7 @@ attribute_list_from_attribute (const struct GNUNET_RECLAIM_Attribute *attribute)
 
 void
 cb_share_attribute (void *cls,
-                    const struct GNUNET_CRYPTO_PublicKey *identity,
+                    const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                     const struct GNUNET_RECLAIM_Attribute *attribute)
 {
   GNUNET_assert(cls);
@@ -913,21 +913,21 @@ cb_share_attribute (void *cls,
   GNUNET_free(attributes->name);
   attributes->name = NULL;
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
   if (!key)
     return;
 
-  const struct GNUNET_CRYPTO_PublicKey *pubkey = contact_get_key(
+  const struct GNUNET_CRYPTO_BlindablePublicKey *pubkey = contact_get_key(
     attributes->contact
   );
 
   if (!pubkey)
     return;
 
-  char *rp_uri = GNUNET_CRYPTO_public_key_to_string(pubkey);
+  char *rp_uri = GNUNET_CRYPTO_blindable_public_key_to_string(pubkey);
 
   struct GNUNET_RECLAIM_AttributeList *attrs;
   attrs = attribute_list_from_attribute(attribute);
@@ -1024,7 +1024,7 @@ cont_revoke_ticket (void *cls,
 
 void
 cb_consume_ticket_check (void *cls,
-                         const struct GNUNET_CRYPTO_PublicKey *identity,
+                         const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                          const struct GNUNET_RECLAIM_Attribute *attribute,
                          const struct GNUNET_RECLAIM_Presentation *presentation)
 {
@@ -1040,7 +1040,7 @@ cb_consume_ticket_check (void *cls,
 
     struct GNUNET_CHAT_Handle *handle = tickets->handle;
 
-    const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+    const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
       handle
     );
 
@@ -1088,16 +1088,16 @@ is_contact_ticket_audience (const struct GNUNET_CHAT_Contact *contact,
 {
   GNUNET_assert((contact) && (rp_uri));
 
-  const struct GNUNET_CRYPTO_PublicKey *pubkey;
+  const struct GNUNET_CRYPTO_BlindablePublicKey *pubkey;
   pubkey = contact_get_key(contact);
 
   if (!pubkey)
     return GNUNET_NO;
 
-  struct GNUNET_CRYPTO_PublicKey audience;
+  struct GNUNET_CRYPTO_BlindablePublicKey audience;
   enum GNUNET_GenericReturnValue parsing;
 
-  parsing = GNUNET_CRYPTO_public_key_from_string(rp_uri, &audience);
+  parsing = GNUNET_CRYPTO_blindable_public_key_from_string(rp_uri, &audience);
 
   if ((GNUNET_OK != parsing) || (0 != GNUNET_memcmp(pubkey, &audience)))
     return GNUNET_NO;
@@ -1125,7 +1125,7 @@ cb_iterate_ticket_check (void *cls,
     return;
   }
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
@@ -1157,7 +1157,7 @@ cb_iterate_ticket_check (void *cls,
 
 void
 cb_consume_ticket (void *cls,
-                   const struct GNUNET_CRYPTO_PublicKey *identity,
+                   const struct GNUNET_CRYPTO_BlindablePublicKey *identity,
                    const struct GNUNET_RECLAIM_Attribute *attribute,
                    const struct GNUNET_RECLAIM_Presentation *presentation)
 {
@@ -1211,7 +1211,7 @@ cb_iterate_ticket (void *cls,
     return;
   }
 
-  const struct GNUNET_CRYPTO_PrivateKey *key = handle_get_key(
+  const struct GNUNET_CRYPTO_BlindablePrivateKey *key = handle_get_key(
     handle
   );
 
