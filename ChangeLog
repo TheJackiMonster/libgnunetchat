@@ -1,3 +1,6 @@
+## Version 0.6.1
+* Fix build compatibility with GNUnet 0.26.0
+
 ## Version 0.6.0
 * This release requires the GNUnet Messenger Service 0.5!
 * Fixes issues regarding group creation, leaving chats and invitations
