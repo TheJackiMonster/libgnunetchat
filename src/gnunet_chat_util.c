@@ -360,12 +360,11 @@ util_get_lower(const char *name)
 {
   GNUNET_assert(name);
 
-  char *lower = GNUNET_malloc(strlen(name) + 1);
-  if (GNUNET_OK == GNUNET_STRINGS_utf8_tolower(name, lower))
-    return lower;
+  char *lower = GNUNET_STRINGS_utf8_tolower(name);
+  if (lower == NULL)
+    return GNUNET_strdup(name);
 
-  GNUNET_free(lower);
-  return GNUNET_strdup(name);
+  return lower;
 }
 
 int
