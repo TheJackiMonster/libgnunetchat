@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2023--2025 GNUnet e.V.
+# Copyright (C) 2023--2026 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -45,6 +45,9 @@ gnunetchat_deps = [
     dependency('gnunetreclaim'),
     dependency('gnunetregex'),
     dependency('gnunetutil'),
+
+    dependency('glib-2.0'),
+    dependency('libsecret-1'),
 ]
 
 subdir('include')

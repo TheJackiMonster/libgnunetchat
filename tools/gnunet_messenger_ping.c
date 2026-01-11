@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2025 GNUnet e.V.
+   Copyright (C) 2025--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -61,6 +61,7 @@ struct GNUNET_MESSENGER_PingTool
 
   char *ego_name;
   char *room_name;
+  char *secret_value;
   uint count;
   uint timeout;
   uint delay;
@@ -477,10 +478,15 @@ ego_lookup (void *cls,
   const struct GNUNET_CRYPTO_BlindablePrivateKey *key;
   key = ego? GNUNET_IDENTITY_ego_get_private_key(ego) : NULL;
 
+  struct GNUNET_HashCode secret;
+  if (tool->secret_value)
+    GNUNET_CRYPTO_hash_from_string (tool->secret_value, &secret);
+
   tool->handle = GNUNET_MESSENGER_connect(
     tool->cfg,
     tool->ego_name,
     key,
+    tool->secret_value? &secret : NULL,
     message_callback,
     tool
   );
@@ -632,6 +638,13 @@ main (int argc,
       "ROOM_NAME",
       "name of room to read messages from",
       &(tool.room_name)
+    ),
+    GNUNET_GETOPT_option_string(
+      'S',
+      "secret",
+      "SECRET",
+      "secret for local key storage",
+      &(tool.secret_value)
     ),
     GNUNET_GETOPT_option_uint(
       'c',

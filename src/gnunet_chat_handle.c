@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -365,8 +365,11 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
 
   const char *name = account_get_name(account);
 
+  const struct GNUNET_HashCode *secret;
+  secret = account_get_secret(account);
+
   handle->messenger = GNUNET_MESSENGER_connect(
-    handle->cfg, name, key,
+    handle->cfg, name, key, secret,
     on_handle_message,
     handle
   );
@@ -704,6 +707,8 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
 
   if (GNUNET_OK != result)
     return result;
+
+  account_rename(accounts->account, new_name);
 
   accounts->op = GNUNET_IDENTITY_rename(
     handle->identity,
