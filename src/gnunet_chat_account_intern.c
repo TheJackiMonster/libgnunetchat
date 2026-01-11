@@ -75,7 +75,7 @@ handle_account_secret_error(struct GNUNET_CHAT_Account *account,
       NULL,
       GNUNET_CHAT_KIND_WARNING,
       error->message,
-      GNUNET_YES
+      GNUNET_NO
     );
 
   g_error_free(error);
