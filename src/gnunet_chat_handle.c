@@ -870,7 +870,8 @@ handle_send_internal_message (struct GNUNET_CHAT_Handle *handle,
 
   internal->chat = handle;
   internal->msg = message_create_internally(
-    account, context, flag, warning
+    account, context, flag, warning,
+    GNUNET_YES != feedback? GNUNET_YES : GNUNET_NO
   );
 
   if (!(internal->msg))
