@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -62,6 +62,8 @@ struct GNUNET_CHAT_Message
   struct GNUNET_CHAT_Context *context;
   struct GNUNET_SCHEDULER_Task *task;
 
+  char *warning_buffer;
+
   union {
     const struct GNUNET_MESSENGER_Message *msg;
     const char *warning;
@@ -101,13 +103,15 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
  * @param[in,out] context Chat context or NULL
  * @param[in] flag Chat message flag
  * @param[in] warning Warning text
+ * @param[in] async_warning Async flag to buffer warning text
  * @return New internal chat message
  */
 struct GNUNET_CHAT_Message*
 message_create_internally (struct GNUNET_CHAT_Account *account,
                            struct GNUNET_CHAT_Context *context,
                            enum GNUNET_CHAT_MessageFlag flag,
-                           const char *warning);
+                           const char *warning,
+                           enum GNUNET_GenericReturnValue async_warning);
 
 /**
  * Returns whether a chat <i>message</i> contains an actual

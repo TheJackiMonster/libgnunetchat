@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -45,6 +45,8 @@ message_create_from_msg (struct GNUNET_CHAT_Context *context,
   message->flags = flags;
   message->flag = GNUNET_CHAT_FLAG_NONE;
 
+  message->warning_buffer = NULL;
+
   message->msg = msg;
   message->user_pointer = NULL;
 
@@ -55,7 +57,8 @@ struct GNUNET_CHAT_Message*
 message_create_internally (struct GNUNET_CHAT_Account *account,
                            struct GNUNET_CHAT_Context *context,
                            enum GNUNET_CHAT_MessageFlag flag,
-                           const char *warning)
+                           const char *warning,
+                           enum GNUNET_GenericReturnValue async_warning)
 {
   struct GNUNET_CHAT_Message *message = GNUNET_new(struct GNUNET_CHAT_Message);
 
@@ -67,7 +70,12 @@ message_create_internally (struct GNUNET_CHAT_Account *account,
   message->flags = GNUNET_MESSENGER_FLAG_PRIVATE;
   message->flag = flag;
 
-  message->warning = warning;
+  if (GNUNET_YES == async_warning)
+    message->warning_buffer = warning? GNUNET_strdup(warning) : NULL;
+  else
+    message->warning_buffer = NULL;
+
+  message->warning = GNUNET_YES == async_warning? message->warning_buffer : warning;
   message->user_pointer = NULL;
 
   return message;
@@ -115,6 +123,9 @@ message_destroy (struct GNUNET_CHAT_Message* message)
 
   if (message->task)
     GNUNET_SCHEDULER_cancel(message->task);
+
+  if (message->warning_buffer)
+    GNUNET_free(message->warning_buffer);
 
   GNUNET_free(message);
 }
