@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -28,6 +28,7 @@
 #define TEST_SEND_TEXT     "gnunet_chat_file_deleted"
 #define TEST_SEND_FILENAME "gnunet_chat_file_send_name"
 #define TEST_SEND_GROUP    "gnunet_chat_file_send_group"
+#define TEST_SEND_SECRET   "test_secret_file_send"
 
 void
 on_gnunet_chat_file_send_upload(void *cls,
@@ -107,7 +108,13 @@ on_gnunet_chat_file_send_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_SEND_SECRET,
+          strlen(TEST_SEND_SECRET)
+        );
+
         file_stage = 1;
       }
 

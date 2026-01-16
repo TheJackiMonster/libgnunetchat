@@ -45,9 +45,6 @@ gnunetchat_deps = [
     dependency('gnunetreclaim'),
     dependency('gnunetregex'),
     dependency('gnunetutil'),
-
-    dependency('glib-2.0'),
-    dependency('libsecret-1'),
 ]
 
 subdir('include')

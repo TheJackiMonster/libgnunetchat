@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2023--2024 GNUnet e.V.
+# Copyright (C) 2023--2026 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -36,6 +36,7 @@ subdir('tag')
 
 test('test_gnunet_chat_handle_init', test_gnunet_chat_handle_init, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_accounts', test_gnunet_chat_handle_accounts, depends: gnunetchat_lib, is_parallel : false)
+test('test_gnunet_chat_handle_no_secret', test_gnunet_chat_handle_no_secret, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_connection', test_gnunet_chat_handle_connection, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_update', test_gnunet_chat_handle_update, depends: gnunetchat_lib, is_parallel : false)
 test('test_gnunet_chat_handle_rename', test_gnunet_chat_handle_rename, depends: gnunetchat_lib, is_parallel : false)

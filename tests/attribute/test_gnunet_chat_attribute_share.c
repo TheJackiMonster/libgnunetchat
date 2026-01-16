@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,11 +24,13 @@
 
 #include "test_gnunet_chat.h"
 
-#define TEST_SHARE_ID_A  "gnunet_chat_attribute_share_a"
-#define TEST_SHARE_ID_B  "gnunet_chat_attribute_share_b"
-#define TEST_SHARE_GROUP "test_attribute_share_group"
-#define TEST_SHARE_NAME  "test_attribute_share_name"
-#define TEST_SHARE_VALUE "test_attribute_share_value"
+#define TEST_SHARE_ID_A     "gnunet_chat_attribute_share_a"
+#define TEST_SHARE_ID_B     "gnunet_chat_attribute_share_b"
+#define TEST_SHARE_GROUP    "test_attribute_share_group"
+#define TEST_SHARE_NAME     "test_attribute_share_name"
+#define TEST_SHARE_VALUE    "test_attribute_share_value"
+#define TEST_SHARE_SECRET_A "test_secret_attribute_share_a"
+#define TEST_SHARE_SECRET_B "test_secret_attribute_share_b"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_share_attr(void *cls,
@@ -102,7 +104,13 @@ on_gnunet_chat_attribute_share_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_SHARE_SECRET_A,
+          strlen(TEST_SHARE_SECRET_A)
+        );
+
         share_stage = 1;
       }
 
@@ -184,7 +192,9 @@ on_gnunet_chat_attribute_share_msg(void *cls,
 
         GNUNET_CHAT_connect(
           handle, 
-          GNUNET_CHAT_find_account(handle, TEST_SHARE_ID_B)
+          GNUNET_CHAT_find_account(handle, TEST_SHARE_ID_B),
+          TEST_SHARE_SECRET_B,
+          strlen(TEST_SHARE_SECRET_B)
         );
 
         share_stage = 3;

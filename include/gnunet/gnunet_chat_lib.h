@@ -600,14 +600,20 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
                           const char *name);
 
 /**
- * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
+ * Connects a chat <i>handle</i> to a selected chat <i>account</i> using
+ * an optional secret for that account to encrypt/decrypt local keys
+ * in storage for end-to-end encrypted messages.
  *
  * @param[in,out] handle Chat handle
  * @param[in,out] account Chat account
+ * @param[in] secret Chat account secret or NULL
+ * @param[in] secret_len Length of secret or zero
  */
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-                     struct GNUNET_CHAT_Account *account);
+                     struct GNUNET_CHAT_Account *account,
+                     const char *secret,
+                     uint32_t secret_len);
 
 /**
  * Disconnects a chat <i>handle</i> from the current chat account.

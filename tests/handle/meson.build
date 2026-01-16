@@ -1,6 +1,6 @@
 #
 # This file is part of GNUnet.
-# Copyright (C) 2024 GNUnet e.V.
+# Copyright (C) 2024--2026 GNUnet e.V.
 #
 # GNUnet is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License as published
@@ -39,6 +39,15 @@ test_gnunet_chat_handle_connection = executable(
 test_gnunet_chat_handle_init = executable(
     'test_gnunet_chat_handle_init.test',
     'test_gnunet_chat_handle_init.c',
+    dependencies: test_deps,
+    link_with: gnunetchat_lib,
+    include_directories: tests_include,
+    extra_files: test_header,
+)
+
+test_gnunet_chat_handle_no_secret = executable(
+    'test_gnunet_chat_handle_no_secret.test',
+    'test_gnunet_chat_handle_no_secret.c',
     dependencies: test_deps,
     link_with: gnunetchat_lib,
     include_directories: tests_include,

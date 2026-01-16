@@ -98,6 +98,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
   handle->own_contact = NULL;
 
   handle->next = NULL;
+  handle->next_secret = NULL;
   handle->current = NULL;
   handle->monitor = NULL;
 
@@ -201,6 +202,17 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->current)
     handle_disconnect(handle);
+
+  if (handle->next_secret)
+  {
+    GNUNET_CRYPTO_zero_keys(
+      handle->next_secret,
+      sizeof(*(handle->next_secret))
+    );
+
+    GNUNET_free(handle->next_secret);
+    handle->next_secret = NULL;
+  }
 
   GNUNET_CONTAINER_multihashmap_iterate(
     handle->files, it_destroy_handle_files, NULL
@@ -331,7 +343,8 @@ handle_update_identity(struct GNUNET_CHAT_Handle *handle)
 
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		            struct GNUNET_CHAT_Account *account)
+		            struct GNUNET_CHAT_Account *account,
+                const struct GNUNET_HashCode *secret)
 {
   GNUNET_assert(
     (handle) && (account) &&
@@ -364,9 +377,6 @@ handle_connect (struct GNUNET_CHAT_Handle *handle,
   key = account_get_key(account);
 
   const char *name = account_get_name(account);
-
-  const struct GNUNET_HashCode *secret;
-  secret = account_get_secret(account);
 
   handle->messenger = GNUNET_MESSENGER_connect(
     handle->cfg, name, key, secret,
@@ -707,8 +717,6 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
 
   if (GNUNET_OK != result)
     return result;
-
-  account_rename(accounts->account, new_name);
 
   accounts->op = GNUNET_IDENTITY_rename(
     handle->identity,

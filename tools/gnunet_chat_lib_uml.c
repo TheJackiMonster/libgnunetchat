@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -35,6 +35,7 @@ struct GNUNET_CHAT_Tool
   char *account_name;
   char *group_name;
   char *contact_name;
+  char *secret;
   bool quit;
 };
 
@@ -49,7 +50,13 @@ accounts_iterate (void *cls,
 
   if (0 == strcmp(tool->account_name, account_name))
   {
-    GNUNET_CHAT_connect(tool->handle, account);
+    GNUNET_CHAT_connect(
+      tool->handle,
+      account,
+      tool->secret,
+      tool->secret? strlen(tool->secret) : 0
+    );
+
     return GNUNET_NO;
   }
 
@@ -257,6 +264,13 @@ main (int argc,
       "GROUP_NAME",
       "name of group chat to read messages from",
       &(tool.group_name)
+    ),
+    GNUNET_GETOPT_option_string(
+      'S',
+      "secret",
+      "SECRET",
+      "storage secret for local keys",
+      &(tool.secret)
     ),
     GNUNET_GETOPT_OPTION_END
   };

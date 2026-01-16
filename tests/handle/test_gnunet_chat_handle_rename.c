@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,7 @@
 
 #define TEST_RENAME_ID_A   "gnunet_chat_handle_rename_a"
 #define TEST_RENAME_ID_B   "gnunet_chat_handle_rename_b"
+#define TEST_RENAME_SECRET "test_secret_rename"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_rename_msg(void *cls,
@@ -92,7 +93,13 @@ on_gnunet_chat_handle_rename_msg(void *cls,
       ck_assert_ptr_nonnull(account);
       ck_assert_uint_eq(rename_stage, 0);
 
-      GNUNET_CHAT_connect(handle, account);
+      GNUNET_CHAT_connect(
+        handle,
+        account,
+        TEST_RENAME_SECRET,
+        strlen(TEST_RENAME_SECRET)
+      );
+
       rename_stage = 1;
       break;
     case GNUNET_CHAT_KIND_DELETED_ACCOUNT:
