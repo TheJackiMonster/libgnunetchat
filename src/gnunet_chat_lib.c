@@ -3309,3 +3309,61 @@ GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
 
   return iterations;
 }
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_generate_secret (char *secret,
+                             uint32_t secret_len)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (secret_len <= 0)
+    return GNUNET_SYSERR;
+
+  const uint32_t requested = secret_len * 5 / 8 + 1;
+  const uint32_t size = ((requested*8) + (((requested*8) % 5) > 0 ? 5 - ((requested*8) % 5) : 0)) / 5;
+
+  char *raw_secret = GNUNET_malloc(requested);
+  char *buf;
+
+  if (!raw_secret)
+    return GNUNET_SYSERR;
+
+  if (size > secret_len)
+  {
+    buf = GNUNET_malloc(size);
+
+    if (!buf)
+    {
+      GNUNET_free(raw_secret);
+      return GNUNET_SYSERR;
+    }
+  }
+  else
+    buf = secret;
+
+  GNUNET_CRYPTO_random_block(
+    GNUNET_CRYPTO_QUALITY_STRONG,
+    raw_secret,
+    requested
+  );
+
+  enum GNUNET_GenericReturnValue result;
+  result = GNUNET_STRINGS_data_to_string(
+    raw_secret,
+    requested,
+    buf,
+    size
+  ) == NULL? GNUNET_SYSERR : GNUNET_OK;
+
+  GNUNET_CRYPTO_zero_keys(raw_secret, requested);
+  GNUNET_free(raw_secret);
+
+  if (buf != secret)
+  {
+    GNUNET_memcpy(secret, buf, secret_len);
+    GNUNET_CRYPTO_zero_keys(buf, size);
+    GNUNET_free(buf);
+  }
+
+  return result;
+}

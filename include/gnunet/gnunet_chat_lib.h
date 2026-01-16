@@ -2033,6 +2033,22 @@ GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
                                         GNUNET_CHAT_DiscourseContactCallback callback,
                                         void *cls);
 
+/**
+ * Generates a chat account <i>secret</i> which can be used
+ * in case the user may not pick a secret manually. The length
+ * can be explicitly provided.
+ *
+ * The provided buffer to store the secret needs to have enough
+ * space in memory for at least the amount of requested characters.
+ *
+ * @param[out] secret Chat account secret
+ * @param[in] secret_len Length of secret
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_generate_secret (char *secret,
+                             uint32_t secret_len);
+
 /**@}*/
 
 #endif /* GNUNET_CHAT_LIB_H_ */
