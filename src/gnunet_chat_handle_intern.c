@@ -330,6 +330,9 @@ on_handle_gnunet_identity (void *cls,
     if ((name) && ((!(accounts->account->name)) ||
         (0 != strcmp(accounts->account->name, name))))
     {
+      const char *old_name = account_get_name(accounts->account);
+      char *name_buffer = old_name? GNUNET_strdup(old_name) : NULL;
+      
       util_set_name_field(name, &(accounts->account->name));
 
       handle_send_internal_message(
@@ -337,9 +340,12 @@ on_handle_gnunet_identity (void *cls,
         accounts->account,
         NULL,
         GNUNET_CHAT_FLAG_UPDATE_ACCOUNT,
-        NULL,
+        name_buffer,
         GNUNET_YES
       );
+
+      if (name_buffer)
+        GNUNET_free(name_buffer);
     }
     else if ((!name) && (!(accounts->op)))
     {

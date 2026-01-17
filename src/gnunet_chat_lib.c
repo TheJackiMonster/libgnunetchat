@@ -2352,6 +2352,8 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
     return message->warning;
+  else if (GNUNET_CHAT_FLAG_UPDATE_ACCOUNT == message->flag)
+    return message->warning;
   else if (GNUNET_CHAT_FLAG_ATTRIBUTES == message->flag)
     return message->attr;
 
