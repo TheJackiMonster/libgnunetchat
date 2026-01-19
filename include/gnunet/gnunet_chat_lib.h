@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -55,7 +55,7 @@ struct GNUNET_CONFIGURATION_Handle;
  *                          the #GNUNET_MESSENGER_VERSION of the GNUnet Messenger
  *                          service while the patch version is independent.
  */
-#define GNUNET_CHAT_VERSION 0x000000060001L
+#define GNUNET_CHAT_VERSION 0x000000070000L
 
 #define GNUNET_CHAT_VERSION_MAJOR ((GNUNET_CHAT_VERSION >> 32L) & 0xFFFFL)
 #define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)
@@ -600,14 +600,20 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
                           const char *name);
 
 /**
- * Connects a chat <i>handle</i> to a selected chat <i>account</i>.
+ * Connects a chat <i>handle</i> to a selected chat <i>account</i> using
+ * an optional secret for that account to encrypt/decrypt local keys
+ * in storage for end-to-end encrypted messages.
  *
  * @param[in,out] handle Chat handle
  * @param[in,out] account Chat account
+ * @param[in] secret Chat account secret or NULL
+ * @param[in] secret_len Length of secret or zero
  */
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-                     struct GNUNET_CHAT_Account *account);
+                     struct GNUNET_CHAT_Account *account,
+                     const char *secret,
+                     uint32_t secret_len);
 
 /**
  * Disconnects a chat <i>handle</i> from the current chat account.
@@ -2026,6 +2032,22 @@ int
 GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
                                         GNUNET_CHAT_DiscourseContactCallback callback,
                                         void *cls);
+
+/**
+ * Generates a chat account <i>secret</i> which can be used
+ * in case the user may not pick a secret manually. The length
+ * can be explicitly provided.
+ *
+ * The provided buffer to store the secret needs to have enough
+ * space in memory for at least the amount of requested characters.
+ *
+ * @param[out] secret Chat account secret
+ * @param[in] secret_len Length of secret
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_generate_secret (char *secret,
+                             uint32_t secret_len);
 
 /**@}*/
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -82,9 +82,37 @@ task_handle_connection (void *cls)
     return;
 
   struct GNUNET_CHAT_Account *account = handle->next;
-  handle->next = NULL;
+  struct GNUNET_HashCode local_secret;
+  const struct GNUNET_HashCode *secret;
 
-  handle_connect(handle, account);
+  if (handle->next_secret)
+  {
+    GNUNET_memcpy(
+      &local_secret,
+      handle->next_secret,
+      sizeof(local_secret)
+    );
+
+    secret = &local_secret;
+
+    GNUNET_CRYPTO_zero_keys(
+      handle->next_secret,
+      sizeof(*(handle->next_secret))
+    );
+
+    GNUNET_free(handle->next_secret);
+    handle->next_secret = NULL;
+  }
+  else
+    secret = NULL;
+
+  handle->next = NULL;
+  handle_connect(handle, account, secret);
+
+  GNUNET_CRYPTO_zero_keys(
+    &local_secret,
+    sizeof(local_secret)
+  );
 }
 
 void
@@ -100,10 +128,7 @@ task_handle_disconnection (void *cls)
   if (! handle->next)
     return;
 
-  struct GNUNET_CHAT_Account *account = handle->next;
-  handle->next = NULL;
-
-  handle_connect(handle, account);
+  task_handle_connection(cls);
 }
 
 void

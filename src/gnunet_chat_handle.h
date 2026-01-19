@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -111,6 +111,7 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_CHAT_Contact *own_contact;
 
   struct GNUNET_CHAT_Account *next;
+  struct GNUNET_HashCode *next_secret;
   struct GNUNET_CHAT_Account *current;
   struct GNUNET_NAMESTORE_ZoneMonitor *monitor;
 
@@ -182,10 +183,12 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle);
  *
  * @param[in,out] handle Chat handle
  * @param[in] account Chat account
+ * @param[in] secret Chat account secret or NULL
  */
 void
 handle_connect (struct GNUNET_CHAT_Handle *handle,
-		            struct GNUNET_CHAT_Account *account);
+		            struct GNUNET_CHAT_Account *account,
+                const struct GNUNET_HashCode *secret);
 
 /**
  * Disconnects a given chat <i>handle</i> from its current

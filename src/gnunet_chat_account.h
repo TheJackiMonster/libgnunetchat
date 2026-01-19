@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2025 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -33,6 +33,8 @@ struct GNUNET_CHAT_Handle;
 
 struct GNUNET_CHAT_Account
 {
+  struct GNUNET_CHAT_Handle *handle;
+
   struct GNUNET_IDENTITY_Ego *ego;
   enum GNUNET_GenericReturnValue created;
 
@@ -44,22 +46,26 @@ struct GNUNET_CHAT_Account
 /**
  * Creates a chat account using a given <i>name</i>.
  *
+ * @param[in,out] handle Handle
  * @param[in] name Name
  * @return New chat account
  */
 struct GNUNET_CHAT_Account*
-account_create (const char *name);
+account_create (struct GNUNET_CHAT_Handle *handle,
+                const char *name);
 
 /**
  * Creates a chat account using a given <i>ego</i> and
  * a matching <i>name</i>.
  *
+ * @param[in,out] handle Handle
  * @param[in] ego EGO
  * @param[in] name Name
  * @return New chat account
  */
 struct GNUNET_CHAT_Account*
-account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
+account_create_from_ego (struct GNUNET_CHAT_Handle *handle,
+                         struct GNUNET_IDENTITY_Ego *ego,
 			                   const char *name);
 
 /**

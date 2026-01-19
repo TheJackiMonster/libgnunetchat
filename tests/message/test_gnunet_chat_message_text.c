@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2023--2024 GNUnet e.V.
+   Copyright (C) 2023--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,9 +24,10 @@
 
 #include "test_gnunet_chat.h"
 
-#define TEST_TEXT_ID    "gnunet_chat_message_text"
-#define TEST_TEXT_GROUP "gnunet_chat_message_text_group"
-#define TEST_TEXT_MSG   "test_text_message"
+#define TEST_TEXT_ID     "gnunet_chat_message_text"
+#define TEST_TEXT_GROUP  "gnunet_chat_message_text_group"
+#define TEST_TEXT_MSG    "test_text_message"
+#define TEST_TEXT_SECRET "test_secret_text"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_message_text_msg(void *cls,
@@ -63,7 +64,13 @@ on_gnunet_chat_message_text_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_TEXT_SECRET,
+          strlen(TEST_TEXT_SECRET)
+        );
+
         text_stage = 1;
       }
 

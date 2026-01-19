@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@
 #include "test_gnunet_chat.h"
 
 #define TEST_UPDATE_ID     "gnunet_chat_handle_update"
+#define TEST_UPDATE_SECRET "test_secret_handle_update"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_handle_update_msg(void *cls,
@@ -62,8 +63,14 @@ on_gnunet_chat_handle_update_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_UPDATE_SECRET,
+          strlen(TEST_UPDATE_SECRET)
+        );
+
         update_stage = 1;
-        GNUNET_CHAT_connect(handle, account);
       }
       
       break;

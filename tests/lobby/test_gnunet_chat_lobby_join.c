@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2024 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,7 +24,8 @@
 
 #include "test_gnunet_chat.h"
 
-#define TEST_JOIN_ID "gnunet_chat_lobby_join"
+#define TEST_JOIN_ID     "gnunet_chat_lobby_join"
+#define TEST_JOIN_SECRET "test_secret_lobby_join"
 
 void
 on_gnunet_chat_lobby_join_open(void *cls,
@@ -71,7 +72,13 @@ on_gnunet_chat_lobby_join_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_JOIN_SECRET,
+          strlen(TEST_JOIN_SECRET)
+        );
+
         lobby_stage = 1;
       }
 

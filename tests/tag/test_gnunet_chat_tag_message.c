@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,7 @@
 #define TEST_TAG_GROUP   "gnunet_chat_tag_message_group"
 #define TEST_TAG_MSG     "test_message_tag"
 #define TEST_TAG_MSG_TAG "test_message_tag_tagged"
+#define TEST_TAG_SECRET  "test_secret_tag_message"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_tag_message_msg(void *cls,
@@ -65,7 +66,13 @@ on_gnunet_chat_tag_message_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_TAG_SECRET,
+          strlen(TEST_TAG_SECRET)
+        );
+
         tag_stage = 1;
       }
 

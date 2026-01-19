@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -184,7 +184,9 @@ GNUNET_CHAT_find_account (const struct GNUNET_CHAT_Handle *handle,
 
 void
 GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
-                     struct GNUNET_CHAT_Account *account)
+                     struct GNUNET_CHAT_Account *account,
+                     const char *secret,
+                     uint32_t secret_len)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
@@ -201,15 +203,35 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
     return;
   }
 
+  handle->next = account;
+
+  if (handle->next_secret)
+  {
+    GNUNET_CRYPTO_zero_keys(
+      handle->next_secret,
+      sizeof(*(handle->next_secret))
+    );
+    
+    GNUNET_free(handle->next_secret);
+  }
+
+  if ((secret) && (secret_len > 0))
+  {
+    handle->next_secret = GNUNET_new(struct GNUNET_HashCode);
+    
+    if (handle->next_secret)
+      GNUNET_CRYPTO_hash(secret, secret_len, handle->next_secret);
+  }
+  else
+    handle->next_secret = NULL;
+
   if (handle->current)
   {
-    handle->next = account;
     handle->connection = NULL;
     GNUNET_CHAT_disconnect(handle);
     return;
   }
 
-  handle->next = account;
   handle->connection = GNUNET_SCHEDULER_add_now(
     task_handle_connection,
     handle
@@ -2330,6 +2352,8 @@ GNUNET_CHAT_message_get_text (const struct GNUNET_CHAT_Message *message)
 
   if (GNUNET_CHAT_FLAG_WARNING == message->flag)
     return message->warning;
+  else if (GNUNET_CHAT_FLAG_UPDATE_ACCOUNT == message->flag)
+    return message->warning;
   else if (GNUNET_CHAT_FLAG_ATTRIBUTES == message->flag)
     return message->attr;
 
@@ -3286,4 +3310,62 @@ GNUNET_CHAT_discourse_iterate_contacts (struct GNUNET_CHAT_Discourse *discourse,
   }
 
   return iterations;
+}
+
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_generate_secret (char *secret,
+                             uint32_t secret_len)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (secret_len <= 0)
+    return GNUNET_SYSERR;
+
+  const uint32_t requested = secret_len * 5 / 8 + 1;
+  const uint32_t size = ((requested*8) + (((requested*8) % 5) > 0 ? 5 - ((requested*8) % 5) : 0)) / 5;
+
+  char *raw_secret = GNUNET_malloc(requested);
+  char *buf;
+
+  if (!raw_secret)
+    return GNUNET_SYSERR;
+
+  if (size > secret_len)
+  {
+    buf = GNUNET_malloc(size);
+
+    if (!buf)
+    {
+      GNUNET_free(raw_secret);
+      return GNUNET_SYSERR;
+    }
+  }
+  else
+    buf = secret;
+
+  GNUNET_CRYPTO_random_block(
+    GNUNET_CRYPTO_QUALITY_STRONG,
+    raw_secret,
+    requested
+  );
+
+  enum GNUNET_GenericReturnValue result;
+  result = GNUNET_STRINGS_data_to_string(
+    raw_secret,
+    requested,
+    buf,
+    size
+  ) == NULL? GNUNET_SYSERR : GNUNET_OK;
+
+  GNUNET_CRYPTO_zero_keys(raw_secret, requested);
+  GNUNET_free(raw_secret);
+
+  if (buf != secret)
+  {
+    GNUNET_memcpy(secret, buf, secret_len);
+    GNUNET_CRYPTO_zero_keys(buf, size);
+    GNUNET_free(buf);
+  }
+
+  return result;
 }

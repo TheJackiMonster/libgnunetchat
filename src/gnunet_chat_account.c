@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2025 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -29,13 +29,17 @@
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_util_lib.h>
 
 struct GNUNET_CHAT_Account*
-account_create (const char *name)
+account_create (struct GNUNET_CHAT_Handle *handle,
+                const char *name)
 {
   GNUNET_assert(name);
 
   struct GNUNET_CHAT_Account *account = GNUNET_new(struct GNUNET_CHAT_Account);
+
+  account->handle = handle;
 
   account->ego = NULL;
   account->created = GNUNET_NO;
@@ -50,12 +54,13 @@ account_create (const char *name)
 }
 
 struct GNUNET_CHAT_Account*
-account_create_from_ego (struct GNUNET_IDENTITY_Ego *ego,
+account_create_from_ego (struct GNUNET_CHAT_Handle *handle,
+                         struct GNUNET_IDENTITY_Ego *ego,
 			                   const char *name)
 {
   GNUNET_assert((ego) && (name));
 
-  struct GNUNET_CHAT_Account *account = account_create(name);
+  struct GNUNET_CHAT_Account *account = account_create(handle, name);
   
   account->ego = ego;
   account->created = GNUNET_YES;

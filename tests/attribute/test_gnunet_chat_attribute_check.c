@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,9 +24,10 @@
 
 #include "test_gnunet_chat.h"
 
-#define TEST_CHECK_ID    "gnunet_chat_attribute_check"
-#define TEST_CHECK_NAME  "test_attribute_check_name"
-#define TEST_CHECK_VALUE "test_attribute_check_value"
+#define TEST_CHECK_ID     "gnunet_chat_attribute_check"
+#define TEST_CHECK_NAME   "test_attribute_check_name"
+#define TEST_CHECK_VALUE  "test_attribute_check_value"
+#define TEST_CHECK_SECRET "test_secret_attribute_check"
 
 enum GNUNET_GenericReturnValue
 on_gnunet_chat_attribute_check_attr(void *cls,
@@ -84,7 +85,13 @@ on_gnunet_chat_attribute_check_msg(void *cls,
 
         ck_assert_ptr_nonnull(account);
 
-        GNUNET_CHAT_connect(handle, account);
+        GNUNET_CHAT_connect(
+          handle,
+          account,
+          TEST_CHECK_SECRET,
+          strlen(TEST_CHECK_SECRET)
+        );
+
         attribute_stage = 1;
       }
 

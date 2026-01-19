@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -330,6 +330,9 @@ on_handle_gnunet_identity (void *cls,
     if ((name) && ((!(accounts->account->name)) ||
         (0 != strcmp(accounts->account->name, name))))
     {
+      const char *old_name = account_get_name(accounts->account);
+      char *name_buffer = old_name? GNUNET_strdup(old_name) : NULL;
+      
       util_set_name_field(name, &(accounts->account->name));
 
       handle_send_internal_message(
@@ -337,9 +340,12 @@ on_handle_gnunet_identity (void *cls,
         accounts->account,
         NULL,
         GNUNET_CHAT_FLAG_UPDATE_ACCOUNT,
-        NULL,
+        name_buffer,
         GNUNET_YES
       );
+
+      if (name_buffer)
+        GNUNET_free(name_buffer);
     }
     else if ((!name) && (!(accounts->op)))
     {
@@ -371,7 +377,7 @@ skip_account:
 
   accounts = internal_accounts_create(
     handle,
-    account_create_from_ego(ego, name)
+    account_create_from_ego(handle, ego, name)
   );
 
 send_refresh:
@@ -401,7 +407,7 @@ cb_account_creation (void *cls,
 
   if ((!(accounts->account)) && (accounts->identifier))
     accounts->account = account_create(
-      accounts->identifier
+      accounts->handle, accounts->identifier
     );
   
   internal_accounts_stop_method(accounts);
