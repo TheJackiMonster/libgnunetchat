@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2025 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -30,7 +30,7 @@
 
 struct GNUNET_CHAT_Uri*
 uri_create_chat (const struct GNUNET_CRYPTO_BlindablePublicKey *zone,
-	               const char *label)
+                 const char *label)
 {
   GNUNET_assert((zone) && (label));
 
@@ -106,7 +106,7 @@ uri_parse_from_string (const char *string,
     struct GNUNET_CRYPTO_BlindablePublicKey zone;
 
     const char *data = string + prefix_len;
-    char *end = strchr(data, '.');
+    const char *end = strchr(data, '.');
 
     if (!end)
     {
