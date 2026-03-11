@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,9 @@
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_util_lib.h>
+
+#define GNUNET_CHAT_SALT_FILE "gnunet-chat-salt-file-encryption-conLMESm@&lME~l"
 
 static const char label_prefix_of_contact [] = "contact";
 static const char label_prefix_of_group [] = "group";
@@ -182,6 +185,15 @@ util_encrypt_file (const char *filename,
   if (!key)
     goto skip_encryption;
 
+  if (GNUNET_YES != GNUNET_CRYPTO_hkdf_gnunet (
+        &iv, sizeof (iv),
+        GNUNET_CHAT_SALT_FILE,
+        sizeof (GNUNET_CHAT_SALT_FILE),
+        key,
+        sizeof (*key),
+        GNUNET_CRYPTO_kdf_arg_auto(hash)))
+    return GNUNET_SYSERR;
+
   for (uint64_t i = 0; i < blocks; i++)
   {
     const uint64_t index = (blocks - i - 1);
@@ -192,8 +204,6 @@ util_encrypt_file (const char *filename,
 
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
-    else
-      GNUNET_CRYPTO_symmetric_derive_iv(&iv, key, hash, sizeof(hash), NULL);
 
     result = GNUNET_CRYPTO_symmetric_encrypt(
     	location,
@@ -264,6 +274,15 @@ util_decrypt_file (const char *filename,
   if (!key)
     goto skip_decryption;
 
+  if (GNUNET_YES != GNUNET_CRYPTO_hkdf_gnunet (
+        &iv, sizeof (iv),
+        GNUNET_CHAT_SALT_FILE,
+        sizeof (GNUNET_CHAT_SALT_FILE),
+        key,
+        sizeof (*key),
+        GNUNET_CRYPTO_kdf_arg_auto(hash)))
+    return GNUNET_SYSERR;
+
   for (uint64_t index = 0; index < blocks; index++)
   {
     const uint64_t offset = block_size * index;
@@ -273,8 +292,6 @@ util_decrypt_file (const char *filename,
 
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
-    else
-      GNUNET_CRYPTO_symmetric_derive_iv(&iv, key, hash, sizeof(hash), NULL);
 
     result = GNUNET_CRYPTO_symmetric_decrypt(
       location,
