@@ -1,3 +1,10 @@
+## Version 0.7.0
+* Fix build compatibility with GNUnet 0.27.0
+* Add account secrets for encrypted storage of keys
+* Implement function to randomly generate account secrets
+* Fix issues with internal warning/error messages
+* Add old account name to messages caused by renaming
+
 ## Version 0.6.1
 * Fix build compatibility with GNUnet 0.26.0
 
