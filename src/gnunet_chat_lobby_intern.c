@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2025 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -90,9 +90,15 @@ cont_lobby_identity_create (void *cls,
     lobby->context->room
   );
 
+  const struct GNUNET_PeerIdentity *pid = lobby->handle->pid;
+
   struct GNUNET_MESSENGER_RoomEntryRecord room;
-  GNUNET_CRYPTO_get_peer_identity(lobby->handle->cfg, &(room.door));
   GNUNET_memcpy(&(room.key), key, sizeof(room.key));
+
+  if (pid)
+    GNUNET_memcpy(&(room.door), pid, sizeof(room.door));
+  else
+    memset(&(room.door), 0, sizeof(room.door));
 
   struct GNUNET_GNSRECORD_Data data [1];
   data[0].record_type = GNUNET_GNSRECORD_TYPE_MESSENGER_ROOM_ENTRY;

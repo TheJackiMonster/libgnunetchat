@@ -415,12 +415,6 @@ ego_lookup (void *cls,
     tool
   );
 
-  struct GNUNET_PeerIdentity peer;
-  GNUNET_CRYPTO_get_peer_identity(
-    tool->cfg,
-    &peer
-  );
-
   struct GNUNET_HashCode hash;
   
   if (tool->room_name)
@@ -443,7 +437,7 @@ ego_lookup (void *cls,
   
   GNUNET_MESSENGER_enter_room(
     tool->handle,
-    &peer,
+    NULL,
     &rkey
   );
 }

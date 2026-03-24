@@ -491,18 +491,10 @@ ego_lookup (void *cls,
     tool
   );
 
-  struct GNUNET_PeerIdentity peer;
-  GNUNET_CRYPTO_get_peer_identity(
-    tool->cfg,
-    &peer
-  );
-
   if (tool->auto_pong)
-    printf("PONG ");
+    printf("PONG");
   else
-    printf("PING ");
-
-  printf("%s", GNUNET_i2s(&peer));
+    printf("PING");
 
   union GNUNET_MESSENGER_RoomKey rkey;
   if (tool->room_name)

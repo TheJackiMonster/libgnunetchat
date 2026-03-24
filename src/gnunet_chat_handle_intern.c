@@ -39,6 +39,7 @@
 
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
+#include <gnunet/gnunet_hello_uri_lib.h>
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
@@ -57,6 +58,7 @@ static const char gnunet_service_name_gns [] = "gns";
 static const char gnunet_service_name_identity [] = "identity";
 static const char gnunet_service_name_messenger [] = "messenger";
 static const char gnunet_service_name_namestore [] = "namestore";
+static const char gnunet_service_name_pils [] = "pils";
 static const char gnunet_service_name_reclaim [] = "reclaim";
 
 void
@@ -131,14 +133,18 @@ on_handle_arm_connection(void *cls,
 
   GNUNET_assert((chat) && (chat->arm));
 
-  if (GNUNET_YES == connected) {
+  if (GNUNET_YES == connected)
+  {
     _request_service_via_arm(chat, gnunet_service_name_identity);
     _request_service_via_arm(chat, gnunet_service_name_messenger);
     _request_service_via_arm(chat, gnunet_service_name_fs);
     _request_service_via_arm(chat, gnunet_service_name_gns);
     _request_service_via_arm(chat, gnunet_service_name_namestore);
+    _request_service_via_arm(chat, gnunet_service_name_pils);
     _request_service_via_arm(chat, gnunet_service_name_reclaim);
-  } else {
+  }
+  else
+  {
     _request_service_via_arm(chat, gnunet_service_name_arm);
   }
 }
@@ -655,6 +661,8 @@ scan_handle_room_members (void* cls,
 {
   struct GNUNET_CHAT_Handle *handle = cls;
 
+  GNUNET_assert((handle) && (member));
+
   if (GNUNET_OK == intern_provide_contact_for_member(handle, member, NULL))
     return GNUNET_YES;
   else
@@ -669,19 +677,41 @@ on_monitor_namestore_record(void *cls,
                             unsigned int count,
                             const struct GNUNET_GNSRECORD_Data *data)
 {
-  struct GNUNET_CHAT_Handle *chat = cls;
+  struct GNUNET_CHAT_Handle *handle = cls;
 
-  if (chat->destruction)
+  GNUNET_assert((handle) && (label) && (data));
+
+  if (handle->destruction)
   {
-    GNUNET_NAMESTORE_zone_monitor_stop(chat->monitor);
-    chat->monitor = NULL;
+    GNUNET_NAMESTORE_zone_monitor_stop(handle->monitor);
+    handle->monitor = NULL;
     return;
   }
 
-  handle_process_records(chat, label, count, data);
+  handle_process_records(handle, label, count, data);
 
-  if (chat->monitor)
-    GNUNET_NAMESTORE_zone_monitor_next(chat->monitor, 1);
+  if (handle->monitor)
+    GNUNET_NAMESTORE_zone_monitor_next(handle->monitor, 1);
+}
+
+void
+on_pils_identity_changed(void *cls,
+                         const struct GNUNET_HELLO_Parser *parser,
+                         GNUNET_UNUSED const struct GNUNET_HashCode *hash)
+{
+  struct GNUNET_CHAT_Handle *handle = cls;
+
+  GNUNET_assert((handle) && (parser));
+
+  const struct GNUNET_PeerIdentity *id = GNUNET_HELLO_parser_get_id(parser);
+
+  if (!id)
+    return;
+
+  if (!handle->pid)
+    handle->pid = GNUNET_new(struct GNUNET_PeerIdentity);
+
+  GNUNET_memcpy(handle->pid, id, sizeof(struct GNUNET_PeerIdentity));
 }
 
 void

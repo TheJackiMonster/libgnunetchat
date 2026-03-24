@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -48,10 +48,9 @@ search_group_by_topic(void *cls,
 		(group->context->room)
   );
 
-  struct GNUNET_PeerIdentity peer;
-  GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &peer);
+  const struct GNUNET_PeerIdentity *pid = group->handle->pid;
 
-  if (0 == GNUNET_memcmp(&peer, door))
+  if ((pid != NULL) && (0 == GNUNET_memcmp(pid, door)))
     return;
 
   union GNUNET_MESSENGER_RoomKey key;

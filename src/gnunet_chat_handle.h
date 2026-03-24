@@ -43,6 +43,7 @@
 #include <gnunet/gnunet_identity_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
+#include <gnunet/gnunet_pils_service.h>
 #include <gnunet/gnunet_reclaim_lib.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_time_lib.h>
@@ -139,8 +140,10 @@ struct GNUNET_CHAT_Handle
   struct GNUNET_IDENTITY_Handle *identity;
   struct GNUNET_MESSENGER_Handle *messenger;
   struct GNUNET_NAMESTORE_Handle *namestore;
+  struct GNUNET_PILS_Handle *pils;
   struct GNUNET_RECLAIM_Handle *reclaim;
 
+  struct GNUNET_PeerIdentity *pid;
   char *public_key;
   void *user_pointer;
 };

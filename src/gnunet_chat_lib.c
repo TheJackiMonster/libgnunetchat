@@ -1489,6 +1489,11 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
   if (!context)
     return GNUNET_SYSERR;
 
+  const struct GNUNET_PeerIdentity *pid = context->handle->pid;
+
+  if (!pid)
+    return GNUNET_SYSERR;
+
   union GNUNET_MESSENGER_RoomKey key;
   GNUNET_memcpy(
     &(key.hash),
@@ -1504,7 +1509,7 @@ GNUNET_CHAT_group_invite_contact (struct GNUNET_CHAT_Group *group,
   memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
-  GNUNET_CRYPTO_get_peer_identity(group->handle->cfg, &(msg.body.invite.door));
+  GNUNET_memcpy(&(msg.body.invite.door), pid, sizeof(msg.body.invite.door));
   GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
   GNUNET_MESSENGER_send_message(context->room, &msg, contact->member);
@@ -1658,20 +1663,20 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
       handle->contexts, &(key.hash)))
     return GNUNET_SYSERR;
+  
+  const struct GNUNET_PeerIdentity *pid = handle->pid;
+
+  if (!pid)
+    return GNUNET_SYSERR;
 
   struct GNUNET_MESSENGER_Room *room;
   if (GNUNET_YES == owned)
   {
-    struct GNUNET_PeerIdentity door;
-    if (GNUNET_OK == GNUNET_CRYPTO_get_peer_identity(
-          handle->cfg, &door))
-      room = GNUNET_MESSENGER_enter_room(
-        handle->messenger,
-        &door,
-        &key
-      );
-    else
-      room = NULL;
+    room = GNUNET_MESSENGER_enter_room(
+      handle->messenger,
+      pid,
+      &key
+    );
   }
   else
     room = GNUNET_MESSENGER_open_room(
@@ -1697,7 +1702,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
     memset(&msg, 0, sizeof(msg));
 
     msg.header.kind = GNUNET_MESSENGER_KIND_INVITE;
-    GNUNET_CRYPTO_get_peer_identity(handle->cfg, &(msg.body.invite.door));
+    GNUNET_memcpy(&(msg.body.invite.door), pid, sizeof(msg.body.invite.door));
     GNUNET_memcpy(&(msg.body.invite.key), &key, sizeof(msg.body.invite.key));
 
     GNUNET_MESSENGER_send_message(other->room, &msg, context->contact);

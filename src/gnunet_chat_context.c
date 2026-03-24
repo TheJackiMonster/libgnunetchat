@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -33,6 +33,7 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_namestore_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
+#include <gnunet/gnunet_util_lib.h>
 #include <string.h>
 
 static const unsigned int initial_map_size_of_room = 8;
@@ -455,7 +456,9 @@ context_write_records (struct GNUNET_CHAT_Context *context)
     context->handle
   );
 
-  if (!zone)
+  const struct GNUNET_PeerIdentity *pid = context->handle->pid;
+
+  if ((!zone) || (!pid))
     return;
 
   const struct GNUNET_HashCode *hash = GNUNET_MESSENGER_room_get_key(
@@ -465,7 +468,7 @@ context_write_records (struct GNUNET_CHAT_Context *context)
   struct GNUNET_TIME_Absolute expiration = GNUNET_TIME_absolute_get_forever_();
 
   struct GNUNET_MESSENGER_RoomEntryRecord room_entry;
-  GNUNET_CRYPTO_get_peer_identity(context->handle->cfg, &(room_entry.door));
+  GNUNET_memcpy(&(room_entry.door), pid, sizeof(*pid));
 
   GNUNET_memcpy(
     &(room_entry.key),

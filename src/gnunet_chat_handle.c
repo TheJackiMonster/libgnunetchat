@@ -30,6 +30,7 @@
 #include <gnunet/gnunet_arm_service.h>
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_pils_service.h>
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_scheduler_lib.h>
 #include <gnunet/gnunet_util_lib.h>
@@ -151,10 +152,17 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
     handle->cfg
   );
 
+  handle->pils = GNUNET_PILS_connect(
+    handle->cfg,
+    NULL,
+    handle
+  );
+
   handle->reclaim = GNUNET_RECLAIM_connect(
     handle->cfg
   );
 
+  handle->pid = NULL;
   handle->public_key = NULL;
   handle->user_pointer = NULL;
   return handle;
@@ -223,6 +231,15 @@ handle_destroy (struct GNUNET_CHAT_Handle *handle)
 
   if (handle->reclaim)
     GNUNET_RECLAIM_disconnect(handle->reclaim);
+
+  if (handle->pils)
+    GNUNET_PILS_disconnect(handle->pils);
+
+  if (handle->pid)
+  {
+    GNUNET_free(handle->pid);
+    handle->pid = NULL;
+  }
 
   if (handle->namestore)
     GNUNET_NAMESTORE_disconnect(handle->namestore);
