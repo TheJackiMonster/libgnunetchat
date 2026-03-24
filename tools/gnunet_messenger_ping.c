@@ -530,7 +530,7 @@ ego_lookup (void *cls,
   
   tool->room = GNUNET_MESSENGER_enter_room(
     tool->handle,
-    &peer,
+    NULL,
     &rkey
   );
   
