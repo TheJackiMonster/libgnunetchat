@@ -154,7 +154,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->pils = GNUNET_PILS_connect(
     handle->cfg,
-    NULL,
+    on_pils_identity_changed,
     handle
   );
 
