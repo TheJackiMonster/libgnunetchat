@@ -2731,43 +2731,47 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 
   if (!file)
     return NULL;
-
+  
   if (file->preview)
     return file->preview;
-
+  
   char *filename = handle_create_file_path(
     file->handle, &(file->hash)
   );
 
   if (!filename)
     return NULL;
-
+  
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
     goto free_filename;
-
+  
   if (!(file->key))
   {
     file->preview = filename;
     return file->preview;
   }
-
+  
   file->preview = GNUNET_DISK_mktemp(
     file->name? file->name : ""
   );
 
   if (!(file->preview))
     goto free_filename;
+  
+  remove(file->preview);
+
+  if (GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview))
+	goto cleanup_preview;
+
+  if (GNUNET_OK == util_decrypt_file(file->preview, &(file->hash), file->key))
+	goto free_filename;
 
   remove(file->preview);
 
-  if ((GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview)) ||
-      (GNUNET_OK != util_decrypt_file(file->preview,
-      &(file->hash), file->key)))
-  {
-    GNUNET_free(file->preview);
-    file->preview = NULL;
-  }
-
+cleanup_preview:
+  GNUNET_free(file->preview);
+  file->preview = NULL;
+  
 free_filename:
   GNUNET_free(filename);
   return file->preview;

@@ -176,7 +176,6 @@ util_encrypt_file (const char *filename,
     return GNUNET_SYSERR;
   }
 
-  struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
   const uint64_t block_size = 1024*1024;
   ssize_t result = 0;
 
@@ -185,14 +184,18 @@ util_encrypt_file (const char *filename,
   if (!key)
     goto skip_encryption;
 
+  struct GNUNET_CRYPTO_SymmetricInitializationVector first_iv;
+
   if (GNUNET_YES != GNUNET_CRYPTO_hkdf_gnunet (
-        &iv, sizeof (iv),
+        &first_iv, sizeof (first_iv),
         GNUNET_CHAT_SALT_FILE,
         sizeof (GNUNET_CHAT_SALT_FILE),
         key,
         sizeof (*key),
         GNUNET_CRYPTO_kdf_arg_auto(hash)))
     return GNUNET_SYSERR;
+  
+  struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
 
   for (uint64_t i = 0; i < blocks; i++)
   {
@@ -204,6 +207,8 @@ util_encrypt_file (const char *filename,
 
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
+	else
+      memcpy(&iv, &first_iv, sizeof(iv));
 
     result = GNUNET_CRYPTO_symmetric_encrypt(
     	location,
@@ -249,10 +254,10 @@ util_decrypt_file (const char *filename,
     filename, GNUNET_DISK_OPEN_READWRITE,
     GNUNET_DISK_PERM_USER_READ | GNUNET_DISK_PERM_USER_WRITE
   );
-
+  
   if (!file)
     return GNUNET_SYSERR;
-
+  
   struct GNUNET_DISK_MapHandle *mapping = NULL;
   void* data = GNUNET_DISK_file_map(
     file, &mapping, GNUNET_DISK_MAP_TYPE_READWRITE, size
@@ -263,8 +268,7 @@ util_decrypt_file (const char *filename,
     GNUNET_DISK_file_close(file);
     return GNUNET_SYSERR;
   }
-
-  struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
+  
   const uint64_t block_size = 1024*1024;
   struct GNUNET_HashCode check;
   ssize_t result = 0;
@@ -273,15 +277,19 @@ util_decrypt_file (const char *filename,
 
   if (!key)
     goto skip_decryption;
-
+  
+  struct GNUNET_CRYPTO_SymmetricInitializationVector first_iv;
+  
   if (GNUNET_YES != GNUNET_CRYPTO_hkdf_gnunet (
-        &iv, sizeof (iv),
+        &first_iv, sizeof (first_iv),
         GNUNET_CHAT_SALT_FILE,
         sizeof (GNUNET_CHAT_SALT_FILE),
         key,
         sizeof (*key),
         GNUNET_CRYPTO_kdf_arg_auto(hash)))
     return GNUNET_SYSERR;
+  
+  struct GNUNET_CRYPTO_SymmetricInitializationVector iv;
 
   for (uint64_t index = 0; index < blocks; index++)
   {
@@ -292,6 +300,8 @@ util_decrypt_file (const char *filename,
 
     if (index > 0)
       memcpy(&iv, ((uint8_t*) data) + (block_size * (index - 1)), sizeof(iv));
+	else
+      memcpy(&iv, &first_iv, sizeof(iv));
 
     result = GNUNET_CRYPTO_symmetric_decrypt(
       location,
@@ -304,7 +314,7 @@ util_decrypt_file (const char *filename,
     if (result < 0)
       break;
   }
-
+  
 skip_decryption:
   GNUNET_CRYPTO_hash(data, size, &check);
 
@@ -319,10 +329,10 @@ skip_decryption:
 
   if (GNUNET_OK != GNUNET_DISK_file_close(file))
     result = -1;
-
+  
   if (result < 0)
     return GNUNET_SYSERR;
-
+  
   return GNUNET_OK;
 }
 
