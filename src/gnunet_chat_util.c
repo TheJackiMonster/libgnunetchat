@@ -28,8 +28,6 @@
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
 
-#define GNUNET_CHAT_SALT_FILE "gnunet-chat-salt-file-encryption-conLMESm@&lME~l"
-
 static const char label_prefix_of_contact [] = "contact";
 static const char label_prefix_of_group [] = "group";
 
