@@ -3328,7 +3328,6 @@ GNUNET_CHAT_generate_secret (char *secret,
     buf = secret;
 
   GNUNET_CRYPTO_random_block(
-    GNUNET_CRYPTO_QUALITY_STRONG,
     raw_secret,
     requested
   );
