@@ -211,14 +211,14 @@ GNUNET_CHAT_connect (struct GNUNET_CHAT_Handle *handle,
       handle->next_secret,
       sizeof(*(handle->next_secret))
     );
-    
+
     GNUNET_free(handle->next_secret);
   }
 
   if ((secret) && (secret_len > 0))
   {
     handle->next_secret = GNUNET_new(struct GNUNET_HashCode);
-    
+
     if (handle->next_secret)
       GNUNET_CRYPTO_hash(secret, secret_len, handle->next_secret);
   }
@@ -246,7 +246,7 @@ GNUNET_CHAT_disconnect (struct GNUNET_CHAT_Handle *handle)
 
   if ((!handle) || (handle->destruction))
     return;
-  
+
   if (handle->connection)
     GNUNET_SCHEDULER_cancel(handle->connection);
 
@@ -732,10 +732,10 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!handle) || (handle->destruction) || 
+  if ((!handle) || (handle->destruction) ||
       (!uri) || (GNUNET_CHAT_URI_TYPE_FS != uri->type))
     return NULL;
-  
+
   if (!GNUNET_FS_uri_test_chk(uri->fs.uri))
     return NULL;
 
@@ -759,13 +759,13 @@ GNUNET_CHAT_request_file (struct GNUNET_CHAT_Handle *handle,
   if (!file)
     return NULL;
 
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(handle->files, hash, file, 
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(handle->files, hash, file,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
   {
     file_destroy(file);
     file = NULL;
   }
-  
+
   return file;
 }
 
@@ -781,7 +781,7 @@ GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
   if ((!handle) || (handle->destruction) ||
       (!path))
     return NULL;
-  
+
   struct GNUNET_HashCode hash;
   if (GNUNET_OK != util_hash_file(path, &hash))
     return NULL;
@@ -814,8 +814,7 @@ GNUNET_CHAT_upload_file (struct GNUNET_CHAT_Handle *handle,
   file = file_create_from_disk(
     handle,
     basename(p),
-    &hash,
-    NULL
+    &hash
   );
 
   GNUNET_free(p);
@@ -1268,7 +1267,7 @@ GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
   struct GNUNET_CHAT_ContactIterateContexts it;
   it.contact = contact;
   it.tag = NULL;
-  
+
   if (GNUNET_NO == blocked)
     it.cb = contact_untag;
   else if (GNUNET_YES == blocked)
@@ -1384,7 +1383,7 @@ GNUNET_CHAT_contact_get_attributes (struct GNUNET_CHAT_Contact *contact,
 
   struct GNUNET_CHAT_InternalTickets *tickets;
   tickets = contact->tickets_head;
-  
+
   while (tickets)
   {
     ticket_consume(
@@ -1663,7 +1662,7 @@ GNUNET_CHAT_context_request (struct GNUNET_CHAT_Context *context)
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(
       handle->contexts, &(key.hash)))
     return GNUNET_SYSERR;
-  
+
   const struct GNUNET_PeerIdentity *pid = handle->pid;
 
   if (!pid)
@@ -1736,7 +1735,7 @@ GNUNET_CHAT_context_get_contact (struct GNUNET_CHAT_Context *context)
     find.ignore_key = GNUNET_MESSENGER_get_key(context->handle->messenger);
   else
     find.ignore_key = NULL;
-  
+
   find.contact = NULL;
 
   int member_count = GNUNET_MESSENGER_iterate_members(
@@ -1901,22 +1900,12 @@ GNUNET_CHAT_context_send_file (struct GNUNET_CHAT_Context *context,
     return NULL;
   }
 
-  struct GNUNET_CRYPTO_SymmetricSessionKey key;
-  GNUNET_CRYPTO_symmetric_create_session_key(&key);
-
-  if (GNUNET_OK != util_encrypt_file(filename, &hash, &key))
-  {
-    GNUNET_free(filename);
-    return NULL;
-  }
-
   char* p = GNUNET_strdup(path);
 
   file = file_create_from_disk(
     context->handle,
     basename(p),
-    &hash,
-    &key
+    &hash
   );
 
   GNUNET_free(p);
@@ -1970,7 +1959,7 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!context) || (!file) || 
+  if ((!context) || (!file) ||
       (!(file->name)) || (strlen(file->name) > NAME_MAX) ||
       (!(file->uri)) || (!(context->room)))
     return GNUNET_SYSERR;
@@ -1979,12 +1968,6 @@ GNUNET_CHAT_context_share_file (struct GNUNET_CHAT_Context *context,
   memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
-
-  if (file->key)
-    GNUNET_memcpy(&(msg.body.file.key), file->key,
-                  sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
-  else
-    memset(&(msg.body.file.key), 0, sizeof(msg.body.file.key));
 
   GNUNET_memcpy(&(msg.body.file.hash), &(file->hash), sizeof(file->hash));
   GNUNET_strlcpy(msg.body.file.name, file->name, NAME_MAX);
@@ -2314,7 +2297,7 @@ GNUNET_CHAT_message_is_tagged (const struct GNUNET_CHAT_Message *message,
 
   const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     message->context->taggings, &(message->hash));
-  
+
   if (!tagging)
     return GNUNET_NO;
 
@@ -2332,7 +2315,7 @@ GNUNET_CHAT_message_get_read_receipt (struct GNUNET_CHAT_Message *message,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)))
     return GNUNET_SYSERR;
 
@@ -2421,7 +2404,7 @@ GNUNET_CHAT_message_get_file (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)))
     return NULL;
 
@@ -2440,7 +2423,7 @@ GNUNET_CHAT_message_get_invitation (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)))
     return NULL;
 
@@ -2462,9 +2445,9 @@ GNUNET_CHAT_message_get_discourse (const struct GNUNET_CHAT_Message *message)
   if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)) || (!(message->context->discourses)))
     return NULL;
-  
+
   struct GNUNET_CHAT_Discourse *discourse;
-  
+
   if (GNUNET_MESSENGER_KIND_SUBSCRIBTION == message->msg->header.kind)
     discourse = GNUNET_CONTAINER_multishortmap_get(
       message->context->discourses,
@@ -2485,7 +2468,7 @@ GNUNET_CHAT_message_get_target (const struct GNUNET_CHAT_Message *message)
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)))
     return NULL;
 
@@ -2510,10 +2493,10 @@ GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!message) || (GNUNET_YES != message_has_msg(message)) || 
+  if ((!message) || (GNUNET_YES != message_has_msg(message)) ||
       (!(message->context)))
     return GNUNET_SYSERR;
-  
+
   struct GNUNET_TIME_Relative rel = GNUNET_TIME_relative_multiply(
     GNUNET_TIME_relative_get_second_(), delay
   );
@@ -2540,7 +2523,7 @@ GNUNET_CHAT_message_iterate_tags (struct GNUNET_CHAT_Message *message,
 
   const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     message->context->taggings, &(message->hash));
-  
+
   if (!tagging)
     return 0;
 
@@ -2724,6 +2707,39 @@ GNUNET_CHAT_file_is_ready (const struct GNUNET_CHAT_File *file)
 }
 
 
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_is_valid (const struct GNUNET_CHAT_File *file)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if ((!file) || (file->status & GNUNET_CHAT_FILE_STATUS_MASK))
+    return GNUNET_SYSERR;
+
+  char *filename = handle_create_file_path(
+    file->handle, &(file->hash)
+  );
+
+  if (!filename)
+    return GNUNET_SYSERR;
+
+  struct GNUNET_HashCode hash;
+  enum GNUNET_GenericReturnValue result;
+
+  if (GNUNET_OK == util_hash_file(filename, &hash))
+  {
+    if (0 == GNUNET_CRYPTO_hash_cmp(&hash, &(file->hash)))
+      result = GNUNET_YES;
+    else
+      result = GNUNET_NO;
+  }
+  else
+    result = GNUNET_SYSERR;
+
+  GNUNET_free(filename);
+  return result;
+}
+
+
 const char*
 GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 {
@@ -2731,49 +2747,24 @@ GNUNET_CHAT_file_open_preview (struct GNUNET_CHAT_File *file)
 
   if (!file)
     return NULL;
-  
+
   if (file->preview)
     return file->preview;
-  
+
   char *filename = handle_create_file_path(
     file->handle, &(file->hash)
   );
 
   if (!filename)
     return NULL;
-  
+
   if (GNUNET_YES != GNUNET_DISK_file_test(filename))
-    goto free_filename;
-  
-  if (!(file->key))
   {
-    file->preview = filename;
-    return file->preview;
+    GNUNET_free(filename);
+    filename = NULL;
   }
-  
-  file->preview = GNUNET_DISK_mktemp(
-    file->name? file->name : ""
-  );
 
-  if (!(file->preview))
-    goto free_filename;
-  
-  remove(file->preview);
-
-  if (GNUNET_OK != GNUNET_DISK_file_copy(filename, file->preview))
-	goto cleanup_preview;
-
-  if (GNUNET_OK == util_decrypt_file(file->preview, &(file->hash), file->key))
-	goto free_filename;
-
-  remove(file->preview);
-
-cleanup_preview:
-  GNUNET_free(file->preview);
-  file->preview = NULL;
-  
-free_filename:
-  GNUNET_free(filename);
+  file->preview = filename;
   return file->preview;
 }
 
@@ -2786,22 +2777,6 @@ GNUNET_CHAT_file_close_preview (struct GNUNET_CHAT_File *file)
   if ((!file) || (!(file->preview)))
     return;
 
-  if (!(file->key))
-    goto skip_filename;
-
-  char *filename = handle_create_file_path(
-    file->handle, &(file->hash)
-  );
-
-  if (!filename)
-    goto skip_filename;
-
-  if (0 != strcmp(filename, file->preview))
-    remove(file->preview);
-
-  GNUNET_free(filename);
-
-skip_filename:
   GNUNET_free(file->preview);
   file->preview = NULL;
 }
@@ -2872,7 +2847,7 @@ GNUNET_CHAT_file_start_download (struct GNUNET_CHAT_File *file,
   const uint64_t size = GNUNET_FS_uri_chk_get_file_size(file->uri);
 
   uint64_t offset;
-  if (GNUNET_OK != GNUNET_DISK_file_size(filename, &offset, 
+  if (GNUNET_OK != GNUNET_DISK_file_size(filename, &offset,
       GNUNET_NO, GNUNET_YES))
     offset = 0;
 
@@ -3041,7 +3016,7 @@ GNUNET_CHAT_invitation_accept (struct GNUNET_CHAT_Invitation *invitation)
       handle->contexts, &(invitation->key.hash), context,
       GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     goto destroy_context;
-  
+
   if (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type)
   {
     context_write_records(context);
@@ -3121,10 +3096,10 @@ GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitat
 
   const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     invitation->context->taggings, &(invitation->hash));
-  
+
   if (!tagging)
     return GNUNET_NO;
-  
+
   if (internal_tagging_iterate(tagging, GNUNET_NO, NULL, NULL, NULL) > 0)
     return GNUNET_YES;
   else
@@ -3212,7 +3187,7 @@ GNUNET_CHAT_discourse_close (struct GNUNET_CHAT_Discourse *discourse)
 
   if ((!discourse) || (!(discourse->context)) || (!(discourse->context->room)))
     return;
-  
+
   struct GNUNET_MESSENGER_Message msg;
   memset(&msg, 0, sizeof(msg));
 
@@ -3241,10 +3216,10 @@ GNUNET_CHAT_discourse_write (struct GNUNET_CHAT_Discourse *discourse,
 {
   GNUNET_CHAT_VERSION_ASSERT();
 
-  if ((!discourse) || (!data) || (!(discourse->context)) || 
+  if ((!discourse) || (!data) || (!(discourse->context)) ||
       (!(discourse->context->room)))
     return GNUNET_SYSERR;
-  
+
   static const uint64_t max_size = (uint16_t) (
     GNUNET_MAX_MESSAGE_SIZE - GNUNET_MIN_MESSAGE_SIZE -
     sizeof (struct GNUNET_MESSENGER_Message)

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -64,7 +64,7 @@ util_shorthash_from_member (const struct GNUNET_MESSENGER_Contact *member,
                             struct GNUNET_ShortHashCode *shorthash);
 
 /**
- * Converts a discourse id into a short hash variant for map access 
+ * Converts a discourse id into a short hash variant for map access
  * as key.
  *
  * @param[in] id Discourse id
@@ -106,37 +106,6 @@ util_set_name_field (const char *name,
 enum GNUNET_GenericReturnValue
 util_hash_file (const char *filename,
                 struct GNUNET_HashCode *hash);
-
-/**
- * Encrypts a file inplace under a given <i>filename</i>
- * with a selected symmetric <i>key</i> and its <i>hash</i>
- * as initialization vector.
- *
- * @param[in] filename File name
- * @param[in] hash Hash of file
- * @param[in] key Symmetric key
- * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
- */
-enum GNUNET_GenericReturnValue
-util_encrypt_file (const char *filename,
-                   const struct GNUNET_HashCode *hash,
-                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
-
-/**
- * Decrypts a file inplace under a given <i>filename</i>
- * with a selected symmetric <i>key</i> and its <i>hash</i>
- * as parameter for the initialization vector and comparison
- * to verify success.
- *
- * @param[in] filename File name
- * @param[in] hash Hash of file
- * @param[in] key Symmetric key
- * @return #GNUNET_OK on success, otherwise #GNUNET_SYSERR
- */
-enum GNUNET_GenericReturnValue
-util_decrypt_file (const char *filename,
-                   const struct GNUNET_HashCode *hash,
-                   const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
 
 /**
  * Append the path of a <i>directory</i> and a custom
@@ -219,7 +188,7 @@ util_lobby_name (const struct GNUNET_HashCode *hash,
 		             char **name);
 
 /**
- * Check whether an identity <i>name</i> could be a 
+ * Check whether an identity <i>name</i> could be a
  * standardized name for a lobby.
  * @see util_lobby_name()
  *

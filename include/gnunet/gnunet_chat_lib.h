@@ -112,7 +112,7 @@ enum GNUNET_CHAT_MessageKind
   GNUNET_CHAT_KIND_LOGIN = 3,              /**< GNUNET_CHAT_KIND_LOGIN */
 
   /**
-   * The kind to inform that the application needs to cleanup 
+   * The kind to inform that the application needs to cleanup
    * resources related to the currently connected account.
    */
   GNUNET_CHAT_KIND_LOGOUT = 4,             /**< GNUNET_CHAT_KIND_LOGOUT */
@@ -316,7 +316,7 @@ typedef enum GNUNET_GenericReturnValue
  * @param[in] uri Chat URI of the lobby or NULL on error
  */
 typedef void
-(*GNUNET_CHAT_LobbyCallback) (void *cls, 
+(*GNUNET_CHAT_LobbyCallback) (void *cls,
                               const struct GNUNET_CHAT_Uri *uri);
 
 /**
@@ -677,7 +677,7 @@ const char*
 GNUNET_CHAT_get_key (const struct GNUNET_CHAT_Handle *handle);
 
 /**
- * Updates an attribute of a chat handle for related communication under a given 
+ * Updates an attribute of a chat handle for related communication under a given
  * <i>name</i> and a custom <i>value</i>.
  *
  * @param[in,out] handle Chat handle
@@ -690,7 +690,7 @@ GNUNET_CHAT_set_attribute (struct GNUNET_CHAT_Handle *handle,
                            const char *value);
 
 /**
- * Deletes an attribute of a chat <i>handle</i> for related communication 
+ * Deletes an attribute of a chat <i>handle</i> for related communication
  * under a given <i>name</i>.
  *
  * @param[in,out] handle Chat handle
@@ -701,7 +701,7 @@ GNUNET_CHAT_delete_attribute (struct GNUNET_CHAT_Handle *handle,
                               const char *name);
 
 /**
- * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * Calls an optional <i>callback</i> for each attribute of a given chat
  * <i>handle</i>.
  *
  * @param[in,out] handle Chat handle
@@ -740,7 +740,7 @@ GNUNET_CHAT_unshare_attribute_from (struct GNUNET_CHAT_Handle *handle,
                                     const char *name);
 
 /**
- * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * Calls an optional <i>callback</i> for each attribute of a given chat
  * <i>handle</i> shared with a specific chat <i>contact</i>.
  *
  * @param[in,out] handle Chat handle
@@ -826,7 +826,7 @@ GNUNET_CHAT_lobby_join (struct GNUNET_CHAT_Handle *handle,
                         const struct GNUNET_CHAT_Uri *uri);
 
 /**
- * Requests a file with a given chat <i>handle</i> from a selected chat 
+ * Requests a file with a given chat <i>handle</i> from a selected chat
  * <i>uri</i> to potentially download it.
  *
  * @param[in,out] handle Chat handle
@@ -903,7 +903,7 @@ GNUNET_CHAT_iterate_contacts (struct GNUNET_CHAT_Handle *handle,
                               void *cls);
 
 /**
- * Returns the chat contact matching a given chat <i>handle</i>'s current 
+ * Returns the chat contact matching a given chat <i>handle</i>'s current
  * account.
  *
  * @param[in,out] handle Chat handle
@@ -922,7 +922,7 @@ const char*
 GNUNET_CHAT_account_get_name (const struct GNUNET_CHAT_Account *account);
 
 /**
- * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * Calls an optional <i>callback</i> for each attribute of a given chat
  * <i>account</i> using a chat <i>handle</i>.
  *
  * @param[in,out] handle Chat handle
@@ -1084,7 +1084,7 @@ GNUNET_CHAT_contact_set_blocked (struct GNUNET_CHAT_Contact *contact,
  * whether messages of it should be filtered.
  *
  * @param[in] contact Contact
- * @return #GNUNET_YES if the contact is blocked, #GNUNET_SYSERR on failure and 
+ * @return #GNUNET_YES if the contact is blocked, #GNUNET_SYSERR on failure and
  *         #GNUNET_NO otherwise
  */
 enum GNUNET_GenericReturnValue
@@ -1118,7 +1118,7 @@ GNUNET_CHAT_contact_untag (struct GNUNET_CHAT_Contact *contact,
  *
  * @param[in] contact Contact
  * @param[in] tag Tag
- * @return #GNUNET_YES if the contact is tagged, #GNUNET_SYSERR on failure and 
+ * @return #GNUNET_YES if the contact is tagged, #GNUNET_SYSERR on failure and
  *         #GNUNET_NO otherwise
  */
 enum GNUNET_GenericReturnValue
@@ -1126,7 +1126,7 @@ GNUNET_CHAT_contact_is_tagged (const struct GNUNET_CHAT_Contact *contact,
                                const char *tag);
 
 /**
- * Calls an optional <i>callback</i> for each tag of a given chat 
+ * Calls an optional <i>callback</i> for each tag of a given chat
  * <i>contact</i>.
  *
  * @param[in] contact Chat contact
@@ -1140,7 +1140,7 @@ GNUNET_CHAT_contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
                                   void *cls);
 
 /**
- * Calls an optional <i>callback</i> for each attribute of a given chat 
+ * Calls an optional <i>callback</i> for each attribute of a given chat
  * <i>contact</i>.
  *
  * @param[in,out] contact Chat contact
@@ -1349,8 +1349,8 @@ GNUNET_CHAT_context_send_read_receipt (struct GNUNET_CHAT_Context *context,
                                        struct GNUNET_CHAT_Message *message);
 
 /**
- * Uploads a local file specified via its <i>path</i> using symmetric encryption
- * and shares the regarding information to download and decrypt it in a given
+ * Uploads a local file specified via its <i>path</i> and shares the
+ * regarding information to download and verify it in a given
  * chat <i>context</i>.
  *
  * @param[in,out] context Chat context
@@ -1392,7 +1392,7 @@ GNUNET_CHAT_context_send_tag (struct GNUNET_CHAT_Context *context,
                               const char *tag);
 
 /**
- * Opens a chat discourse under a specific <i>id</i> in a given chat 
+ * Opens a chat discourse under a specific <i>id</i> in a given chat
  * <i>context</i> to send data live to other contacts.
  *
  * @param[in,out] context Chat context
@@ -1432,7 +1432,7 @@ GNUNET_CHAT_context_iterate_files (struct GNUNET_CHAT_Context *context,
                                    void *cls);
 
 /**
- * Iterates through the discourses of a given chat <i>context</i> with a 
+ * Iterates through the discourses of a given chat <i>context</i> with a
  * selected callback and custom closure.
  *
  * @param[in,out] context Chat context
@@ -1483,7 +1483,7 @@ struct GNUNET_CHAT_Contact*
 GNUNET_CHAT_message_get_recipient (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the <i>message</i> was sent by the related chat 
+ * Returns #GNUNET_YES if the <i>message</i> was sent by the related chat
  * handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
@@ -1504,35 +1504,35 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_private (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the <i>message</i> was received recently by related 
+ * Returns #GNUNET_YES if the <i>message</i> was received recently by related
  * chat handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received recently,
- *     otherwise #GNUNET_NO 
+ *     otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_recent (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the <i>message</i> was received because of an 
+ * Returns #GNUNET_YES if the <i>message</i> was received because of an
  * update by related chat handle, otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received to update
- *     a previous message, otherwise #GNUNET_NO 
+ *     a previous message, otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_update (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns #GNUNET_YES if the <i>message</i> was received because of a 
- * deletion by related chat handle or if it has been deleted internally, 
+ * Returns #GNUNET_YES if the <i>message</i> was received because of a
+ * deletion by related chat handle or if it has been deleted internally,
  * otherwise it returns #GNUNET_NO.
  *
  * @param[in] message Message
  * @return #GNUNET_YES if the message was received to delete
- *     a previous message, otherwise #GNUNET_NO 
+ *     a previous message, otherwise #GNUNET_NO
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_message_is_deleted (const struct GNUNET_CHAT_Message *message);
@@ -1596,7 +1596,7 @@ void*
 GNUNET_CHAT_message_get_user_pointer (const struct GNUNET_CHAT_Message *message);
 
 /**
- * Returns the account of a given <i>message</i> which is either 
+ * Returns the account of a given <i>message</i> which is either
  * its sender or target of the message depending on the kind of
  * the message, otherwise it returns NULL.
  *
@@ -1661,7 +1661,7 @@ GNUNET_CHAT_message_delete (struct GNUNET_CHAT_Message *message,
                             unsigned int delay);
 
 /**
- * Iterates through the tag messages in the context of a given 
+ * Iterates through the tag messages in the context of a given
  * <i>message</i>.
  *
  * @param[in,out] message Message
@@ -1675,7 +1675,7 @@ GNUNET_CHAT_message_iterate_tags (struct GNUNET_CHAT_Message *message,
                                   void *cls);
 
 /**
- * Returns the amount of data from a given chat <i>message</i> if its 
+ * Returns the amount of data from a given chat <i>message</i> if its
  * kind is #GNUNET_CHAT_KIND_DATA, otherwise it returns zero.
  *
  * @param[in] message Message
@@ -1692,7 +1692,7 @@ GNUNET_CHAT_message_available (const struct GNUNET_CHAT_Message *message);
  * @param[in] message Message
  * @param[out] data Data buffer
  * @param[in] size Data size
- * @return #GNUNET_OK on success, #GNUNET_NO if there's missing data 
+ * @return #GNUNET_OK on success, #GNUNET_NO if there's missing data
  *         to read, otherwise #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
@@ -1702,12 +1702,12 @@ GNUNET_CHAT_message_read (const struct GNUNET_CHAT_Message *message,
 
 /**
  * Feeds the data from a given chat <i>message</i> if its kind is
- * #GNUNET_CHAT_KIND_DATA into a specific file descriptor (of pipe for 
+ * #GNUNET_CHAT_KIND_DATA into a specific file descriptor (of pipe for
  * example).
  *
  * @param[in] message Message
  * @param[in] fd File descriptor
- * @return #GNUNET_OK on success, #GNUNET_NO if there's not enough data 
+ * @return #GNUNET_OK on success, #GNUNET_NO if there's not enough data
  *         to read, otherwise #GNUNET_SYSERR on failure
  */
 enum GNUNET_GenericReturnValue
@@ -1754,7 +1754,7 @@ uint64_t
 GNUNET_CHAT_file_get_local_size (const struct GNUNET_CHAT_File *file);
 
 /**
- * Returns a new allocated uri to access the content of a given 
+ * Returns a new allocated uri to access the content of a given
  * <i>file</i> handle.
  *
  * @param[in] file File handle
@@ -1781,6 +1781,17 @@ GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file);
  */
 enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_ready (const struct GNUNET_CHAT_File *file);
+
+/**
+ * Returns if a given <i>file</i> handle is verified
+ * to match its provided hash.
+ *
+ * @param[in] file File handle
+ * @return #GNUNET_YES when valid, #GNUNET_NO on mismatch
+ *         and #GNUNET_SYSERR on error
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_is_valid (const struct GNUNET_CHAT_File *file);
 
 /**
  * Returns the temporary file name of the decrypted file preview
@@ -1936,7 +1947,7 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_invitation_is_rejected (const struct GNUNET_CHAT_Invitation *invitation);
 
 /**
- * Returns whether the intend from a given 
+ * Returns whether the intend from a given
  * <i>invitation</i>. is to open a direct chat or
  * a group chat.
  *
@@ -1959,7 +1970,7 @@ GNUNET_CHAT_discourse_get_id (const struct GNUNET_CHAT_Discourse *discourse);
  * Returns whether a chat <i>discourse</i> is currently open.
  *
  * @param[in] discourse Chat discourse
- * @return #GNUNET_YES if the discourse is open, #GNUNET_SYSERR on failure and 
+ * @return #GNUNET_YES if the discourse is open, #GNUNET_SYSERR on failure and
  *         #GNUNET_NO otherwise.
  */
 enum GNUNET_GenericReturnValue
@@ -2020,7 +2031,7 @@ int
 GNUNET_CHAT_discourse_get_fd (const struct GNUNET_CHAT_Discourse *discourse);
 
 /**
- * Iterates through the subscribed chat contacts of a given chat <i>discourse</i> 
+ * Iterates through the subscribed chat contacts of a given chat <i>discourse</i>
  * with a selected callback and custom closure.
  *
  * @param[in,out] discourse Chat discourse

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@
 #ifndef GNUNET_CHAT_FILE_H_
 #define GNUNET_CHAT_FILE_H_
 
+#include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
@@ -76,7 +77,7 @@ struct GNUNET_CHAT_File
   char *name;
 
   struct GNUNET_HashCode hash;
-  struct GNUNET_CRYPTO_SymmetricSessionKey *key;
+
   struct GNUNET_FS_MetaData *meta;
   struct GNUNET_FS_Uri *uri;
 
@@ -125,21 +126,18 @@ file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
 
 /**
  * Creates a chat file handle from a local file on disk
- * under a given <i>name</i> using a <i>hash</i> and a
- * selected symmetric <i>key</i> with a selected chat
- * <i>handle</i>.
+ * under a given <i>name</i> using a <i>hash</i> with
+ * a selected chat <i>handle</i>.
  *
  * @param[in,out] handle Chat handle
  * @param[in] name File name
  * @param[in] hash File hash
- * @param[in] key Symmetric key
  * @return New chat file handle
  */
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
                        const char *name,
-                       const struct GNUNET_HashCode *hash,
-                       const struct GNUNET_CRYPTO_SymmetricSessionKey *key);
+                       const struct GNUNET_HashCode *hash);
 
 /**
  * Destroys a chat <i>file</i> handle and frees its memory.

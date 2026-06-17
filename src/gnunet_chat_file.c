@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,9 +26,11 @@
 
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_util.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_fs_service.h>
+#include <gnunet/gnunet_util_lib.h>
 #include <string.h>
 
 static void
@@ -61,6 +63,19 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (message) && (message->uri));
 
+  struct GNUNET_FS_Uri *uri = GNUNET_FS_uri_parse(message->uri, NULL);
+
+  if (!uri)
+    return NULL;
+
+  const struct GNUNET_HashCode *hash = GNUNET_FS_uri_chk_get_file_hash(uri);
+
+  if ((!hash) || (0 != GNUNET_CRYPTO_hash_cmp(hash, &(message->hash))))
+  {
+    GNUNET_FS_uri_destroy(uri);
+    return NULL;
+  }
+
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   if (!file)
@@ -69,20 +84,10 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   file->handle = handle;
   file->name = GNUNET_strndup(message->name, NAME_MAX);
 
-  file->key = GNUNET_new(struct GNUNET_CRYPTO_SymmetricSessionKey);
-
-  if (!(file->key))
-  {
-    GNUNET_free(file);
-    return NULL;
-  }
-
-  GNUNET_memcpy(file->key, &(message->key),
-                sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
-  GNUNET_memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
+  memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
-  file->uri = GNUNET_FS_uri_parse(message->uri, NULL);
+  file->uri = uri;
 
   file_initialize(file);
 
@@ -108,13 +113,11 @@ file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
   file->handle = handle;
   file->name = NULL;
 
-  file->key = NULL;
-
-  GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
+  memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
   file->uri = GNUNET_FS_uri_dup(uri);
-  
+
   file_initialize(file);
 
   return file;
@@ -123,8 +126,7 @@ file_create_from_chk_uri (struct GNUNET_CHAT_Handle *handle,
 struct GNUNET_CHAT_File*
 file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
                        const char *name,
-                       const struct GNUNET_HashCode *hash,
-                       const struct GNUNET_CRYPTO_SymmetricSessionKey *key)
+                       const struct GNUNET_HashCode *hash)
 {
   GNUNET_assert((handle) && (name) && (hash));
 
@@ -136,24 +138,6 @@ file_create_from_disk (struct GNUNET_CHAT_Handle *handle,
   file->handle = handle;
   file->name = GNUNET_strndup(name, NAME_MAX);
 
-  if (!key)
-  {
-    file->key = NULL;
-    goto skip_key;
-  }
-
-  file->key = GNUNET_new(struct GNUNET_CRYPTO_SymmetricSessionKey);
-
-  if (!(file->key))
-  {
-    GNUNET_free(file);
-    return NULL;
-  }
-
-  GNUNET_memcpy(file->key, key,
-                sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
-
-skip_key:
   GNUNET_memcpy(&(file->hash), hash, sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
@@ -175,9 +159,6 @@ file_destroy (struct GNUNET_CHAT_File *file)
 
   if (!(file->preview))
     goto skip_preview;
-
-  if (!(file->key))
-    goto skip_filename;
 
   char *filename = handle_create_file_path(
     file->handle, &(file->hash)
@@ -248,9 +229,6 @@ skip_preview:
 
   if (file->meta)
     GNUNET_FS_meta_data_destroy(file->meta);
-
-  if (file->key)
-    GNUNET_free(file->key);
 
   if (file->name)
     GNUNET_free(file->name);
@@ -349,10 +327,6 @@ file_update_upload (struct GNUNET_CHAT_File *file,
   memset(&msg, 0, sizeof(msg));
 
   msg.header.kind = GNUNET_MESSENGER_KIND_FILE;
-
-  if (file->key)
-    GNUNET_memcpy(&(msg.body.file.key), file->key,
-                  sizeof(struct GNUNET_CRYPTO_SymmetricSessionKey));
 
   GNUNET_memcpy(&(msg.body.file.hash), &(file->hash), sizeof(file->hash));
   GNUNET_strlcpy(msg.body.file.name, file->name, NAME_MAX);
