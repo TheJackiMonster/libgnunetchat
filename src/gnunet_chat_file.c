@@ -63,19 +63,6 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
 {
   GNUNET_assert((handle) && (message) && (message->uri));
 
-  struct GNUNET_FS_Uri *uri = GNUNET_FS_uri_parse(message->uri, NULL);
-
-  if (!uri)
-    return NULL;
-
-  const struct GNUNET_HashCode *hash = GNUNET_FS_uri_chk_get_file_hash(uri);
-
-  if ((!hash) || (0 != GNUNET_CRYPTO_hash_cmp(hash, &(message->hash))))
-  {
-    GNUNET_FS_uri_destroy(uri);
-    return NULL;
-  }
-
   struct GNUNET_CHAT_File* file = GNUNET_new(struct GNUNET_CHAT_File);
 
   if (!file)
@@ -84,10 +71,10 @@ file_create_from_message (struct GNUNET_CHAT_Handle *handle,
   file->handle = handle;
   file->name = GNUNET_strndup(message->name, NAME_MAX);
 
-  memcpy(&(file->hash), hash, sizeof(file->hash));
+  memcpy(&(file->hash), &(message->hash), sizeof(file->hash));
 
   file->meta = GNUNET_FS_meta_data_create();
-  file->uri = uri;
+  file->uri = GNUNET_FS_uri_parse(message->uri, NULL);
 
   file_initialize(file);
 

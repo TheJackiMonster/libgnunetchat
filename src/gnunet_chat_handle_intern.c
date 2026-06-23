@@ -873,6 +873,9 @@ on_handle_message_callback(void *cls)
 	      context->handle, &(message->msg->body.file)
       );
 
+	  if (!file)
+		  break;
+
       if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
           context->handle->files, &(file->hash), file,
           GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
