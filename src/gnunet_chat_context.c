@@ -68,7 +68,7 @@ init_new_context (struct GNUNET_CHAT_Context *context,
     initial_map_size, GNUNET_NO);
   context->discourses = GNUNET_CONTAINER_multishortmap_create(
     initial_map_size, GNUNET_NO);
-  
+
   context->user_pointer = NULL;
 
   context->member_pointers = GNUNET_CONTAINER_multishortmap_create(
@@ -87,7 +87,7 @@ context_create_from_room (struct GNUNET_CHAT_Handle *handle,
 
   context->handle = handle;
   context->type = GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN;
-  
+
   init_new_context(context, initial_map_size_of_room);
 
   context->room = room;
@@ -197,14 +197,14 @@ context_request_message (struct GNUNET_CHAT_Context* context,
   if ((!(context->room)) || (GNUNET_YES == context->deleted))
     return;
 
-  if ((GNUNET_is_zero(hash)) || 
+  if ((GNUNET_is_zero(hash)) ||
       (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(context->messages, hash)))
     return;
 
   if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(context->requests,
       hash, NULL, GNUNET_CONTAINER_MULTIHASHMAPOPTION_REPLACE))
     return;
-  
+
   if (context->request_task)
     return;
 
@@ -223,7 +223,7 @@ context_update_message (struct GNUNET_CHAT_Context* context,
 
   struct GNUNET_CHAT_Message *message = GNUNET_CONTAINER_multihashmap_get(
     context->messages, hash);
-  
+
   if (!message)
     return;
 
@@ -418,7 +418,7 @@ context_delete_message (struct GNUNET_CHAT_Context *context,
       if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
         context->invites, &(message->hash), invite))
         invitation_destroy(invite);
-      
+
       break;
     }
     case GNUNET_MESSENGER_KIND_FILE:
@@ -478,7 +478,7 @@ context_write_records (struct GNUNET_CHAT_Context *context)
 
   struct GNUNET_MESSENGER_RoomDetailsRecord room_details;
   memset(room_details.name, 0, sizeof(room_details.name));
-  
+
   const char *topic = context->topic;
 
   if (topic)

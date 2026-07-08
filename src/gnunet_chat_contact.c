@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2025 GNUnet e.V.
+   Copyright (C) 2021--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -26,6 +26,7 @@
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
 #include "gnunet_chat_ticket.h"
+#include "gnunet_chat_util.h"
 
 #include "internal/gnunet_chat_tagging.h"
 
@@ -107,7 +108,7 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
       return;
     }
 
-    GNUNET_memcpy(current, hash, 
+    GNUNET_memcpy(current, hash,
       sizeof(struct GNUNET_HashCode));
     return;
   }
@@ -117,9 +118,9 @@ contact_update_join (struct GNUNET_CHAT_Contact *contact,
   if (GNUNET_YES == blocked)
     contact_untag(contact, context, NULL);
 
-  GNUNET_memcpy(current, hash, 
+  GNUNET_memcpy(current, hash,
     sizeof(struct GNUNET_HashCode));
-  
+
   if (GNUNET_YES == blocked)
     contact_tag(contact, context, NULL);
 }
@@ -192,8 +193,9 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact,
     return contact->context;
 
   struct GNUNET_CHAT_ContactFindRoom find;
-  find.member_count = 0;
+  find.contexts = contact->handle->contexts;
   find.room = NULL;
+  find.member_count = 0;
 
   GNUNET_MESSENGER_find_rooms(
     contact->handle->messenger,
@@ -210,8 +212,17 @@ contact_find_context (const struct GNUNET_CHAT_Contact *contact,
     GNUNET_MESSENGER_room_get_key(find.room)
   );
 
-  if ((GNUNET_YES == room_required) && (!(context->room)))
+  if ((context->room) && (context->room != find.room))
     return NULL;
+
+  if (!context->room)
+    context->room = find.room;
+  if ((!context->contact) &&
+      (GNUNET_CHAT_CONTEXT_TYPE_GROUP != context->type))
+  {
+    context->contact = contact->member;
+    context->type = GNUNET_CHAT_CONTEXT_TYPE_CONTACT;
+  }
 
   return context;
 }
@@ -279,11 +290,11 @@ skip_context_search:
     contact, context);
 
   if (! hash)
-    return (general == GNUNET_YES? 
-      GNUNET_NO : 
+    return (general == GNUNET_YES?
+      GNUNET_NO :
       contact_is_tagged(contact, NULL, tag)
     );
-  
+
   const struct GNUNET_CHAT_InternalTagging *tagging = GNUNET_CONTAINER_multihashmap_get(
     context->taggings,
     hash
@@ -458,7 +469,7 @@ contact_iterate_tags (struct GNUNET_CHAT_Contact *contact,
 
       context = GNUNET_CONTAINER_multihashmap_get(
         contact->handle->contexts, &key);
-      
+
       if (context)
         result = contact_iterate_tags(
           contact,

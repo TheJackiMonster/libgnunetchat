@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -24,6 +24,7 @@
 
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_message.h"
+#include "gnunet_chat_util.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
@@ -34,8 +35,9 @@
 
 struct GNUNET_CHAT_ContactFindRoom
 {
-  int member_count;
+  struct GNUNET_CONTAINER_MultiHashMap *contexts;
   struct GNUNET_MESSENGER_Room *room;
+  int member_count;
 };
 
 enum GNUNET_GenericReturnValue
@@ -48,12 +50,22 @@ it_contact_find_room (void *cls,
   const int member_count = GNUNET_MESSENGER_iterate_members(room, NULL, NULL);
 
   struct GNUNET_CHAT_ContactFindRoom *find = cls;
+  struct GNUNET_CHAT_Context *context;
+
+  if ((member_count == 1) && (find->member_count == 1))
+    context = GNUNET_CONTAINER_multihashmap_get(
+      find->contexts,
+      GNUNET_MESSENGER_room_get_key(room)
+    );
+  else
+    context = NULL;
 
   if ((find->member_count <= 0) ||
-      ((member_count >= 1) && (member_count < find->member_count)))
+      ((member_count >= 1) && (member_count < find->member_count)) ||
+      ((context) && (context->type == GNUNET_CHAT_CONTEXT_TYPE_CONTACT)))
   {
-    find->member_count = member_count;
     find->room = room;
+    find->member_count = member_count;
   }
 
   return GNUNET_YES;
@@ -107,10 +119,10 @@ it_contact_iterate_unique_tag (void *cls,
   if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_contains(it->tags, &hash))
     return GNUNET_YES;
 
-  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(it->tags, 
+  if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(it->tags,
       &hash, NULL, GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
     return GNUNET_YES;
-  
+
   if (it->callback)
     return it->callback(it->cls, contact, tag);
   else
@@ -135,7 +147,7 @@ it_contact_iterate_tag (void *cls,
   if ((GNUNET_YES != message_has_msg(message)) ||
       (message->flags & GNUNET_MESSENGER_FLAG_DELETE))
     return GNUNET_YES;
-  
+
   if ((message->flags & GNUNET_MESSENGER_FLAG_SENT) &&
       (it->callback) && (message->msg->body.tag.tag))
     return it->callback(
