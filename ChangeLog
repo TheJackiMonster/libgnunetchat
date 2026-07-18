@@ -1,3 +1,9 @@
+## Version 0.8.0
+* Remove additional file encryption layer besides FS implicit layer
+* Update encryption to stay compatible with GNUnet 0.28.0
+* Implement PILS service to update peer identity
+* Fix issue creating duplicate contexts/chats for individual contacts
+
 ## Version 0.7.0
 * Fix build compatibility with GNUnet 0.27.0
 * Add account secrets for encrypted storage of keys
