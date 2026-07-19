@@ -26,7 +26,6 @@
 
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_handle.h"
-#include "gnunet_chat_util.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_fs_service.h>

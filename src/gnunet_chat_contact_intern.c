@@ -29,7 +29,6 @@
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_util_lib.h>
-#include <stdlib.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 

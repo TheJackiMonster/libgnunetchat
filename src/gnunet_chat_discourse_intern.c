@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -23,6 +23,10 @@
  */
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_discourse.h"
+#include "gnunet_chat_util.h"
+
+#include <unistd.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
 

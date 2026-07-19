@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2024 GNUnet e.V.
+   Copyright (C) 2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,12 +25,12 @@
 #ifndef GNUNET_CHAT_DISCOURSE_H_
 #define GNUNET_CHAT_DISCOURSE_H_
 
-#include "gnunet_chat_util.h"
-
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <gnunet/gnunet_util_lib.h>
+
+#include "gnunet_chat_lib.h"
 
 struct GNUNET_CHAT_Contact;
 struct GNUNET_CHAT_Context;
@@ -104,7 +104,7 @@ discourse_subscribe (struct GNUNET_CHAT_Discourse *discourse,
 
 /**
  * Ends the subscription of a specific chat <i>contact</i>
- * to a given chat <i>discourse</i> at a selected 
+ * to a given chat <i>discourse</i> at a selected
  * <i>timestamp</i> with a potential <i>delay</i>.
  *
  * @param[in,out] discourse Chat discourse

@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
 
 #include <gnunet/gnunet_messenger_service.h>

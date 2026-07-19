@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2022--2025 GNUnet e.V.
+   Copyright (C) 2022--2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,10 +25,10 @@
 #ifndef GNUNET_CHAT_URI_H_
 #define GNUNET_CHAT_URI_H_
 
+#include "gnunet_chat_lib.h"
+
 #include <gnunet/gnunet_fs_service.h>
 #include <gnunet/gnunet_util_lib.h>
-
-#include "gnunet_chat_util.h"
 
 struct GNUNET_CHAT_UriChat
 {
@@ -82,7 +82,7 @@ void
 uri_destroy (struct GNUNET_CHAT_Uri *uri);
 
 /**
- * Parses an UTF-8 string to a chat URI which will 
+ * Parses an UTF-8 string to a chat URI which will
  * be newly allocated.
  *
  * @param[in] string UTF-8 string to parse

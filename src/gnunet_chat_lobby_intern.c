@@ -23,6 +23,7 @@
  */
 
 #include "gnunet_chat_context.h"
+#include "gnunet_chat_handle.h"
 
 void
 cont_lobby_write_records (void *cls,

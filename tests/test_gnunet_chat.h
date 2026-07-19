@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -25,7 +25,6 @@
 #ifndef TEST_GNUNET_CHAT_H_
 #define TEST_GNUNET_CHAT_H_
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <check.h>
 

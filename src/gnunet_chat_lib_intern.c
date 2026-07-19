@@ -24,6 +24,8 @@
 
 #include "gnunet_chat_account.h"
 #include "gnunet_chat_contact.h"
+#include "gnunet_chat_context.h"
+#include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
 
 #include <gnunet/gnunet_common.h>
@@ -32,7 +34,6 @@
 #include <gnunet/gnunet_reclaim_service.h>
 #include <gnunet/gnunet_time_lib.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define GNUNET_UNUSED __attribute__ ((unused))
@@ -292,7 +293,7 @@ it_contact_iterate_contexts (void *cls,
   struct GNUNET_CHAT_Handle *handle = it->contact->handle;
   struct GNUNET_CHAT_Context *context = GNUNET_CONTAINER_multihashmap_get(
     handle->contexts, key);
-  
+
   if (! context)
     return GNUNET_YES;
 
@@ -599,7 +600,7 @@ cont_update_attribute_with_status (void *cls,
       handle,
       account,
       NULL,
-      GNUNET_CHAT_KIND_WARNING,
+      GNUNET_CHAT_FLAG_WARNING,
       emsg,
       GNUNET_YES
     );
@@ -612,7 +613,7 @@ cont_update_attribute_with_status (void *cls,
       attribute_name,
       GNUNET_YES
     );
-  
+
   internal_attributes_destroy(attributes);
 }
 
@@ -651,7 +652,7 @@ cb_task_finish_iterate_attribute (void *cls)
       cont_update_attribute_with_status,
       attributes
     );
-  
+
   if (attributes->data)
     GNUNET_free(attributes->data);
 
@@ -815,7 +816,7 @@ cb_iterate_attribute (void *cls,
 
   if (value)
     GNUNET_free (value);
-  
+
   if (GNUNET_YES != result)
     internal_attributes_stop_iter(attributes);
   else
@@ -879,7 +880,7 @@ attribute_list_from_attribute (const struct GNUNET_RECLAIM_Attribute *attribute)
 
   if (!attrs)
     return NULL;
-  
+
   le = GNUNET_new (struct GNUNET_RECLAIM_AttributeListEntry);
 
   if (!le)
@@ -932,7 +933,7 @@ cb_share_attribute (void *cls,
     internal_attributes_next_iter(attributes);
     return;
   }
-  
+
   internal_attributes_stop_iter(attributes);
 
   GNUNET_free(attributes->name);
@@ -968,7 +969,7 @@ cb_share_attribute (void *cls,
     cb_issue_ticket,
     attributes
   );
-  
+
   GNUNET_RECLAIM_attribute_list_destroy(attrs);
 
 cleanup:
@@ -1082,7 +1083,7 @@ cb_consume_ticket_check (void *cls,
         cont_revoke_ticket,
         tickets
       );
-    
+
     if (tickets->ticket)
     {
       GNUNET_free(tickets->ticket);
@@ -1096,7 +1097,7 @@ cb_consume_ticket_check (void *cls,
     return;
   }
 
-  if ((!attribute) || (! tickets->name) || 
+  if ((!attribute) || (! tickets->name) ||
       (0 != strcmp(tickets->name, attribute->name)))
     return;
 
@@ -1143,7 +1144,7 @@ cb_iterate_ticket_check (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = tickets->handle;
 
-  if ((!rp_uri) || (!(tickets->contact)) || 
+  if ((!rp_uri) || (!(tickets->contact)) ||
       (GNUNET_YES != is_contact_ticket_audience(tickets->contact, rp_uri)))
   {
     internal_tickets_next_iter(tickets);
@@ -1229,7 +1230,7 @@ cb_iterate_ticket (void *cls,
 
   struct GNUNET_CHAT_Handle *handle = tickets->handle;
 
-  if ((!rp_uri) || (!(tickets->contact)) || 
+  if ((!rp_uri) || (!(tickets->contact)) ||
       (GNUNET_YES != is_contact_ticket_audience(tickets->contact, rp_uri)))
   {
     internal_tickets_next_iter(tickets);

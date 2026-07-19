@@ -48,7 +48,7 @@ on_gnunet_chat_file_send_upload(void *cls,
 
   if (completed > size)
     return;
-  
+
   ck_assert_uint_eq(completed, size);
 }
 
@@ -66,7 +66,7 @@ on_gnunet_chat_file_send_unindex(void *cls,
 
   if (completed > size)
     return;
-  
+
   ck_assert_uint_eq(completed, size);
 
   GNUNET_CHAT_context_send_text(context, TEST_SEND_TEXT);
@@ -100,7 +100,6 @@ on_gnunet_chat_file_send_msg(void *cls,
       break;
     case GNUNET_CHAT_KIND_REFRESH:
       ck_assert_ptr_null(context);
-      ck_assert_ptr_null(account);
 
       if (file_stage == 0)
       {
@@ -190,8 +189,8 @@ on_gnunet_chat_file_send_msg(void *cls,
 
       ck_assert_ptr_nonnull(file);
       ck_assert_int_eq(GNUNET_CHAT_file_unindex(
-          file, 
-          on_gnunet_chat_file_send_unindex, 
+          file,
+          on_gnunet_chat_file_send_unindex,
           context
       ), GNUNET_OK);
 

@@ -1,6 +1,6 @@
 /*
    This file is part of GNUnet.
-   Copyright (C) 2021--2024 GNUnet e.V.
+   Copyright (C) 2021--2024, 2026 GNUnet e.V.
 
    GNUnet is free software: you can redistribute it and/or modify it
    under the terms of the GNU Affero General Public License as published
@@ -22,7 +22,9 @@
  * @file gnunet_chat_context_intern.c
  */
 
+#include "gnunet_chat_context.h"
 #include "gnunet_chat_discourse.h"
+#include "gnunet_chat_handle.h"
 #include "gnunet_chat_invitation.h"
 #include "gnunet_chat_message.h"
 
@@ -79,7 +81,7 @@ it_destroy_context_invites (void *cls,
 
   struct GNUNET_CHAT_Context *context = cls;
   struct GNUNET_CHAT_Invitation *invitation = value;
-  
+
   struct GNUNET_CHAT_Handle *handle = context->handle;
 
   GNUNET_CONTAINER_multihashmap_remove(
