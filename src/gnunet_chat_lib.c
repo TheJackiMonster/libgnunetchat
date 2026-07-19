@@ -2690,6 +2690,23 @@ GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file)
 
 
 enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_stop_upload (struct GNUNET_CHAT_File *file)
+{
+  GNUNET_CHAT_VERSION_ASSERT();
+
+  if (!file)
+    return GNUNET_SYSERR;
+
+  if (!file->publish)
+    return GNUNET_SYSERR;
+
+  GNUNET_FS_publish_stop(file->publish);
+  file->publish = NULL;
+  return GNUNET_OK;
+}
+
+
+enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_ready (const struct GNUNET_CHAT_File *file)
 {
   GNUNET_CHAT_VERSION_ASSERT();
@@ -2894,6 +2911,9 @@ GNUNET_CHAT_file_pause_download (struct GNUNET_CHAT_File *file)
   if (!file)
     return GNUNET_SYSERR;
 
+  if (!file->download)
+    return GNUNET_SYSERR;
+
   GNUNET_FS_download_suspend(file->download);
   return GNUNET_OK;
 }
@@ -2907,6 +2927,9 @@ GNUNET_CHAT_file_resume_download (struct GNUNET_CHAT_File *file)
   if (!file)
     return GNUNET_SYSERR;
 
+  if (!file->download)
+    return GNUNET_SYSERR;
+
   GNUNET_FS_download_resume(file->download);
   return GNUNET_OK;
 }
@@ -2918,6 +2941,9 @@ GNUNET_CHAT_file_stop_download (struct GNUNET_CHAT_File *file)
   GNUNET_CHAT_VERSION_ASSERT();
 
   if (!file)
+    return GNUNET_SYSERR;
+
+  if (!file->download)
     return GNUNET_SYSERR;
 
   GNUNET_FS_download_stop(file->download, GNUNET_YES);

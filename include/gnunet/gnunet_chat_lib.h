@@ -1773,6 +1773,15 @@ enum GNUNET_GenericReturnValue
 GNUNET_CHAT_file_is_uploading (const struct GNUNET_CHAT_File *file);
 
 /**
+ * Stops uploading a file from a given <i>file</i> handle.
+ *
+ * @param[in,out] file File handle
+ * @return #GNUNET_OK on success, #GNUNET_SYSERR on failure
+ */
+enum GNUNET_GenericReturnValue
+GNUNET_CHAT_file_stop_upload (struct GNUNET_CHAT_File *file);
+
+/**
  * Returns if a given <i>file</i> handle is currently ready
  * for previewing its content.
  *
