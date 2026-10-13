@@ -151,7 +151,7 @@ on_gnunet_chat_file_send_msg(void *cls,
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_null(filename);
-      ck_assert_uint_eq(file_stage, 4);
+      ck_assert_uint_eq(file_stage, 5);
 
       GNUNET_CHAT_stop(handle);
       break;
@@ -160,6 +160,18 @@ on_gnunet_chat_file_send_msg(void *cls,
       break;
     case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
     case GNUNET_CHAT_KIND_JOIN:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(filename);
+      break;
+    case GNUNET_CHAT_KIND_LEAVE:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_null(filename);
+      ck_assert_uint_eq(file_stage, 4);
+
+      GNUNET_CHAT_disconnect(handle);
+
+      file_stage = 5;
+      break;
     case GNUNET_CHAT_KIND_CONTACT:
       ck_assert_ptr_nonnull(context);
       ck_assert_ptr_nonnull(filename);
@@ -178,7 +190,15 @@ on_gnunet_chat_file_send_msg(void *cls,
       ck_assert_ptr_nonnull(text);
       ck_assert_str_eq(text, TEST_SEND_TEXT);
 
-      GNUNET_CHAT_disconnect(handle);
+      group = GNUNET_CHAT_context_get_group(context);
+
+      ck_assert_ptr_nonnull(group);
+
+      ck_assert_int_eq(
+        GNUNET_CHAT_group_leave(group),
+        GNUNET_OK
+      );
+
       file_stage = 4;
       break;
     case GNUNET_CHAT_KIND_FILE:

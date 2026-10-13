@@ -49,6 +49,7 @@ on_gnunet_chat_discourse_write_msg(void *cls,
   const char *name = GNUNET_CHAT_get_name(handle);
   struct GNUNET_CHAT_DiscourseId discourse_id;
 
+  struct GNUNET_CHAT_Group *group;
   struct GNUNET_CHAT_Discourse *discourse;
   discourse = GNUNET_CHAT_message_get_discourse(message);
 
@@ -85,14 +86,17 @@ on_gnunet_chat_discourse_write_msg(void *cls,
       ck_assert_str_eq(name, TEST_WRITE_ID);
       ck_assert_uint_eq(discourse_stage, 1);
 
-      GNUNET_CHAT_group_create(handle, TEST_WRITE_GROUP);
+      group = GNUNET_CHAT_group_create(handle, TEST_WRITE_GROUP);
+
+      ck_assert_ptr_nonnull(group);
+
       discourse_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
-      ck_assert_uint_eq(discourse_stage, 6);
-      
+      ck_assert_uint_eq(discourse_stage, 7);
+
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
@@ -120,6 +124,15 @@ on_gnunet_chat_discourse_write_msg(void *cls,
 
       discourse_stage = 3;
       break;
+    case GNUNET_CHAT_KIND_LEAVE:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(discourse_stage, 6);
+
+      GNUNET_CHAT_disconnect(handle);
+
+      discourse_stage = 7;
+      break;
     case GNUNET_CHAT_KIND_CONTACT:
       break;
     case GNUNET_CHAT_KIND_DISCOURSE:
@@ -131,7 +144,7 @@ on_gnunet_chat_discourse_write_msg(void *cls,
         TEST_WRITE_DISCOURSE,
         sizeof(discourse_id)
       );
-      
+
       if (GNUNET_YES == GNUNET_CHAT_discourse_is_open(discourse))
       {
         ck_assert_uint_eq(discourse_stage, 3);
@@ -151,7 +164,14 @@ on_gnunet_chat_discourse_write_msg(void *cls,
       {
         ck_assert_uint_eq(discourse_stage, 5);
 
-        GNUNET_CHAT_disconnect(handle);
+        group = GNUNET_CHAT_context_get_group(context);
+
+        ck_assert_ptr_nonnull(group);
+
+        ck_assert_int_eq(
+          GNUNET_CHAT_group_leave(group),
+          GNUNET_OK
+        );
 
         discourse_stage = 6;
       }

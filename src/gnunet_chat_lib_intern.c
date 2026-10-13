@@ -27,6 +27,7 @@
 #include "gnunet_chat_context.h"
 #include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_lib.h"
 
 #include <gnunet/gnunet_common.h>
 #include <gnunet/gnunet_messenger_service.h>
@@ -353,9 +354,16 @@ task_lobby_destruction (void *cls)
     lobbies = lobbies->next;
   }
 
-  lobby->destruction = NULL;
+  struct GNUNET_CHAT_Context *context = lobby->context;
 
+  lobby->destruction = NULL;
   lobby_destroy(lobby);
+
+  if ((! context) ||
+      (GNUNET_OK == GNUNET_CHAT_context_get_status(context)))
+    return;
+
+  context_delete(context, GNUNET_YES);
 }
 
 void

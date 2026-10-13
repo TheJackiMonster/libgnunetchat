@@ -24,9 +24,13 @@
 
 #include "gnunet_chat_lobby.h"
 
+#include "gnunet_chat_group.h"
 #include "gnunet_chat_handle.h"
+#include "gnunet_chat_lib.h"
 #include "gnunet_chat_lobby_intern.c"
+#include "gnunet_chat_util.h"
 #include <gnunet/gnunet_messenger_service.h>
+#include <gnunet/gnunet_util_lib.h>
 
 struct GNUNET_CHAT_Lobby*
 lobby_create (struct GNUNET_CHAT_Handle *handle)
@@ -78,6 +82,7 @@ skip_deletion:
 
 void
 lobby_open (struct GNUNET_CHAT_Lobby *lobby,
+            enum GNUNET_CHAT_LobbyType type,
             struct GNUNET_TIME_Relative delay,
             GNUNET_CHAT_LobbyCallback callback,
             void *cls)
@@ -101,8 +106,8 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
     &key,
     NULL,
     GNUNET_NO,
-    GNUNET_NO,
-    GNUNET_NO
+    GNUNET_CHAT_LOBBY_TYPE_GROUP == type? GNUNET_YES : GNUNET_NO,
+    GNUNET_CHAT_LOBBY_TYPE_FEED == type? GNUNET_YES : GNUNET_NO
   );
 
   struct GNUNET_MESSENGER_Room *room = GNUNET_MESSENGER_open_room(
@@ -125,6 +130,31 @@ lobby_open (struct GNUNET_CHAT_Lobby *lobby,
     GNUNET_MESSENGER_close_room(room);
     return;
   }
+
+  if (GNUNET_CHAT_CONTEXT_TYPE_GROUP == lobby->context->type)
+  {
+    struct GNUNET_CHAT_Group *group;
+    group = group_create_from_context(lobby->handle, lobby->context);
+
+    if (GNUNET_OK != GNUNET_CONTAINER_multihashmap_put(
+        lobby->handle->groups, &(key.hash), group,
+        GNUNET_CONTAINER_MULTIHASHMAPOPTION_UNIQUE_FAST))
+    {
+      group_destroy(group);
+
+      if (GNUNET_YES == GNUNET_CONTAINER_multihashmap_remove(
+          lobby->handle->contexts, &(key.hash), lobby->context))
+      {
+        context_destroy(lobby->context);
+        lobby->context = NULL;
+      }
+
+      GNUNET_MESSENGER_close_room(room);
+      return;
+    }
+  }
+
+  context_write_records(lobby->context);
 
 open_zone:
   util_lobby_name(&(key.hash), &name);

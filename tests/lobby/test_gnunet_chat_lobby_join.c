@@ -57,6 +57,8 @@ on_gnunet_chat_lobby_join_msg(void *cls,
   struct GNUNET_CHAT_Account *account;
   account = GNUNET_CHAT_message_get_account(message);
 
+  struct GNUNET_CHAT_Group *group;
+
   switch (GNUNET_CHAT_message_get_kind(message))
   {
     case GNUNET_CHAT_KIND_WARNING:
@@ -91,6 +93,7 @@ on_gnunet_chat_lobby_join_msg(void *cls,
 
       lobby = GNUNET_CHAT_lobby_open(
         handle,
+        GNUNET_CHAT_LOBBY_TYPE_GROUP,
         1,
         on_gnunet_chat_lobby_join_open,
         handle
@@ -103,7 +106,7 @@ on_gnunet_chat_lobby_join_msg(void *cls,
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
       ck_assert_ptr_null(lobby);
-      ck_assert_uint_eq(lobby_stage, 3);
+      ck_assert_uint_eq(lobby_stage, 4);
 
       GNUNET_CHAT_stop(handle);
       break;
@@ -123,8 +126,27 @@ on_gnunet_chat_lobby_join_msg(void *cls,
       GNUNET_CHAT_lobby_close(lobby);
       lobby = NULL;
 
-      GNUNET_CHAT_disconnect(handle);
+      group = GNUNET_CHAT_context_get_group(context);
+
+      ck_assert_ptr_nonnull(group);
+
+      ck_assert_int_eq(
+        GNUNET_CHAT_group_leave(group),
+        GNUNET_OK
+      );
+
       lobby_stage = 3;
+      break;
+    case GNUNET_CHAT_KIND_LEAVE:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      ck_assert_uint_eq(lobby_stage, 3);
+
+      GNUNET_CHAT_disconnect(handle);
+
+      lobby_stage = 4;
+      break;
+    case GNUNET_CHAT_KIND_CONTACT:
       break;
     default:
       ck_abort();

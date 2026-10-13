@@ -642,6 +642,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri)
 
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
+                        enum GNUNET_CHAT_LobbyType type,
                         unsigned int delay,
                         GNUNET_CHAT_LobbyCallback callback,
                         void *cls)
@@ -667,7 +668,7 @@ GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
     lobbies
   );
 
-  lobby_open(lobbies->lobby, rel, callback, cls);
+  lobby_open(lobbies->lobby, type, rel, callback, cls);
 
   return lobbies->lobby;
 }

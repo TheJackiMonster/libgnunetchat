@@ -55,7 +55,7 @@ struct GNUNET_CONFIGURATION_Handle;
  *                          the #GNUNET_MESSENGER_VERSION of the GNUnet Messenger
  *                          service while the patch version is independent.
  */
-#define GNUNET_CHAT_VERSION 0x000000080000L
+#define GNUNET_CHAT_VERSION 0x000000080001L
 
 #define GNUNET_CHAT_VERSION_MAJOR ((GNUNET_CHAT_VERSION >> 32L) & 0xFFFFL)
 #define GNUNET_CHAT_VERSION_MINOR ((GNUNET_CHAT_VERSION >> 16L) & 0xFFFFL)
@@ -89,6 +89,32 @@ enum GNUNET_CHAT_UriType
    * An unknown type of uri.
    */
   GNUNET_CHAT_URI_TYPE_UNKNOWN = 0 /**< GNUNET_CHAT_URI_TYPE_UNKNOWN */
+};
+
+/**
+ * Enum for the different types of lobbies.
+ */
+enum GNUNET_CHAT_LobbyType
+{
+  /**
+   * The type to open a private chat with a specific contact.
+   */
+  GNUNET_CHAT_LOBBY_TYPE_CONTACT = 1,   /**< GNUNET_CHAT_LOBBY_TYPE_CONTACT */
+
+  /**
+   * The type to open a private group chat with multiple contacts.
+   */
+  GNUNET_CHAT_LOBBY_TYPE_GROUP = 2,     /**< GNUNET_CHAT_LOBBY_TYPE_GROUP */
+
+  /**
+   * The type to open a feed chat.
+   */
+  GNUNET_CHAT_LOBBY_TYPE_FEED = 3,      /**< GNUNET_CHAT_LOBBY_TYPE_FEED */
+
+  /**
+   * An unknown type of lobby.
+   */
+  GNUNET_CHAT_LOBBY_TYPE_UNKNOWN = 0    /**< GNUNET_CHAT_LOBBY_TYPE_UNKNOWN */
 };
 
 /**
@@ -795,6 +821,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri);
  * Opens an empty chat lobby which will expire after a custom <i>delay</i>.
  *
  * @param[in,out] handle Chat handle
+ * @param[in] type Type of lobby
  * @param[in] delay Expiration delay
  * @param[in] callback Callback for the lobby opening
  * @param[in,out] cls Closure for the lobby opening (optional)
@@ -802,6 +829,7 @@ GNUNET_CHAT_uri_destroy (struct GNUNET_CHAT_Uri *uri);
  */
 struct GNUNET_CHAT_Lobby*
 GNUNET_CHAT_lobby_open (struct GNUNET_CHAT_Handle *handle,
+                        enum GNUNET_CHAT_LobbyType type,
                         unsigned int delay,
                         GNUNET_CHAT_LobbyCallback callback,
                         void *cls);

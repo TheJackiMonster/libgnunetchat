@@ -75,12 +75,14 @@ lobby_destroy (struct GNUNET_CHAT_Lobby *lobby);
  * closure.
  *
  * @param[in,out] lobby Chat lobby
+ * @param[in] type Type of lobby to open
  * @param[in] delay Delay to close down the lobby again
  * @param[in] callback Lobby opening callback
  * @param[in,out] cls Closure
  */
 void
 lobby_open (struct GNUNET_CHAT_Lobby *lobby,
+            enum GNUNET_CHAT_LobbyType type,
             struct GNUNET_TIME_Relative delay,
             GNUNET_CHAT_LobbyCallback callback,
             void *cls);

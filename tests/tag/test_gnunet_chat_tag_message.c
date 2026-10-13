@@ -114,7 +114,7 @@ on_gnunet_chat_tag_message_msg(void *cls,
     case GNUNET_CHAT_KIND_LEAVE:
       ck_assert_ptr_nonnull(context);
       ck_assert_uint_eq(tag_stage, 6);
-      
+ 
       GNUNET_CHAT_disconnect(handle);
       tag_stage = 7;
       break;

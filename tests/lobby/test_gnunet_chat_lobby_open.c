@@ -33,17 +33,16 @@ on_gnunet_chat_lobby_open_msg(void *cls,
                               struct GNUNET_CHAT_Message *message)
 {
   static unsigned int lobby_stage = 0;
+  static struct GNUNET_CHAT_Lobby *lobby = NULL;
 
   struct GNUNET_CHAT_Handle *handle = *(
       (struct GNUNET_CHAT_Handle**) cls
   );
 
   ck_assert_ptr_nonnull(handle);
-  ck_assert_ptr_null(context);
   ck_assert_ptr_nonnull(message);
 
   struct GNUNET_CHAT_Account *account;
-  struct GNUNET_CHAT_Lobby *lobby;
 
   account = GNUNET_CHAT_message_get_account(message);
 
@@ -71,15 +70,17 @@ on_gnunet_chat_lobby_open_msg(void *cls,
 
         lobby_stage = 1;
       }
-      
+
       break;
     case GNUNET_CHAT_KIND_LOGIN:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_null(lobby);
       ck_assert_uint_eq(lobby_stage, 1);
 
       lobby = GNUNET_CHAT_lobby_open(
           handle,
+          GNUNET_CHAT_LOBBY_TYPE_CONTACT,
           1,
           NULL,
           NULL
@@ -87,19 +88,47 @@ on_gnunet_chat_lobby_open_msg(void *cls,
 
       ck_assert_ptr_nonnull(lobby);
 
-      GNUNET_CHAT_lobby_close(lobby);
-      GNUNET_CHAT_disconnect(handle);
       lobby_stage = 2;
       break;
     case GNUNET_CHAT_KIND_LOGOUT:
       ck_assert_ptr_null(context);
       ck_assert_ptr_nonnull(account);
-      ck_assert_uint_eq(lobby_stage, 2);
+      ck_assert_ptr_null(lobby);
+      ck_assert_uint_eq(lobby_stage, 4);
 
       GNUNET_CHAT_stop(handle);
       break;
     case GNUNET_CHAT_KIND_UPDATE_ACCOUNT:
       ck_assert_ptr_null(context);
+      ck_assert_ptr_nonnull(account);
+      break;
+    case GNUNET_CHAT_KIND_UPDATE_CONTEXT:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      break;
+    case GNUNET_CHAT_KIND_JOIN:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_nonnull(lobby);
+      ck_assert_uint_eq(lobby_stage, 2);
+
+      GNUNET_CHAT_lobby_close(lobby);
+      lobby = NULL;
+
+      lobby_stage = 3;
+      break;
+    case GNUNET_CHAT_KIND_LEAVE:
+      ck_assert_ptr_nonnull(context);
+      ck_assert_ptr_nonnull(account);
+      ck_assert_ptr_null(lobby);
+      ck_assert_uint_eq(lobby_stage, 3);
+
+      GNUNET_CHAT_disconnect(handle);
+
+      lobby_stage = 4;
+      break;
+    case GNUNET_CHAT_KIND_CONTACT:
+      ck_assert_ptr_nonnull(context);
       ck_assert_ptr_nonnull(account);
       break;
     default:

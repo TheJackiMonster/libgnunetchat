@@ -117,7 +117,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->files = GNUNET_CONTAINER_multihashmap_create(
     initial_map_size_of_handle, GNUNET_NO);
-  
+
   handle->contexts = NULL;
   handle->contacts = NULL;
   handle->groups = NULL;
@@ -125,7 +125,7 @@ handle_create_from_config (const struct GNUNET_CONFIGURATION_Handle* cfg,
 
   handle->arm = GNUNET_ARM_connect(
     handle->cfg,
-    on_handle_arm_connection, 
+    on_handle_arm_connection,
     handle
   );
 
@@ -629,9 +629,9 @@ handle_create_account (struct GNUNET_CHAT_Handle *handle,
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
-    &accounts, 
-    handle, 
-    name, 
+    &accounts,
+    handle,
+    name,
     GNUNET_CHAT_ACCOUNT_CREATION
   );
 
@@ -673,9 +673,9 @@ handle_delete_account (struct GNUNET_CHAT_Handle *handle,
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
-    &accounts, 
-    handle, 
-    NULL, 
+    &accounts,
+    handle,
+    NULL,
     GNUNET_CHAT_ACCOUNT_DELETION
   );
 
@@ -726,9 +726,9 @@ handle_rename_account (struct GNUNET_CHAT_Handle *handle,
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
-    &accounts, 
-    handle, 
-    NULL, 
+    &accounts,
+    handle,
+    NULL,
     GNUNET_CHAT_ACCOUNT_RENAMING
   );
 
@@ -768,9 +768,9 @@ handle_delete_lobby (struct GNUNET_CHAT_Handle *handle,
   struct GNUNET_CHAT_InternalAccounts *accounts = NULL;
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
-    &accounts, 
-    handle, 
-    NULL, 
+    &accounts,
+    handle,
+    NULL,
     GNUNET_CHAT_ACCOUNT_DELETION
   );
 
@@ -843,9 +843,9 @@ handle_update (struct GNUNET_CHAT_Handle *handle)
 
   enum GNUNET_GenericReturnValue result;
   result = update_accounts_operation(
-    &accounts, 
-    handle, 
-    name, 
+    &accounts,
+    handle,
+    name,
     GNUNET_CHAT_ACCOUNT_UPDATING
   );
 
@@ -980,7 +980,7 @@ handle_request_context_by_room (struct GNUNET_CHAT_Handle *handle,
   if ((GNUNET_CHAT_CONTEXT_TYPE_UNKNOWN == context->type) &&
       (GNUNET_YES != context->deleted))
     goto check_type;
-  
+
   return GNUNET_OK;
 
 new_context:
